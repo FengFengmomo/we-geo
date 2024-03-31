@@ -1,0 +1,3 @@
+let EARTH_RADIUS = 6378137.0;
+let EARTH_PERIMETER = 2 * Math.PI * EARTH_RADIUS;
+console.log(EARTH_PERIMETER  * Math.pow(2,-2))

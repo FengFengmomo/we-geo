@@ -1,0 +1,12 @@
+# Dependency directories
+.vscode/
+node_modules/
+examples/
+docs/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+jspm_packages/
+deps/
+readme/
+build/

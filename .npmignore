@@ -1,0 +1,6 @@
+docs/
+examples/
+source/
+readme/**/*
+.github/
+node_modules/

@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "outDir": "./build",
+    "rootDir": "./src",
+    "sourceMap": true,
+    // sourceRoot用于指定调试器应该找到TypeScript文件而不是源文件的位置，这个值会被写进.map文件里
+    // "sourceRoot": "./source",
+    // mapRoot用于指定调试器找到映射文件而非生成文件的位置，指定map文件的根路径，该选项会影响.map文件中的sources属性
+    // "mapRoot": "./source/Main.ts",
+    // preserveModules: true, // 保留模块结构
+    "skipLibCheck": true,
+    "inlineSources": false,
+    "declaration": true,
+    "declarationDir": ".",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "removeComments": true,
+    "alwaysStrict": true,
+    "noImplicitUseStrict": false,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
+    "forceConsistentCasingInFileNames": true,
+    "checkJs": false,
+    "allowJs": false,
+    "esModuleInterop": true,
+    "importHelpers": false
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/examples/**/*",
+    "node_modules/**/*",
+    "docs/**/*",
+    "build/**/*",
+  ]
+}
