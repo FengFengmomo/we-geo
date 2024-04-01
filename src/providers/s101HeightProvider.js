@@ -2,7 +2,7 @@ import { XHRUtils } from "../main";
 
 export class S101HeightProvider {
 	minZoom = 1;
-	maxZoom = 4;
+	maxZoom = 3;
 	constructor(){
 
 	}

@@ -39,7 +39,7 @@ export class MapNodeHeightGeometryS101 extends BufferGeometry
 
 			// The value will be composed of the bits RGB
 			const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-			vertices[j + 1] = value/40;
+			vertices[j + 1] = value/45;
 		}
 
 		// Generate the skirt
@@ -47,6 +47,12 @@ export class MapNodeHeightGeometryS101 extends BufferGeometry
 		if (skirt)
 		{
 			MapNodeGeometry.buildSkirt(width, height, widthSegments, heightSegments, skirtDepth, indices, vertices, normals, uvs);
+		}
+		let count = uvs.length/2;
+		for ( var i = 0, l = count; i < l; i ++ ) {
+			var x = i % 256, y = Math.floor( i / 256);
+			uvs[2*i] = x;
+			uvs[2*i+1] = y;
 		}
 
 		this.setIndex(indices);

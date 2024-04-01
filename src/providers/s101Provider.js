@@ -1,7 +1,7 @@
 
 export class S101Provider {
 	minZoom = 1;
-	maxZoom = 4;
+	maxZoom = 3;
 	constructor(){}
     fetchTile(zoom, x, y)
 	{

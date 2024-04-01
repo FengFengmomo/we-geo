@@ -48,8 +48,10 @@ export class MapNodeGeometry extends BufferGeometry
 
 	static buildPlane(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, indices=[], vertices=[], normals=[], uvs=[])
 	{
-		// Half width X 
-		const widthHalf = width / 2;
+		// Half width X  这里基本只能设置为1，和父节点的相对坐标有关系
+		// 以父节点横向和纵向中间点为坐标原点，（xy坐标），所以作为子节点，在拼接
+		// 的时候，xy坐标就限制在了-0.5到0.5之间，所以这里只能设置为1
+		const widthHalf = width / 2; 
 
 		// Half width Z
 		const heightHalf = height / 2;

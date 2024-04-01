@@ -7,6 +7,7 @@ import {MapView} from '../MapView';
 import {MapNodeHeightGeometryS101} from '../geometries/MapNodeHeightGeometryS101';
 import {CanvasUtils} from '../utils/CanvasUtils';
 import { MapHeightNode } from './MapHeightNode';
+import {MapNodeHeightGeometry} from '../geometries/MapNodeHeightGeometry';
 
 export class MapHeightNodeS101 extends MapNode {
     /**
@@ -62,7 +63,8 @@ export class MapHeightNodeS101 extends MapNode {
 	 * @param material - Material used to render this height node.
 	 * @param geometry - Geometry used to render this height node.
 	 */
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+	// constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false,color: 0xf0f0f0})) 
 	{
 		super(parentNode, mapView, location, level, x, y, geometry, material);
 
@@ -88,53 +90,8 @@ export class MapHeightNodeS101 extends MapNode {
 	 */
 	async loadData()
 	{
-		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
-		{
-			console.warn('Geo-Three: Loading tile outside of provider range.', this);
-
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-			// @ts-ignore
-			this.material.needsUpdate = true;
-			return;
-		}
-
-		try 
-		{
-			const image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
-		
-			if (this.disposed) 
-			{
-				return;
-			}
-			
-			const texture = new Texture(image);
-			texture.generateMipmaps = false;
-			texture.format = RGBAFormat;
-			texture.magFilter = LinearFilter;
-			texture.minFilter = LinearFilter;
-			// texture.wrapS = RepeatWrapping;
-            // texture.wrapT = RepeatWrapping;
-			texture.needsUpdate = true;
-			
-			// @ts-ignore
-			this.material.map = texture;
-		}
-		catch (e) 
-		{
-			if (this.disposed) 
-			{
-				return;
-			}
-			
-			console.warn('Geo-Three: Failed to load node tile data.', this);
-
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-		}
-
-		// @ts-ignore
-		this.material.needsUpdate = true;
+		await super.loadData();
+		this.textureLoaded = true;
 	}
 	
 	/**

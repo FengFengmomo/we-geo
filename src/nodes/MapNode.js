@@ -1,4 +1,4 @@
-import {LinearFilter, Material, Mesh, Texture, Vector3, BufferGeometry, Object3D, RGBAFormat} from 'three';
+import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
 
@@ -274,6 +274,8 @@ export class MapNode extends Mesh
 			texture.magFilter = LinearFilter;
 			texture.minFilter = LinearFilter;
 			texture.needsUpdate = true;
+			texture.wrapS = RepeatWrapping;
+            texture.wrapT = RepeatWrapping;
 			
 			// @ts-ignore
 			this.material.map = texture;
