@@ -1,7 +1,11 @@
 # Dependency directories
 .vscode/
 node_modules/
-examples/
+# examples/
+examples/data/*
+examples/heightdata/*
+examples/heightpng/*
+examples/heightpng_bak/*.png
 docs/
 package-lock.json
 pnpm-lock.yaml

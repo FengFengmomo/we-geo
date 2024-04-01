@@ -1,7 +1,6 @@
 import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
-
 /**
  * Constants to store quad-tree positions.
  */
@@ -262,7 +261,6 @@ export class MapNode extends Mesh
 		try 
 		{
 			const image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
-		
 			if (this.disposed) 
 			{
 				return;
