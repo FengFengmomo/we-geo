@@ -37,6 +37,7 @@ mesh.position.set(position.x, 1000, -position.y);
 mesh.scale.copy(scale);
 mesh.rotation.x = - Math.PI / 2;
 mesh.receiveShadow = true;
+
 mesh.updateMatrixWorld(true);
 scene.add( mesh );
 

@@ -121,15 +121,19 @@ export class MapSphereNode extends MapNode
 		const Constructor = Object.getPrototypeOf(this).constructor;
 
 		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+		node.renderOrder = this.renderOrder;
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+		node.renderOrder = this.renderOrder;
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+		node.renderOrder = this.renderOrder;
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}
 	

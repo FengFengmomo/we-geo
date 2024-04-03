@@ -30611,376 +30611,6 @@
 
 	}
 
-	const Cache = {
-
-		enabled: false,
-
-		files: {},
-
-		add: function ( key, file ) {
-
-			if ( this.enabled === false ) return;
-
-			// console.log( 'THREE.Cache', 'Adding key:', key );
-
-			this.files[ key ] = file;
-
-		},
-
-		get: function ( key ) {
-
-			if ( this.enabled === false ) return;
-
-			// console.log( 'THREE.Cache', 'Checking key:', key );
-
-			return this.files[ key ];
-
-		},
-
-		remove: function ( key ) {
-
-			delete this.files[ key ];
-
-		},
-
-		clear: function () {
-
-			this.files = {};
-
-		}
-
-	};
-
-	class LoadingManager {
-
-		constructor( onLoad, onProgress, onError ) {
-
-			const scope = this;
-
-			let isLoading = false;
-			let itemsLoaded = 0;
-			let itemsTotal = 0;
-			let urlModifier = undefined;
-			const handlers = [];
-
-			// Refer to #5689 for the reason why we don't set .onStart
-			// in the constructor
-
-			this.onStart = undefined;
-			this.onLoad = onLoad;
-			this.onProgress = onProgress;
-			this.onError = onError;
-
-			this.itemStart = function ( url ) {
-
-				itemsTotal ++;
-
-				if ( isLoading === false ) {
-
-					if ( scope.onStart !== undefined ) {
-
-						scope.onStart( url, itemsLoaded, itemsTotal );
-
-					}
-
-				}
-
-				isLoading = true;
-
-			};
-
-			this.itemEnd = function ( url ) {
-
-				itemsLoaded ++;
-
-				if ( scope.onProgress !== undefined ) {
-
-					scope.onProgress( url, itemsLoaded, itemsTotal );
-
-				}
-
-				if ( itemsLoaded === itemsTotal ) {
-
-					isLoading = false;
-
-					if ( scope.onLoad !== undefined ) {
-
-						scope.onLoad();
-
-					}
-
-				}
-
-			};
-
-			this.itemError = function ( url ) {
-
-				if ( scope.onError !== undefined ) {
-
-					scope.onError( url );
-
-				}
-
-			};
-
-			this.resolveURL = function ( url ) {
-
-				if ( urlModifier ) {
-
-					return urlModifier( url );
-
-				}
-
-				return url;
-
-			};
-
-			this.setURLModifier = function ( transform ) {
-
-				urlModifier = transform;
-
-				return this;
-
-			};
-
-			this.addHandler = function ( regex, loader ) {
-
-				handlers.push( regex, loader );
-
-				return this;
-
-			};
-
-			this.removeHandler = function ( regex ) {
-
-				const index = handlers.indexOf( regex );
-
-				if ( index !== - 1 ) {
-
-					handlers.splice( index, 2 );
-
-				}
-
-				return this;
-
-			};
-
-			this.getHandler = function ( file ) {
-
-				for ( let i = 0, l = handlers.length; i < l; i += 2 ) {
-
-					const regex = handlers[ i ];
-					const loader = handlers[ i + 1 ];
-
-					if ( regex.global ) regex.lastIndex = 0; // see #17920
-
-					if ( regex.test( file ) ) {
-
-						return loader;
-
-					}
-
-				}
-
-				return null;
-
-			};
-
-		}
-
-	}
-
-	const DefaultLoadingManager = /*@__PURE__*/ new LoadingManager();
-
-	class Loader {
-
-		constructor( manager ) {
-
-			this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
-
-			this.crossOrigin = 'anonymous';
-			this.withCredentials = false;
-			this.path = '';
-			this.resourcePath = '';
-			this.requestHeader = {};
-
-		}
-
-		load( /* url, onLoad, onProgress, onError */ ) {}
-
-		loadAsync( url, onProgress ) {
-
-			const scope = this;
-
-			return new Promise( function ( resolve, reject ) {
-
-				scope.load( url, resolve, onProgress, reject );
-
-			} );
-
-		}
-
-		parse( /* data */ ) {}
-
-		setCrossOrigin( crossOrigin ) {
-
-			this.crossOrigin = crossOrigin;
-			return this;
-
-		}
-
-		setWithCredentials( value ) {
-
-			this.withCredentials = value;
-			return this;
-
-		}
-
-		setPath( path ) {
-
-			this.path = path;
-			return this;
-
-		}
-
-		setResourcePath( resourcePath ) {
-
-			this.resourcePath = resourcePath;
-			return this;
-
-		}
-
-		setRequestHeader( requestHeader ) {
-
-			this.requestHeader = requestHeader;
-			return this;
-
-		}
-
-	}
-
-	Loader.DEFAULT_MATERIAL_NAME = '__DEFAULT';
-
-	class ImageLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			if ( this.path !== undefined ) url = this.path + url;
-
-			url = this.manager.resolveURL( url );
-
-			const scope = this;
-
-			const cached = Cache.get( url );
-
-			if ( cached !== undefined ) {
-
-				scope.manager.itemStart( url );
-
-				setTimeout( function () {
-
-					if ( onLoad ) onLoad( cached );
-
-					scope.manager.itemEnd( url );
-
-				}, 0 );
-
-				return cached;
-
-			}
-
-			const image = createElementNS( 'img' );
-
-			function onImageLoad() {
-
-				removeEventListeners();
-
-				Cache.add( url, this );
-
-				if ( onLoad ) onLoad( this );
-
-				scope.manager.itemEnd( url );
-
-			}
-
-			function onImageError( event ) {
-
-				removeEventListeners();
-
-				if ( onError ) onError( event );
-
-				scope.manager.itemError( url );
-				scope.manager.itemEnd( url );
-
-			}
-
-			function removeEventListeners() {
-
-				image.removeEventListener( 'load', onImageLoad, false );
-				image.removeEventListener( 'error', onImageError, false );
-
-			}
-
-			image.addEventListener( 'load', onImageLoad, false );
-			image.addEventListener( 'error', onImageError, false );
-
-			if ( url.slice( 0, 5 ) !== 'data:' ) {
-
-				if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
-
-			}
-
-			scope.manager.itemStart( url );
-
-			image.src = url;
-
-			return image;
-
-		}
-
-	}
-
-	class TextureLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			const texture = new Texture();
-
-			const loader = new ImageLoader( this.manager );
-			loader.setCrossOrigin( this.crossOrigin );
-			loader.setPath( this.path );
-
-			loader.load( url, function ( image ) {
-
-				texture.image = image;
-				texture.needsUpdate = true;
-
-				if ( onLoad !== undefined ) {
-
-					onLoad( texture );
-
-				}
-
-			}, onProgress, onError );
-
-			return texture;
-
-		}
-
-	}
-
 	class Light extends Object3D {
 
 		constructor( color, intensity = 1 ) {
@@ -33247,6 +32877,7 @@
 		// @ts-ignore
 		isMesh = true;
 
+
 		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
 		{
 			super(geometry, material);
@@ -33358,6 +32989,7 @@
 				// @ts-ignore
 				this.material.map = MapNode.defaultTexture;
 				// @ts-ignore
+				this.material.depthTest = true;
 				this.material.needsUpdate = true;
 				return;
 			}
@@ -33925,6 +33557,7 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33932,6 +33565,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33939,6 +33573,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33946,6 +33581,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -34234,6 +33870,7 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -34241,6 +33878,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -34248,6 +33886,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -34255,6 +33894,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -34477,15 +34117,19 @@
 			const Constructor = Object.getPrototypeOf(this).constructor;
 
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 		}
 		
@@ -35796,6 +35440,7 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35803,6 +35448,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35810,6 +35456,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35817,6 +35464,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35924,7 +35572,7 @@
 		 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
 		 * @param heightProvider - Map height tile provider, by default no height provider is used.
 		 */
-		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null, renderOrder = 1) 
 		{
 			super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
@@ -35933,7 +35581,7 @@
 			this.provider = provider;
 			this.heightProvider = heightProvider;
 			// 设置根节点，准备开始分裂
-			this.setRoot(root, scale);
+			this.setRoot(root, scale, renderOrder);
 			this.preSubdivide();
 		}
 
@@ -35953,7 +35601,7 @@
 		 * 设置根节点，可以动态修改。
 		 * @param root - Map node to be used as root.
 		 */
-		setRoot(root, scale)
+		setRoot(root, scale, renderOrder)
 		{
 			if (typeof root === 'number') 
 			{
@@ -35991,6 +35639,7 @@
 
 				this.root.mapView = this;
 				this.add(this.root); // 将mapnode添加到mapview中
+				this.root.renderOrder = renderOrder;
 				this.root.initialize(); // 将根mapnode初始化
 			}
 		}
@@ -36409,6 +36058,7 @@
 			return new Promise((resolve, reject) => 
 			{
 				const image = document.createElement('img');
+				// imgage = new Image();
 				image.onload = function() 
 				{
 					BingMapsProvider.convert(image);
@@ -36426,75 +36076,7 @@
 		}
 	}
 
-	class S101Provider {
-		minZoom = 1;
-		maxZoom = 3;
-		constructor(){}
-	    fetchTile(zoom, x, y)
-		{
-			return new Promise((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = '../textures/backgrounddetailed7.jpg';
-			});
-		}
-	}
-
-	class S101HeightProvider {
-		minZoom = 1;
-		maxZoom = 3;
-		constructor(){
-
-		}
-	    
-	    // async fetchTile(zoom, x, y)
-		// {
-			
-		// 	let address = './heightpng/data_'+zoom+'_'+x+'_'+y+'.png';
-		// 	let data =await XHRUtils.get(address)
-		// 	data = JSON.parse(data);
-		// 	data = data.data;
-		// 	if(data == null)
-		// 	{
-		// 		return null;
-		// 	}
-		// 	return data;		
-		// }
-		fetchTile(zoom, x, y)
-		{
-			return new Promise((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = './heightpng/data_'+zoom+'_'+x+'_'+y+'.png';
-			});
-		}
-	}
-
 	// @ts-nocheck
-	function getTextures(filepath){
-		var texture = new TextureLoader().load(filepath);
-		texture.wrapS = RepeatWrapping;
-		texture.wrapT = RepeatWrapping;
-		return texture;
-	}
 	var canvas = document.getElementById('canvas');
 
 	var renderer = new WebGLRenderer({
@@ -36503,99 +36085,35 @@
 	});
 	renderer.setClearColor(0xFFFFFF, 1.0);
 	var scene = new Scene();
-	scene.background = new Color(1, 1, 1, LinearSRGBColorSpace);
+	scene.background = new Color(0.4, 0.4, 0.4, LinearSRGBColorSpace);
 
 	var provider = new BingMapsProvider('', BingMapsProvider.AERIAL);
 
-	var map = new MapView(MapView.PLANAR, provider);
+	var map = new MapView(MapView.PLANAR, provider, undefined, undefined, 1);
+	map.addmessage = "aerial";
+	map.renderOrder = 1;
 	scene.add(map);
 	map.updateMatrixWorld(true);
 
-	// add model
 
-	var texture = getTextures("js/textures/backgrounddetailed7.jpg");
-	var material = new MeshPhongMaterial( { color: 0xf0f0f0 ,map: texture} );
-
-	var geometry = new PlaneGeometry(2000,2000,2000,2000);
-	var JsonDemLoader = function(filepath){
-		this.sampleData = null;
-		this.width = 0;
-		this.height = 0;
-		this.min = 0;
-		this.max = 0;
-		this.firstRowSum = 0; // number of vertice after travelling through the first row (considering we don't use the last col)
-		this.adjacentVerticesPerVertex = [];  // 所有点的邻接点
-		this.geometry = null;
-
-		// meters per pixel (SRTM3 spec)
-		this._groundResolution = 20.;
-		this._init(filepath);
-		console.log(this);
-	};
-
-
-
-	JsonDemLoader.prototype._init = function(filepath){
-		var that = this;
-
-		$.ajax({
-			url: filepath,
-			dataType: 'json',
-			async: false,
-			//data: myData,
-			success: function(json) {
-				that.sampleData = json.data;
-				that.width = json.size.width;
-				that.height = json.size.height;
-				that.min = json.min == -32768 ? 0 : json.min;
-				that.max = json.max;
-				that.firstRowSum = (that.width * 2) - 1;
-			}
-		});
-	};
-	var jsonDemLoader = new JsonDemLoader("/examples/data/testJson_2048x2048.json");
-	geometry.rotateX( - Math.PI / 2 );
-	var positions = geometry.attributes.position;
-	var uvs = geometry.attributes.uv.array;
-
-	for ( var i = 0, l = positions.count; i < l; i ++ ) {
-		var x = i % 2001, y = Math.floor( i / 2001 );
-		positions.setY( i, jsonDemLoader.sampleData[2000-x][y]/45);
-		uvs[2*i] = x;
-		uvs[2*i+1] = y;
-		//console.log(jsonDemLoader.sampleData[x][y]);
-		//console.log(x+" "+y);
-	}
-	geometry.computeVertexNormals();
-	mesh = new Mesh( geometry, material );
-	var tileWidth = UnitsUtils.tileWidth(12);
-	var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
-	var scale = new Vector3(tileWidth, 1.0, tileWidth);
-	mesh.position.set(position.x, 1000, -position.y);
-	mesh.scale.copy(scale);
-	mesh.updateMatrixWorld(true);
-	scene.add( mesh );
-
-	var mesh = new Mesh( new PlaneGeometry( 2000, 2000 ), new MeshPhongMaterial( { color: 0x999999, depthWrite: false} ) );
-	mesh.position.set(position.x, 1000, -position.y);
-	mesh.scale.copy(scale);
-	mesh.rotation.x = - Math.PI / 2;
-	mesh.receiveShadow = true;
-	mesh.updateMatrixWorld(true);
-	scene.add( mesh );
-	scene.add( mesh );
-	// add end
-
-
-	var s101HeightProvider = new S101HeightProvider();
-	var s101Provider = new S101Provider();
-	var tileWidth = UnitsUtils.tileWidth(12);
-	var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
-	var scale = new Vector3(tileWidth, 1.0, tileWidth);
-	var map2 = new MapView(MapView.HEIGHTS101, s101Provider, s101HeightProvider,scale);
-	map2.position.set(position.x, 1000, -position.y);
-	scene.add(map2);
-	map2.updateMatrixWorld(true);
+	// var s101HeightProvider = new S101HeightProvider();
+	// var s101Provider = new S101Provider();
+	// var tileWidth = UnitsUtils.tileWidth(12)
+	// var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
+	// var scale = new Vector3(tileWidth, 1.0, tileWidth);
+	// var map2 = new MapView(MapView.HEIGHTS101, s101Provider, s101HeightProvider,scale);
+	// map2.position.set(position.x, 1000, -position.y);
+	// scene.add(map2);
+	// map2.updateMatrixWorld(true);
+	var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
+	var map = new MapView(MapView.PLANAR, provider,undefined, undefined, 2);
+	map.addmessage = "road";
+	// https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
+	// 值越小越先渲染，但越容易被覆盖
+	map.renderOrder = 2;
+	// map.root.position.y = 2000;
+	map.updateMatrixWorld(true);
+	scene.add(map);
 
 
 	var camera = new PerspectiveCamera(80, 1, 0.1, 1e12);
@@ -36616,12 +36134,10 @@
 
 	var light = new AmbientLight(0x404040);
 
-	light.position.set(position.x, 1200, -position.y);
 
 	scene.add(light);
 	light = new DirectionalLight(0xFFFFFF);
 
-	light.position.set(position.x, 1200, -position.y);
 	// light.target = map2;
 	scene.add(light);
 	// scene.add(new AmbientLight(0x404040));

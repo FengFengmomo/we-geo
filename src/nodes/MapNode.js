@@ -143,6 +143,7 @@ export class MapNode extends Mesh
 	// @ts-ignore
 	isMesh = true;
 
+
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
 	{
 		super(geometry, material);
@@ -254,6 +255,7 @@ export class MapNode extends Mesh
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
 			// @ts-ignore
+			this.material.depthTest = true;
 			this.material.needsUpdate = true;
 			return;
 		}

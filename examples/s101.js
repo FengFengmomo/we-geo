@@ -32877,6 +32877,7 @@
 		// @ts-ignore
 		isMesh = true;
 
+
 		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
 		{
 			super(geometry, material);
@@ -32988,6 +32989,7 @@
 				// @ts-ignore
 				this.material.map = MapNode.defaultTexture;
 				// @ts-ignore
+				this.material.depthTest = true;
 				this.material.needsUpdate = true;
 				return;
 			}
@@ -33555,6 +33557,7 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33562,6 +33565,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33569,6 +33573,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33576,6 +33581,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33864,6 +33870,7 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33871,6 +33878,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33878,6 +33886,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -33885,6 +33894,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -34107,15 +34117,19 @@
 			const Constructor = Object.getPrototypeOf(this).constructor;
 
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 		}
 		
@@ -35426,6 +35440,7 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35433,6 +35448,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35440,6 +35456,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35447,6 +35464,7 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -35554,7 +35572,7 @@
 		 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
 		 * @param heightProvider - Map height tile provider, by default no height provider is used.
 		 */
-		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null, renderOrder = 1) 
 		{
 			super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
@@ -35563,7 +35581,7 @@
 			this.provider = provider;
 			this.heightProvider = heightProvider;
 			// 设置根节点，准备开始分裂
-			this.setRoot(root, scale);
+			this.setRoot(root, scale, renderOrder);
 			this.preSubdivide();
 		}
 
@@ -35583,7 +35601,7 @@
 		 * 设置根节点，可以动态修改。
 		 * @param root - Map node to be used as root.
 		 */
-		setRoot(root, scale)
+		setRoot(root, scale, renderOrder)
 		{
 			if (typeof root === 'number') 
 			{
@@ -35621,6 +35639,7 @@
 
 				this.root.mapView = this;
 				this.add(this.root); // 将mapnode添加到mapview中
+				this.root.renderOrder = renderOrder;
 				this.root.initialize(); // 将根mapnode初始化
 			}
 		}
@@ -36039,6 +36058,7 @@
 			return new Promise((resolve, reject) => 
 			{
 				const image = document.createElement('img');
+				// imgage = new Image();
 				image.onload = function() 
 				{
 					BingMapsProvider.convert(image);
@@ -36151,6 +36171,7 @@
 	mesh.scale.copy(scale);
 	mesh.rotation.x = - Math.PI / 2;
 	mesh.receiveShadow = true;
+
 	mesh.updateMatrixWorld(true);
 	scene.add( mesh );
 
