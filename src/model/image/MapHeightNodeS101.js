@@ -1,13 +1,13 @@
 import {MeshPhongMaterial, Vector3, Raycaster,Texture,RepeatWrapping} from 'three';
-import {MapNodeGeometry} from '../geometries/MapNodeGeometry';
-import {MapNode, QuadTreePosition} from './MapNode';
-import {MapPlaneNode} from './MapPlaneNode';
-import {UnitsUtils} from '../utils/UnitsUtils';
-import {MapView} from '../MapView';
-import {MapNodeHeightGeometryS101} from '../geometries/MapNodeHeightGeometryS101';
-import {CanvasUtils} from '../utils/CanvasUtils';
-import { MapHeightNode } from './MapHeightNode';
-import {MapNodeHeightGeometry} from '../geometries/MapNodeHeightGeometry';
+import {MapNodeGeometry} from '../../geometries/MapNodeGeometry';
+import {MapNode, QuadTreePosition} from '../../nodes/MapNode';
+import {MapPlaneNode} from '../../nodes/MapPlaneNode';
+import {UnitsUtils} from '../../utils/UnitsUtils';
+import {MapView} from '../../MapView';
+import {MapNodeHeightGeometryS101} from './MapNodeHeightGeometryS101';
+import {CanvasUtils} from '../../utils/CanvasUtils';
+import { MapHeightNode } from '../../nodes/MapHeightNode';
+import {MapNodeHeightGeometry} from '../../geometries/MapNodeHeightGeometry';
 
 export class MapHeightNodeS101 extends MapNode {
     /**
@@ -64,9 +64,9 @@ export class MapHeightNodeS101 extends MapNode {
 	 * @param geometry - Geometry used to render this height node.
 	 */
 	// constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false,color: 0xf0f0f0})) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false,color: 0xf0f0f0})) 
 	{
-		super(parentNode, mapView, location, level, x, y, geometry, material);
+		super(parentNode, mapView, location, bbox, level, x, y, geometry, material);
 
 		this.isMesh = true;
 		this.visible = false;
@@ -116,7 +116,7 @@ export class MapHeightNodeS101 extends MapNode {
 
 		try 
 		{
-			const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+			const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y, this.bbox);
 			if (this.disposed) 
 			{
 				return;
@@ -147,10 +147,11 @@ export class MapHeightNodeS101 extends MapNode {
 	{
 		const level = this.level + 1;
 		const Constructor = Object.getPrototypeOf(this).constructor;
+		let bboxs = this.calculateChildLatLon();
 
 		const x = this.x * 2;
 		const y = this.y * 2;
-		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(-0.25, 0, -0.25);
 		node.renderOrder = this.renderOrder;
@@ -158,7 +159,7 @@ export class MapHeightNodeS101 extends MapNode {
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, -0.25);
 		node.renderOrder = this.renderOrder;
@@ -166,7 +167,7 @@ export class MapHeightNodeS101 extends MapNode {
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(-0.25, 0, 0.25);
 		node.renderOrder = this.renderOrder;
@@ -174,7 +175,7 @@ export class MapHeightNodeS101 extends MapNode {
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, 0.25);
 		node.renderOrder = this.renderOrder;

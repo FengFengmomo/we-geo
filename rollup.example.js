@@ -18,22 +18,22 @@ export default [
 	// 		}
 	// 	]
 	// },
-	{
-		input: 'src/examples/s101.js',
-		plugins: [
-			resolve(),
-			typescript({
-				tsconfig: './tsconfig.examples.json',
-			})
-		],
-		output: [
-			{
-				format: 'iife',
-				file: 'examples/s101.js',
-				indent: '\t'
-			}
-		]
-	},
+	// {
+	// 	input: 'src/examples/s101.js',
+	// 	plugins: [
+	// 		resolve(),
+	// 		typescript({
+	// 			tsconfig: './tsconfig.examples.json',
+	// 		})
+	// 	],
+	// 	output: [
+	// 		{
+	// 			format: 'iife',
+	// 			file: 'examples/s101.js',
+	// 			indent: '\t'
+	// 		}
+	// 	]
+	// },
 	{
 		input: 'src/examples/s101complete.js',
 		plugins: [

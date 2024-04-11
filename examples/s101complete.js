@@ -32735,6 +32735,110 @@
 		}
 	}
 
+	class WMSProvider {
+	    constructor(){}
+	    // 只要是WMTS标准的瓦片格式都应该继承这个类;以在level 1时能正确分类 
+	    // 增加这个判断的意义在于，某些WMTS标准在level 1 层的图片数量不一致;
+			// 比如WMTS标准 level 1 层的图片数量是 2x1，而很多tile服务器的level 1图片数量是 2x2;
+	// 		if (level === 1 && this.mapView.provider instanceof WMSProvider){
+	// 			return;
+	// 		}
+	}
+
+	/*
+	 *                        _oo0oo_
+	 *                       o8888888o
+	 *                       88" . "88
+	 *                       (| -_- |)
+	 *                       0\  =  /0
+	 *                     ___/`---'\___
+	 *                   .' \\|     |// '.
+	 *                  / \\|||  :  |||// \
+	 *                 / _||||| -:- |||||- \
+	 *                |   | \\\  - /// |   |
+	 *                | \_|  ''\---/''  |_/ |
+	 *                \  .-\__  '-'  ___/-. /
+	 *              ___'. .'  /--.--\  `. .'___
+	 *           ."" '<  `.___\_<|>_/___.' >' "".
+	 *          | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+	 *          \  \ `_.   \_ __\ /__ _/   .-` /  /
+	 *      =====`-.____`.___ \_____/___.-`___.-'=====
+	 *                        `=---='
+	 * 
+	 * 
+	 *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 * 
+	 *            佛祖保佑     永不宕机     永无BUG
+	 * 
+	 *        佛曰:  
+	 *                写字楼里写字间，写字间里程序员；  
+	 *                程序人员写程序，又拿程序换酒钱。  
+	 *                酒醒只在网上坐，酒醉还来网下眠；  
+	 *                酒醉酒醒日复日，网上网下年复年。  
+	 *                但愿老死电脑间，不愿鞠躬老板前；  
+	 *                奔驰宝马贵者趣，公交自行程序员。  
+	 *                别人笑我忒疯癫，我笑自己命太贱；  
+	 *                不见满街漂亮妹，哪个归得程序员？
+	 */
+
+	class GeoserverWMSProvider extends WMSProvider{
+		mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
+	    minZoom = 1;
+	    maxZoom = 13;
+	    tileSize = 256;
+
+		// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
+
+	    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
+	    // %3A 表示冒号
+	    // %2F 表示斜杠
+	    // %20 表示空格
+	    // %5F 表示下划线
+		// %3C 表示<
+		// %3E 表示>
+		// %2C 表示，
+	    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
+		url = 'http://127.0.0.1:8080/geoserver/xinjiang/wms?service=WMS&version=1.1.0&request=GetMap&layers=xinjiang:xinjiang_rgb_remake&bbox={bbox}&width=256&height=256&srs=EPSG:4326&styles=&Format=image/png&format=application/openlayers'
+		constructor(options) {
+			super(options);
+	        Object.assign(this, options);
+	    }
+	    fetchTile(bbox)
+		{
+			// console.log("geoserver:fetchtile:before",zoom, x, y);
+			// y = Math.pow(2, zoom+1) - y - 1;
+			// Number.parseInt
+			// let extra = y %2;
+			// y = (y-extra)/2 + extra;
+			// x = Math.pow(2, zoom+1) - x + 1;
+			// console.log("geoserver:fetchtile",zoom, x, y);
+	        // let urlTemp = this.url.replace('{z}', zoom-1).replace('{x}', x).replace('{y}', y);
+			if(bbox === null){
+				return null;
+			}
+			// 传输bbox的方式有两种，【左下角，右上角】【右下角，左上角】，同时是（经度，维度）的组合方式
+			// 当前bbox存放的是（维度，经度）的组合方式
+			// 实际测试应该是 【左下角，右上角】方式
+			// bbox.reverse();
+			let box = [bbox[1], bbox[2], bbox[3], bbox[0]];
+	        let urlTemp = this.url.replace('{bbox}', box.join(","));
+			return new Promise((resolve, reject) => 
+			{
+				const image = document.createElement('img');
+				image.onload = function() 
+				{
+					resolve(image);
+				};
+				image.onerror = function() 
+				{
+					reject();
+				};
+				image.crossOrigin = 'Anonymous';
+				image.src = urlTemp;
+			});
+		}
+	}
+
 	/**
 	 * Constants to store quad-tree positions.
 	 */
@@ -32820,6 +32924,15 @@
 		 */
 		y;
 
+		static baseBbox = [90, -180, -90, 180];
+		static wmtsBbox = [[90, -180, -90, 0],[90, 0, -90, 180]];
+		/**
+		 * Bounding box of the map node.
+		 * [topleft, bottomright]
+		 * [左上角【维度，经度】，右下角【纬度，经度】]
+		 */
+		bbox;
+
 		/**
 		 * Variable to check if the node is subdivided.
 		 *
@@ -32878,7 +32991,7 @@
 		isMesh = true;
 
 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = null, material = null) 
 		{
 			super(geometry, material);
 
@@ -32890,6 +33003,7 @@
 			this.level = level;
 			this.x = x;
 			this.y = y;
+			this.bbox = bbox;
 
 			this.initialize();
 		}
@@ -32919,7 +33033,8 @@
 			// 先计算与，后计算或
 			// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂，这里 最后一个判断应该不对
 			// 每次要么加载四个，要么不加载，不会出现三个或者两个、一个的情况，所以这种判断不太对。
-			if (this.children.length > 0 || this.level + 1 > maxZoom || this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens)
+			if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
+			// if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens && !(this.mapView.provider instanceof WMSProvider)) )
 			{
 				return;
 			}
@@ -32996,7 +33111,12 @@
 
 			try 
 			{
-				const image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+				let image;
+				if(this.mapView.provider instanceof GeoserverWMSProvider){
+					image = await this.mapView.provider.fetchTile(this.bbox);
+				} else {
+					image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
+				}
 				if (this.disposed) 
 				{
 					return;
@@ -33029,6 +33149,28 @@
 
 			// @ts-ignore
 			this.material.needsUpdate = true;
+		}
+
+		/**
+		 * 计算孩子的经纬度范围bbox
+		 */
+		/**
+		 * Bounding box of the map node.
+		 * [topleft, bottomright]
+		 * [左上角【维度，经度】，右下角【纬度，经度】]
+		 */
+		calculateChildLatLon(){
+			let boxs = new Array(4);
+			let top = this.bbox[0], left = this.bbox[1];
+			let bottom = this.bbox[2], right = this.bbox[3];
+			let center = new Array(2);
+			center[0] = ((top - bottom) / 2) + bottom; // 瓦片中心点维度
+			center[1] = ((left - right) / 2) + right; // 瓦片中心点经度
+			boxs[QuadTreePosition.topLeft] = [top,left,center[0],center[1]];
+			boxs[QuadTreePosition.topRight] = [top, center[1], center[0], right];
+			boxs[QuadTreePosition.bottomLeft] = [center[0],left, bottom,center[1]];
+			boxs[QuadTreePosition.bottomRight] = [center[0],center[1],bottom,right];
+			return boxs;
 		}
 
 		/**
@@ -33354,11 +33496,13 @@
 	{
 		/**
 	     * Latitude in degrees. Range from -90° to 90°.
+		 * 维度
 	     */
 		latitude;
 
 		/**
-	     * Latitude in degrees. Range from -180° to 180°.
+	     * longitude in degrees. Range from -180° to 180°.
+		 * 经度
 	     */
 		longitude;
 
@@ -33514,14 +33658,22 @@
 		}
 	}
 
+	/*
+	 * @Author: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
+	 * @Date: 2024-03-28 17:43:14
+	 * @LastEditors: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
+	 * @LastEditTime: 2024-04-10 21:44:55
+	 * @FilePath: \we-geo\src\nodes\MapPlaneNode.js
+	 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+	 */
 	/**
 	 * Represents a basic plane tile node.
 	 */
 	class MapPlaneNode extends MapNode 
 	{
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
 		{
-			super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false}));
+			super(parentNode, mapView, location, bbox, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false}));
 
 			this.matrixAutoUpdate = false;
 			this.isMesh = true;
@@ -33553,8 +33705,9 @@
 			const y = this.y * 2;
 
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			let bboxs = this.calculateChildLatLon();
+
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -33562,15 +33715,17 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
+			
+			
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -33578,7 +33733,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -33586,6 +33741,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 		}
+		
 
 		/**
 		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
@@ -33777,9 +33933,9 @@
 		 * @param material - Material used to render this height node.
 		 * @param geometry - Geometry used to render this height node.
 		 */
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
 		{
-			super(parentNode, mapView, location, level, x, y, geometry, material);
+			super(parentNode, mapView, location, bbox, level, x, y, geometry, material);
 
 			this.isMesh = true;
 			this.visible = false;
@@ -33830,7 +33986,7 @@
 
 			try 
 			{
-				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y, this.bbox);
 	 
 				if (this.disposed) 
 				{
@@ -33864,10 +34020,10 @@
 		{
 			const level = this.level + 1;
 			const Constructor = Object.getPrototypeOf(this).constructor;
-
+			let bboxs = this.calculateChildLatLon();
 			const x = this.x * 2;
 			const y = this.y * 2;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -33875,7 +34031,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -33883,7 +34039,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -33891,7 +34047,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -34029,9 +34185,9 @@
 		 */
 		static segments = 80;
 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
 		{
-			super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+			super(parentNode, mapView, location,bbox, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
 		
 			this.applyScaleNode();
 		
@@ -34115,20 +34271,20 @@
 			const y = this.y * 2;
 
 			const Constructor = Object.getPrototypeOf(this).constructor;
-
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			let bboxs = this.calculateChildLatLon();
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 		}
@@ -35351,9 +35507,9 @@
 		 * @param geometry - Geometry used to render this height node.
 		 */
 		// constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false,color: 0xf0f0f0})) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false,color: 0xf0f0f0})) 
 		{
-			super(parentNode, mapView, location, level, x, y, geometry, material);
+			super(parentNode, mapView, location, bbox, level, x, y, geometry, material);
 
 			this.isMesh = true;
 			this.visible = false;
@@ -35403,7 +35559,7 @@
 
 			try 
 			{
-				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y, this.bbox);
 				if (this.disposed) 
 				{
 					return;
@@ -35434,10 +35590,11 @@
 		{
 			const level = this.level + 1;
 			const Constructor = Object.getPrototypeOf(this).constructor;
+			let bboxs = this.calculateChildLatLon();
 
 			const x = this.x * 2;
 			const y = this.y * 2;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -35445,7 +35602,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -35453,7 +35610,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -35461,7 +35618,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -35564,6 +35721,11 @@
 		 * Should only be used if the child generation process is time consuming. Should be kept off unless required.
 		 */
 		cacheTiles = false;
+		
+		// 全局共享变量，设置imageLayer的y值， 随着添加顺序越靠后，在屏幕上显示越靠前
+		static order = 1;
+
+		imageLayers = [];
 
 		/**
 		 * Constructor for the map view objects.
@@ -35572,7 +35734,7 @@
 		 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
 		 * @param heightProvider - Map height tile provider, by default no height provider is used.
 		 */
-		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null, renderOrder = 1) 
+		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
 		{
 			super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
@@ -35581,7 +35743,7 @@
 			this.provider = provider;
 			this.heightProvider = heightProvider;
 			// 设置根节点，准备开始分裂
-			this.setRoot(root, scale, renderOrder);
+			this.setRoot(root, scale);
 			this.preSubdivide();
 		}
 
@@ -35595,13 +35757,87 @@
 		};
 
 		/**
+		 * 添加imageLayer， 传入的root为imageLayer的根节点
+		 * @param {*} root root为数字，或者具体的node
+		 * @param {*} provider 贴图提供器
+		 * @param {*} heightProvider 高程提供器
+		 */
+		addImageLayer(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null){
+			if (typeof root === 'number') 
+			{
+				if (!MapView.mapModes.has(root)) 
+				{
+					throw new Error('Map mode ' + root + ' does is not registered.');
+				}
+
+				const rootConstructor = MapView.mapModes.get(root);
+
+				// @ts-ignore
+				root = new rootConstructor(null, this);
+			}
+			if (this.root !== null) 
+			{
+				this.remove(this.root);
+			}
+			// Initialize root node
+			if (this.root !== null) 
+			{
+				// @ts-ignore
+				this.geometry = this.root.constructor.baseGeometry;
+				// @ts-ignore
+				if (scale === null)
+					this.scale.copy(this.root.constructor.baseScale);
+				else
+					this.scale.copy(scale);
+
+				this.root.mapView = this;
+				this.add(this.root); // 将mapnode添加到mapview中
+				order++;
+				this.root.renderOrder = MapView.order;
+				this.root.initialize(); // 将根mapnode初始化
+			}
+			this.imageLayers.push(root);
+		}
+
+		/**
+		 * 移除imageLayer， 传入的root为imageLayer的根节点
+		 * @param {*} root 
+		 * @returns 
+		 */
+		removeImageLayer(root){
+		    if (this.root === null){
+				return true;
+			}
+			// 将mesh 设置为不可见，设置为不是mesh属性
+			root.visible = false;
+			root.isMesh = false;
+			this.remove(root);
+		}
+
+		/**
+		 * 通过索引获取imageLayer
+		 * @param {*} index 
+		 * @returns 
+		 */
+		getImageLayer(index){
+		    if (typeof index !== 'number'){
+				console.log('getImageLayer index must be a number');
+				return null;
+			}
+			if (index < 0 || index >= this.imageLayers.length){
+			    console.log('getImageLayer index out of range');
+			}
+			return this.imageLayers[index];
+		}
+
+		/**
 		 * Set the root of the map view.
 		 *
 		 * Is set by the constructor by default, can be changed in runtime.
 		 * 设置根节点，可以动态修改。
 		 * @param root - Map node to be used as root.
 		 */
-		setRoot(root, scale, renderOrder)
+		setRoot(root, scale)
 		{
 			if (typeof root === 'number') 
 			{
@@ -35638,8 +35874,9 @@
 					this.scale.copy(scale);
 
 				this.root.mapView = this;
+				this.root.bbox = MapNode.baseBbox;
 				this.add(this.root); // 将mapnode添加到mapview中
-				this.root.renderOrder = renderOrder;
+				this.root.renderOrder = MapView.order;
 				this.root.initialize(); // 将根mapnode初始化
 			}
 		}
@@ -35896,6 +36133,14 @@
 		}
 	}
 
+	class ErrorCode {
+	    static  UNKNOWN_ERROR = 'UNKNOWN_ERROR';
+	    static  INVALID_REQUEST = 'INVALID_REQUEST';
+	    // 不同类型的错误用不同的数字进行开头
+	    static  ImageConvert = '10001';
+	    static  ImageDownload = '10002';
+	}
+
 	/**
 	 * Bing maps tile provider.
 	 *
@@ -36036,7 +36281,7 @@
 			return quad;
 		}
 
-		static convert(image){
+		static convert(image, resolve, reject){
 			let imageSize = 256;
 			const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
 			const context = canvas.getContext('2d');
@@ -36051,6 +36296,22 @@
 				data[i+1] = gray;
 				data[i+2] = gray;	
 			}
+			// context.putImageData(imageData, 0, 0);
+			// 此处仅仅是修改了画布上的数据。
+			// 如何生成一个图片对象并返回。
+			var img = new Image();
+			img.onload = () => {
+			// 画图片
+				ctx.drawImage(img, 60, 0);
+				// toImage
+				var dataImg = new Image();
+				dataImg.src = canvas.toDataURL('image/png');
+				resolve(dataImg);
+			};
+			img.onerror = function() {
+					reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
+			};
+
 		}
 
 		fetchTile(zoom, x, y)
@@ -36061,7 +36322,8 @@
 				// imgage = new Image();
 				image.onload = function() 
 				{
-					BingMapsProvider.convert(image);
+					// BingMapsProvider.convert(image);
+					// 这里这个convert先禁用。
 					resolve(image);
 				};
 				image.onerror = function() 
@@ -36069,10 +36331,116 @@
 					reject();
 				};
 				image.crossOrigin = 'Anonymous';
+				console.log("bingmaps:",zoom, x, y);
 				image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
 				// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
 				// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
 			});
+		}
+	}
+
+	//http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
+
+	class GeoserverWMTSProvider extends WMSProvider{
+		mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
+	    minZoom = 0;
+	    maxZoom = 13;
+	    tileSize = 256;
+		/**
+		 * 使用这种zxy的方式进行切分数据
+		 * 
+		 * // 使用该方式计算出来的结果,y的方向是反的，无法直接使用。
+		 */
+		// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
+
+	    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
+	    // %3A 表示冒号
+	    // %2F 表示斜杠
+	    // %20 表示空格
+	    // %5F 表示下划线
+		// %3C 表示<
+		// %3E 表示>
+		// %2C 表示，
+		offset = [0,0,0,1,2,3,6,12,24,48,96,192,384,768,1536,3072,6144,12288,24576,49152,98304,196608];
+	    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
+	    url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang&style=&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}';    
+		constructor(options) {
+			super(options);
+	        Object.assign(this, options);
+	    }
+	    fetchTile(zoom, x, y, bbox)
+		{
+			if(zoom < 0){
+				return;
+			}
+			// console.log("geoserver:fetchtile:before",zoom, x, y);
+			// // style 1 使当前缩放等级减一
+			// // zoom = zoom-1;
+			// // y = y - Math.pow(2, zoom-1);
+			// // 计算中心点的经纬度
+			// let center = [(bbox[0]-bbox[2])/2+bbox[2], (bbox[3]-bbox[1])/2+bbox[1]];
+			// console.log("geoserver:fetchtile:center",center);
+			// let [cx,cy] = this.degToTile(center[1], center[0], (zoom+1));
+			// // style 2 保持当前缩放等级, 对y减去相应的偏移
+			// y = y - this.offset[zoom];
+			// let extra = x%2;
+			// x = (x-extra)*2 + extra;
+			console.log("geoserver:fetchtile",zoom, x, y);
+			// console.log("geoserver:translate",zoom, cx, cy);
+	        let urlTemp = this.url.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
+			
+			return new Promise((resolve, reject) => 
+			{
+				const image = document.createElement('img');
+				image.onload = function() 
+				{
+					resolve(image);
+				};
+				image.onerror = function() 
+				{
+					reject();
+				};
+				image.crossOrigin = 'Anonymous';
+				image.src = urlTemp;
+			});
+		}
+
+		/**
+		 * 
+		 * @param {*} lon 经度
+		 * @param {*} lat 维度
+		 * @param {*} zoom 缩放等级
+		 * @returns 
+		 */
+		degToTile(lon, lat, zoom){
+
+			let n = Math.pow(2, zoom);
+			let cell = 360/n;
+			let x = Math.floor((lon + 180)/cell);
+			let y = Math.floor((lat + 90)/cell);
+		
+			if( x < 0){
+				x = 0;
+			}
+			if( x > n-1){
+				x=  n-1;
+			}
+			if( y < 0){
+				y = 0;
+			}
+			if( y > n-1){
+				y = n-1;
+			}
+		
+			if (zoom > 1){
+				if(y >= n/4 *3){
+					y = parseInt(n/4 *3) - 1;
+				}
+				if (y < n/4){
+					y = parseInt(n/4);
+				}
+			}
+			return [x,y];
 		}
 	}
 
@@ -36089,15 +36457,11 @@
 
 	var provider = new BingMapsProvider('', BingMapsProvider.AERIAL);
 
-	var map = new MapView(MapView.PLANAR, provider, undefined, undefined, 1);
+	var map = new MapView(MapView.PLANAR, provider);
 	map.addmessage = "aerial";
 	map.renderOrder = 1;
-	scene.add(map);
+	// scene.add(map);
 	map.updateMatrixWorld(true);
-
-
-	// var s101HeightProvider = new S101HeightProvider();
-	// var s101Provider = new S101Provider();
 	// var tileWidth = UnitsUtils.tileWidth(12)
 	// var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
 	// var scale = new Vector3(tileWidth, 1.0, tileWidth);
@@ -36105,13 +36469,16 @@
 	// map2.position.set(position.x, 1000, -position.y);
 	// scene.add(map2);
 	// map2.updateMatrixWorld(true);
-	var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
-	var map = new MapView(MapView.PLANAR, provider,undefined, undefined, 2);
-	map.addmessage = "road";
+	// var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
+	// map.addImageLayer(MapView.PLANAR, provider)
+	var provider = new GeoserverWMTSProvider();
+	// var provider = new CustomMapsProvider();
+	var map = new MapView(MapView.PLANAR , provider);
+	map.addmessage = "xinjiang";
 	// https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
 	// 值越小越先渲染，但越容易被覆盖
-	map.renderOrder = 2;
-	// map.root.position.y = 2000;
+	map.renderOrder = 1;
+	map.root.position.y = 1;
 	map.updateMatrixWorld(true);
 	scene.add(map);
 

@@ -15,6 +15,11 @@ export {OpenMapTilesProvider} from './providers/OpenMapTilesProvider';
 export {OpenStreetMapsProvider} from './providers/OpenStreetMapsProvider';
 export {DebugProvider} from './providers/DebugProvider';
 export {HeightDebugProvider} from './providers/HeightDebugProvider';
+export {S101Provider} from './providers/S101Provider';
+export {S101HeightProvider} from './providers/S101HeightProvider';
+export {CustomMapsProvider} from './providers/CustomMapsProvider';
+export {GeoserverWMSProvider} from './providers/GeoserverWMSProvider';
+export {WMSProvider} from './providers/WMSProvider';
 
 export {MapNodeGeometry} from './geometries/MapNodeGeometry';
 export {MapNodeHeightGeometry} from './geometries/MapNodeHeightGeometry';
@@ -33,4 +38,3 @@ export {GeolocationUtils} from './utils/GeolocationUtils';
 export {CancelablePromise} from './utils/CancelablePromise';
 export {XHRUtils} from './utils/XHRUtils';
 export {TextureUtils} from './utils/TextureUtils';
-export {Fetch} from './utils/Fetch';

@@ -1,6 +1,8 @@
 import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
+import { WMSProvider } from '../providers/WMSProvider';
+import {GeoserverWMSProvider} from '../providers/GeoserverWMSProvider';
 /**
  * Constants to store quad-tree positions.
  */
@@ -86,6 +88,15 @@ export class MapNode extends Mesh
 	 */
 	y;
 
+	static baseBbox = [90, -180, -90, 180];
+	static wmtsBbox = [[90, -180, -90, 0],[90, 0, -90, 180]];
+	/**
+	 * Bounding box of the map node.
+	 * [topleft, bottomright]
+	 * [左上角【维度，经度】，右下角【纬度，经度】]
+	 */
+	bbox;
+
 	/**
 	 * Variable to check if the node is subdivided.
 	 *
@@ -144,7 +155,7 @@ export class MapNode extends Mesh
 	isMesh = true;
 
 
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = null, material = null) 
 	{
 		super(geometry, material);
 
@@ -156,6 +167,7 @@ export class MapNode extends Mesh
 		this.level = level;
 		this.x = x;
 		this.y = y;
+		this.bbox = bbox;
 
 		this.initialize();
 	}
@@ -185,7 +197,8 @@ export class MapNode extends Mesh
 		// 先计算与，后计算或
 		// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂，这里 最后一个判断应该不对
 		// 每次要么加载四个，要么不加载，不会出现三个或者两个、一个的情况，所以这种判断不太对。
-		if (this.children.length > 0 || this.level + 1 > maxZoom || this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens)
+		if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
+		// if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens && !(this.mapView.provider instanceof WMSProvider)) )
 		{
 			return;
 		}
@@ -262,7 +275,12 @@ export class MapNode extends Mesh
 
 		try 
 		{
-			const image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+			let image;
+			if(this.mapView.provider instanceof GeoserverWMSProvider){
+				image = await this.mapView.provider.fetchTile(this.bbox);
+			} else{
+				image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
+			}
 			if (this.disposed) 
 			{
 				return;
@@ -295,6 +313,28 @@ export class MapNode extends Mesh
 
 		// @ts-ignore
 		this.material.needsUpdate = true;
+	}
+
+	/**
+	 * 计算孩子的经纬度范围bbox
+	 */
+	/**
+	 * Bounding box of the map node.
+	 * [topleft, bottomright]
+	 * [左上角【维度，经度】，右下角【纬度，经度】]
+	 */
+	calculateChildLatLon(){
+		let boxs = new Array(4);
+		let top = this.bbox[0], left = this.bbox[1];
+		let bottom = this.bbox[2], right = this.bbox[3];
+		let center = new Array(2);
+		center[0] = ((top - bottom) / 2) + bottom; // 瓦片中心点维度
+		center[1] = ((left - right) / 2) + right; // 瓦片中心点经度
+		boxs[QuadTreePosition.topLeft] = [top,left,center[0],center[1]];
+		boxs[QuadTreePosition.topRight] = [top, center[1], center[0], right];
+		boxs[QuadTreePosition.bottomLeft] = [center[0],left, bottom,center[1]];
+		boxs[QuadTreePosition.bottomRight] = [center[0],center[1],bottom,right];
+		return boxs;
 	}
 
 	/**

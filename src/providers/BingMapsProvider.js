@@ -2,6 +2,7 @@ import {MapProvider} from './MapProvider';
 import {XHRUtils} from '../utils/XHRUtils';
 import {MapBoxProvider} from './MapBoxProvider';
 import {CanvasUtils} from '../utils/CanvasUtils';
+import { ErrorCode } from '../utils/ErrorCode';
 
 /**
  * Bing maps tile provider.
@@ -143,7 +144,7 @@ export class BingMapsProvider extends MapProvider
 		return quad;
 	}
 
-	static convert(image){
+	static convert(image, resolve, reject){
 		let imageSize = 256;
 		const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
 		const context = canvas.getContext('2d');
@@ -158,6 +159,22 @@ export class BingMapsProvider extends MapProvider
 			data[i+1] = gray;
 			data[i+2] = gray;	
 		}
+		// context.putImageData(imageData, 0, 0);
+		// 此处仅仅是修改了画布上的数据。
+		// 如何生成一个图片对象并返回。
+		var img = new Image()
+		img.onload = () => {
+		// 画图片
+			ctx.drawImage(img, 60, 0)
+			// toImage
+			var dataImg = new Image()
+			dataImg.src = canvas.toDataURL('image/png')
+			resolve(dataImg)
+		}
+		img.onerror = function() {
+				reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
+		};
+
 	}
 
 	fetchTile(zoom, x, y)
@@ -168,7 +185,8 @@ export class BingMapsProvider extends MapProvider
 			// imgage = new Image();
 			image.onload = function() 
 			{
-				BingMapsProvider.convert(image);
+				// BingMapsProvider.convert(image);
+				// 这里这个convert先禁用。
 				resolve(image);
 			};
 			image.onerror = function() 
@@ -176,6 +194,7 @@ export class BingMapsProvider extends MapProvider
 				reject();
 			};
 			image.crossOrigin = 'Anonymous';
+			console.log("bingmaps:",zoom, x, y);
 			image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
 			// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
 			// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'

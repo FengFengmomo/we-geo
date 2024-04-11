@@ -33,9 +33,9 @@ export class MapSphereNode extends MapNode
 	 */
 	static segments = 80;
 
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location,bbox, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
 	
 		this.applyScaleNode();
 	
@@ -119,20 +119,20 @@ export class MapSphereNode extends MapNode
 		const y = this.y * 2;
 
 		const Constructor = Object.getPrototypeOf(this).constructor;
-
-		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+		let bboxs = this.calculateChildLatLon();
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}

@@ -1,5 +1,5 @@
 import {BufferGeometry, Float32BufferAttribute, Vector3} from 'three';
-import {MapNodeGeometry} from './MapNodeGeometry';
+import {MapNodeGeometry} from '../../geometries/MapNodeGeometry';
 
 export class MapNodeHeightGeometryS101 extends BufferGeometry
 {
