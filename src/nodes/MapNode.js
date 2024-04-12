@@ -169,6 +169,9 @@ export class MapNode extends Mesh
 		this.y = y;
 		this.bbox = bbox;
 
+		this.renderOrder = mapView.renderOrder;
+		this.opacity = mapView.opacity;
+
 		this.initialize();
 	}
 
@@ -268,19 +271,16 @@ export class MapNode extends Mesh
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
 			// @ts-ignore
-			this.material.depthTest = true;
+			// this.material.depthTest = true;
 			this.material.needsUpdate = true;
+			this.material.transparent = true;
 			return;
 		}
 
 		try 
 		{
-			let image;
-			if(this.mapView.provider instanceof GeoserverWMSProvider){
-				image = await this.mapView.provider.fetchTile(this.bbox);
-			} else{
-				image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
-			}
+			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
+			
 			if (this.disposed) 
 			{
 				return;
@@ -297,6 +297,8 @@ export class MapNode extends Mesh
 			
 			// @ts-ignore
 			this.material.map = texture;
+			this.material.transparent = true;
+			this.material.opacity = this.opacity;
 		}
 		catch (e) 
 		{
@@ -309,6 +311,9 @@ export class MapNode extends Mesh
 
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
+			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+			this.material.transparent = true;
+			this.material.opacity = 0;
 		}
 
 		// @ts-ignore

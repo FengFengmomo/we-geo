@@ -93,10 +93,7 @@ export class MapView extends Mesh
 	 */
 	cacheTiles = false;
 	
-	// 全局共享变量，设置imageLayer的y值， 随着添加顺序越靠后，在屏幕上显示越靠前
-	static order = 1;
 
-	imageLayers = [];
 
 	/**
 	 * Constructor for the map view objects.
@@ -126,80 +123,6 @@ export class MapView extends Mesh
 	onBeforeRender(renderer, scene, camera, geometry, material, group){
 		this.lod.updateLOD(this, camera, renderer, scene);
 	};
-
-	/**
-	 * 添加imageLayer， 传入的root为imageLayer的根节点
-	 * @param {*} root root为数字，或者具体的node
-	 * @param {*} provider 贴图提供器
-	 * @param {*} heightProvider 高程提供器
-	 */
-	addImageLayer(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null){
-		if (typeof root === 'number') 
-		{
-			if (!MapView.mapModes.has(root)) 
-			{
-				throw new Error('Map mode ' + root + ' does is not registered.');
-			}
-
-			const rootConstructor = MapView.mapModes.get(root);
-
-			// @ts-ignore
-			root = new rootConstructor(null, this);
-		}
-		if (this.root !== null) 
-		{
-			this.remove(this.root);
-		}
-		// Initialize root node
-		if (this.root !== null) 
-		{
-			// @ts-ignore
-			this.geometry = this.root.constructor.baseGeometry;
-			// @ts-ignore
-			if (scale === null)
-				this.scale.copy(this.root.constructor.baseScale);
-			else
-				this.scale.copy(scale);
-
-			this.root.mapView = this;
-			this.add(this.root); // 将mapnode添加到mapview中
-			order++;
-			this.root.renderOrder = MapView.order;
-			this.root.initialize(); // 将根mapnode初始化
-		}
-		this.imageLayers.push(root);
-	}
-
-	/**
-	 * 移除imageLayer， 传入的root为imageLayer的根节点
-	 * @param {*} root 
-	 * @returns 
-	 */
-	removeImageLayer(root){
-	    if (this.root === null){
-			return true;
-		}
-		// 将mesh 设置为不可见，设置为不是mesh属性
-		root.visible = false;
-		root.isMesh = false;
-		this.remove(root);
-	}
-
-	/**
-	 * 通过索引获取imageLayer
-	 * @param {*} index 
-	 * @returns 
-	 */
-	getImageLayer(index){
-	    if (typeof index !== 'number'){
-			console.log('getImageLayer index must be a number');
-			return null;
-		}
-		if (index < 0 || index >= this.imageLayers.length){
-		    console.log('getImageLayer index out of range');
-		}
-		return this.imageLayers[index];
-	}
 
 	/**
 	 * Set the root of the map view.
@@ -247,7 +170,6 @@ export class MapView extends Mesh
 			this.root.mapView = this;
 			this.root.bbox = MapNode.baseBbox;
 			this.add(this.root); // 将mapnode添加到mapview中
-			this.root.renderOrder = MapView.order;
 			this.root.initialize(); // 将根mapnode初始化
 		}
 	}

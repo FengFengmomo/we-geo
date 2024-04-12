@@ -59,7 +59,7 @@ export class UnitsUtils
 
 	/**
 	 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-	 *
+	 * 计算世界坐标到经纬度
 	 * @param x - X coordinate.
 	 * @param y - Y coordinate.
 	 */

@@ -29,12 +29,23 @@ var provider = new BingMapsProvider('', BingMapsProvider.AERIAL);
 var map = new MapView(MapView.PLANAR, provider);
 map.addmessage = "aerial"
 map.renderOrder = 1;
-// scene.add(map);
+scene.add(map);
 map.updateMatrixWorld(true);
 
 
+var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
+var map = new MapView(MapView.PLANAR, provider);
+map.addmessage = "road"
+map.renderOrder = 2;
+map.opacity  = 1;
+map.position.y = 2;
+scene.add(map);
+map.updateMatrixWorld(true);
+
+
+
 // var s101HeightProvider = new S101HeightProvider();
-var s101Provider = new S101Provider();
+// var s101Provider = new S101Provider();
 // var tileWidth = UnitsUtils.tileWidth(12)
 // var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
 // var scale = new Vector3(tileWidth, 1.0, tileWidth);
@@ -42,19 +53,20 @@ var s101Provider = new S101Provider();
 // map2.position.set(position.x, 1000, -position.y);
 // scene.add(map2);
 // map2.updateMatrixWorld(true);
-// var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
-// map.addImageLayer(MapView.PLANAR, provider)
+
+
+/** 整个geoserver部分代码
 var provider = new GeoserverWMTSProvider();
 // var provider = new CustomMapsProvider();
 var map = new MapView(MapView.PLANAR , provider);
 map.addmessage = "xinjiang"
 // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
 // 值越小越先渲染，但越容易被覆盖
-map.renderOrder = 1;
-map.root.position.y = 1;
+map.renderOrder = 2;
+map.root.position.y = 2;
 map.updateMatrixWorld(true);
 scene.add(map);
-
+ */
 
 var camera = new PerspectiveCamera(80, 1, 0.1, 1e12);
 

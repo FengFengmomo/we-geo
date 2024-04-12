@@ -32735,107 +32735,172 @@
 		}
 	}
 
-	class WMSProvider {
-	    constructor(){}
-	    // 只要是WMTS标准的瓦片格式都应该继承这个类;以在level 1时能正确分类 
-	    // 增加这个判断的意义在于，某些WMTS标准在level 1 层的图片数量不一致;
-			// 比如WMTS标准 level 1 层的图片数量是 2x1，而很多tile服务器的level 1图片数量是 2x2;
-	// 		if (level === 1 && this.mapView.provider instanceof WMSProvider){
-	// 			return;
-	// 		}
+	/**
+	 * Geolocation is used to represent a position in earth using WGS84 Datum units.
+	 */
+	class Geolocation 
+	{
+		/**
+	     * Latitude in degrees. Range from -90° to 90°.
+		 * 维度
+	     */
+		latitude;
+
+		/**
+	     * longitude in degrees. Range from -180° to 180°.
+		 * 经度
+	     */
+		longitude;
+
+		constructor(latitude, longitude) 
+		{
+			this.latitude = latitude;
+			this.longitude = longitude;
+		}
 	}
 
-	/*
-	 *                        _oo0oo_
-	 *                       o8888888o
-	 *                       88" . "88
-	 *                       (| -_- |)
-	 *                       0\  =  /0
-	 *                     ___/`---'\___
-	 *                   .' \\|     |// '.
-	 *                  / \\|||  :  |||// \
-	 *                 / _||||| -:- |||||- \
-	 *                |   | \\\  - /// |   |
-	 *                | \_|  ''\---/''  |_/ |
-	 *                \  .-\__  '-'  ___/-. /
-	 *              ___'. .'  /--.--\  `. .'___
-	 *           ."" '<  `.___\_<|>_/___.' >' "".
-	 *          | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-	 *          \  \ `_.   \_ __\ /__ _/   .-` /  /
-	 *      =====`-.____`.___ \_____/___.-`___.-'=====
-	 *                        `=---='
+	/**
+	 * Units utils contains methods to convert data between representations.
+	 *
+	 * Multiple methods are used to reprent world coordinates based on the type of data being presented.
 	 * 
+	 * WGS84 is the most commonly used representation with (latitude, longitude, altitude).
 	 * 
-	 *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	 * 
-	 *            佛祖保佑     永不宕机     永无BUG
-	 * 
-	 *        佛曰:  
-	 *                写字楼里写字间，写字间里程序员；  
-	 *                程序人员写程序，又拿程序换酒钱。  
-	 *                酒醒只在网上坐，酒醉还来网下眠；  
-	 *                酒醉酒醒日复日，网上网下年复年。  
-	 *                但愿老死电脑间，不愿鞠躬老板前；  
-	 *                奔驰宝马贵者趣，公交自行程序员。  
-	 *                别人笑我忒疯癫，我笑自己命太贱；  
-	 *                不见满街漂亮妹，哪个归得程序员？
+	 * EPSG:900913 is used for planar coordinates in (X, Y, Z)
 	 */
+	class UnitsUtils 
+	{
+		/**
+		 * Average radius of earth in meters.
+		 */
+		static EARTH_RADIUS = 6371008;
 
-	class GeoserverWMSProvider extends WMSProvider{
-		mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
-	    minZoom = 1;
-	    maxZoom = 13;
-	    tileSize = 256;
+		/**
+		 * Earth radius in semi-major axis A as defined in WGS84.
+		 */
+		static EARTH_RADIUS_A = 6378137.0;
 
-		// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
+		/**
+		 * Earth radius in semi-minor axis B as defined in WGS84.
+		 */
+		static EARTH_RADIUS_B = 6356752.314245;
 
-	    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
-	    // %3A 表示冒号
-	    // %2F 表示斜杠
-	    // %20 表示空格
-	    // %5F 表示下划线
-		// %3C 表示<
-		// %3E 表示>
-		// %2C 表示，
-	    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
-		url = 'http://127.0.0.1:8080/geoserver/xinjiang/wms?service=WMS&version=1.1.0&request=GetMap&layers=xinjiang:xinjiang_rgb_remake&bbox={bbox}&width=256&height=256&srs=EPSG:4326&styles=&Format=image/png&format=application/openlayers'
-		constructor(options) {
-			super(options);
-	        Object.assign(this, options);
-	    }
-	    fetchTile(bbox)
+		/**
+		 * Earth equator perimeter in meters.
+		 */
+		static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
+
+		/**
+		 * Earth equator perimeter in meters.
+		 */
+		static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
+
+		static tileWidth(level){
+			return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
+		}
+
+		/**
+		 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
+		 *
+		 * @param latitude - Latitude value in degrees. 纬度
+		 * @param longitude - Longitude value in degrees. 经度
+		 */
+		static datumsToSpherical(latitude, longitude)
 		{
-			// console.log("geoserver:fetchtile:before",zoom, x, y);
-			// y = Math.pow(2, zoom+1) - y - 1;
-			// Number.parseInt
-			// let extra = y %2;
-			// y = (y-extra)/2 + extra;
-			// x = Math.pow(2, zoom+1) - x + 1;
-			// console.log("geoserver:fetchtile",zoom, x, y);
-	        // let urlTemp = this.url.replace('{z}', zoom-1).replace('{x}', x).replace('{y}', y);
-			if(bbox === null){
-				return null;
-			}
-			// 传输bbox的方式有两种，【左下角，右上角】【右下角，左上角】，同时是（经度，维度）的组合方式
-			// 当前bbox存放的是（维度，经度）的组合方式
-			// 实际测试应该是 【左下角，右上角】方式
-			// bbox.reverse();
-			let box = [bbox[1], bbox[2], bbox[3], bbox[0]];
-	        let urlTemp = this.url.replace('{bbox}', box.join(","));
-			return new Promise((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = urlTemp;
-			});
+			const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
+			let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
+
+			y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
+
+			return new Vector2(x, y);
+		}
+
+		/**
+		 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
+		 * 计算世界坐标到经纬度
+		 * @param x - X coordinate.
+		 * @param y - Y coordinate.
+		 */
+		static sphericalToDatums(x, y)
+		{
+			const longitude = x / UnitsUtils.EARTH_ORIGIN * 180.0;
+			let latitude = y / UnitsUtils.EARTH_ORIGIN * 180.0;
+
+			latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
+
+			return new Geolocation(latitude, longitude);
+		}
+
+		/**
+		 * Converts quad tree zoom/x/y to lat/lon in WGS84 Datum.
+		 * 
+		 * The X and Y start from 0 from the top/left corner of the quadtree up to (4^zoom - 1)
+		 *
+		 * @param zoom - Zoom level of the quad tree.
+		 * @param x - X coordinate.
+		 * @param y - Y coordinate.
+		 */
+		static quadtreeToDatums(zoom, x, y)
+		{
+			const n = Math.pow(2.0, zoom);
+			const longitude = x / n * 360.0 - 180.0;
+			const latitudeRad = Math.atan(Math.sinh(Math.PI * (1.0 - 2.0 * y / n)));
+			const latitude = 180.0 * (latitudeRad / Math.PI);
+
+			return new Geolocation(latitude, longitude);
+		}
+
+		/**
+		 * Direction vector to WGS84 coordinates.
+		 * 
+		 * Can be used to transform surface points of world sphere to coordinates.
+		 * 
+		 * @param dir - Direction vector.
+		 * @returns WGS84 coordinates.
+		 */
+		static vectorToDatums(dir) 
+		{
+			const radToDeg = 180 / Math.PI;
+
+			const latitude = Math.atan2(dir.y, Math.sqrt(Math.pow(dir.x, 2) + Math.pow(-dir.z, 2))) * radToDeg;
+			const longitude = Math.atan2(-dir.z, dir.x) * radToDeg;
+
+			return new Geolocation(latitude, longitude);
+		}
+
+		
+		/**
+		 * Get a direction vector from WGS84 coordinates.
+		 * 
+		 * The vector obtained will be normalized.
+		 * 
+		 * @param latitude - Latitude value in degrees.
+		 * @param longitude - Longitude value in degrees.
+		 * @returns Direction vector normalized.
+		 */
+		static datumsToVector(latitude, longitude) 
+		{
+			const degToRad = Math.PI / 180;
+			
+			const rotX = longitude * degToRad;
+			const rotY = latitude * degToRad;
+
+			var cos = Math.cos(rotY);
+			
+			return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
+		}
+
+		/**
+		 * Get altitude from RGB color for mapbox altitude encoding
+		 * 
+		 * https://docs.mapbox.com/data/tilesets/guides/access-elevation-data/~
+		 * 
+		 * @param color - Color of the pixel
+		 * @returns The altitude encoded in meters.
+		 */
+		static mapboxAltitude(color) 
+		{
+			return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
 		}
 	}
 
@@ -33005,6 +33070,10 @@
 			this.y = y;
 			this.bbox = bbox;
 
+			this.renderOrder = mapView.renderOrder;
+			// this.transparent = mapView.transparent;
+			this.opacity = mapView.opacity;
+
 			this.initialize();
 		}
 
@@ -33104,19 +33173,16 @@
 				// @ts-ignore
 				this.material.map = MapNode.defaultTexture;
 				// @ts-ignore
-				this.material.depthTest = true;
+				// this.material.depthTest = true;
 				this.material.needsUpdate = true;
+				this.material.transparent = true;
 				return;
 			}
 
 			try 
 			{
-				let image;
-				if(this.mapView.provider instanceof GeoserverWMSProvider){
-					image = await this.mapView.provider.fetchTile(this.bbox);
-				} else {
-					image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
-				}
+				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
+				
 				if (this.disposed) 
 				{
 					return;
@@ -33133,6 +33199,8 @@
 				
 				// @ts-ignore
 				this.material.map = texture;
+				this.material.transparent = true;
+				this.material.opacity = this.opacity;
 			}
 			catch (e) 
 			{
@@ -33145,6 +33213,9 @@
 
 				// @ts-ignore
 				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				this.material.opacity = 0;
 			}
 
 			// @ts-ignore
@@ -33486,175 +33557,6 @@
 				indices.push(d, b, a, d, c, b);
 				// indices: [33, 340, 16, 33, 341, 340], [50, 341, 33, 50, 342, 341], [67, 342, 50, 67, 343, 342]
 			}
-		}
-	}
-
-	/**
-	 * Geolocation is used to represent a position in earth using WGS84 Datum units.
-	 */
-	class Geolocation 
-	{
-		/**
-	     * Latitude in degrees. Range from -90° to 90°.
-		 * 维度
-	     */
-		latitude;
-
-		/**
-	     * longitude in degrees. Range from -180° to 180°.
-		 * 经度
-	     */
-		longitude;
-
-		constructor(latitude, longitude) 
-		{
-			this.latitude = latitude;
-			this.longitude = longitude;
-		}
-	}
-
-	/**
-	 * Units utils contains methods to convert data between representations.
-	 *
-	 * Multiple methods are used to reprent world coordinates based on the type of data being presented.
-	 * 
-	 * WGS84 is the most commonly used representation with (latitude, longitude, altitude).
-	 * 
-	 * EPSG:900913 is used for planar coordinates in (X, Y, Z)
-	 */
-	class UnitsUtils 
-	{
-		/**
-		 * Average radius of earth in meters.
-		 */
-		static EARTH_RADIUS = 6371008;
-
-		/**
-		 * Earth radius in semi-major axis A as defined in WGS84.
-		 */
-		static EARTH_RADIUS_A = 6378137.0;
-
-		/**
-		 * Earth radius in semi-minor axis B as defined in WGS84.
-		 */
-		static EARTH_RADIUS_B = 6356752.314245;
-
-		/**
-		 * Earth equator perimeter in meters.
-		 */
-		static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
-
-		/**
-		 * Earth equator perimeter in meters.
-		 */
-		static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
-
-		static tileWidth(level){
-			return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
-		}
-
-		/**
-		 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
-		 *
-		 * @param latitude - Latitude value in degrees. 纬度
-		 * @param longitude - Longitude value in degrees. 经度
-		 */
-		static datumsToSpherical(latitude, longitude)
-		{
-			const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
-			let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
-
-			y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
-
-			return new Vector2(x, y);
-		}
-
-		/**
-		 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-		 *
-		 * @param x - X coordinate.
-		 * @param y - Y coordinate.
-		 */
-		static sphericalToDatums(x, y)
-		{
-			const longitude = x / UnitsUtils.EARTH_ORIGIN * 180.0;
-			let latitude = y / UnitsUtils.EARTH_ORIGIN * 180.0;
-
-			latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
-
-			return new Geolocation(latitude, longitude);
-		}
-
-		/**
-		 * Converts quad tree zoom/x/y to lat/lon in WGS84 Datum.
-		 * 
-		 * The X and Y start from 0 from the top/left corner of the quadtree up to (4^zoom - 1)
-		 *
-		 * @param zoom - Zoom level of the quad tree.
-		 * @param x - X coordinate.
-		 * @param y - Y coordinate.
-		 */
-		static quadtreeToDatums(zoom, x, y)
-		{
-			const n = Math.pow(2.0, zoom);
-			const longitude = x / n * 360.0 - 180.0;
-			const latitudeRad = Math.atan(Math.sinh(Math.PI * (1.0 - 2.0 * y / n)));
-			const latitude = 180.0 * (latitudeRad / Math.PI);
-
-			return new Geolocation(latitude, longitude);
-		}
-
-		/**
-		 * Direction vector to WGS84 coordinates.
-		 * 
-		 * Can be used to transform surface points of world sphere to coordinates.
-		 * 
-		 * @param dir - Direction vector.
-		 * @returns WGS84 coordinates.
-		 */
-		static vectorToDatums(dir) 
-		{
-			const radToDeg = 180 / Math.PI;
-
-			const latitude = Math.atan2(dir.y, Math.sqrt(Math.pow(dir.x, 2) + Math.pow(-dir.z, 2))) * radToDeg;
-			const longitude = Math.atan2(-dir.z, dir.x) * radToDeg;
-
-			return new Geolocation(latitude, longitude);
-		}
-
-		
-		/**
-		 * Get a direction vector from WGS84 coordinates.
-		 * 
-		 * The vector obtained will be normalized.
-		 * 
-		 * @param latitude - Latitude value in degrees.
-		 * @param longitude - Longitude value in degrees.
-		 * @returns Direction vector normalized.
-		 */
-		static datumsToVector(latitude, longitude) 
-		{
-			const degToRad = Math.PI / 180;
-			
-			const rotX = longitude * degToRad;
-			const rotY = latitude * degToRad;
-
-			var cos = Math.cos(rotY);
-			
-			return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
-		}
-
-		/**
-		 * Get altitude from RGB color for mapbox altitude encoding
-		 * 
-		 * https://docs.mapbox.com/data/tilesets/guides/access-elevation-data/~
-		 * 
-		 * @param color - Color of the pixel
-		 * @returns The altitude encoded in meters.
-		 */
-		static mapboxAltitude(color) 
-		{
-			return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
 		}
 	}
 
@@ -35722,10 +35624,7 @@
 		 */
 		cacheTiles = false;
 		
-		// 全局共享变量，设置imageLayer的y值， 随着添加顺序越靠后，在屏幕上显示越靠前
-		static order = 1;
 
-		imageLayers = [];
 
 		/**
 		 * Constructor for the map view objects.
@@ -35755,80 +35654,6 @@
 		onBeforeRender(renderer, scene, camera, geometry, material, group){
 			this.lod.updateLOD(this, camera, renderer, scene);
 		};
-
-		/**
-		 * 添加imageLayer， 传入的root为imageLayer的根节点
-		 * @param {*} root root为数字，或者具体的node
-		 * @param {*} provider 贴图提供器
-		 * @param {*} heightProvider 高程提供器
-		 */
-		addImageLayer(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null){
-			if (typeof root === 'number') 
-			{
-				if (!MapView.mapModes.has(root)) 
-				{
-					throw new Error('Map mode ' + root + ' does is not registered.');
-				}
-
-				const rootConstructor = MapView.mapModes.get(root);
-
-				// @ts-ignore
-				root = new rootConstructor(null, this);
-			}
-			if (this.root !== null) 
-			{
-				this.remove(this.root);
-			}
-			// Initialize root node
-			if (this.root !== null) 
-			{
-				// @ts-ignore
-				this.geometry = this.root.constructor.baseGeometry;
-				// @ts-ignore
-				if (scale === null)
-					this.scale.copy(this.root.constructor.baseScale);
-				else
-					this.scale.copy(scale);
-
-				this.root.mapView = this;
-				this.add(this.root); // 将mapnode添加到mapview中
-				order++;
-				this.root.renderOrder = MapView.order;
-				this.root.initialize(); // 将根mapnode初始化
-			}
-			this.imageLayers.push(root);
-		}
-
-		/**
-		 * 移除imageLayer， 传入的root为imageLayer的根节点
-		 * @param {*} root 
-		 * @returns 
-		 */
-		removeImageLayer(root){
-		    if (this.root === null){
-				return true;
-			}
-			// 将mesh 设置为不可见，设置为不是mesh属性
-			root.visible = false;
-			root.isMesh = false;
-			this.remove(root);
-		}
-
-		/**
-		 * 通过索引获取imageLayer
-		 * @param {*} index 
-		 * @returns 
-		 */
-		getImageLayer(index){
-		    if (typeof index !== 'number'){
-				console.log('getImageLayer index must be a number');
-				return null;
-			}
-			if (index < 0 || index >= this.imageLayers.length){
-			    console.log('getImageLayer index out of range');
-			}
-			return this.imageLayers[index];
-		}
 
 		/**
 		 * Set the root of the map view.
@@ -35876,7 +35701,6 @@
 				this.root.mapView = this;
 				this.root.bbox = MapNode.baseBbox;
 				this.add(this.root); // 将mapnode添加到mapview中
-				this.root.renderOrder = MapView.order;
 				this.root.initialize(); // 将根mapnode初始化
 			}
 		}
@@ -36331,116 +36155,10 @@
 					reject();
 				};
 				image.crossOrigin = 'Anonymous';
-				console.log("bingmaps:",zoom, x, y);
 				image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
 				// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
 				// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
 			});
-		}
-	}
-
-	//http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
-
-	class GeoserverWMTSProvider extends WMSProvider{
-		mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
-	    minZoom = 0;
-	    maxZoom = 13;
-	    tileSize = 256;
-		/**
-		 * 使用这种zxy的方式进行切分数据
-		 * 
-		 * // 使用该方式计算出来的结果,y的方向是反的，无法直接使用。
-		 */
-		// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
-
-	    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
-	    // %3A 表示冒号
-	    // %2F 表示斜杠
-	    // %20 表示空格
-	    // %5F 表示下划线
-		// %3C 表示<
-		// %3E 表示>
-		// %2C 表示，
-		offset = [0,0,0,1,2,3,6,12,24,48,96,192,384,768,1536,3072,6144,12288,24576,49152,98304,196608];
-	    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
-	    url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang&style=&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}';    
-		constructor(options) {
-			super(options);
-	        Object.assign(this, options);
-	    }
-	    fetchTile(zoom, x, y, bbox)
-		{
-			if(zoom < 0){
-				return;
-			}
-			// console.log("geoserver:fetchtile:before",zoom, x, y);
-			// // style 1 使当前缩放等级减一
-			// // zoom = zoom-1;
-			// // y = y - Math.pow(2, zoom-1);
-			// // 计算中心点的经纬度
-			// let center = [(bbox[0]-bbox[2])/2+bbox[2], (bbox[3]-bbox[1])/2+bbox[1]];
-			// console.log("geoserver:fetchtile:center",center);
-			// let [cx,cy] = this.degToTile(center[1], center[0], (zoom+1));
-			// // style 2 保持当前缩放等级, 对y减去相应的偏移
-			// y = y - this.offset[zoom];
-			// let extra = x%2;
-			// x = (x-extra)*2 + extra;
-			console.log("geoserver:fetchtile",zoom, x, y);
-			// console.log("geoserver:translate",zoom, cx, cy);
-	        let urlTemp = this.url.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
-			
-			return new Promise((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = urlTemp;
-			});
-		}
-
-		/**
-		 * 
-		 * @param {*} lon 经度
-		 * @param {*} lat 维度
-		 * @param {*} zoom 缩放等级
-		 * @returns 
-		 */
-		degToTile(lon, lat, zoom){
-
-			let n = Math.pow(2, zoom);
-			let cell = 360/n;
-			let x = Math.floor((lon + 180)/cell);
-			let y = Math.floor((lat + 90)/cell);
-		
-			if( x < 0){
-				x = 0;
-			}
-			if( x > n-1){
-				x=  n-1;
-			}
-			if( y < 0){
-				y = 0;
-			}
-			if( y > n-1){
-				y = n-1;
-			}
-		
-			if (zoom > 1){
-				if(y >= n/4 *3){
-					y = parseInt(n/4 *3) - 1;
-				}
-				if (y < n/4){
-					y = parseInt(n/4);
-				}
-			}
-			return [x,y];
 		}
 	}
 
@@ -36460,8 +36178,23 @@
 	var map = new MapView(MapView.PLANAR, provider);
 	map.addmessage = "aerial";
 	map.renderOrder = 1;
-	// scene.add(map);
+	scene.add(map);
 	map.updateMatrixWorld(true);
+
+	var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
+	var map = new MapView(MapView.PLANAR, provider);
+	map.addmessage = "road";
+	map.renderOrder = 2;
+	// map.transparent = true;
+	map.opacity  = 1;
+	map.position.y = 2;
+	scene.add(map);
+	map.updateMatrixWorld(true);
+
+
+
+	// var s101HeightProvider = new S101HeightProvider();
+	// var s101Provider = new S101Provider();
 	// var tileWidth = UnitsUtils.tileWidth(12)
 	// var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
 	// var scale = new Vector3(tileWidth, 1.0, tileWidth);
@@ -36469,19 +36202,20 @@
 	// map2.position.set(position.x, 1000, -position.y);
 	// scene.add(map2);
 	// map2.updateMatrixWorld(true);
-	// var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
-	// map.addImageLayer(MapView.PLANAR, provider)
+
+
+	/** 整个geoserver部分代码
 	var provider = new GeoserverWMTSProvider();
 	// var provider = new CustomMapsProvider();
 	var map = new MapView(MapView.PLANAR , provider);
-	map.addmessage = "xinjiang";
+	map.addmessage = "xinjiang"
 	// https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
 	// 值越小越先渲染，但越容易被覆盖
-	map.renderOrder = 1;
-	map.root.position.y = 1;
+	map.renderOrder = 2;
+	map.root.position.y = 2;
 	map.updateMatrixWorld(true);
 	scene.add(map);
-
+	 */
 
 	var camera = new PerspectiveCamera(80, 1, 0.1, 1e12);
 

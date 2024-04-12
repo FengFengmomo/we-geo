@@ -68,6 +68,7 @@
  */
 //http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
 import { WMSProvider } from "./WMSProvider";
+import { UnitsUtils} from "../utils/UnitsUtils";
 
 export class GeoserverWMSProvider extends WMSProvider{
 	mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
@@ -86,29 +87,42 @@ export class GeoserverWMSProvider extends WMSProvider{
 	// %3E 表示>
 	// %2C 表示，
     // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
-	url = 'http://127.0.0.1:8080/geoserver/xinjiang/wms?service=WMS&version=1.1.0&request=GetMap&layers=xinjiang:xinjiang_rgb_remake&bbox={bbox}&width=256&height=256&srs=EPSG:4326&styles=&Format=image/png&format=application/openlayers'
+	ip = '127.0.0.1';
+	port = '8080';
+	service = 'WMS';
+	space = 'xinjiang';
+	data = 'xinjiang';
+	layer = 'xinjiang';
+	width = 256;
+	height = 256;
+	url = 'http://{ip}:{port}/geoserver/{space}/wms?SERVICE={service}&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image/png8&TRANSPARENT=true&STYLES&LAYERS={data}:{layer}&exceptions=application/vnd.ogc.se_inimage&SRS=EPSG:4326&WIDTH={width}&HEIGHT={height}&BBOX={bbox}'
+	
 	constructor(options) {
 		super(options);
         Object.assign(this, options);
+		this.url = this.url.replace('{ip}', this.ip);
+		this.url = this.url.replace('{port}', this.port);
+		this.url = this.url.replace('{service}', this.service);
+		this.url = this.url.replace('{space}', this.space);
+		this.url = this.url.replace('{data}', this.data);
+		this.url = this.url.replace('{layer}', this.layer);
+		this.url = this.url.replace('{width}', this.width);
+		this.url = this.url.replace('{height}', this.height);
     }
-    fetchTile(bbox)
+    fetchTile(zoom,x,y,bbox)
 	{
-		// console.log("geoserver:fetchtile:before",zoom, x, y);
-		// y = Math.pow(2, zoom+1) - y - 1;
-		// Number.parseInt
-		// let extra = y %2;
-		// y = (y-extra)/2 + extra;
-		// x = Math.pow(2, zoom+1) - x + 1;
-		// console.log("geoserver:fetchtile",zoom, x, y);
-        // let urlTemp = this.url.replace('{z}', zoom-1).replace('{x}', x).replace('{y}', y);
 		if(bbox === null){
 			return null;
 		}
 		// 传输bbox的方式有两种，【左下角，右上角】【右下角，左上角】，同时是（经度，维度）的组合方式
 		// 当前bbox存放的是（维度，经度）的组合方式
 		// 实际测试应该是 【左下角，右上角】方式
-		// bbox.reverse();
-		let box = [bbox[1], bbox[2], bbox[3], bbox[0]];
+		// 还未进行测试过。
+		// 2024年4月12日14:41:12 对该方法进行了实际测试，数据链路已打通。
+		let topleft = UnitsUtils.quadtreeToDatums(zoom,x,y);
+		let bottomRight = UnitsUtils.quadtreeToDatums(zoom,x+1,y+1);
+		let box = [topleft.longitude, bottomRight.latitude, bottomRight.longitude, topleft.latitude]; // 先经度后维度
+		console.log("geoserver:fetchtile",zoom, x, y, box);
         let urlTemp = this.url.replace('{bbox}', box.join(","));
 		return new Promise((resolve, reject) => 
 		{
