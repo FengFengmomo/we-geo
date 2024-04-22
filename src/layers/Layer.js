@@ -3,7 +3,7 @@ import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color } from 'three';
-
+import {TWEEN} from 'three/examples/jsm/libs/tween.module.js';
 
 export class Layer {
     id; // 唯一标识
@@ -18,8 +18,10 @@ export class Layer {
     mapView;//地图视图
     camera;//相机
     controls;//控件
-    animateId;//动画
+    animateId;//动画事件id
     base = false; // 是否为底图
+    ambientLight; // 环境光
+    directionalLight; // 方向光
     constructor(id, layerContainer, canvas, mapView, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
         this.id = id;
         this.layerContainer = layerContainer;
@@ -79,7 +81,7 @@ export class Layer {
      */
     setOpacity(opacity) {
         this.opacity = opacity;
-        this.mapview.opacity = opacity;
+        this.layerContainer.style.opacity = opacity;
     }
 
     /**
@@ -95,6 +97,8 @@ export class Layer {
         Element.removeLayer(id);
         this.dispose = true;
         this.animateId && cancelAnimationFrame(this.animateId);
+        this.mapView.root.dispose();
+        this.mapView.dispose();
     }
 
     resize(){
@@ -110,7 +114,50 @@ export class Layer {
         if(this.base){
             this.controls.update();
         }
+        TWEEN.update();
         this.renderer.autoClear = true;
         this.renderer.render(this.scene, this.camera);
+    }
+    /**
+     * 相机飞往某点,只能通过basemap的方式使用，不建议通过layer层调用，否则会导致多个canvas之间位置不同步
+     * 因为layer层是随着最底层的map的相机进行同步移动的，详见wegeoMap中addBaseMap()方法下对相机控制的同步。
+     * @param {number} lat 维度 
+     * @param {number} lng 经度
+     * @param {number} seconds 动画执行需要的时间，秒 
+     */
+    flyTo(lat, lng, seconds){
+        let from  = this.camera.position.clone();
+        var targetXZ = UnitsUtils.datumsToSpherical(lat, lng);
+        let to = new THREE.Vector3(targetXZ.x, from.y, targetXZ.y);
+        let tween = new TWEEN.Tween({
+            // 相机开始坐标
+            x: from.x,
+            y: from.y,
+            z: from.z,
+            // 相机开始指向的目标观察点
+            tx: this.controls.target.x,
+            ty: this.controls.target.y,
+            tz: this.controls.target.z,
+        })
+        .to({
+            // 相机结束坐标
+            x: to.x,
+            y: to.y,
+            z: to.z,
+            // 相机结束指向的目标观察点
+            tx: to.x,
+            ty: 0,
+            tz: to.z,
+        }, seconds*1000)
+        .onStart(function(obj){
+            
+        })
+        .onUpdate(function(obj){
+            this.camera.position.set(obj.x, 0, obj.z);
+            this.controls.target.set(obj.tx, 0, obj.tz);
+            this.controls.update();
+        }).onComplete(function(obj){
+            console.log('complete');
+        }).start();
     }
 }
