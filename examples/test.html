@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style></style>
+</head>
+<body>
+	<!-- GUI -->
+	<div id="mapContainer">
+		
+	</div>
+	<!-- Canvas -->
+	<div id="gui"></div>
+	<canvas id="canvas" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+	<!-- Code -->
+	<script>
+            function initBaseMapContainer(){
+        // 创建地图容器, 默认html元素必须要有mapcontainer容器
+        let mc = document.getElementById('mapContainer');
+        let mapDiv = document.getElementById('map');
+        if(mapDiv == null){
+            mapDiv = document.createElement('div');
+            mapDiv.id = 'map';
+            mc.appendChild(mapDiv);
+            let base = document.createElement('canvas');
+            base.id = 'base';
+            base.style.position = 'absolute';
+            base.style.zIndex = '1';
+            base.style.left = '0px';
+            base.style.top = '0px';
+            base.style.width = '100%';
+            base.style.height = '100%';
+            mapDiv.appendChild(base);
+        }
+        let base = document.getElementById('base');
+        if(base == null){
+            base = document.createElement('canvas');
+            base.id = 'base';
+            base.style.position = 'absolute';
+            base.style.zIndex = '1';
+            base.style.left = '0px';
+            base.style.top = '0px';
+            base.style.width = '100%';
+            base.style.height = '100%';
+            mapDiv.appendChild(base);
+        }
+        // 基本地图容易创造完毕
+    }
+    function createLayers(){
+        let mc = document.getElementById('mapContainer');
+        let layers = document.createElement('div');
+        layers.id = 'layers';
+        mc.appendChild(layers);
+        
+
+    }
+    // 在layers div添加canvas，
+    function addLayerCanvas(){
+        let layers = document.getElementById('layers');
+        if(layers == null){
+            createLayers();
+            layers = document.getElementById('layers');
+        }
+        let length = layers.childNodes.length;
+        let div = document.createElement('div');
+        div.id = 'layer'+length;
+        let canvas = document.createElement('canvas');
+        canvas.id = 'layer' + length;
+        canvas.style.position = 'absolute';
+        canvas.style.zIndex = '1';
+        canvas.style.left = '0px';
+        canvas.style.top = '0px';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        div.appendChild(canvas);
+        layers.appendChild(div);
+    }
+    function removeLayerCanvas(id){
+        let layers = document.getElementById('layers');
+        let layer = document.getElementById('layer'+id);
+        if(layer == null){
+            return false;   
+        }
+        layers.removeChild(layer);
+    }
+
+    function getLayers(){
+        let layers = document.getElementById('layers');
+        if(layers == null){
+            return null;
+        }
+        let childs = layers.childNodes;
+        let layersContainers = [];
+        for (let i = 0; i < childs.length; i++){
+            let child = childs[i];
+            let canvas = child.childNodes[0];
+            if(canvas.nodeName == 'CANVAS'){
+                layersContainers.push(canvas);
+            }
+        }
+        return layersContainers;
+    }
+    function getLayersCount(){
+        let layers = document.getElementById('layers');
+        if(layers == null){
+            return null;
+        }
+        let childs = layers.childNodes;
+        
+        return childs.length;
+    }
+    </script>
+</body>
+</html>

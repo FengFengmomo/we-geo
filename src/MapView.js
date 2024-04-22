@@ -6,6 +6,8 @@ import {MapPlaneNode} from './nodes/MapPlaneNode';
 import {MapSphereNode} from './nodes/MapSphereNode';
 import {MapHeightNodeShader} from './nodes/MapHeightNodeShader';
 import {LODRaycast} from './lod/LODRaycast';
+import {LODRadial} from './lod/LODRadial';
+import {LODFrustum} from './lod/LODFrustum';
 import {MapProvider} from './providers/MapProvider';
 import {LODControl} from './lod/LODControl';
 import {MapMartiniHeightNode} from './nodes/MapMartiniHeightNode';
@@ -107,6 +109,8 @@ export class MapView extends Mesh
 		super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
 		this.lod = new LODRaycast();
+		// this.lod = new LODRadial();
+		// this.lod = new LODFrustum();
 
 		this.provider = provider;
 		this.heightProvider = heightProvider;

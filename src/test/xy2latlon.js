@@ -12,12 +12,20 @@ function sphericalToDatums(x, y){
         let EARTH_RADIUS = 6371008;
         let EARTH_PERIMETER = 2 * Math.PI * EARTH_RADIUS;
         let EARTH_ORIGIN = EARTH_PERIMETER / 2.0;
+
 		const longitude = x / EARTH_ORIGIN * 180.0;
 		let latitude = y / EARTH_ORIGIN * 180.0;
+
+		latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
+
+		console.log(latitude, longitude);
+		// return new Geolocation(latitude, longitude);
+		// const longitude = x / EARTH_ORIGIN * 180.0;
+		// let latitude = y / EARTH_ORIGIN * 180.0;
 
 		// latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
 
 		return [latitude, longitude-180];
 	}
 
-console.log(sphericalToDatums(30510909.3386, 5095248.9539));
+console.log(sphericalToDatums(30510908.8160, 5095254.9331));

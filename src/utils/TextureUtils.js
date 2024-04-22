@@ -15,7 +15,7 @@ export class TextureUtils
       * @param width - Width of the canvas in pixels.
       * @param height - Height of the canvas in pixels.
       */
-	static createFillTexture(color = '#000000', width = 1, height = 1)
+	static createFillTexture(color = '#FFFFFF', width = 1, height = 1)
 	{
 		const canvas = CanvasUtils.createOffscreenCanvas(width, height);
 

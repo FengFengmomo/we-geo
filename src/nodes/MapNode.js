@@ -1,4 +1,4 @@
-import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat} from 'three';
+import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
 import { WMSProvider } from '../providers/WMSProvider';
@@ -168,9 +168,8 @@ export class MapNode extends Mesh
 		this.x = x;
 		this.y = y;
 		this.bbox = bbox;
-
-		this.renderOrder = mapView.renderOrder;
-		this.opacity = mapView.opacity;
+		// this.transparent = mapView.transparent;
+		// this.opacity = mapView.opacity;
 
 		this.initialize();
 	}
@@ -271,9 +270,10 @@ export class MapNode extends Mesh
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
 			// @ts-ignore
-			// this.material.depthTest = true;
 			this.material.needsUpdate = true;
-			this.material.transparent = true;
+			// this.material.transparent = true;
+			// this.material.alphaTest = 0.01;
+			// this.material.opacity = 0;
 			return;
 		}
 
@@ -297,8 +297,10 @@ export class MapNode extends Mesh
 			
 			// @ts-ignore
 			this.material.map = texture;
-			this.material.transparent = true;
-			this.material.opacity = this.opacity;
+			
+			// this.material.transparent = true;
+			this.material.alphaTest = 0.01;
+			// this.material.opacity = this.opacity;
 		}
 		catch (e) 
 		{
@@ -313,6 +315,7 @@ export class MapNode extends Mesh
 			this.material.map = MapNode.defaultTexture;
 			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
 			this.material.transparent = true;
+			// this.material.alphaTest = 0.01;
 			this.material.opacity = 0;
 		}
 

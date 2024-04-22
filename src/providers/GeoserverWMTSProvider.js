@@ -22,11 +22,22 @@ export class GeoserverWMTSProvider extends WMSProvider{
 	// %3C 表示<
 	// %3E 表示>
 	// %2C 表示，
-    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
-    url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang&style=&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}';    
+	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts';
+	data = 'xinjiang';
+	layer = 'xinjiang';
+	EPSG = '3857'
+	version = '1.0.0';
+	
+    imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{EPSG}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{EPSG}:{z}&TileCol={x}&TileRow={y}';    
 	constructor(options) {
 		super(options);
         Object.assign(this, options);
+		this.imageUrl = this.imageUrl.replace('{url}', this.url);
+		this.imageUrl = this.imageUrl.replace('{version}', this.version);
+		this.imageUrl = this.imageUrl.replace('{data}', this.data);
+		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
+		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
+		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
     }
     fetchTile(zoom, x, y, bbox)
 	{
@@ -34,7 +45,7 @@ export class GeoserverWMTSProvider extends WMSProvider{
 			return;
 		}
 		
-        let urlTemp = this.url.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
+        let urlTemp = this.imageUrl.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
 		
 		return new Promise((resolve, reject) => 
 		{

@@ -71,7 +71,6 @@ import { WMSProvider } from "./WMSProvider";
 import { UnitsUtils} from "../utils/UnitsUtils";
 
 export class GeoserverWMSProvider extends WMSProvider{
-	mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
     minZoom = 1;
     maxZoom = 13;
     tileSize = 256;
@@ -87,27 +86,25 @@ export class GeoserverWMSProvider extends WMSProvider{
 	// %3E 表示>
 	// %2C 表示，
     // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
-	ip = '127.0.0.1';
-	port = '8080';
-	service = 'WMS';
-	space = 'xinjiang';
+	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts'
 	data = 'xinjiang';
 	layer = 'xinjiang';
 	width = 256;
 	height = 256;
-	url = 'http://{ip}:{port}/geoserver/{space}/wms?SERVICE={service}&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image/png8&TRANSPARENT=true&STYLES&LAYERS={data}:{layer}&exceptions=application/vnd.ogc.se_inimage&SRS=EPSG:4326&WIDTH={width}&HEIGHT={height}&BBOX={bbox}'
+	EPSG = '4326'
+	version = '1.1.1';
+	imageUrl = '{url}?SERVICE=WMS&VERSION={version}&REQUEST=GetMap&FORMAT=image/png8&TRANSPARENT=true&STYLES&LAYERS={data}:{layer}&exceptions=application/vnd.ogc.se_inimage&SRS=EPSG:{EPSG}&WIDTH={width}&HEIGHT={height}&BBOX={bbox}'
 	
 	constructor(options) {
 		super(options);
         Object.assign(this, options);
-		this.url = this.url.replace('{ip}', this.ip);
-		this.url = this.url.replace('{port}', this.port);
-		this.url = this.url.replace('{service}', this.service);
-		this.url = this.url.replace('{space}', this.space);
-		this.url = this.url.replace('{data}', this.data);
-		this.url = this.url.replace('{layer}', this.layer);
-		this.url = this.url.replace('{width}', this.width);
-		this.url = this.url.replace('{height}', this.height);
+		this.imageUrl = this.imageUrl.replace('{url}', this.url);
+		this.imageUrl = this.imageUrl.replace('{version}', this.version);
+		this.imageUrl = this.imageUrl.replace('{data}', this.data);
+		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
+		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
+		this.imageUrl = this.imageUrl.replace('{width}', this.width);
+		this.imageUrl = this.imageUrl.replace('{height}', this.height);
     }
     fetchTile(zoom,x,y,bbox)
 	{
@@ -123,7 +120,7 @@ export class GeoserverWMSProvider extends WMSProvider{
 		let bottomRight = UnitsUtils.quadtreeToDatums(zoom,x+1,y+1);
 		let box = [topleft.longitude, bottomRight.latitude, bottomRight.longitude, topleft.latitude]; // 先经度后维度
 		console.log("geoserver:fetchtile",zoom, x, y, box);
-        let urlTemp = this.url.replace('{bbox}', box.join(","));
+        let urlTemp = this.imageUrl.replace('{bbox}', box.join(","));
 		return new Promise((resolve, reject) => 
 		{
 			const image = document.createElement('img');

@@ -17,12 +17,12 @@ export class LODFrustum extends LODRadial
 	/**
 	 * Distance to subdivide the tiles.
 	 */
-	subdivideDistance;
+	// subdivideDistance;
 
 	/**
 	 * Distance to simplify the tiles.
 	 */
-	simplifyDistance;
+	// simplifyDistance;
 
 	/**
 	 * If true only the central point of the plane geometry will be used

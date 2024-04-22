@@ -17,9 +17,10 @@ export {DebugProvider} from './providers/DebugProvider';
 export {HeightDebugProvider} from './providers/HeightDebugProvider';
 export {S101Provider} from './providers/S101Provider';
 export {S101HeightProvider} from './providers/S101HeightProvider';
-export {CustomMapsProvider} from './providers/CustomMapsProvider';
 export {GeoserverWMSProvider} from './providers/GeoserverWMSProvider';
+export {GeoserverWMTSProvider} from './providers/GeoserverWMTSProvider';
 export {WMSProvider} from './providers/WMSProvider';
+export {RoadImageProvider} from './providers/RoadImageProvider';
 
 export {MapNodeGeometry} from './geometries/MapNodeGeometry';
 export {MapNodeHeightGeometry} from './geometries/MapNodeHeightGeometry';
@@ -38,3 +39,7 @@ export {GeolocationUtils} from './utils/GeolocationUtils';
 export {CancelablePromise} from './utils/CancelablePromise';
 export {XHRUtils} from './utils/XHRUtils';
 export {TextureUtils} from './utils/TextureUtils';
+export {Element} from './utils/Element';
+
+export {Layer} from './layers/Layer';
+export {WegeoMap} from './WegeoMap';
