@@ -3,7 +3,7 @@ import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color } from 'three';
-import {TWEEN} from 'three/examples/jsm/libs/tween.module.js';
+import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 
 export class Layer {
     id; // 唯一标识
@@ -114,7 +114,9 @@ export class Layer {
         if(this.base){
             this.controls.update();
         }
-        TWEEN.update();
+        if (this.base){ 
+            TWEEN.update(); //目前只有在基础地图中添加相机移动的动画，所以暂且只在base地图中进行渲染，后期可改成每个图层都进行渲染，或者必要时进行渲染。 
+        }
         this.renderer.autoClear = true;
         this.renderer.render(this.scene, this.camera);
     }

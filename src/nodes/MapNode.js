@@ -292,8 +292,8 @@ export class MapNode extends Mesh
 			texture.magFilter = LinearFilter;
 			texture.minFilter = LinearFilter;
 			texture.needsUpdate = true;
-			texture.wrapS = RepeatWrapping;
-            texture.wrapT = RepeatWrapping;
+			// texture.wrapS = RepeatWrapping;
+            // texture.wrapT = RepeatWrapping;
 			
 			// @ts-ignore
 			this.material.map = texture;
