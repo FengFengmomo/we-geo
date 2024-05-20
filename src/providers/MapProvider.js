@@ -22,7 +22,7 @@ export class MapProvider
 	/**
 	 * Maximum tile level.
 	 */
-	maxZoom = 20;
+	maxZoom = 25;
 
 	/**
 	 * Map bounds.

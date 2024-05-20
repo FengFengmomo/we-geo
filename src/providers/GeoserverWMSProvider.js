@@ -63,10 +63,7 @@
  * @Date: 2024-04-08 15:58:06
  * @LastEditors: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
  * @LastEditTime: 2024-04-10 17:46:58
- * @FilePath: \we-geo\src\providers\GeoserverWMSProvider.js
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-//http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
 import { WMSProvider } from "./WMSProvider";
 import { UnitsUtils} from "../utils/UnitsUtils";
 

@@ -2,13 +2,13 @@
 import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
-import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Vector3, Vector2 } from 'three';
+import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Vector3, Vector2, Clock } from 'three';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
-import {Config} from '../environment/config'
-import BasLayer from "./basLayer";
+import {Config} from '../environment/config';
+import { Loader3DTiles } from 'three-loader-3dtiles';
 
-export class Layer  extends BasLayer{
+export class D3TilesLayer {
     id; // 唯一标识
     layerContainer; // div#layer 容器
     zIndex=1;//默认为1
@@ -28,8 +28,18 @@ export class Layer  extends BasLayer{
     modelLayer = false; // 模型图层
     imageLayer = false; // 影像图层
     vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
-    constructor(id, layerContainer, canvas, mapView, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
-        super();
+    /**
+     * 
+     * @param {*} id canvas的id
+     * @param {*} layerContainer div#layer 容器
+     * @param {*} canvas canvas
+     * @param {*} option = jsonPath 文件路径，callback 回调函数
+     * @param {*} camera camera
+     * @param {*} z_index html显示层级
+     * @param {*} opacity 透明度
+     * @param {*} visible 可见性
+     */
+    constructor(id, layerContainer, canvas, option = {jsonPath: '', callback: () => {}}, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
         this.id = id;
         this.layerContainer = layerContainer;
         this.canvas = canvas;
@@ -43,34 +53,56 @@ export class Layer  extends BasLayer{
         });
         this.renderer.setClearColor(0xFFFFFF, 0.0);
         this.scene = new Scene();
-        this.mapView = mapView;
+        // https://github.com/nytimes/three-loader-3dtiles
+
+        this.clock = new Clock();
+        this.loadTiles(option);
         this.camera = camera;
-        if(this.mapView){
-            this.scene.add(this.mapView);
-            this.mapView.updateMatrixWorld(true);
-        }
+        // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
         this.controls = new MapControls(this.camera, this.canvas);
         this.controls.minDistance = 1e1;
         this.controls.zoomSpeed = 2.0;
+        // this.camera.position.set(coords.x, 38472.48763833733, -coords.y);
+        // this.controls.target.set(this.camera.position.x, 0, this.camera.position.z);
         this._raycaster = new Raycaster();
         if(Config.outLineMode){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
         }
+        
     }
-
-    moveTo(lat, lon, height = 38472.48763833733){
+    // 支持3dtiles，点云，geojson
+    async loadTiles(option){
+        const result = await Loader3DTiles.load({
+            url: option.jsonPath,
+            renderer: this.renderer,
+            options: {
+                dracoDecoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco',
+                basisTranscoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis',
+                resetTransform: true
+              },
+            });
+        const {model, runtime} = result;
+        // runtime.orientToGeocoord({height:38000.48763833733, lat:44.266119, long:90.139228});
+        this.tilesRuntime = runtime;
+        model.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
         // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
-        var coords = UnitsUtils.datumsToSpherical(lat,lon);
-        this.camera.position.set(coords.x, height, -coords.y);
-        this.controls.target.set(this.camera.position.x, 0, this.camera.position.z);
-    }
+        // model.position.set(coords.x, 38472.48763833733, -coords.y);
+        // model.updateMatrixWorld();
+        runtime.orientToGeocoord({
+        long: runtime.getTileset().cartographicCenter[0],
+        lat: runtime.getTileset().cartographicCenter[1],
+        height: runtime.getTileset().cartographicCenter[2]
+        });
+        
+        var coords = {
+            x: model.position.x,
+            y: model.position.y,
+            z: model.position.z
+        }
+        this.scene.add(model);
 
-    moveToByCoords(coords){
-        let offset = 50;
-        this.camera.position.set(coords.x, coords.y+offset, coords.z);
-        this.controls.target.set(coords.x, coords.y, coords.z);
+        option.callBack(coords);
     }
-
 
     on(eventName, callback){
         this.listener.on(eventName, callback);
@@ -146,12 +178,17 @@ export class Layer  extends BasLayer{
 
     animate(){
         this.animateId = requestAnimationFrame(this.animate.bind(this));
+        const dt = this.clock.getDelta()
         if(this.base){
             this.controls.update();
         }
         if (this.base){ 
             TWEEN.update(); //目前只有在基础地图中添加相机移动的动画，所以暂且只在base地图中进行渲染，后期可改成每个图层都进行渲染，或者必要时进行渲染。 
         }
+        if (this.tilesRuntime) {
+            this.tilesRuntime.update(dt, window.innerHeight, this.camera);
+          }
+        // this.tilesRenderer.update(); // 瓦片渲染
         if (Config.outLineMode){
             this.effectOutline.render(); // 合成器渲染
             // this.effectOutline.composer.render(); // 合成器渲染

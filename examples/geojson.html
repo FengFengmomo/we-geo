@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Tiles Loader: RealityCapture</title>
+  <title>3D Tiles Loader: Google Maps 3D Tiles with GeoJSON overlay</title>
   <style>
     * {
       margin: 0;
@@ -34,7 +34,6 @@
     #guide p {
       margin-top: 10px;
     }
-
     #stats-widget  {
       position: fixed;
       top: 70px;
@@ -59,28 +58,22 @@
     @media (max-width:480px) {
       #guide, #stats-widget { display: none; }
     }
+
+    #data-attribution {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      padding: 10px;
+      font-size: 14px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <div id='canvas-parent'></div>
+  <div id="canvas-parent"></div>
   <div id="stats-widget"></div>
-
-  <div id="guide">
-    <span id="example-desc">
-      <b>Freeman Alley, New York.</b> Captured using iPhone 12 Pro Max and processed via RealityCapture.
-    </span>
-    <p>Use arrow/WASD keys or mouse wheel/trackpad to move around, and click and drag to turn/rotate the camera.</p>
-    <p>
-      <u>Available URL parameters:</u>
-      <ul>
-        <li><b>tilesetUrl</b>: Load another tileset json.</li>
-        <li><b>sse</b>: Change the maximum screen space error.</li>
-      </ul>
-    </p>
-  </div>
-
-  <script src="test.js">
-  </script>
-  <a id="button" target="_blank" href="https://github.com/nytimes/three-loader-3dtiles/blob/master/examples/demos/realitycapture/index.html" title="View source code for demo" style=""><img src="../ic_code_black_24dp.svg"></a>
+  <div id="data-attribution">Data attribution: <span id="copyright"></span></div>
+  <script src="./js/geojson.js"></script>
 </body>
 </html>

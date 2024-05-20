@@ -25,10 +25,12 @@ export class GeoserverWMTSProvider extends WMSProvider{
 	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts';
 	data = 'xinjiang';
 	layer = 'xinjiang';
-	EPSG = '3857'
+	tilematrixset = 'unkonwn'; // 设置该参数，则同时需要设置tilematrix,
+	TileMatrix = 'unkonwn'; // 同上
+	EPSG = '3857';
 	version = '1.0.0';
 	
-    imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{EPSG}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{EPSG}:{z}&TileCol={x}&TileRow={y}';    
+    imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{tilematrixset}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{TileMatrix}:{z}&TileCol={x}&TileRow={y}';    
 	constructor(options) {
 		super(options);
         Object.assign(this, options);
@@ -36,8 +38,14 @@ export class GeoserverWMTSProvider extends WMSProvider{
 		this.imageUrl = this.imageUrl.replace('{version}', this.version);
 		this.imageUrl = this.imageUrl.replace('{data}', this.data);
 		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
-		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
-		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
+		if(this.tilematrixset === 'unkonwn'){
+		    this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.EPSG);
+			this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.EPSG);
+		} else {
+			this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.tilematrixset);
+			this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.TileMatrix);
+		}
+		
     }
     fetchTile(zoom, x, y, bbox)
 	{

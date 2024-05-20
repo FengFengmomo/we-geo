@@ -45,13 +45,13 @@ export default [
 		output: [
 			{
 				format: 'iife',
-				file: 'examples/wegeo.js',
+				file: 'examples/js/wegeo.js',
 				indent: '\t'
 			}
 		]
 	},
 	{
-		input: 'src/examples/s101complete.js',
+		input: 'src/examples/geojson.js',
 		plugins: [
 			resolve(),
 			typescript({
@@ -61,7 +61,7 @@ export default [
 		output: [
 			{
 				format: 'iife',
-				file: 'examples/s101complete.js',
+				file: 'examples/js/geojson.js',
 				indent: '\t'
 			}
 		]

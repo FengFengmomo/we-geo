@@ -21,6 +21,8 @@ export {GeoserverWMSProvider} from './providers/GeoserverWMSProvider';
 export {GeoserverWMTSProvider} from './providers/GeoserverWMTSProvider';
 export {WMSProvider} from './providers/WMSProvider';
 export {RoadImageProvider} from './providers/RoadImageProvider';
+export {TianDiTuProvider} from './providers/TianDituProvider';
+export {TianDiTuHeightProvider} from './providers/TianDituHeightProvider';
 
 export {MapNodeGeometry} from './geometries/MapNodeGeometry';
 export {MapNodeHeightGeometry} from './geometries/MapNodeHeightGeometry';
@@ -43,3 +45,5 @@ export {Element} from './utils/Element';
 
 export {Layer} from './layers/Layer';
 export {WegeoMap} from './WegeoMap';
+
+export {Config} from './environment/config';

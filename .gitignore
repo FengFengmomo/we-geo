@@ -6,6 +6,9 @@ examples/data/*
 examples/heightdata/*
 examples/heightpng/*
 examples/heightpng_bak/*.png
+examples/s228_checkpoint_3dtiles/*
+examples/js/*
+libs/*/*
 docs/
 package-lock.json
 pnpm-lock.yaml

@@ -58,5 +58,9 @@
 		"three": "^0.160.0",
 		"typedoc": "0.23.23",
 		"typescript": "4.9.4"
+	},
+	"dependencies": {
+		"3d-tiles-renderer": "^0.3.31",
+		"three-loader-3dtiles": "^1.2.3"
 	}
 }

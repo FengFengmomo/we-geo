@@ -13,17 +13,17 @@ import {Geolocation} from './Geolocation';
 export class UnitsUtils 
 {
 	/**
-	 * Average radius of earth in meters.
+	 * Average radius of earth in meters. // 赤道平均半径
 	 */
 	static EARTH_RADIUS = 6371008;
 
 	/**
-	 * Earth radius in semi-major axis A as defined in WGS84.
+	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
 	 */
 	static EARTH_RADIUS_A = 6378137.0;
 
 	/**
-	 * Earth radius in semi-minor axis B as defined in WGS84.
+	 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
 	 */
 	static EARTH_RADIUS_B = 6356752.314245;
 
@@ -143,5 +143,42 @@ export class UnitsUtils
 	static mapboxAltitude(color) 
 	{
 		return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
+	}
+	
+	/**
+	 * WGS84经纬度转平面xy坐标
+	 * @param {*} lat 维度
+	 * @param {*} lon 经度
+	 * @returns {Vector2}
+	 */
+	static latLonToXy(lat, lon){
+		let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
+		let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
+		return new Vector2(x, y);
+	}
+
+	/**
+	 * 平面xy坐标转WGS84经纬度
+	 * @param {*} x 
+	 * @param {*} y 
+	 * @returns {Geolocation}
+	 */
+	static xyToLatLon(x, y){
+	    let lat = y/UnitsUtils.EARTH_RADIUS_A *180 /Math.PI;
+		let lon = x/(UnitsUtils.EARTH_RADIUS_A * Math.cos(lat/180 *Math.PI))*180 /Math.PI;
+		return new Geolocation(lat, lon);
+	}
+
+	/**
+	 * @param {*} lat 维度 
+	 * @param {*} lng 经度
+	 * @returns {Vector2}
+	 */
+	static mecatorLL2XY(lat, lng){
+		let earthRad = UnitsUtils.EARTH_RADIUS_A;
+		let x = ((lng * Math.PI) / 180) * earthRad;
+		let a = (lat * Math.PI) / 180;
+		let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
+		return new Vector2(x, y)
 	}
 }

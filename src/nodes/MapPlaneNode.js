@@ -18,7 +18,7 @@ export class MapPlaneNode extends MapNode
 {
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, bbox, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location, bbox, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
 		this.matrixAutoUpdate = false;
 		this.isMesh = true;
