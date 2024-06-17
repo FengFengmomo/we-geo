@@ -34,22 +34,22 @@ export default [
 	// 		}
 	// 	]
 	// },
-	{
-		input: 'src/examples/wegeo.js',
-		plugins: [
-			resolve(),
-			typescript({
-				tsconfig: './tsconfig.examples.json',
-			})
-		],
-		output: [
-			{
-				format: 'iife',
-				file: 'examples/js/wegeo.js',
-				indent: '\t'
-			}
-		]
-	},
+	// {
+	// 	input: 'src/examples/wegeo.js',
+	// 	plugins: [
+	// 		resolve(),
+	// 		typescript({
+	// 			tsconfig: './tsconfig.examples.json',
+	// 		})
+	// 	],
+	// 	output: [
+	// 		{
+	// 			format: 'iife',
+	// 			file: 'examples/js/wegeo.js',
+	// 			indent: '\t'
+	// 		}
+	// 	]
+	// },
 	{
 		input: 'src/examples/water2.js',
 		plugins: [

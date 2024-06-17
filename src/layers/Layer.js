@@ -106,23 +106,27 @@ export class Layer  extends BasLayer{
 
     openWaterConfig(){
         /**
-         * 打开水系配置
+         * 打开渲染水系配置
          */
         this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.5;
-
+        
+        // 添加天空
         this.sky = new Sky();
         this.sky.rotateX = Math.PI / 2;
         this.sky.scale.setScalar( Config.EARTH_RADIUS * 2 * Math.PI ); // 天空放大倍数
-        // this.scene.add( this.sky );
+        this.scene.add( this.sky );
         const skyUniforms = this.sky.material.uniforms;
         // 天空的配置
         skyUniforms[ 'turbidity' ].value = 10;
         skyUniforms[ 'rayleigh' ].value = 2;
         skyUniforms[ 'mieCoefficient' ].value = 0.005;
         skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+        // 旋转 设置为y朝上
+        // sky.material.uniforms["up"].value = new THREE.Vector3(0, 1, 0);
         
+        // 天空映射， 更新太阳位置
         this.pmremGenerator = new PMREMGenerator( this.renderer );
         this.sceneEnv = new Scene();
         this.renderTarget = null;
@@ -145,7 +149,7 @@ export class Layer  extends BasLayer{
 
         this.sceneEnv.add( this.sky );
         this.renderTarget = pmremGenerator.fromScene( this.sceneEnv );
-        // this.scene.add( this.sky );
+        this.scene.add( this.sky );
 
         this.scene.environment = this.renderTarget.texture;
 
