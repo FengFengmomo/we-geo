@@ -11,6 +11,7 @@ import { RaycasterUtils } from './raycaster/utils';
 import { Config } from './environment/config';
 import { GeoLorder } from './loader/GeoLorder';
 import { Colors } from './utils/Colors';
+import { WaterLorder } from './loader/WaterLorder';
 
 export class WegeoMap {
     baseMap;
@@ -221,11 +222,41 @@ export class WegeoMap {
         layer.directionalLight = new DirectionalLight(0xFFFFFF);
         // light.target = map2;
         layer.add(layer.directionalLight);
+        await this.addRegion(layer, mode);
+    }
 
+    async addRegion(layer, mode){
         let loader = new GeoLorder();
         let path = Config.XINJIANG_REGION;
         let obj = await loader.loadRegionJson(path, Colors.Red, mode);
         layer.add(obj);
+    }
+
+    async addWaterLayer(mode = WaterLorder.FLAT){
+        let [id, container, canvas] = Element.addLayerCanvas();
+        // 不再依赖mapview构建视图
+        let layer = new Layer(id, container, canvas, null);
+        this.layers.set(id, layer);
+        layer.waterLayer = true;
+        layer.ambientLight = new AmbientLight(0x404040);
+        layer.add(layer.ambientLight);
+        layer.directionalLight = new DirectionalLight(0xFFFFFF);
+        // light.target = map2;
+        layer.add(layer.directionalLight);
+        await this.addWater(layer, mode);
+        // layer.openWaterConfig();
+        
+    }
+
+    async addWater(layer, mode){
+        let loader = new WaterLorder();
+        let path = Config.XINJIANG_REGION;
+        let obj = await loader.getWater(path, mode);
+        let childrens = obj.children;
+        childrens.forEach((child) => {
+            // layer.addWater(child);
+            layer.add(child);
+        })
     }
 
     setLayerVisble(layer, visible){

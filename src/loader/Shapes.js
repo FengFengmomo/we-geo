@@ -1,6 +1,6 @@
 import { Shape } from "three";
 
-export default class Shapes {
+export class Shapes {
     
     getCircle(radius=400){
         const arcShape = new Shape()

@@ -51,7 +51,7 @@ export default [
 		]
 	},
 	{
-		input: 'src/examples/geojson.js',
+		input: 'src/examples/water2.js',
 		plugins: [
 			resolve(),
 			typescript({
@@ -61,7 +61,7 @@ export default [
 		output: [
 			{
 				format: 'iife',
-				file: 'examples/js/geojson.js',
+				file: 'examples/js/water2.js',
 				indent: '\t'
 			}
 		]

@@ -8,7 +8,9 @@ let Config = {
     DRACOPath: './libs/draco/',
     BASICPath: './libs/basic/',
     XINJIANG_REGION: 'https://geo.datav.aliyun.com/areas_v3/bound/650000_full.json',
-    
+    SUNDEGREE: 2, // 太阳高度
+    SUNAZIMUTH: 180, // 太阳方位角
+    EARTH_RADIUS: 6378137, // 地球半径
 }
 // export default Config;
 export { Config };

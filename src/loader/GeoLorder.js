@@ -6,7 +6,7 @@ import { ShapeGeometry, Mesh, ExtrudeGeometry,
     CatmullRomCurve3} from 'three'
 import { UnitsUtils } from '../utils/UnitsUtils';
 import { Vector3 } from 'three';
-import Shapes from './Shapes';
+import { Shapes } from './Shapes';
 import { Colors } from '../utils/Colors'
 
 
@@ -194,10 +194,16 @@ export class GeoLorder{
         const spline = new CatmullRomCurve3( ponits );
         spline.curveType = 'catmullrom';
         spline.closed = true;
+        // 参考于： https://threejs.org/docs/index.html?q=shape#api/en/geometries/ExtrudeGeometry
+        // bevel: 斜面
         const extrudeSettings = {
-            steps: 100,
-            bevelEnabled: false,
-            extrudePath: spline
+            steps: 10, // 细分数, 原值为100,或者50
+            extrudePath: spline,
+            bevelEnabled: true,
+            bevelThickness: 5,
+            bevelSize: 5,
+            bevelOffset: 0,
+            bevelSegments: 5
         };
         const geometry = new ExtrudeGeometry( shape, extrudeSettings );
 

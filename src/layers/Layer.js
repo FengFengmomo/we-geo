@@ -2,11 +2,14 @@
 import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
-import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Vector3, Vector2 } from 'three';
+import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, 
+    Vector3, Vector2, ACESFilmicToneMapping,
+    PMREMGenerator, MathUtils } from 'three';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
 import BasLayer from "./basLayer";
+import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 export class Layer  extends BasLayer{
     id; // 唯一标识
@@ -28,6 +31,7 @@ export class Layer  extends BasLayer{
     modelLayer = false; // 模型图层
     imageLayer = false; // 影像图层
     vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
+    waters = []; // 水面集合
     constructor(id, layerContainer, canvas, mapView, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
         super();
         this.id = id;
@@ -92,11 +96,84 @@ export class Layer  extends BasLayer{
         this.scene.add(Object3D);
     }
 
+
     remove(Object3D) {
         if(Object3D ==null || Object3D ==undefined){
             return;
         }
         this.scene.remove(Object3D);  
+    }
+
+    openWaterConfig(){
+        /**
+         * 打开水系配置
+         */
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.toneMapping = ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 0.5;
+
+        this.sky = new Sky();
+        this.sky.rotateX = Math.PI / 2;
+        this.sky.scale.setScalar( Config.EARTH_RADIUS * 2 * Math.PI ); // 天空放大倍数
+        // this.scene.add( this.sky );
+        const skyUniforms = this.sky.material.uniforms;
+        // 天空的配置
+        skyUniforms[ 'turbidity' ].value = 10;
+        skyUniforms[ 'rayleigh' ].value = 2;
+        skyUniforms[ 'mieCoefficient' ].value = 0.005;
+        skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+        
+        this.pmremGenerator = new PMREMGenerator( this.renderer );
+        this.sceneEnv = new Scene();
+        this.renderTarget = null;
+        this.sun = new Vector3();
+        this.updateSun(Config.SUNDEGREE, Config.SUNAZIMUTH);
+    }
+
+    updateSun(elevation, azimuth) {
+
+        const phi = MathUtils.degToRad( 90 - elevation );
+        const theta = MathUtils.degToRad( azimuth );
+
+        this.sun.setFromSphericalCoords( 1, phi, theta );
+
+        this.sky.material.uniforms[ 'sunPosition' ].value.copy( this.sun );
+        for (let water of this.waters){
+            water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
+        }
+        if ( this.renderTarget !== undefined ) this.renderTarget.dispose();
+
+        this.sceneEnv.add( this.sky );
+        this.renderTarget = pmremGenerator.fromScene( this.sceneEnv );
+        // this.scene.add( this.sky );
+
+        this.scene.environment = this.renderTarget.texture;
+
+
+    }
+
+    /**
+     * 添加水系
+     * @param {*} water 
+     * @returns 
+     */
+    addWater(water) {
+        if(water ==null || water ==undefined){
+            return;
+        }
+        this.scene.add(water);
+        this.waters.push(water);
+    }
+
+    removeWater(water) {
+        if(water ==null || water ==undefined){
+            return;
+        }
+        this.scene.remove(water);
+        let index = this.waters.indexOf(water);
+        if (index > -1) {
+            this.waters.splice(index, 1);
+        }
     }
 
     setVisible(visible) {
@@ -151,6 +228,9 @@ export class Layer  extends BasLayer{
         }
         if (this.base){ 
             TWEEN.update(); //目前只有在基础地图中添加相机移动的动画，所以暂且只在base地图中进行渲染，后期可改成每个图层都进行渲染，或者必要时进行渲染。 
+        }
+        for(let water of this.waters){
+            water.material.uniforms[ 'time' ].value += 2.0 / 60.0;
         }
         if (Config.outLineMode){
             this.effectOutline.render(); // 合成器渲染
