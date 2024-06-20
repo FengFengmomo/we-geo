@@ -8,6 +8,7 @@ export class MapSphereNodeGeometry extends BufferGeometry
 	/**
 	 * Map sphere geometry constructor.
 	 * 
+	 * @param radius - Radius of the sphere.
 	 * @param width - Width of the node.
 	 * @param height - Height of the node.
 	 * @param widthSegments - Number of subdivisions along the width.

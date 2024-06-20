@@ -37,6 +37,7 @@ export class LODFrustum extends LODRadial
 	 * Otherwise the full bouding box of the objects are considered.
 	 */
 	pointOnly = false;
+	// pointOnly = true;
 
 	constructor(subdivideDistance = 120, simplifyDistance = 400) 
 	{
@@ -52,6 +53,7 @@ export class LODFrustum extends LODRadial
 		view.children[0].traverse((node) => 
 		{
 			node.getWorldPosition(position);
+			
 			let distance = pov.distanceTo(position);
 			distance /= Math.pow(2, view.provider.maxZoom - node.level);
 

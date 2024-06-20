@@ -18,22 +18,22 @@ export default [
 	// 		}
 	// 	]
 	// },
-	// {
-	// 	input: 'src/examples/s101.js',
-	// 	plugins: [
-	// 		resolve(),
-	// 		typescript({
-	// 			tsconfig: './tsconfig.examples.json',
-	// 		})
-	// 	],
-	// 	output: [
-	// 		{
-	// 			format: 'iife',
-	// 			file: 'examples/s101.js',
-	// 			indent: '\t'
-	// 		}
-	// 	]
-	// },
+	{
+		input: 'src/examples/fakeEarth.js',
+		plugins: [
+			resolve(),
+			typescript({
+				tsconfig: './tsconfig.examples.json',
+			})
+		],
+		output: [
+			{
+				format: 'iife',
+				file: 'examples/js/fakeEarth.js',
+				indent: '\t'
+			}
+		]
+	},
 	// {
 	// 	input: 'src/examples/wegeo.js',
 	// 	plugins: [
@@ -50,24 +50,8 @@ export default [
 	// 		}
 	// 	]
 	// },
-	{
-		input: 'src/examples/water2.js',
-		plugins: [
-			resolve(),
-			typescript({
-				tsconfig: './tsconfig.examples.json',
-			})
-		],
-		output: [
-			{
-				format: 'iife',
-				file: 'examples/js/water2.js',
-				indent: '\t'
-			}
-		]
-	},
 	// {
-	// 	input: 'src/examples/providers.js',
+	// 	input: 'src/examples/waterjson.js',
 	// 	plugins: [
 	// 		resolve(),
 	// 		typescript({
@@ -77,11 +61,27 @@ export default [
 	// 	output: [
 	// 		{
 	// 			format: 'iife',
-	// 			file: 'examples/providers.js',
+	// 			file: 'examples/js/waterjson.js',
 	// 			indent: '\t'
 	// 		}
 	// 	]
 	// },
+	{
+		input: 'src/examples/providers.js',
+		plugins: [
+			resolve(),
+			typescript({
+				tsconfig: './tsconfig.examples.json',
+			})
+		],
+		output: [
+			{
+				format: 'iife',
+				file: 'examples/providers.js',
+				indent: '\t'
+			}
+		]
+	},
 	// {
 	// 	input: 'src/examples/basic.js',
 	// 	plugins: [

@@ -58,7 +58,7 @@ function init() {
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
             distortionScale: 3.7,
-            fog: true,
+            fog: false,
             alpha: 1.0,
         }
     );
@@ -70,7 +70,7 @@ function init() {
     // Skybox
 
     const sky = new Sky();
-    sky.scale.setScalar( 10000 );
+    sky.scale.setScalar( 6378137 * 2 * Math.PI );
     sky.translateX = true;
     sky.translateY = true;
     sky.translateZ = true;
@@ -131,8 +131,8 @@ function init() {
     controls = new OrbitControls( camera, renderer.domElement );
     controls.maxPolarAngle = Math.PI * 0.495;
     controls.target.set( 0, 10, 0 );
-    controls.minDistance = 40.0;
-    controls.maxDistance = 200.0;
+    // controls.minDistance = 40.0;
+    // controls.maxDistance = 200.0;
     controls.update();
 
     //

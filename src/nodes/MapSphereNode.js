@@ -90,8 +90,11 @@ export class MapSphereNode extends MapNode
 		const matrix = new Matrix4();
 		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
 		this.geometry.applyMatrix4(matrix);
-	
+		// 未赋值matrix的缘故？
+		// this.matrix = matrix;
 		this.position.copy(center);
+		
+		// var centerCopy = this.geometry.boundingBox.getCenter(new Vector3());
 	
 		this.updateMatrix();
 		this.updateMatrixWorld();
@@ -107,7 +110,8 @@ export class MapSphereNode extends MapNode
 	{
 		if (this.matrixWorldNeedsUpdate || force) 
 		{
-			this.matrixWorld.copy(this.matrix);
+			var temp = this.matrix.clone().multiplyScalar(6371008);
+			this.matrixWorld.copy(temp);
 			this.matrixWorldNeedsUpdate = false;
 		}
 	}

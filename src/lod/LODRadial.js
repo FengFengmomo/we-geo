@@ -36,7 +36,6 @@ export class LODRadial extends LODControl
 		view.children[0].traverse((node) =>
 		{
 			node.getWorldPosition(position);
-
 			let distance = pov.distanceTo(position);
 			distance /= Math.pow(2, view.provider.maxZoom - node.level);
 

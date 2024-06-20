@@ -117,17 +117,18 @@ export class WaterLorder {
                         for(let point of polygon){
                             // Todo 经纬度转笛卡尔坐标系
                             let coord = UnitsUtils.datumsToSpherical(point[1], point[0]); // 经纬度转笛卡尔坐标系, point 中的经纬度是反的【lon,lat】
-                            shapePonit.push(new Vector2(coord.x, -coord.y));
+                            shapePonit.push(new Vector2(coord.x, coord.y)); // 这里为什么不是负Y呢？，由于水面只有一面，在实际测试中，需要设置为正Y
                         }
                         let shape = new Shape(shapePonit);
                         let geometry = this.produce(shape, mode);
-                        let water = this.initWater2(geometry);
-                        water.rotation.set( -Math.PI/2,0,0);
+                        let water = this.initWater(geometry);
+                        water.rotation.set(-Math.PI/2, 0, 0);
                         group.add(water);
                     }
                 }
             });
         });
+        // group.rotation.set( Math.PI/2,0,0);
         return group;
     }
 

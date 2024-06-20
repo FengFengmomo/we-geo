@@ -244,8 +244,21 @@ export class WegeoMap {
         // light.target = map2;
         layer.add(layer.directionalLight);
         await this.addWater(layer, mode);
-        // layer.openWaterConfig();
+        layer.openWaterConfig();
         
+    }
+    /**
+     * @deprecated
+     * 添加水面到最底层图层
+     */
+    async addWaterToBaseMap(mode = WaterLorder.FLAT){
+        await this.addWater(this.baseMap, mode);
+        this.baseMap.openWaterConfig();
+    }
+
+    async addWaterToLayer(layer, mode = WaterLorder.FLAT){
+        await this.addWater(layer, mode);
+        layer.openWaterConfig();
     }
 
     async addWater(layer, mode){
@@ -254,8 +267,8 @@ export class WegeoMap {
         let obj = await loader.getWater(path, mode);
         let childrens = obj.children;
         childrens.forEach((child) => {
-            // layer.addWater(child);
-            layer.add(child);
+            layer.addWater(child);
+            // layer.add(child);
         })
     }
 
@@ -315,6 +328,15 @@ export class WegeoMap {
         controls.add(Config, 'selectModel').name("选择模型").onChange((value) => {
             if(!value){
                 RaycasterUtils.clearCaster();
+            }
+        });
+        controls.add(Config, 'waterElevation',0,1000).onChange((value) => {
+            let layers = Array.from(this.layers);
+            for(let [id,layer] of layers){
+                let waters = layer.waters;
+                for (let water of waters){
+                    water.position.y = value;
+                }
             }
         });
         // dirFolder.add(this.baseMap.directionalLight, 'intensity',0,2);

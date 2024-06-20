@@ -6,6 +6,10 @@ import {Camera, WebGLRenderer, Object3D} from 'three';
  */
 export class LODControl 
 {
+
+	constructor(){
+		
+	}
 	/**
 	 * Update LOD of the MapView and Camera position on the world.
 	 * 

@@ -11,6 +11,7 @@ let Config = {
     SUNDEGREE: 2, // 太阳高度
     SUNAZIMUTH: 180, // 太阳方位角
     EARTH_RADIUS: 6378137, // 地球半径
+    waterElevation: 0.2,
 }
 // export default Config;
 export { Config };

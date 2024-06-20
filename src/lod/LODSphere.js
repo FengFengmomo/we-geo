@@ -2,12 +2,14 @@ import {LODControl} from './LODControl';
 import {Camera, Object3D, Raycaster, Vector2, Vector3, WebGLRenderer} from 'three';
 import {MapView} from '../MapView';
 
+const pov = new Vector3();
+const position = new Vector3();
 /**
  * Use random raycasting to randomly pick n objects to be tested on screen space.
  *
  * Overall the fastest solution but does not include out of screen objects.
  */
-export class LODRaycast extends LODControl 
+export class LODSphere extends LODControl 
 {
 	/**
 	 * Number of rays used to test nodes and subdivide the map.
@@ -15,20 +17,6 @@ export class LODRaycast extends LODControl
 	 * N rays are cast each frame dependeing on this value to check distance to the visible map nodes. A single ray should be enough for must scenarios.
 	 */
 	subdivisionRays = 1;
-
-	/**
-	 * Threshold to subdivide the map tiles.
-	 *
-	 * Lower value will subdivide earlier (less zoom required to subdivide).
-	 */
-	thresholdUp = 0.6;
-
-	/**
-	 * Threshold to simplify the map tiles.
-	 *
-	 * Higher value will simplify earlier.
-	 */
-	thresholdDown = 0.15;
 
 	/**
 	 * Raycaster object used to cast rays into the world and check for hits.
@@ -40,20 +28,11 @@ export class LODRaycast extends LODControl
 	 */
 	mouse = new Vector2();
 
-	/**
-	 * Consider the distance powered to level of the node.
-	 */
-	powerDistance = false;
 
-	/**
-	 * Consider the scale of the node when calculating the distance.
-	 * 
-	 * If distance is not considered threshold values should be absolute distances.
-	 */
-	scaleDistance = true;
-
-	constructor(){
+	constructor(subdivideDistance = 120, simplifyDistance = 400){
 		super();
+        this.subdivideDistance = subdivideDistance;
+		this.simplifyDistance = simplifyDistance;
 	}
 
 	updateLOD(view, camera, renderer, scene)
@@ -75,24 +54,13 @@ export class LODRaycast extends LODControl
 			const node = intersects[i].object;
 			let distance = intersects[i].distance;
 
-			if (this.powerDistance) 
-			{
-				distance = Math.pow(distance * 2, node.level);
-			}
+			distance /= Math.pow(2, view.provider.maxZoom - node.level);
 
-			if (this.scaleDistance) 
-			{
-				// Get scale from transformation matrix directly
-				const matrix = node.matrixWorld.elements;
-				const vector = new Vector3(matrix[0], matrix[1], matrix[2]);
-				distance = vector.length() / distance;
-			}
-
-			if (distance > this.thresholdUp) 
+			if (distance < this.subdivideDistance) 
 			{
 				node.subdivide();
 			}
-			else if (distance < this.thresholdDown && node.parentNode) 
+			else if (distance > this.simplifyDistance && node.parentNode) 
 			{
 				node.parentNode.simplify();
 			}

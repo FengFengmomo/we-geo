@@ -44,7 +44,11 @@ export class Layer  extends BasLayer{
             canvas: this.canvas,
             antialias: true,
             alpha: true,
+            logarithmicDepthBuffer: true,
+            precision: "highp",
         });
+        this.renderer.sortObjects = true;
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setClearColor(0xFFFFFF, 0.0);
         this.scene = new Scene();
         this.mapView = mapView;
@@ -108,12 +112,15 @@ export class Layer  extends BasLayer{
         /**
          * 打开渲染水系配置
          */
-        this.renderer.setPixelRatio( window.devicePixelRatio );
+        // this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.5;
         
         // 添加天空
         this.sky = new Sky();
+        this.sky.translateX = true;
+        this.sky.translateY = true;
+        this.sky.translateZ = true;
         this.sky.rotateX = Math.PI / 2;
         this.sky.scale.setScalar( Config.EARTH_RADIUS * 2 * Math.PI ); // 天空放大倍数
         this.scene.add( this.sky );
@@ -145,10 +152,10 @@ export class Layer  extends BasLayer{
         for (let water of this.waters){
             water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
         }
-        if ( this.renderTarget !== undefined ) this.renderTarget.dispose();
+        if ( this.renderTarget !== null ) this.renderTarget.dispose();
 
         this.sceneEnv.add( this.sky );
-        this.renderTarget = pmremGenerator.fromScene( this.sceneEnv );
+        this.renderTarget = this.pmremGenerator.fromScene( this.sceneEnv );
         this.scene.add( this.sky );
 
         this.scene.environment = this.renderTarget.texture;
@@ -234,7 +241,7 @@ export class Layer  extends BasLayer{
             TWEEN.update(); //目前只有在基础地图中添加相机移动的动画，所以暂且只在base地图中进行渲染，后期可改成每个图层都进行渲染，或者必要时进行渲染。 
         }
         for(let water of this.waters){
-            water.material.uniforms[ 'time' ].value += 2.0 / 60.0;
+            water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
         }
         if (Config.outLineMode){
             this.effectOutline.render(); // 合成器渲染
