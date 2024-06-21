@@ -1,9 +1,11 @@
 // @ts-nocheck
 
-import {WebGLRenderer, Scene, Color, TextureLoader, Mesh, SphereGeometry, MeshBasicMaterial, PerspectiveCamera, MOUSE, AmbientLight, Raycaster, Vector2, LinearSRGBColorSpace, ColorManagement} from 'three';
+import {WebGLRenderer, Scene, Color, TextureLoader, Mesh, SphereGeometry, MeshBasicMaterial, PerspectiveCamera, 
+	MOUSE, AmbientLight, Raycaster, Vector2, LinearSRGBColorSpace, ColorManagement, Vector3} from 'three';
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {UnitsUtils, BingMapsProvider, MapView, LODFrustum, LODRadial, LODSphere} from '../main';
+import {UnitsUtils, BingMapsProvider, MapView, LODFrustum, LODRadial, LODSphere, Animate} from '../main';
+import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 
 var canvas = document.getElementById('canvas');
 
@@ -34,11 +36,11 @@ map.updateMatrixWorld(true);
 var camera = new PerspectiveCamera(60, 1, 0.01, 1e8);
 
 var controls = new OrbitControls(camera, canvas);
-controls.minDistance = UnitsUtils.EARTH_RADIUS + 3e4;
+controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
 controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
 controls.enablePan = false;
-controls.zoomSpeed = 0.7;
-controls.rotateSpeed = 0.3; 
+controls.zoomSpeed = 0.4;
+controls.rotateSpeed = 0.1; 
 controls.mouseButtons = {
 	LEFT: MOUSE.ROTATE,
 	MIDDLE: MOUSE.DOLLY,
@@ -47,6 +49,17 @@ controls.mouseButtons = {
 
 // Set initial camera position 
 camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
+
+var action = new Animate(
+	{
+		update: function(obj)
+		{
+			camera.position.copy(obj);
+			// camera.lookAt(obj.target);
+		}
+	}
+).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
 	
@@ -69,6 +82,7 @@ document.body.onresize();
 function animate()
 {
 	requestAnimationFrame(animate);
+	TWEEN.update(undefined);
 	controls.update();
 	renderer.render(scene, camera);
 }

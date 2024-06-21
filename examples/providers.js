@@ -25825,7 +25825,7 @@
 
 	}
 
-	class Group extends Object3D {
+	let Group$1 = class Group extends Object3D {
 
 		constructor() {
 
@@ -25837,7 +25837,7 @@
 
 		}
 
-	}
+	};
 
 	const _moveEvent = { type: 'move' };
 
@@ -25855,7 +25855,7 @@
 
 			if ( this._hand === null ) {
 
-				this._hand = new Group();
+				this._hand = new Group$1();
 				this._hand.matrixAutoUpdate = false;
 				this._hand.visible = false;
 
@@ -25872,7 +25872,7 @@
 
 			if ( this._targetRay === null ) {
 
-				this._targetRay = new Group();
+				this._targetRay = new Group$1();
 				this._targetRay.matrixAutoUpdate = false;
 				this._targetRay.visible = false;
 				this._targetRay.hasLinearVelocity = false;
@@ -25890,7 +25890,7 @@
 
 			if ( this._grip === null ) {
 
-				this._grip = new Group();
+				this._grip = new Group$1();
 				this._grip.matrixAutoUpdate = false;
 				this._grip.visible = false;
 				this._grip.hasLinearVelocity = false;
@@ -26162,7 +26162,7 @@
 
 			if ( hand.joints[ inputjoint.jointName ] === undefined ) {
 
-				const joint = new Group();
+				const joint = new Group$1();
 				joint.matrixAutoUpdate = false;
 				joint.visible = false;
 				hand.joints[ inputjoint.jointName ] = joint;
@@ -31269,7 +31269,7 @@
 
 		start() {
 
-			this.startTime = now();
+			this.startTime = now$1();
 
 			this.oldTime = this.startTime;
 			this.elapsedTime = 0;
@@ -31305,7 +31305,7 @@
 
 			if ( this.running ) {
 
-				const newTime = now();
+				const newTime = now$1();
 
 				diff = ( newTime - this.oldTime ) / 1000;
 				this.oldTime = newTime;
@@ -31320,7 +31320,7 @@
 
 	}
 
-	function now() {
+	function now$1() {
 
 		return ( typeof performance === 'undefined' ? Date : performance ).now(); // see #10732
 
@@ -47517,6 +47517,86 @@
 		}`
 
 	};
+
+	/**
+	 * The Ease class provides a collection of easing functions for use with tween.js.
+	 */
+
+	var now = function () { return performance.now(); };
+
+	/**
+	 * Controlling groups of tweens
+	 *
+	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+	 * In these cases, you may want to create your own smaller groups of tween
+	 */
+	var Group = /** @class */ (function () {
+	    function Group() {
+	        this._tweens = {};
+	        this._tweensAddedDuringUpdate = {};
+	    }
+	    Group.prototype.getAll = function () {
+	        var _this = this;
+	        return Object.keys(this._tweens).map(function (tweenId) {
+	            return _this._tweens[tweenId];
+	        });
+	    };
+	    Group.prototype.removeAll = function () {
+	        this._tweens = {};
+	    };
+	    Group.prototype.add = function (tween) {
+	        this._tweens[tween.getId()] = tween;
+	        this._tweensAddedDuringUpdate[tween.getId()] = tween;
+	    };
+	    Group.prototype.remove = function (tween) {
+	        delete this._tweens[tween.getId()];
+	        delete this._tweensAddedDuringUpdate[tween.getId()];
+	    };
+	    Group.prototype.update = function (time, preserve) {
+	        if (time === void 0) { time = now(); }
+	        if (preserve === void 0) { preserve = false; }
+	        var tweenIds = Object.keys(this._tweens);
+	        if (tweenIds.length === 0) {
+	            return false;
+	        }
+	        // Tweens are updated in "batches". If you add a new tween during an
+	        // update, then the new tween will be updated in the next batch.
+	        // If you remove a tween during an update, it may or may not be updated.
+	        // However, if the removed tween was added during the current batch,
+	        // then it will not be updated.
+	        while (tweenIds.length > 0) {
+	            this._tweensAddedDuringUpdate = {};
+	            for (var i = 0; i < tweenIds.length; i++) {
+	                var tween = this._tweens[tweenIds[i]];
+	                var autoStart = !preserve;
+	                if (tween && tween.update(time, autoStart) === false && !preserve) {
+	                    delete this._tweens[tweenIds[i]];
+	                }
+	            }
+	            tweenIds = Object.keys(this._tweensAddedDuringUpdate);
+	        }
+	        return true;
+	    };
+	    return Group;
+	}());
+
+	var mainGroup = new Group();
+	/**
+	 * Controlling groups of tweens
+	 *
+	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+	 * In these cases, you may want to create your own smaller groups of tweens.
+	 */
+	var TWEEN = mainGroup;
+	// This is the best way to export things in a way that's compatible with both ES
+	// Modules and CommonJS, without build hacks, and so as not to break the
+	// existing API.
+	// https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
+	TWEEN.getAll.bind(TWEEN);
+	TWEEN.removeAll.bind(TWEEN);
+	TWEEN.add.bind(TWEEN);
+	TWEEN.remove.bind(TWEEN);
+	TWEEN.update.bind(TWEEN);
 
 	// @ts-nocheck
 

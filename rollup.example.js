@@ -66,22 +66,22 @@ export default [
 	// 		}
 	// 	]
 	// },
-	{
-		input: 'src/examples/providers.js',
-		plugins: [
-			resolve(),
-			typescript({
-				tsconfig: './tsconfig.examples.json',
-			})
-		],
-		output: [
-			{
-				format: 'iife',
-				file: 'examples/providers.js',
-				indent: '\t'
-			}
-		]
-	},
+	// {
+	// 	input: 'src/examples/providers.js',
+	// 	plugins: [
+	// 		resolve(),
+	// 		typescript({
+	// 			tsconfig: './tsconfig.examples.json',
+	// 		})
+	// 	],
+	// 	output: [
+	// 		{
+	// 			format: 'iife',
+	// 			file: 'examples/providers.js',
+	// 			indent: '\t'
+	// 		}
+	// 	]
+	// },
 	// {
 	// 	input: 'src/examples/basic.js',
 	// 	plugins: [

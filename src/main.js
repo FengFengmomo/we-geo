@@ -48,3 +48,5 @@ export {Layer} from './layers/Layer';
 export {WegeoMap} from './WegeoMap';
 
 export {Config} from './environment/config';
+
+export {Animate } from './animation/Animate';
