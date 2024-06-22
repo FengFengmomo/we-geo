@@ -39,8 +39,22 @@ var controls = new OrbitControls(camera, canvas);
 controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
 controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
 controls.enablePan = false;
-controls.zoomSpeed = 0.4;
-controls.rotateSpeed = 0.1; 
+// controls.zoomSpeed = 0.2;
+// controls.rotateSpeed = 0.1; 
+// controls.panSpeed = 0.5;
+controls.addEventListener('change', function(event){
+    let distance = camera.position.distanceTo(new Vector3(0,0,0));
+	// console.log(distance);
+	if(distance > UnitsUtils.EARTH_RADIUS *2.5){
+		distance = UnitsUtils.EARTH_RADIUS *2.5;
+	}
+	let ratio = 1 - 1/(distance / UnitsUtils.EARTH_RADIUS-1);
+	let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
+	controls.zoomSpeed = thirdPow;
+	controls.rotateSpeed = thirdPow * 0.2;
+	controls.panSpeed = thirdPow;
+	// console.log("ratio:",ratio, " distance:", distance, " thirdPow:", thirdPow);
+});
 controls.mouseButtons = {
 	LEFT: MOUSE.ROTATE,
 	MIDDLE: MOUSE.DOLLY,
@@ -50,15 +64,16 @@ controls.mouseButtons = {
 // Set initial camera position 
 camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
-var action = new Animate(
-	{
-		update: function(obj)
-		{
-			camera.position.copy(obj);
-			// camera.lookAt(obj.target);
-		}
-	}
-).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+// var action = new Animate(
+// 	{
+// 		update: function(obj)
+// 		{
+// 			// camera.position.copy(obj);
+// 			console.log(camera.position);
+// 		}
+// 	}
+// ).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+// new TWEEN.Tween(camera.position).to(new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5),5).easing(TWEEN.Easing.Sinusoidal.InOut).start();
 
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 

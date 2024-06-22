@@ -63,19 +63,7 @@ export class Animate {
      */
     action(from,to,seconds = 2, easing = false){
         let that = this;
-        let tween = new TWEEN.Tween({
-            // 相机开始坐标
-            x: from.x,
-            y: from.y,
-            z: from.z,
-            // 相机开始指向的目标观察点
-        })
-        .to({
-            // 相机结束坐标
-            x: to.x,
-            y: to.y,
-            z: to.z,
-        }, seconds*1000)
+        let tween = new TWEEN.Tween(from).to(to, seconds*1000)
         .onStart(function(obj){
             that.start(obj)
         })
