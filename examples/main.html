@@ -26,13 +26,8 @@
 
 				<div id="expandButton"></div>
 			</div>
-
 			<div id="panelScrim"></div>
-
 			<div id="contentWrapper">
-
-				
-
 				<div class="card selected">
 					<a href="webgl_water.html" target="viewer" onclick="init(this)">
 						<div class="cover">
@@ -47,13 +42,15 @@
 
 		<iframe id="viewer" name="viewer" allow="fullscreen; xr-spatial-tracking;"></iframe>
 		<script>
-		const panel = document.getElementById( 'panel' );
-		const viewer = document.getElementById( 'viewer' );
-		init();
-		function init(a) {
-			viewer.src = a.href;
+			const panel = document.getElementById( 'panel' );
+			const viewer = document.getElementById( 'viewer' );
+			
+			function init(a) {
+				viewer.src = a.href;
+				viewer.style.display = 'unset';
+			}
+			viewer.src = 'webgl_water.html';
 			viewer.style.display = 'unset';
-		}
 		</script>
 	</body>
 </html>
