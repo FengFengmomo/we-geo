@@ -64,16 +64,17 @@ controls.mouseButtons = {
 // Set initial camera position 
 camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
-// var action = new Animate(
-// 	{
-// 		update: function(obj)
-// 		{
-// 			// camera.position.copy(obj);
-// 			console.log(camera.position);
-// 		}
-// 	}
-// ).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+var action = new Animate(
+	{
+		update: function(obj)
+		{
+			// camera.position.copy(obj);
+			console.log(camera.position);
+		}
+	}
+).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
 // new TWEEN.Tween(camera.position).to(new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5),5).easing(TWEEN.Easing.Sinusoidal.InOut).start();
+
 
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
