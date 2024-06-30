@@ -4,7 +4,9 @@ import {WebGLRenderer, Scene, Color, TextureLoader, Mesh, SphereGeometry, MeshBa
 	MOUSE, AmbientLight, Raycaster, Vector2, LinearSRGBColorSpace, ColorManagement, Vector3} from 'three';
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {UnitsUtils, BingMapsProvider, MapView, LODFrustum, LODRadial, LODSphere, Animate} from '../main';
+import {UnitsUtils, BingMapsProvider, MapView, 
+	LODFrustum, LODRadial, LODSphere, Animate,
+	TianDiTuProvider} from '../main';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 
 var canvas = document.getElementById('canvas');
@@ -28,7 +30,7 @@ scene.background = new Color(0x000000, LinearSRGBColorSpace);
 // 	scene.add(sphere);
 // });
 var provider = new BingMapsProvider('', BingMapsProvider.AERIAL); // new OpenStreetMapsProvider()
-
+// var provider = new TianDiTuProvider();
 var map = new MapView(MapView.SPHERICAL, provider);
 map.lod = new LODSphere();
 scene.add(map);
@@ -64,15 +66,15 @@ controls.mouseButtons = {
 // Set initial camera position 
 camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
-var action = new Animate(
-	{
-		update: function(obj)
-		{
-			// camera.position.copy(obj);
-			console.log(camera.position);
-		}
-	}
-).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+// var action = new Animate(
+// 	{
+// 		update: function(obj)
+// 		{
+// 			// camera.position.copy(obj);
+// 			console.log(camera.position);
+// 		}
+// 	}
+// ).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
 // new TWEEN.Tween(camera.position).to(new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5),5).easing(TWEEN.Easing.Sinusoidal.InOut).start();
 
 

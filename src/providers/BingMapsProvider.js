@@ -50,7 +50,7 @@ export class BingMapsProvider extends MapProvider
 	/**
 	 * Size of the map tiles.
 	 */
-	mapSize = 512;
+	tileSize = 256;
 
 	/**
 	 * Tile server subdomain.

@@ -1,7 +1,9 @@
-import {Matrix4, MeshBasicMaterial, Quaternion, Vector3, Raycaster} from 'three';
+import {Matrix4, MeshBasicMaterial, Quaternion, Vector3, Raycaster, Texture, 
+	ShaderMaterial, TextureLoader, Vector4, LinearFilter, RGBAFormat} from 'three';
 import {MapNode, QuadTreePosition} from './MapNode';
 import {MapSphereNodeGeometry} from '../geometries/MapSphereNodeGeometry';
 import {UnitsUtils} from '../utils/UnitsUtils';
+import { CanvasUtils } from '../utils/CanvasUtils';
 
 /** 
  * Represents a map tile node.
@@ -17,7 +19,7 @@ export class MapSphereNode extends MapNode
 	 * 
 	 * Applied to the map view on initialization.
 	 */
-	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI);
+	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0,0,0)));
 
 	/**
 	 * Base scale of the node.
@@ -32,13 +34,53 @@ export class MapSphereNode extends MapNode
 	 * Can be configured globally and is applied to all nodes.
 	 */
 	static segments = 80;
+	// static segments = 64;
 
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
+
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location,bbox, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+		let bounds = UnitsUtils.tileBounds(level, x, y);
+
+		// Load shaders
+		const vertexShader = /* WGSL */`
+		varying vec3 vPosition;
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+		const fragmentShader =  /* WGSL */`
+		#define PI 3.141592653589
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 mercatorBounds;
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+			float mercator_x = radius * longitude;
+			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
+			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
+
+		// Create shader material
+		let vBounds = new Vector4(...bounds);
+		const material = new ShaderMaterial({
+			uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
+			vertexShader: vertexShader,
+			fragmentShader: fragmentShader
+		});
+		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 	
 		this.applyScaleNode();
-	
 		this.matrixAutoUpdate = false;
 		this.isMesh = true;
 		this.visible = false;
@@ -65,16 +107,29 @@ export class MapSphereNode extends MapNode
 		const range = Math.pow(2, zoom);
 		const max = 40;
 		const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
+
+
 	
 		// X
-		const phiLength = 1 / range * 2 * Math.PI;
-		const phiStart = x * phiLength;
+		// const phiLength = 1 / range * 2 * Math.PI;
+		// const phiStart = x * phiLength;
+		// 经度
+		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+		const phiStart = lon1;
+		const phiLength = lon2 - lon1;
 	
 		// Y
-		const thetaLength = 1 / range * Math.PI;
-		const thetaStart = y * thetaLength;
-	
-		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength);
+		// const thetaLength = 1 / range * Math.PI;
+		// const thetaStart = y * thetaLength;
+		// 维度
+		const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+		const thetaLength = lat1 - lat2;
+		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+		let bounds = UnitsUtils.tileBounds(zoom, x, y);
+		let vBounds = new Vector4(...bounds);
+		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
 	}
 	
 	/** 
@@ -123,22 +178,85 @@ export class MapSphereNode extends MapNode
 		const y = this.y * 2;
 
 		const Constructor = Object.getPrototypeOf(this).constructor;
-		let bboxs = this.calculateChildLatLon();
-		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+		node.renderOrder = this.renderOrder;
+		this.add(node);
+		// return;
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 		node.renderOrder = this.renderOrder;
 		this.add(node);
+	}
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
-		node.renderOrder = this.renderOrder;
-		this.add(node);
+	async loadData()
+	{
+		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+		{
+			console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+			// @ts-ignore
+			this.material.map = MapNode.defaultTexture;
+			// @ts-ignore
+			this.material.needsUpdate = true;
+			return;
+		}
+
+		try 
+		{
+			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+			
+			if (this.disposed) 
+			{
+				return;
+			}
+			// 将图片高度减半， 用于本来是正方形的图片， 变成球形
+			// image = CanvasUtils.createImageData(image, this.mapView.provider.tileSize, this.mapView.provider.tileSize, this.mapView.provider.tileSize*2, this.mapView.provider.tileSize);
+			
+			const textureLoader = new TextureLoader();
+			const texture = textureLoader.load(image.src, function() {});
+			
+			// const texture = new Texture(image);
+			// texture.generateMipmaps = false;
+			// texture.format = RGBAFormat;
+			// texture.magFilter = LinearFilter;
+			// texture.minFilter = LinearFilter;
+			// texture.needsUpdate = true;
+			// texture.wrapS = RepeatWrapping;
+            // texture.wrapT = RepeatWrapping;
+			
+			// @ts-ignore
+			// this.material.map = texture;
+			this.material.uniforms.uTexture.value = texture;
+		// @ts-ignore
+			this.material.uniforms.uTexture.needsUpdate = true;
+		}
+		catch (e) 
+		{
+			if (this.disposed) 
+			{
+				return;
+			}
+			
+			console.warn('Geo-Three: Failed to load node tile data.', this);
+
+			// @ts-ignore
+			this.material.map = MapNode.defaultTexture;
+			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+			this.material.transparent = true;
+			// this.material.alphaTest = 0.01;
+			this.material.opacity = 0;
+		}
+
+		// @ts-ignore
+		this.material.needsUpdate = true;
 	}
 	
 	/**
@@ -151,4 +269,6 @@ export class MapSphereNode extends MapNode
 			super.raycast(raycaster, intersects);
 		}
 	}
+
+	
 }

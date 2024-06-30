@@ -16,7 +16,7 @@ import { WMSProvider } from '../providers/WMSProvider';
  */
 export class MapPlaneNode extends MapNode 
 {
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 	{
 		super(parentNode, mapView, location, bbox, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
@@ -50,7 +50,6 @@ export class MapPlaneNode extends MapNode
 		const y = this.y * 2;
 
 		const Constructor = Object.getPrototypeOf(this).constructor;
-		let bboxs = this.calculateChildLatLon();
 
 		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 		node.scale.set(0.5, 1.0, 0.5);

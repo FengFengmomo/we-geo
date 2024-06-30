@@ -147,11 +147,10 @@ export class MapHeightNodeS101 extends MapNode {
 	{
 		const level = this.level + 1;
 		const Constructor = Object.getPrototypeOf(this).constructor;
-		let bboxs = this.calculateChildLatLon();
 
 		const x = this.x * 2;
 		const y = this.y * 2;
-		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(-0.25, 0, -0.25);
 		node.renderOrder = this.renderOrder;
@@ -159,7 +158,7 @@ export class MapHeightNodeS101 extends MapNode {
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, -0.25);
 		node.renderOrder = this.renderOrder;
@@ -167,7 +166,7 @@ export class MapHeightNodeS101 extends MapNode {
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(-0.25, 0, 0.25);
 		node.renderOrder = this.renderOrder;
@@ -175,7 +174,7 @@ export class MapHeightNodeS101 extends MapNode {
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 
-		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
+		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, 0.25);
 		node.renderOrder = this.renderOrder;

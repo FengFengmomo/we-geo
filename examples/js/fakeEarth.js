@@ -32824,6 +32824,11 @@
 		maxZoom = 25;
 
 		/**
+		 * Map tile size.
+		 */
+		tileSize = 256;
+
+		/**
 		 * Map bounds.
 		 */
 		bounds = [];
@@ -32930,6 +32935,20 @@
 				return canvas;
 			}
 		}
+
+		static createImageData(image,imgWidth,imgHeight, targetWidth, targetHeight){
+			const canvas = CanvasUtils.createOffscreenCanvas(targetWidth, targetHeight); 
+
+			const context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			context.drawImage(image, 0, 0, imgWidth, imgHeight, 0, 0, canvas.width, canvas.height);
+
+			const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+			// var img = new Image();
+			// img.src = canvas.toDataURL();
+			// 这里返回OffscreenCanvas是因为threejs的Texture可以接受image和offscreenCanvas
+			return imageData;
+		}
 	}
 
 	/**
@@ -33024,6 +33043,11 @@
 		 * Earth equator perimeter in meters.
 		 */
 		static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
+
+			/**
+		 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
+		 */
+		static MERCATOR_MAX_EXTENT = 20037508.342789244;
 
 		static tileWidth(level){
 			return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
@@ -33169,6 +33193,59 @@
 			let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
 			return new Vector2(x, y)
 		}
+
+
+		/**
+		 * Get the size of a web mercator tile in mercator coordinates
+		 * 计算每个tile的大小，单位是米
+		 * 	 
+		 * @param zoom - the zoom level of the tile
+		 * @returns the size of the tile in mercator coordinates
+		 */
+		static getTileSize(zoom){
+			const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
+			const numTiles = Math.pow(2, zoom);
+			return 2 * maxExtent / numTiles;	
+		}
+
+		/**
+		 * Get the bounds of a web mercator tile in mercator coordinates
+		 * 	 * 
+		 * @param zoom - the zoom level of the tile
+		 * @param x - the x coordinate of the tile
+		 * @param y - the y coordinate of the tile
+		 * @returns list of bounds - [startX, sizeX, startY, sizeY]
+		 */
+		static tileBounds(zoom, x, y){
+			const tileSize = UnitsUtils.getTileSize(zoom);
+			const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+			const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
+			return [minX, tileSize, minY, tileSize];
+		}
+
+		/**
+		 * Get the latitude value of a given mercator coordinate and zoom level
+		 * 
+		 * @param zoom - the zoom level of the coordinate
+		 * @param y - the y mercator coordinate
+		 * @returns - latitude of coordinate in radians
+		 */
+		static mercatorToLatitude(zoom, y) {
+			const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
+			return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS));
+		}
+
+		/**
+		 * Get the latitude value of a given mercator coordinate and zoom level
+		 * 
+		 * @param zoom - the zoom level of the coordinate
+		 * @param x - the x mercator coordinate
+		 * @returns - longitude of coordinate in radians
+		 */
+		static mercatorToLongitude(zoom, x) {
+			const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
+			return xMerc / UnitsUtils.EARTH_RADIUS;
+		}
 	}
 
 	/**
@@ -33256,14 +33333,7 @@
 		 */
 		y;
 
-		static baseBbox = [90, -180, -90, 180];
-		static wmtsBbox = [[90, -180, -90, 0],[90, 0, -90, 180]];
-		/**
-		 * Bounding box of the map node.
-		 * [topleft, bottomright]
-		 * [左上角【维度，经度】，右下角【纬度，经度】]
-		 */
-		bbox;
+
 
 		/**
 		 * Variable to check if the node is subdivided.
@@ -33323,7 +33393,7 @@
 		isMesh = true;
 
 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = null, material = null) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
 		{
 			super(geometry, material);
 
@@ -33335,7 +33405,6 @@
 			this.level = level;
 			this.x = x;
 			this.y = y;
-			this.bbox = bbox;
 			// this.transparent = mapView.transparent;
 			// this.opacity = mapView.opacity;
 
@@ -33489,27 +33558,7 @@
 			this.material.needsUpdate = true;
 		}
 
-		/**
-		 * 计算孩子的经纬度范围bbox
-		 */
-		/**
-		 * Bounding box of the map node.
-		 * [topleft, bottomright]
-		 * [左上角【维度，经度】，右下角【纬度，经度】]
-		 */
-		calculateChildLatLon(){
-			let boxs = new Array(4);
-			let top = this.bbox[0], left = this.bbox[1];
-			let bottom = this.bbox[2], right = this.bbox[3];
-			let center = new Array(2);
-			center[0] = ((top - bottom) / 2) + bottom; // 瓦片中心点维度
-			center[1] = ((left - right) / 2) + right; // 瓦片中心点经度
-			boxs[QuadTreePosition.topLeft] = [top,left,center[0],center[1]];
-			boxs[QuadTreePosition.topRight] = [top, center[1], center[0], right];
-			boxs[QuadTreePosition.bottomLeft] = [center[0],left, bottom,center[1]];
-			boxs[QuadTreePosition.bottomRight] = [center[0],center[1],bottom,right];
-			return boxs;
-		}
+
 
 		/**
 		 * Increment the child loaded counter.
@@ -33840,7 +33889,7 @@
 	 */
 	class MapPlaneNode extends MapNode 
 	{
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 		{
 			super(parentNode, mapView, location, bbox, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
@@ -33874,7 +33923,6 @@
 			const y = this.y * 2;
 
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
 
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
@@ -34102,9 +34150,9 @@
 		 * @param material - Material used to render this height node.
 		 * @param geometry - Geometry used to render this height node.
 		 */
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
 		{
-			super(parentNode, mapView, location, bbox, level, x, y, geometry, material);
+			super(parentNode, mapView, location, level, x, y, geometry, material);
 
 			this.isMesh = true;
 			this.visible = false;
@@ -34251,7 +34299,7 @@
 		 * @param widthSegments - Number of subdivisions along the width.
 		 * @param heightSegments - Number of subdivisions along the height.
 		 */
-		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) 
+		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
 		{
 			super();
 
@@ -34287,9 +34335,21 @@
 					// Normal
 					normal.set(vertex.x, vertex.y, vertex.z).normalize();
 					normals.push(normal.x, normal.y, normal.z);
+					
+					// modify uv
+					let len = this.distance(vertex); // length of the vertex, distance from the center
+					let latitude = Math.asin(vertex.y / len);
+					let longitude = Math.atan(-vertex.z, vertex.x);
+					let mercator_x = len * longitude;
+					let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
+					let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+					let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+					uvs.push(x, y);
+					// modify uv end
+					
 
-					// UV
-					uvs.push(u, 1 - v);
+
+					// uvs.push(u, 1 - v);
 					verticesRow.push(index++);
 				}
 
@@ -34323,6 +34383,15 @@
 			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
 			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
 		}
+
+		/**
+		 * 计算position的长度
+		 * @param {*} postion  
+		 */
+		distance(postion){
+			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
+			return distance;
+		}
 	}
 
 	/** 
@@ -34339,7 +34408,7 @@
 		 * 
 		 * Applied to the map view on initialization.
 		 */
-		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI);
+		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0,0,0)));
 
 		/**
 		 * Base scale of the node.
@@ -34354,13 +34423,53 @@
 		 * Can be configured globally and is applied to all nodes.
 		 */
 		static segments = 80;
+		// static segments = 64;
 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 		{
-			super(parentNode, mapView, location,bbox, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+			let bounds = UnitsUtils.tileBounds(level, x, y);
+
+			// Load shaders
+			const vertexShader = /* WGSL */`
+		varying vec3 vPosition;
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+			const fragmentShader =  /* WGSL */`
+		#define PI 3.141592653589
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 mercatorBounds;
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+			float mercator_x = radius * longitude;
+			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
+			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
+
+			// Create shader material
+			let vBounds = new Vector4(...bounds);
+			const material = new ShaderMaterial({
+				uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
+				vertexShader: vertexShader,
+				fragmentShader: fragmentShader
+			});
+			// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+			super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 		
 			this.applyScaleNode();
-		
 			this.matrixAutoUpdate = false;
 			this.isMesh = true;
 			this.visible = false;
@@ -34387,16 +34496,29 @@
 			const range = Math.pow(2, zoom);
 			const max = 40;
 			const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
+
+
 		
 			// X
-			const phiLength = 1 / range * 2 * Math.PI;
-			const phiStart = x * phiLength;
+			// const phiLength = 1 / range * 2 * Math.PI;
+			// const phiStart = x * phiLength;
+			// 经度
+			const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+			const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+			const phiStart = lon1;
+			const phiLength = lon2 - lon1;
 		
 			// Y
-			const thetaLength = 1 / range * Math.PI;
-			const thetaStart = y * thetaLength;
-		
-			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength);
+			// const thetaLength = 1 / range * Math.PI;
+			// const thetaStart = y * thetaLength;
+			// 维度
+			const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+			const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+			const thetaLength = lat1 - lat2;
+			const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+			let bounds = UnitsUtils.tileBounds(zoom, x, y);
+			let vBounds = new Vector4(...bounds);
+			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
 		}
 		
 		/** 
@@ -34445,22 +34567,85 @@
 			const y = this.y * 2;
 
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			// return;
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
+		}
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
+		async loadData()
+		{
+			if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// @ts-ignore
+				this.material.needsUpdate = true;
+				return;
+			}
+
+			try 
+			{
+				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+				
+				if (this.disposed) 
+				{
+					return;
+				}
+				// 将图片高度减半， 用于本来是正方形的图片， 变成球形
+				// image = CanvasUtils.createImageData(image, this.mapView.provider.tileSize, this.mapView.provider.tileSize, this.mapView.provider.tileSize*2, this.mapView.provider.tileSize);
+				
+				const textureLoader = new TextureLoader();
+				const texture = textureLoader.load(image.src, function() {});
+				
+				// const texture = new Texture(image);
+				// texture.generateMipmaps = false;
+				// texture.format = RGBAFormat;
+				// texture.magFilter = LinearFilter;
+				// texture.minFilter = LinearFilter;
+				// texture.needsUpdate = true;
+				// texture.wrapS = RepeatWrapping;
+	            // texture.wrapT = RepeatWrapping;
+				
+				// @ts-ignore
+				// this.material.map = texture;
+				this.material.uniforms.uTexture.value = texture;
+			// @ts-ignore
+				this.material.uniforms.uTexture.needsUpdate = true;
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.warn('Geo-Three: Failed to load node tile data.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
+
+			// @ts-ignore
+			this.material.needsUpdate = true;
 		}
 		
 		/**
@@ -34473,6 +34658,8 @@
 				super.raycast(raycaster, intersects);
 			}
 		}
+
+		
 	}
 
 	/**
@@ -35780,11 +35967,10 @@
 		{
 			const level = this.level + 1;
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
 
 			const x = this.x * 2;
 			const y = this.y * 2;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -35792,7 +35978,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -35800,7 +35986,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -35808,7 +35994,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -36359,7 +36545,7 @@
 		/**
 		 * Size of the map tiles.
 		 */
-		mapSize = 512;
+		tileSize = 256;
 
 		/**
 		 * Tile server subdomain.
@@ -36513,217 +36699,6 @@
 	/**
 	 * The Ease class provides a collection of easing functions for use with tween.js.
 	 */
-	var Easing = Object.freeze({
-	    Linear: Object.freeze({
-	        None: function (amount) {
-	            return amount;
-	        },
-	        In: function (amount) {
-	            return this.None(amount);
-	        },
-	        Out: function (amount) {
-	            return this.None(amount);
-	        },
-	        InOut: function (amount) {
-	            return this.None(amount);
-	        },
-	    }),
-	    Quadratic: Object.freeze({
-	        In: function (amount) {
-	            return amount * amount;
-	        },
-	        Out: function (amount) {
-	            return amount * (2 - amount);
-	        },
-	        InOut: function (amount) {
-	            if ((amount *= 2) < 1) {
-	                return 0.5 * amount * amount;
-	            }
-	            return -0.5 * (--amount * (amount - 2) - 1);
-	        },
-	    }),
-	    Cubic: Object.freeze({
-	        In: function (amount) {
-	            return amount * amount * amount;
-	        },
-	        Out: function (amount) {
-	            return --amount * amount * amount + 1;
-	        },
-	        InOut: function (amount) {
-	            if ((amount *= 2) < 1) {
-	                return 0.5 * amount * amount * amount;
-	            }
-	            return 0.5 * ((amount -= 2) * amount * amount + 2);
-	        },
-	    }),
-	    Quartic: Object.freeze({
-	        In: function (amount) {
-	            return amount * amount * amount * amount;
-	        },
-	        Out: function (amount) {
-	            return 1 - --amount * amount * amount * amount;
-	        },
-	        InOut: function (amount) {
-	            if ((amount *= 2) < 1) {
-	                return 0.5 * amount * amount * amount * amount;
-	            }
-	            return -0.5 * ((amount -= 2) * amount * amount * amount - 2);
-	        },
-	    }),
-	    Quintic: Object.freeze({
-	        In: function (amount) {
-	            return amount * amount * amount * amount * amount;
-	        },
-	        Out: function (amount) {
-	            return --amount * amount * amount * amount * amount + 1;
-	        },
-	        InOut: function (amount) {
-	            if ((amount *= 2) < 1) {
-	                return 0.5 * amount * amount * amount * amount * amount;
-	            }
-	            return 0.5 * ((amount -= 2) * amount * amount * amount * amount + 2);
-	        },
-	    }),
-	    Sinusoidal: Object.freeze({
-	        In: function (amount) {
-	            return 1 - Math.sin(((1.0 - amount) * Math.PI) / 2);
-	        },
-	        Out: function (amount) {
-	            return Math.sin((amount * Math.PI) / 2);
-	        },
-	        InOut: function (amount) {
-	            return 0.5 * (1 - Math.sin(Math.PI * (0.5 - amount)));
-	        },
-	    }),
-	    Exponential: Object.freeze({
-	        In: function (amount) {
-	            return amount === 0 ? 0 : Math.pow(1024, amount - 1);
-	        },
-	        Out: function (amount) {
-	            return amount === 1 ? 1 : 1 - Math.pow(2, -10 * amount);
-	        },
-	        InOut: function (amount) {
-	            if (amount === 0) {
-	                return 0;
-	            }
-	            if (amount === 1) {
-	                return 1;
-	            }
-	            if ((amount *= 2) < 1) {
-	                return 0.5 * Math.pow(1024, amount - 1);
-	            }
-	            return 0.5 * (-Math.pow(2, -10 * (amount - 1)) + 2);
-	        },
-	    }),
-	    Circular: Object.freeze({
-	        In: function (amount) {
-	            return 1 - Math.sqrt(1 - amount * amount);
-	        },
-	        Out: function (amount) {
-	            return Math.sqrt(1 - --amount * amount);
-	        },
-	        InOut: function (amount) {
-	            if ((amount *= 2) < 1) {
-	                return -0.5 * (Math.sqrt(1 - amount * amount) - 1);
-	            }
-	            return 0.5 * (Math.sqrt(1 - (amount -= 2) * amount) + 1);
-	        },
-	    }),
-	    Elastic: Object.freeze({
-	        In: function (amount) {
-	            if (amount === 0) {
-	                return 0;
-	            }
-	            if (amount === 1) {
-	                return 1;
-	            }
-	            return -Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI);
-	        },
-	        Out: function (amount) {
-	            if (amount === 0) {
-	                return 0;
-	            }
-	            if (amount === 1) {
-	                return 1;
-	            }
-	            return Math.pow(2, -10 * amount) * Math.sin((amount - 0.1) * 5 * Math.PI) + 1;
-	        },
-	        InOut: function (amount) {
-	            if (amount === 0) {
-	                return 0;
-	            }
-	            if (amount === 1) {
-	                return 1;
-	            }
-	            amount *= 2;
-	            if (amount < 1) {
-	                return -0.5 * Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI);
-	            }
-	            return 0.5 * Math.pow(2, -10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI) + 1;
-	        },
-	    }),
-	    Back: Object.freeze({
-	        In: function (amount) {
-	            var s = 1.70158;
-	            return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s);
-	        },
-	        Out: function (amount) {
-	            var s = 1.70158;
-	            return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1;
-	        },
-	        InOut: function (amount) {
-	            var s = 1.70158 * 1.525;
-	            if ((amount *= 2) < 1) {
-	                return 0.5 * (amount * amount * ((s + 1) * amount - s));
-	            }
-	            return 0.5 * ((amount -= 2) * amount * ((s + 1) * amount + s) + 2);
-	        },
-	    }),
-	    Bounce: Object.freeze({
-	        In: function (amount) {
-	            return 1 - Easing.Bounce.Out(1 - amount);
-	        },
-	        Out: function (amount) {
-	            if (amount < 1 / 2.75) {
-	                return 7.5625 * amount * amount;
-	            }
-	            else if (amount < 2 / 2.75) {
-	                return 7.5625 * (amount -= 1.5 / 2.75) * amount + 0.75;
-	            }
-	            else if (amount < 2.5 / 2.75) {
-	                return 7.5625 * (amount -= 2.25 / 2.75) * amount + 0.9375;
-	            }
-	            else {
-	                return 7.5625 * (amount -= 2.625 / 2.75) * amount + 0.984375;
-	            }
-	        },
-	        InOut: function (amount) {
-	            if (amount < 0.5) {
-	                return Easing.Bounce.In(amount * 2) * 0.5;
-	            }
-	            return Easing.Bounce.Out(amount * 2 - 1) * 0.5 + 0.5;
-	        },
-	    }),
-	    generatePow: function (power) {
-	        if (power === void 0) { power = 4; }
-	        power = power < Number.EPSILON ? Number.EPSILON : power;
-	        power = power > 10000 ? 10000 : power;
-	        return {
-	            In: function (amount) {
-	                return Math.pow(amount, power);
-	            },
-	            Out: function (amount) {
-	                return 1 - Math.pow((1 - amount), power);
-	            },
-	            InOut: function (amount) {
-	                if (amount < 0.5) {
-	                    return Math.pow((amount * 2), power) / 2;
-	                }
-	                return (1 - Math.pow((2 - amount * 2), power)) / 2 + 0.5;
-	            },
-	        };
-	    },
-	});
 
 	var now = function () { return performance.now(); };
 
@@ -36783,556 +36758,7 @@
 	    return Group;
 	}());
 
-	/**
-	 *
-	 */
-	var Interpolation = {
-	    Linear: function (v, k) {
-	        var m = v.length - 1;
-	        var f = m * k;
-	        var i = Math.floor(f);
-	        var fn = Interpolation.Utils.Linear;
-	        if (k < 0) {
-	            return fn(v[0], v[1], f);
-	        }
-	        if (k > 1) {
-	            return fn(v[m], v[m - 1], m - f);
-	        }
-	        return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
-	    },
-	    Bezier: function (v, k) {
-	        var b = 0;
-	        var n = v.length - 1;
-	        var pw = Math.pow;
-	        var bn = Interpolation.Utils.Bernstein;
-	        for (var i = 0; i <= n; i++) {
-	            b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
-	        }
-	        return b;
-	    },
-	    CatmullRom: function (v, k) {
-	        var m = v.length - 1;
-	        var f = m * k;
-	        var i = Math.floor(f);
-	        var fn = Interpolation.Utils.CatmullRom;
-	        if (v[0] === v[m]) {
-	            if (k < 0) {
-	                i = Math.floor((f = m * (1 + k)));
-	            }
-	            return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
-	        }
-	        else {
-	            if (k < 0) {
-	                return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
-	            }
-	            if (k > 1) {
-	                return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
-	            }
-	            return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
-	        }
-	    },
-	    Utils: {
-	        Linear: function (p0, p1, t) {
-	            return (p1 - p0) * t + p0;
-	        },
-	        Bernstein: function (n, i) {
-	            var fc = Interpolation.Utils.Factorial;
-	            return fc(n) / fc(i) / fc(n - i);
-	        },
-	        Factorial: (function () {
-	            var a = [1];
-	            return function (n) {
-	                var s = 1;
-	                if (a[n]) {
-	                    return a[n];
-	                }
-	                for (var i = n; i > 1; i--) {
-	                    s *= i;
-	                }
-	                a[n] = s;
-	                return s;
-	            };
-	        })(),
-	        CatmullRom: function (p0, p1, p2, p3, t) {
-	            var v0 = (p2 - p0) * 0.5;
-	            var v1 = (p3 - p1) * 0.5;
-	            var t2 = t * t;
-	            var t3 = t * t2;
-	            return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
-	        },
-	    },
-	};
-
-	/**
-	 * Utils
-	 */
-	var Sequence = /** @class */ (function () {
-	    function Sequence() {
-	    }
-	    Sequence.nextId = function () {
-	        return Sequence._nextId++;
-	    };
-	    Sequence._nextId = 0;
-	    return Sequence;
-	}());
-
 	var mainGroup = new Group();
-
-	/**
-	 * Tween.js - Licensed under the MIT license
-	 * https://github.com/tweenjs/tween.js
-	 * ----------------------------------------------
-	 *
-	 * See https://github.com/tweenjs/tween.js/graphs/contributors for the full list of contributors.
-	 * Thank you all, you're awesome!
-	 */
-	var Tween = /** @class */ (function () {
-	    function Tween(_object, _group) {
-	        if (_group === void 0) { _group = mainGroup; }
-	        this._object = _object;
-	        this._group = _group;
-	        this._isPaused = false;
-	        this._pauseStart = 0;
-	        this._valuesStart = {};
-	        this._valuesEnd = {};
-	        this._valuesStartRepeat = {};
-	        this._duration = 1000;
-	        this._isDynamic = false;
-	        this._initialRepeat = 0;
-	        this._repeat = 0;
-	        this._yoyo = false;
-	        this._isPlaying = false;
-	        this._reversed = false;
-	        this._delayTime = 0;
-	        this._startTime = 0;
-	        this._easingFunction = Easing.Linear.None;
-	        this._interpolationFunction = Interpolation.Linear;
-	        // eslint-disable-next-line
-	        this._chainedTweens = [];
-	        this._onStartCallbackFired = false;
-	        this._onEveryStartCallbackFired = false;
-	        this._id = Sequence.nextId();
-	        this._isChainStopped = false;
-	        this._propertiesAreSetUp = false;
-	        this._goToEnd = false;
-	    }
-	    Tween.prototype.getId = function () {
-	        return this._id;
-	    };
-	    Tween.prototype.isPlaying = function () {
-	        return this._isPlaying;
-	    };
-	    Tween.prototype.isPaused = function () {
-	        return this._isPaused;
-	    };
-	    Tween.prototype.to = function (target, duration) {
-	        if (duration === void 0) { duration = 1000; }
-	        if (this._isPlaying)
-	            throw new Error('Can not call Tween.to() while Tween is already started or paused. Stop the Tween first.');
-	        this._valuesEnd = target;
-	        this._propertiesAreSetUp = false;
-	        this._duration = duration;
-	        return this;
-	    };
-	    Tween.prototype.duration = function (duration) {
-	        if (duration === void 0) { duration = 1000; }
-	        this._duration = duration;
-	        return this;
-	    };
-	    Tween.prototype.dynamic = function (dynamic) {
-	        if (dynamic === void 0) { dynamic = false; }
-	        this._isDynamic = dynamic;
-	        return this;
-	    };
-	    Tween.prototype.start = function (time, overrideStartingValues) {
-	        if (time === void 0) { time = now(); }
-	        if (overrideStartingValues === void 0) { overrideStartingValues = false; }
-	        if (this._isPlaying) {
-	            return this;
-	        }
-	        // eslint-disable-next-line
-	        this._group && this._group.add(this);
-	        this._repeat = this._initialRepeat;
-	        if (this._reversed) {
-	            // If we were reversed (f.e. using the yoyo feature) then we need to
-	            // flip the tween direction back to forward.
-	            this._reversed = false;
-	            for (var property in this._valuesStartRepeat) {
-	                this._swapEndStartRepeatValues(property);
-	                this._valuesStart[property] = this._valuesStartRepeat[property];
-	            }
-	        }
-	        this._isPlaying = true;
-	        this._isPaused = false;
-	        this._onStartCallbackFired = false;
-	        this._onEveryStartCallbackFired = false;
-	        this._isChainStopped = false;
-	        this._startTime = time;
-	        this._startTime += this._delayTime;
-	        if (!this._propertiesAreSetUp || overrideStartingValues) {
-	            this._propertiesAreSetUp = true;
-	            // If dynamic is not enabled, clone the end values instead of using the passed-in end values.
-	            if (!this._isDynamic) {
-	                var tmp = {};
-	                for (var prop in this._valuesEnd)
-	                    tmp[prop] = this._valuesEnd[prop];
-	                this._valuesEnd = tmp;
-	            }
-	            this._setupProperties(this._object, this._valuesStart, this._valuesEnd, this._valuesStartRepeat, overrideStartingValues);
-	        }
-	        return this;
-	    };
-	    Tween.prototype.startFromCurrentValues = function (time) {
-	        return this.start(time, true);
-	    };
-	    Tween.prototype._setupProperties = function (_object, _valuesStart, _valuesEnd, _valuesStartRepeat, overrideStartingValues) {
-	        for (var property in _valuesEnd) {
-	            var startValue = _object[property];
-	            var startValueIsArray = Array.isArray(startValue);
-	            var propType = startValueIsArray ? 'array' : typeof startValue;
-	            var isInterpolationList = !startValueIsArray && Array.isArray(_valuesEnd[property]);
-	            // If `to()` specifies a property that doesn't exist in the source object,
-	            // we should not set that property in the object
-	            if (propType === 'undefined' || propType === 'function') {
-	                continue;
-	            }
-	            // Check if an Array was provided as property value
-	            if (isInterpolationList) {
-	                var endValues = _valuesEnd[property];
-	                if (endValues.length === 0) {
-	                    continue;
-	                }
-	                // Handle an array of relative values.
-	                // Creates a local copy of the Array with the start value at the front
-	                var temp = [startValue];
-	                for (var i = 0, l = endValues.length; i < l; i += 1) {
-	                    var value = this._handleRelativeValue(startValue, endValues[i]);
-	                    if (isNaN(value)) {
-	                        isInterpolationList = false;
-	                        console.warn('Found invalid interpolation list. Skipping.');
-	                        break;
-	                    }
-	                    temp.push(value);
-	                }
-	                if (isInterpolationList) {
-	                    // if (_valuesStart[property] === undefined) { // handle end values only the first time. NOT NEEDED? setupProperties is now guarded by _propertiesAreSetUp.
-	                    _valuesEnd[property] = temp;
-	                    // }
-	                }
-	            }
-	            // handle the deepness of the values
-	            if ((propType === 'object' || startValueIsArray) && startValue && !isInterpolationList) {
-	                _valuesStart[property] = startValueIsArray ? [] : {};
-	                var nestedObject = startValue;
-	                for (var prop in nestedObject) {
-	                    _valuesStart[property][prop] = nestedObject[prop];
-	                }
-	                // TODO? repeat nested values? And yoyo? And array values?
-	                _valuesStartRepeat[property] = startValueIsArray ? [] : {};
-	                var endValues = _valuesEnd[property];
-	                // If dynamic is not enabled, clone the end values instead of using the passed-in end values.
-	                if (!this._isDynamic) {
-	                    var tmp = {};
-	                    for (var prop in endValues)
-	                        tmp[prop] = endValues[prop];
-	                    _valuesEnd[property] = endValues = tmp;
-	                }
-	                this._setupProperties(nestedObject, _valuesStart[property], endValues, _valuesStartRepeat[property], overrideStartingValues);
-	            }
-	            else {
-	                // Save the starting value, but only once unless override is requested.
-	                if (typeof _valuesStart[property] === 'undefined' || overrideStartingValues) {
-	                    _valuesStart[property] = startValue;
-	                }
-	                if (!startValueIsArray) {
-	                    // eslint-disable-next-line
-	                    // @ts-ignore FIXME?
-	                    _valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-	                }
-	                if (isInterpolationList) {
-	                    // eslint-disable-next-line
-	                    // @ts-ignore FIXME?
-	                    _valuesStartRepeat[property] = _valuesEnd[property].slice().reverse();
-	                }
-	                else {
-	                    _valuesStartRepeat[property] = _valuesStart[property] || 0;
-	                }
-	            }
-	        }
-	    };
-	    Tween.prototype.stop = function () {
-	        if (!this._isChainStopped) {
-	            this._isChainStopped = true;
-	            this.stopChainedTweens();
-	        }
-	        if (!this._isPlaying) {
-	            return this;
-	        }
-	        // eslint-disable-next-line
-	        this._group && this._group.remove(this);
-	        this._isPlaying = false;
-	        this._isPaused = false;
-	        if (this._onStopCallback) {
-	            this._onStopCallback(this._object);
-	        }
-	        return this;
-	    };
-	    Tween.prototype.end = function () {
-	        this._goToEnd = true;
-	        this.update(Infinity);
-	        return this;
-	    };
-	    Tween.prototype.pause = function (time) {
-	        if (time === void 0) { time = now(); }
-	        if (this._isPaused || !this._isPlaying) {
-	            return this;
-	        }
-	        this._isPaused = true;
-	        this._pauseStart = time;
-	        // eslint-disable-next-line
-	        this._group && this._group.remove(this);
-	        return this;
-	    };
-	    Tween.prototype.resume = function (time) {
-	        if (time === void 0) { time = now(); }
-	        if (!this._isPaused || !this._isPlaying) {
-	            return this;
-	        }
-	        this._isPaused = false;
-	        this._startTime += time - this._pauseStart;
-	        this._pauseStart = 0;
-	        // eslint-disable-next-line
-	        this._group && this._group.add(this);
-	        return this;
-	    };
-	    Tween.prototype.stopChainedTweens = function () {
-	        for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-	            this._chainedTweens[i].stop();
-	        }
-	        return this;
-	    };
-	    Tween.prototype.group = function (group) {
-	        if (group === void 0) { group = mainGroup; }
-	        this._group = group;
-	        return this;
-	    };
-	    Tween.prototype.delay = function (amount) {
-	        if (amount === void 0) { amount = 0; }
-	        this._delayTime = amount;
-	        return this;
-	    };
-	    Tween.prototype.repeat = function (times) {
-	        if (times === void 0) { times = 0; }
-	        this._initialRepeat = times;
-	        this._repeat = times;
-	        return this;
-	    };
-	    Tween.prototype.repeatDelay = function (amount) {
-	        this._repeatDelayTime = amount;
-	        return this;
-	    };
-	    Tween.prototype.yoyo = function (yoyo) {
-	        if (yoyo === void 0) { yoyo = false; }
-	        this._yoyo = yoyo;
-	        return this;
-	    };
-	    Tween.prototype.easing = function (easingFunction) {
-	        if (easingFunction === void 0) { easingFunction = Easing.Linear.None; }
-	        this._easingFunction = easingFunction;
-	        return this;
-	    };
-	    Tween.prototype.interpolation = function (interpolationFunction) {
-	        if (interpolationFunction === void 0) { interpolationFunction = Interpolation.Linear; }
-	        this._interpolationFunction = interpolationFunction;
-	        return this;
-	    };
-	    // eslint-disable-next-line
-	    Tween.prototype.chain = function () {
-	        var tweens = [];
-	        for (var _i = 0; _i < arguments.length; _i++) {
-	            tweens[_i] = arguments[_i];
-	        }
-	        this._chainedTweens = tweens;
-	        return this;
-	    };
-	    Tween.prototype.onStart = function (callback) {
-	        this._onStartCallback = callback;
-	        return this;
-	    };
-	    Tween.prototype.onEveryStart = function (callback) {
-	        this._onEveryStartCallback = callback;
-	        return this;
-	    };
-	    Tween.prototype.onUpdate = function (callback) {
-	        this._onUpdateCallback = callback;
-	        return this;
-	    };
-	    Tween.prototype.onRepeat = function (callback) {
-	        this._onRepeatCallback = callback;
-	        return this;
-	    };
-	    Tween.prototype.onComplete = function (callback) {
-	        this._onCompleteCallback = callback;
-	        return this;
-	    };
-	    Tween.prototype.onStop = function (callback) {
-	        this._onStopCallback = callback;
-	        return this;
-	    };
-	    /**
-	     * @returns true if the tween is still playing after the update, false
-	     * otherwise (calling update on a paused tween still returns true because
-	     * it is still playing, just paused).
-	     */
-	    Tween.prototype.update = function (time, autoStart) {
-	        if (time === void 0) { time = now(); }
-	        if (autoStart === void 0) { autoStart = true; }
-	        if (this._isPaused)
-	            return true;
-	        var property;
-	        var elapsed;
-	        var endTime = this._startTime + this._duration;
-	        if (!this._goToEnd && !this._isPlaying) {
-	            if (time > endTime)
-	                return false;
-	            if (autoStart)
-	                this.start(time, true);
-	        }
-	        this._goToEnd = false;
-	        if (time < this._startTime) {
-	            return true;
-	        }
-	        if (this._onStartCallbackFired === false) {
-	            if (this._onStartCallback) {
-	                this._onStartCallback(this._object);
-	            }
-	            this._onStartCallbackFired = true;
-	        }
-	        if (this._onEveryStartCallbackFired === false) {
-	            if (this._onEveryStartCallback) {
-	                this._onEveryStartCallback(this._object);
-	            }
-	            this._onEveryStartCallbackFired = true;
-	        }
-	        elapsed = (time - this._startTime) / this._duration;
-	        elapsed = this._duration === 0 || elapsed > 1 ? 1 : elapsed;
-	        var value = this._easingFunction(elapsed);
-	        // properties transformations
-	        this._updateProperties(this._object, this._valuesStart, this._valuesEnd, value);
-	        if (this._onUpdateCallback) {
-	            this._onUpdateCallback(this._object, elapsed);
-	        }
-	        if (elapsed === 1) {
-	            if (this._repeat > 0) {
-	                if (isFinite(this._repeat)) {
-	                    this._repeat--;
-	                }
-	                // Reassign starting values, restart by making startTime = now
-	                for (property in this._valuesStartRepeat) {
-	                    if (!this._yoyo && typeof this._valuesEnd[property] === 'string') {
-	                        this._valuesStartRepeat[property] =
-	                            // eslint-disable-next-line
-	                            // @ts-ignore FIXME?
-	                            this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
-	                    }
-	                    if (this._yoyo) {
-	                        this._swapEndStartRepeatValues(property);
-	                    }
-	                    this._valuesStart[property] = this._valuesStartRepeat[property];
-	                }
-	                if (this._yoyo) {
-	                    this._reversed = !this._reversed;
-	                }
-	                if (this._repeatDelayTime !== undefined) {
-	                    this._startTime = time + this._repeatDelayTime;
-	                }
-	                else {
-	                    this._startTime = time + this._delayTime;
-	                }
-	                if (this._onRepeatCallback) {
-	                    this._onRepeatCallback(this._object);
-	                }
-	                this._onEveryStartCallbackFired = false;
-	                return true;
-	            }
-	            else {
-	                if (this._onCompleteCallback) {
-	                    this._onCompleteCallback(this._object);
-	                }
-	                for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-	                    // Make the chained tweens start exactly at the time they should,
-	                    // even if the `update()` method was called way past the duration of the tween
-	                    this._chainedTweens[i].start(this._startTime + this._duration, false);
-	                }
-	                this._isPlaying = false;
-	                return false;
-	            }
-	        }
-	        return true;
-	    };
-	    Tween.prototype._updateProperties = function (_object, _valuesStart, _valuesEnd, value) {
-	        for (var property in _valuesEnd) {
-	            // Don't update properties that do not exist in the source object
-	            if (_valuesStart[property] === undefined) {
-	                continue;
-	            }
-	            var start = _valuesStart[property] || 0;
-	            var end = _valuesEnd[property];
-	            var startIsArray = Array.isArray(_object[property]);
-	            var endIsArray = Array.isArray(end);
-	            var isInterpolationList = !startIsArray && endIsArray;
-	            if (isInterpolationList) {
-	                _object[property] = this._interpolationFunction(end, value);
-	            }
-	            else if (typeof end === 'object' && end) {
-	                // eslint-disable-next-line
-	                // @ts-ignore FIXME?
-	                this._updateProperties(_object[property], start, end, value);
-	            }
-	            else {
-	                // Parses relative end values with start as base (e.g.: +10, -3)
-	                end = this._handleRelativeValue(start, end);
-	                // Protect against non numeric properties.
-	                if (typeof end === 'number') {
-	                    // eslint-disable-next-line
-	                    // @ts-ignore FIXME?
-	                    _object[property] = start + (end - start) * value;
-	                }
-	            }
-	        }
-	    };
-	    Tween.prototype._handleRelativeValue = function (start, end) {
-	        if (typeof end !== 'string') {
-	            return end;
-	        }
-	        if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-	            return start + parseFloat(end);
-	        }
-	        return parseFloat(end);
-	    };
-	    Tween.prototype._swapEndStartRepeatValues = function (property) {
-	        var tmp = this._valuesStartRepeat[property];
-	        var endValue = this._valuesEnd[property];
-	        if (typeof endValue === 'string') {
-	            this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(endValue);
-	        }
-	        else {
-	            this._valuesStartRepeat[property] = this._valuesEnd[property];
-	        }
-	        this._valuesEnd[property] = tmp;
-	    };
-	    return Tween;
-	}());
-
-	/**
-	 * Tween.js - Licensed under the MIT license
-	 * https://github.com/tweenjs/tween.js
-	 * ----------------------------------------------
-	 *
-	 * See https://github.com/tweenjs/tween.js/graphs/contributors for the full list of contributors.
-	 * Thank you all, you're awesome!
-	 */
-	Sequence.nextId;
 	/**
 	 * Controlling groups of tweens
 	 *
@@ -38254,132 +37680,6 @@
 
 	};
 
-	// import TWEEN from '@tweenjs/tween.js';
-	/**
-	 * 相机移动控制
-	 * 
-	 * 参考文档： https://juejin.cn/post/7233720284707422267
-	 *          https://tweenjs.github.io/tween.js/docs/user_guide_zh-CN.html
-	 */
-	class Animate {
-	    
-	    constructor(option={}){
-	        
-	        if(option.start){
-	            this.start = option.start;
-	        }
-	        if(option.update){
-	            this.update = option.update;
-	        }
-	        if(option.complete){
-	            this.complete = option.complete;
-	        }
-
-	    }
-	    // 相机动画函数，从A点飞行到B点，A点表示相机当前所处状态
-	    // pos: 三维向量Vector3，表示动画结束相机位置
-	    // target: 三维向量Vector3，表示相机动画结束lookAt指向的目标观察点
-	    createCameraTween(endPos,endTarget){
-	        new Tween({
-	            // 不管相机此刻处于什么状态，直接读取当前的位置和目标观察点
-	            x: camera.position.x,
-	            y: camera.position.y,
-	            z: camera.position.z,
-	            tx: controls.target.x,
-	            ty: controls.target.y,
-	            tz: controls.target.z,
-	        })
-	        .to({
-	            // 动画结束相机位置坐标
-	            x: endPos.x,
-	            y: endPos.y,
-	            z: endPos.z,
-	            // 动画结束相机指向的目标观察点
-	            tx: endTarget.x,
-	            ty: endTarget.y,
-	            tz: endTarget.z,
-	        }, 2000)
-	        .onUpdate(function (obj) {
-	            // 动态改变相机位置
-	            camera.position.set(obj.x, obj.y, obj.z);
-	            // 动态计算相机视线
-	            // camera.lookAt(obj.tx, obj.ty, obj.tz);
-	            controls.target.set(obj.tx, obj.ty, obj.tz);
-	            controls.update();//内部会执行.lookAt()
-	        })
-	        .start();
-	    }
-	    /**
-	     * 
-	     * @param {Object3D} from positon或者scala或者rorate
-	     * @param {Object3D} to 动画结束
-	     * @param {Object3D} seconds 持续时间，默认2秒
-	     * var animate = new Animate(camera.position, (100,100,100)，2000) // 镜头从当前位置飞行到(100,100,100)
-	     */
-	    action(from,to,seconds = 2, easing = false){
-	        let that = this;
-	        let tween = new Tween(from).to(to, seconds*1000)
-	        .onStart(function(obj){
-	            that.start(obj);
-	        })
-	        .onComplete(function(obj){
-	            that.complete(obj);
-	        }).start(undefined);
-	        if(this.update){
-	            tween.onUpdate(function(obj){
-	                // 会非常消耗cpu，非必要不适用。
-	                that.update(obj);
-	            });
-	        }
-	        if(easing){
-	            tween.easing(Easing.Sinusoidal.InOut);
-	        }
-	        return tween;
-	    }
-
-	    /**
-	     * 
-	     * @param {*} arr [[from,to],[from,to],....] 
-	     */
-	    animateChain(arr, seconds = 2){
-	        let tween = null;
-	        let first = null;
-	        let end = null;
-	        for (let i = 0; i < arr.length; i++) {
-	            let curr = new Tween({
-	                // 开始坐标
-	                x: from.x,
-	                y: from.y,
-	                z: from.z,
-	            })
-	            .to({
-	                // 结束坐标
-	                x: to.x,
-	                y: to.y,
-	                z: to.z,
-	            }, seconds*1000);
-	            
-	            if(tween == null){
-	                tween = curr;
-	                first = curr;
-	                end = curr;
-	            }else {
-	                tween.chain(curr);
-	                tween = curr;
-	                end = curr;
-	            }
-	        }
-
-	        return [first, end];
-	    }
-
-
-
-	    start(obj){}
-	    // update(obj){}
-	    complete(obj){}
-	}
-
 	// @ts-nocheck
 
 	var canvas = document.getElementById('canvas');
@@ -38403,50 +37703,50 @@
 	// 	scene.add(sphere);
 	// });
 	var provider = new BingMapsProvider('', BingMapsProvider.AERIAL); // new OpenStreetMapsProvider()
-
+	// var provider = new TianDiTuProvider();
 	var map = new MapView(MapView.SPHERICAL, provider);
 	map.lod = new LODSphere();
 	scene.add(map);
 	map.updateMatrixWorld(true);
-	var camera$1 = new PerspectiveCamera(60, 1, 0.01, 1e8);
+	var camera = new PerspectiveCamera(60, 1, 0.01, 1e8);
 
-	var controls$1 = new OrbitControls(camera$1, canvas);
-	controls$1.minDistance = UnitsUtils.EARTH_RADIUS + 2;
-	controls$1.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
-	controls$1.enablePan = false;
+	var controls = new OrbitControls(camera, canvas);
+	controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
+	controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
+	controls.enablePan = false;
 	// controls.zoomSpeed = 0.2;
 	// controls.rotateSpeed = 0.1; 
 	// controls.panSpeed = 0.5;
-	controls$1.addEventListener('change', function(event){
-	    let distance = camera$1.position.distanceTo(new Vector3(0,0,0));
+	controls.addEventListener('change', function(event){
+	    let distance = camera.position.distanceTo(new Vector3(0,0,0));
 		// console.log(distance);
 		if(distance > UnitsUtils.EARTH_RADIUS *2.5){
 			distance = UnitsUtils.EARTH_RADIUS *2.5;
 		}
 		let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
-		controls$1.zoomSpeed = thirdPow;
-		controls$1.rotateSpeed = thirdPow * 0.2;
-		controls$1.panSpeed = thirdPow;
+		controls.zoomSpeed = thirdPow;
+		controls.rotateSpeed = thirdPow * 0.2;
+		controls.panSpeed = thirdPow;
 		// console.log("ratio:",ratio, " distance:", distance, " thirdPow:", thirdPow);
 	});
-	controls$1.mouseButtons = {
+	controls.mouseButtons = {
 		LEFT: MOUSE.ROTATE,
 		MIDDLE: MOUSE.DOLLY,
 		RIGHT: MOUSE.PAN
 	};
 
 	// Set initial camera position 
-	camera$1.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
+	camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
-	new Animate(
-		{
-			update: function(obj)
-			{
-				// camera.position.copy(obj);
-				console.log(camera$1.position);
-			}
-		}
-	).action(camera$1.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+	// var action = new Animate(
+	// 	{
+	// 		update: function(obj)
+	// 		{
+	// 			// camera.position.copy(obj);
+	// 			console.log(camera.position);
+	// 		}
+	// 	}
+	// ).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
 	// new TWEEN.Tween(camera.position).to(new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5),5).easing(TWEEN.Easing.Sinusoidal.InOut).start();
 
 
@@ -38462,8 +37762,8 @@
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		renderer.setSize(width, height);
-		camera$1.aspect = width / height;
-		camera$1.updateProjectionMatrix();
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
 	};
 
 	// @ts-ignore
@@ -38473,8 +37773,8 @@
 	{
 		requestAnimationFrame(animate);
 		update(undefined);
-		controls$1.update();
-		renderer.render(scene, camera$1);
+		controls.update();
+		renderer.render(scene, camera);
 	}
 
 	// Start animation loop

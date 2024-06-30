@@ -14,7 +14,7 @@ export class MapSphereNodeGeometry extends BufferGeometry
 	 * @param widthSegments - Number of subdivisions along the width.
 	 * @param heightSegments - Number of subdivisions along the height.
 	 */
-	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) 
+	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
 	{
 		super();
 
@@ -50,9 +50,21 @@ export class MapSphereNodeGeometry extends BufferGeometry
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
 				normals.push(normal.x, normal.y, normal.z);
+				
+				// modify uv
+				let len = this.distance(vertex); // length of the vertex, distance from the center
+				let latitude = Math.asin(vertex.y / len);
+				let longitude = Math.atan(-vertex.z, vertex.x);
+				let mercator_x = len * longitude;
+				let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
+				let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+				let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+				uvs.push(x, y);
+				// modify uv end
+				
 
-				// UV
-				uvs.push(u, 1 - v);
+
+				// uvs.push(u, 1 - v);
 				verticesRow.push(index++);
 			}
 
@@ -85,5 +97,14 @@ export class MapSphereNodeGeometry extends BufferGeometry
 		this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
 		this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
 		this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+	}
+
+	/**
+	 * 计算position的长度
+	 * @param {*} postion  
+	 */
+	distance(postion){
+		let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2))
+		return distance;
 	}
 }
