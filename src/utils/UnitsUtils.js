@@ -203,7 +203,7 @@ export class UnitsUtils
 
 	/**
 	 * Get the bounds of a web mercator tile in mercator coordinates
-	 * 	 * 
+	 * 	 x,y的起止， 和tilsize的大小。
 	 * @param zoom - the zoom level of the tile
 	 * @param x - the x coordinate of the tile
 	 * @param y - the y coordinate of the tile

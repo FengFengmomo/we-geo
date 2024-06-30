@@ -1,4 +1,5 @@
 import {BufferGeometry, Float32BufferAttribute, Vector3} from 'three';
+import { UnitsUtils } from '../utils/UnitsUtils';
 
 /**
  * Map node geometry is a geometry used to represent the spherical map nodes.
@@ -14,7 +15,7 @@ export class MapSphereNodeGeometry extends BufferGeometry
 	 * @param widthSegments - Number of subdivisions along the width.
 	 * @param heightSegments - Number of subdivisions along the height.
 	 */
-	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) 
+	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
 	{
 		super();
 
@@ -42,7 +43,7 @@ export class MapSphereNodeGeometry extends BufferGeometry
 
 				// Vertex
 				vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-				vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
+				vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
 				vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
 
 				vertices.push(vertex.x, vertex.y, vertex.z);
@@ -50,23 +51,29 @@ export class MapSphereNodeGeometry extends BufferGeometry
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
 				normals.push(normal.x, normal.y, normal.z);
-				/** 
+
+				// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
+				// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
+			
 				// modify uv
+				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS);
+				
 				let len = this.distance(vertex); // length of the vertex, distance from the center
 				// let len = radius; // length of the vertex, distance from the center
-				let latitude = Math.acos(vertex.y / len);
-				let longitude = Math.atan(-vertex.z, vertex.x);
+				let latitude = Math.asin(vertex.y/len); 
+				let longitude = Math.atan2(-vertex.z,vertex.x);
+				// let longitude = Math.atan(-vertex.z);
 				let mercator_x = len * longitude;
 				let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
 				let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
 				let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
 				uvs.push(x, y);
 				// modify uv end
-				*/
+				
 				// let latitude = Math.acos(vertex.y);
 				// let longitude = Math.atan(-vertex.z, vertex.x);
 				// uvs.push(longitude, latitude);
-				uvs.push(u, 1 - v);
+				// uvs.push(u, 1 - v);
 				verticesRow.push(index++);
 			}
 

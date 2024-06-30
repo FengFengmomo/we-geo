@@ -19,7 +19,7 @@ export class MapSphereNode extends MapNode
 	 * 
 	 * Applied to the map view on initialization.
 	 */
-	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI);
+	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
 
 	/**
 	 * Base scale of the node.
@@ -77,7 +77,8 @@ export class MapSphereNode extends MapNode
 		// X
 		// const phiLength = 1 / range * 2 * Math.PI;
 		// const phiStart = x * phiLength;
-		// 经度
+		
+		// // 经度
 		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
 		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
 		const phiStart = lon1;
@@ -91,7 +92,9 @@ export class MapSphereNode extends MapNode
 		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
 		const thetaLength = lat1 - lat2;
 		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
-		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength);
+		let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+
+		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
 	}
 	
 	/** 
