@@ -1,4 +1,4 @@
-import {Matrix4, MeshBasicMaterial, Quaternion, Vector3, Raycaster, Texture, 
+import {Matrix4, MeshBasicMaterial, Quaternion, Vector3, Raycaster, Texture, RepeatWrapping, 
 	ShaderMaterial, TextureLoader, Vector4, LinearFilter, RGBAFormat} from 'three';
 import {MapNode, QuadTreePosition} from './MapNode';
 import {MapSphereNodeGeometry} from '../geometries/MapSphereNodeGeometry';
@@ -19,7 +19,7 @@ export class MapSphereNode extends MapNode
 	 * 
 	 * Applied to the map view on initialization.
 	 */
-	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0,0,0)));
+	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI);
 
 	/**
 	 * Base scale of the node.
@@ -33,52 +33,16 @@ export class MapSphereNode extends MapNode
 	 * 
 	 * Can be configured globally and is applied to all nodes.
 	 */
-	static segments = 80;
+	static segments = 160;
 	// static segments = 64;
 
 
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 	{
-		let bounds = UnitsUtils.tileBounds(level, x, y);
-
-		// Load shaders
-		const vertexShader = /* WGSL */`
-		varying vec3 vPosition;
-		void main() {
-			vPosition = position;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-		}
-		`;
-
-		const fragmentShader =  /* WGSL */`
-		#define PI 3.141592653589
-		varying vec3 vPosition;
-		uniform sampler2D uTexture;
-		uniform vec4 mercatorBounds;
-		void main() {
-			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
-			float radius = length(vPosition);
-			float latitude = asin(vPosition.y / radius);
-			float longitude = atan(-vPosition.z, vPosition.x);
-			float mercator_x = radius * longitude;
-			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
-			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
-			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
-			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
-			vec4 color = texture2D(uTexture, vec2(x, y));
-			gl_FragColor = color;
-		}
-		`;
-
-		// Create shader material
-		let vBounds = new Vector4(...bounds);
-		const material = new ShaderMaterial({
-			uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
-			vertexShader: vertexShader,
-			fragmentShader: fragmentShader
-		});
-		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
-		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
+		
+		
+		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 	
 		this.applyScaleNode();
 		this.matrixAutoUpdate = false;
@@ -127,9 +91,7 @@ export class MapSphereNode extends MapNode
 		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
 		const thetaLength = lat1 - lat2;
 		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
-		let bounds = UnitsUtils.tileBounds(zoom, x, y);
-		let vBounds = new Vector4(...bounds);
-		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
+		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength);
 	}
 	
 	/** 
@@ -165,8 +127,9 @@ export class MapSphereNode extends MapNode
 	{
 		if (this.matrixWorldNeedsUpdate || force) 
 		{
-			var temp = this.matrix.clone().multiplyScalar(6371008);
-			this.matrixWorld.copy(temp);
+			// var temp = this.matrix.clone().multiplyScalar(6371008);
+			// this.matrixWorld.copy(temp);
+			this.matrixWorld.copy(this.matrix);
 			this.matrixWorldNeedsUpdate = false;
 		}
 	}
@@ -217,26 +180,23 @@ export class MapSphereNode extends MapNode
 			{
 				return;
 			}
-			// 将图片高度减半， 用于本来是正方形的图片， 变成球形
-			// image = CanvasUtils.createImageData(image, this.mapView.provider.tileSize, this.mapView.provider.tileSize, this.mapView.provider.tileSize*2, this.mapView.provider.tileSize);
+						
+			// const textureLoader = new TextureLoader();
+			// const texture = textureLoader.load(image.src, function() {});
 			
-			const textureLoader = new TextureLoader();
-			const texture = textureLoader.load(image.src, function() {});
-			
-			// const texture = new Texture(image);
-			// texture.generateMipmaps = false;
-			// texture.format = RGBAFormat;
-			// texture.magFilter = LinearFilter;
-			// texture.minFilter = LinearFilter;
-			// texture.needsUpdate = true;
+			const texture = new Texture(image);
+			texture.generateMipmaps = false;
+			texture.format = RGBAFormat;
+			texture.magFilter = LinearFilter;
+			texture.minFilter = LinearFilter;
+			texture.needsUpdate = true;
 			// texture.wrapS = RepeatWrapping;
             // texture.wrapT = RepeatWrapping;
 			
 			// @ts-ignore
-			// this.material.map = texture;
-			this.material.uniforms.uTexture.value = texture;
-		// @ts-ignore
-			this.material.uniforms.uTexture.needsUpdate = true;
+			this.material.map = texture;
+			// this.material.uniforms.uTexture.value = texture;
+			// this.material.uniforms.uTexture.needsUpdate = true;
 		}
 		catch (e) 
 		{
@@ -270,5 +230,45 @@ export class MapSphereNode extends MapNode
 		}
 	}
 
-	
+	shaderMaterial(level,x,y){
+		let bounds = UnitsUtils.tileBounds(level, x, y);
+		// Load shaders
+		const vertexShader = /* WGSL */`
+		varying vec3 vPosition;
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+		const fragmentShader =  /* WGSL */`
+		#define PI 3.141592653589
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 mercatorBounds;
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+			float mercator_x = radius * longitude;
+			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
+			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+			
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
+		
+		// Create shader material
+		let vBounds = new Vector4(...bounds);
+		const material = new ShaderMaterial({
+			uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
+			vertexShader: vertexShader,
+			fragmentShader: fragmentShader
+		});
+		return material;
+	}
 }

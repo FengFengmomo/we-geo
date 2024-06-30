@@ -14,7 +14,7 @@ export class MapSphereNodeGeometry extends BufferGeometry
 	 * @param widthSegments - Number of subdivisions along the width.
 	 * @param heightSegments - Number of subdivisions along the height.
 	 */
-	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
+	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) 
 	{
 		super();
 
@@ -50,10 +50,11 @@ export class MapSphereNodeGeometry extends BufferGeometry
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
 				normals.push(normal.x, normal.y, normal.z);
-				
+				/** 
 				// modify uv
 				let len = this.distance(vertex); // length of the vertex, distance from the center
-				let latitude = Math.asin(vertex.y / len);
+				// let len = radius; // length of the vertex, distance from the center
+				let latitude = Math.acos(vertex.y / len);
 				let longitude = Math.atan(-vertex.z, vertex.x);
 				let mercator_x = len * longitude;
 				let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
@@ -61,10 +62,11 @@ export class MapSphereNodeGeometry extends BufferGeometry
 				let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
 				uvs.push(x, y);
 				// modify uv end
-				
-
-
-				// uvs.push(u, 1 - v);
+				*/
+				// let latitude = Math.acos(vertex.y);
+				// let longitude = Math.atan(-vertex.z, vertex.x);
+				// uvs.push(longitude, latitude);
+				uvs.push(u, 1 - v);
 				verticesRow.push(index++);
 			}
 
