@@ -80,17 +80,6 @@ camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
-
-const geometry = new SphereGeometry(UnitsUtils.EARTH_ORIGIN+2000, 160, 160);
-            const material = new MeshBasicMaterial({
-              color: 0x000088,
-              transparent: true,
-              opacity: 0.2
-            }); 
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
-
-
 	
 
 

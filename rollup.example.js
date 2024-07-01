@@ -18,22 +18,22 @@ export default [
 	// 		}
 	// 	]
 	// },
-	{
-		input: 'src/examples/fakeEarth.js',
-		plugins: [
-			resolve(),
-			typescript({
-				tsconfig: './tsconfig.examples.json',
-			})
-		],
-		output: [
-			{
-				format: 'iife',
-				file: 'examples/js/fakeEarth.js',
-				indent: '\t'
-			}
-		]
-	},
+	// {
+	// 	input: 'src/examples/fakeEarth.js',
+	// 	plugins: [
+	// 		resolve(),
+	// 		typescript({
+	// 			tsconfig: './tsconfig.examples.json',
+	// 		})
+	// 	],
+	// 	output: [
+	// 		{
+	// 			format: 'iife',
+	// 			file: 'examples/js/fakeEarth.js',
+	// 			indent: '\t'
+	// 		}
+	// 	]
+	// },
 	// {
 	// 	input: 'src/examples/wegeo.js',
 	// 	plugins: [
@@ -46,22 +46,6 @@ export default [
 	// 		{
 	// 			format: 'iife',
 	// 			file: 'examples/js/wegeo.js',
-	// 			indent: '\t'
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	input: 'src/examples/waterjson.js',
-	// 	plugins: [
-	// 		resolve(),
-	// 		typescript({
-	// 			tsconfig: './tsconfig.examples.json',
-	// 		})
-	// 	],
-	// 	output: [
-	// 		{
-	// 			format: 'iife',
-	// 			file: 'examples/js/waterjson.js',
 	// 			indent: '\t'
 	// 		}
 	// 	]
@@ -82,20 +66,20 @@ export default [
 	// 		}
 	// 	]
 	// },
-	// {
-	// 	input: 'src/examples/basic.js',
-	// 	plugins: [
-	// 		resolve(),
-	// 		typescript({
-	// 			tsconfig: './tsconfig.examples.json',
-	// 		})
-	// 	],
-	// 	output: [
-	// 		{
-	// 			format: 'iife',
-	// 			file: 'examples/basic.js',
-	// 			indent: '\t'
-	// 		}
-	// 	]
-	// }
+	{
+		input: 'src/main.js',
+		plugins: [
+			resolve(),
+			typescript({
+				tsconfig: './tsconfig.examples.json',
+			})
+		],
+		output: [
+			{
+				format: 'es',
+				file: 'build/wegeo.module.js',
+				indent: '\t'
+			},
+		]
+	}
 ];

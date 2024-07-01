@@ -18,7 +18,7 @@
 		<div id="panel">
 
 			<div id="header">
-				<h1><a href="https://threejs.org">three.js</a></h1>
+				<h1><a href="">wegeo基于threejs</a></h1>
 
 				<div id="sections">
 					<span class="selected">examples</span>
@@ -27,14 +27,32 @@
 				<div id="expandButton"></div>
 			</div>
 			<div id="panelScrim"></div>
-			<div id="contentWrapper">
-				<div class="card selected">
-					<a href="webgl_water.html" target="viewer" onclick="init(this)">
-						<div class="cover">
-							<img src="png/backgrounddetailed7.jpg" loading="lazy" width="400">
-						</div>
-						<div class="title">animation / keyframes</div>
-					</a>
+			<div id="contentWrapper" style="display: flex;">
+				<div id="content">
+					<div class="card selected">
+						<a href="./sphereEarth/Earth/earth.html" target="viewer" onclick="init(this)">
+							<div class="cover">
+								<img src="screenshots/basic_earth.png" loading="lazy" width="400">
+							</div>
+							<div class="title">圆形地球/基础地球</div>
+						</a>
+					</div>
+					<div class="card selected">
+						<a href="./planeEarth/basic/basic.html" target="viewer" onclick="init(this)">
+							<div class="cover">
+								<img src="screenshots/plane_basic.png" loading="lazy" width="400">
+							</div>
+							<div class="title">平面/基础地球</div>
+						</a>
+					</div>
+					<div class="card selected">
+						<a href="./planeEarth/localtionName/wegeo.html" target="viewer" onclick="init(this)">
+							<div class="cover">
+								<img src="screenshots/plane_localtionName.png" loading="lazy" width="400">
+							</div>
+							<div class="title">平面/地名和国境线</div>
+						</a>
+					</div>
 				</div>
 			</div>
 
@@ -49,7 +67,7 @@
 				viewer.src = a.href;
 				viewer.style.display = 'unset';
 			}
-			viewer.src = 'webgl_water.html';
+			viewer.src = "./sphereEarth/Earth/earth.html";
 			viewer.style.display = 'unset';
 		</script>
 	</body>

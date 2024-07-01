@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "outDir": "./build",
     "rootDir": "./src",
-    "sourceMap": true,
+    "sourceMap": false,
     // sourceRoot用于指定调试器应该找到TypeScript文件而不是源文件的位置，这个值会被写进.map文件里
     // "sourceRoot": "./source",
     // mapRoot用于指定调试器找到映射文件而非生成文件的位置，指定map文件的根路径，该选项会影响.map文件中的sources属性
