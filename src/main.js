@@ -50,3 +50,4 @@ export {WegeoMap} from './WegeoMap';
 export {Config} from './environment/config';
 
 export {Animate } from './animation/Animate';
+export {Skybox} from './sky/Skybox'

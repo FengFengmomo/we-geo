@@ -4,7 +4,7 @@ import {WebGLRenderer, Scene, Color, TextureLoader, Mesh, SphereGeometry, MeshBa
 	MOUSE, AmbientLight, Raycaster, Vector2, LinearSRGBColorSpace, ColorManagement, Vector3} from 'three';
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {UnitsUtils, BingMapsProvider, MapView, LODFrustum, LODRadial, LODSphere, Animate} from '../main';
+import {UnitsUtils, BingMapsProvider, MapView, LODFrustum, LODRadial, LODSphere, Animate, Skybox} from '../main';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 
 var canvas = document.getElementById('canvas');
@@ -39,9 +39,7 @@ var controls = new OrbitControls(camera, canvas);
 controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
 controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
 controls.enablePan = false;
-// controls.zoomSpeed = 0.2;
-// controls.rotateSpeed = 0.1; 
-// controls.panSpeed = 0.5;
+
 controls.addEventListener('change', function(event){
     let distance = camera.position.distanceTo(new Vector3(0,0,0));
 	// console.log(distance);
@@ -77,8 +75,8 @@ camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
-	
-
+let sky = new Skybox().loadBox();
+scene.background = sky;
 
 var raycaster = new Raycaster();
 

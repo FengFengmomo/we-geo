@@ -1,9 +1,9 @@
-import { ImageUtils, RGBFormat, ShaderLib ,ShaderMaterial, Mesh, BoxGeometry, BackSide} from "three";
+import { CubeTextureLoader, RGBAFormat, ShaderLib ,ShaderMaterial, Mesh, BoxGeometry, BackSide} from "three";
 
 export class Skybox {
 
-    loadSkyBox() {
-		var aCubeMap = ImageUtils.loadTextureCube([
+    loadSkyBox(scale) {
+		var aCubeMap = new CubeTextureLoader().load([
 		  'png/sky/px.jpg',
 		  'png/sky/nx.jpg',
 		  'png/sky/py.jpg',
@@ -11,7 +11,7 @@ export class Skybox {
 		  'png/sky/pz.jpg',
 		  'png/sky/nz.jpg'
 		]);
-		aCubeMap.format = RGBFormat;
+		aCubeMap.format = RGBAFormat;
 
 		var aShader = ShaderLib['cube'];
 		aShader.uniforms['tCube'].value = aCubeMap;
@@ -25,10 +25,21 @@ export class Skybox {
 		});
 
 		var aSkybox = new Mesh(
-		  new BoxGeometry(1000000, 1000000, 1000000),
+		  new BoxGeometry(scale, scale, scale),
 		  aSkyBoxMaterial
 		);
 		return aSkybox;
 		this.ms_Scene.add(aSkybox);
+	}
+	loadBox(){
+		var cube = new CubeTextureLoader().load([
+		  'png/sky/px.jpg',
+		  'png/sky/nx.jpg',
+		  'png/sky/py.jpg',
+		  'png/sky/ny.jpg',
+		  'png/sky/pz.jpg',	
+		  'png/sky/nz.jpg'	
+		]);
+		return cube;
 	}
 }
