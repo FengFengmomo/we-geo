@@ -25825,7 +25825,7 @@
 
 	}
 
-	class Group extends Object3D {
+	let Group$1 = class Group extends Object3D {
 
 		constructor() {
 
@@ -25837,7 +25837,7 @@
 
 		}
 
-	}
+	};
 
 	const _moveEvent = { type: 'move' };
 
@@ -25855,7 +25855,7 @@
 
 			if ( this._hand === null ) {
 
-				this._hand = new Group();
+				this._hand = new Group$1();
 				this._hand.matrixAutoUpdate = false;
 				this._hand.visible = false;
 
@@ -25872,7 +25872,7 @@
 
 			if ( this._targetRay === null ) {
 
-				this._targetRay = new Group();
+				this._targetRay = new Group$1();
 				this._targetRay.matrixAutoUpdate = false;
 				this._targetRay.visible = false;
 				this._targetRay.hasLinearVelocity = false;
@@ -25890,7 +25890,7 @@
 
 			if ( this._grip === null ) {
 
-				this._grip = new Group();
+				this._grip = new Group$1();
 				this._grip.matrixAutoUpdate = false;
 				this._grip.visible = false;
 				this._grip.hasLinearVelocity = false;
@@ -26162,7 +26162,7 @@
 
 			if ( hand.joints[ inputjoint.jointName ] === undefined ) {
 
-				const joint = new Group();
+				const joint = new Group$1();
 				joint.matrixAutoUpdate = false;
 				joint.visible = false;
 				hand.joints[ inputjoint.jointName ] = joint;
@@ -30611,6 +30611,376 @@
 
 	}
 
+	const Cache = {
+
+		enabled: false,
+
+		files: {},
+
+		add: function ( key, file ) {
+
+			if ( this.enabled === false ) return;
+
+			// console.log( 'THREE.Cache', 'Adding key:', key );
+
+			this.files[ key ] = file;
+
+		},
+
+		get: function ( key ) {
+
+			if ( this.enabled === false ) return;
+
+			// console.log( 'THREE.Cache', 'Checking key:', key );
+
+			return this.files[ key ];
+
+		},
+
+		remove: function ( key ) {
+
+			delete this.files[ key ];
+
+		},
+
+		clear: function () {
+
+			this.files = {};
+
+		}
+
+	};
+
+	class LoadingManager {
+
+		constructor( onLoad, onProgress, onError ) {
+
+			const scope = this;
+
+			let isLoading = false;
+			let itemsLoaded = 0;
+			let itemsTotal = 0;
+			let urlModifier = undefined;
+			const handlers = [];
+
+			// Refer to #5689 for the reason why we don't set .onStart
+			// in the constructor
+
+			this.onStart = undefined;
+			this.onLoad = onLoad;
+			this.onProgress = onProgress;
+			this.onError = onError;
+
+			this.itemStart = function ( url ) {
+
+				itemsTotal ++;
+
+				if ( isLoading === false ) {
+
+					if ( scope.onStart !== undefined ) {
+
+						scope.onStart( url, itemsLoaded, itemsTotal );
+
+					}
+
+				}
+
+				isLoading = true;
+
+			};
+
+			this.itemEnd = function ( url ) {
+
+				itemsLoaded ++;
+
+				if ( scope.onProgress !== undefined ) {
+
+					scope.onProgress( url, itemsLoaded, itemsTotal );
+
+				}
+
+				if ( itemsLoaded === itemsTotal ) {
+
+					isLoading = false;
+
+					if ( scope.onLoad !== undefined ) {
+
+						scope.onLoad();
+
+					}
+
+				}
+
+			};
+
+			this.itemError = function ( url ) {
+
+				if ( scope.onError !== undefined ) {
+
+					scope.onError( url );
+
+				}
+
+			};
+
+			this.resolveURL = function ( url ) {
+
+				if ( urlModifier ) {
+
+					return urlModifier( url );
+
+				}
+
+				return url;
+
+			};
+
+			this.setURLModifier = function ( transform ) {
+
+				urlModifier = transform;
+
+				return this;
+
+			};
+
+			this.addHandler = function ( regex, loader ) {
+
+				handlers.push( regex, loader );
+
+				return this;
+
+			};
+
+			this.removeHandler = function ( regex ) {
+
+				const index = handlers.indexOf( regex );
+
+				if ( index !== - 1 ) {
+
+					handlers.splice( index, 2 );
+
+				}
+
+				return this;
+
+			};
+
+			this.getHandler = function ( file ) {
+
+				for ( let i = 0, l = handlers.length; i < l; i += 2 ) {
+
+					const regex = handlers[ i ];
+					const loader = handlers[ i + 1 ];
+
+					if ( regex.global ) regex.lastIndex = 0; // see #17920
+
+					if ( regex.test( file ) ) {
+
+						return loader;
+
+					}
+
+				}
+
+				return null;
+
+			};
+
+		}
+
+	}
+
+	const DefaultLoadingManager = /*@__PURE__*/ new LoadingManager();
+
+	class Loader {
+
+		constructor( manager ) {
+
+			this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
+
+			this.crossOrigin = 'anonymous';
+			this.withCredentials = false;
+			this.path = '';
+			this.resourcePath = '';
+			this.requestHeader = {};
+
+		}
+
+		load( /* url, onLoad, onProgress, onError */ ) {}
+
+		loadAsync( url, onProgress ) {
+
+			const scope = this;
+
+			return new Promise( function ( resolve, reject ) {
+
+				scope.load( url, resolve, onProgress, reject );
+
+			} );
+
+		}
+
+		parse( /* data */ ) {}
+
+		setCrossOrigin( crossOrigin ) {
+
+			this.crossOrigin = crossOrigin;
+			return this;
+
+		}
+
+		setWithCredentials( value ) {
+
+			this.withCredentials = value;
+			return this;
+
+		}
+
+		setPath( path ) {
+
+			this.path = path;
+			return this;
+
+		}
+
+		setResourcePath( resourcePath ) {
+
+			this.resourcePath = resourcePath;
+			return this;
+
+		}
+
+		setRequestHeader( requestHeader ) {
+
+			this.requestHeader = requestHeader;
+			return this;
+
+		}
+
+	}
+
+	Loader.DEFAULT_MATERIAL_NAME = '__DEFAULT';
+
+	class ImageLoader extends Loader {
+
+		constructor( manager ) {
+
+			super( manager );
+
+		}
+
+		load( url, onLoad, onProgress, onError ) {
+
+			if ( this.path !== undefined ) url = this.path + url;
+
+			url = this.manager.resolveURL( url );
+
+			const scope = this;
+
+			const cached = Cache.get( url );
+
+			if ( cached !== undefined ) {
+
+				scope.manager.itemStart( url );
+
+				setTimeout( function () {
+
+					if ( onLoad ) onLoad( cached );
+
+					scope.manager.itemEnd( url );
+
+				}, 0 );
+
+				return cached;
+
+			}
+
+			const image = createElementNS( 'img' );
+
+			function onImageLoad() {
+
+				removeEventListeners();
+
+				Cache.add( url, this );
+
+				if ( onLoad ) onLoad( this );
+
+				scope.manager.itemEnd( url );
+
+			}
+
+			function onImageError( event ) {
+
+				removeEventListeners();
+
+				if ( onError ) onError( event );
+
+				scope.manager.itemError( url );
+				scope.manager.itemEnd( url );
+
+			}
+
+			function removeEventListeners() {
+
+				image.removeEventListener( 'load', onImageLoad, false );
+				image.removeEventListener( 'error', onImageError, false );
+
+			}
+
+			image.addEventListener( 'load', onImageLoad, false );
+			image.addEventListener( 'error', onImageError, false );
+
+			if ( url.slice( 0, 5 ) !== 'data:' ) {
+
+				if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
+
+			}
+
+			scope.manager.itemStart( url );
+
+			image.src = url;
+
+			return image;
+
+		}
+
+	}
+
+	class TextureLoader extends Loader {
+
+		constructor( manager ) {
+
+			super( manager );
+
+		}
+
+		load( url, onLoad, onProgress, onError ) {
+
+			const texture = new Texture();
+
+			const loader = new ImageLoader( this.manager );
+			loader.setCrossOrigin( this.crossOrigin );
+			loader.setPath( this.path );
+
+			loader.load( url, function ( image ) {
+
+				texture.image = image;
+				texture.needsUpdate = true;
+
+				if ( onLoad !== undefined ) {
+
+					onLoad( texture );
+
+				}
+
+			}, onProgress, onError );
+
+			return texture;
+
+		}
+
+	}
+
 	class Light extends Object3D {
 
 		constructor( color, intensity = 1 ) {
@@ -30665,196 +31035,6 @@
 
 	}
 
-	const _projScreenMatrix$1 = /*@__PURE__*/ new Matrix4();
-	const _lightPositionWorld$1 = /*@__PURE__*/ new Vector3();
-	const _lookTarget$1 = /*@__PURE__*/ new Vector3();
-
-	class LightShadow {
-
-		constructor( camera ) {
-
-			this.camera = camera;
-
-			this.bias = 0;
-			this.normalBias = 0;
-			this.radius = 1;
-			this.blurSamples = 8;
-
-			this.mapSize = new Vector2( 512, 512 );
-
-			this.map = null;
-			this.mapPass = null;
-			this.matrix = new Matrix4();
-
-			this.autoUpdate = true;
-			this.needsUpdate = false;
-
-			this._frustum = new Frustum();
-			this._frameExtents = new Vector2( 1, 1 );
-
-			this._viewportCount = 1;
-
-			this._viewports = [
-
-				new Vector4( 0, 0, 1, 1 )
-
-			];
-
-		}
-
-		getViewportCount() {
-
-			return this._viewportCount;
-
-		}
-
-		getFrustum() {
-
-			return this._frustum;
-
-		}
-
-		updateMatrices( light ) {
-
-			const shadowCamera = this.camera;
-			const shadowMatrix = this.matrix;
-
-			_lightPositionWorld$1.setFromMatrixPosition( light.matrixWorld );
-			shadowCamera.position.copy( _lightPositionWorld$1 );
-
-			_lookTarget$1.setFromMatrixPosition( light.target.matrixWorld );
-			shadowCamera.lookAt( _lookTarget$1 );
-			shadowCamera.updateMatrixWorld();
-
-			_projScreenMatrix$1.multiplyMatrices( shadowCamera.projectionMatrix, shadowCamera.matrixWorldInverse );
-			this._frustum.setFromProjectionMatrix( _projScreenMatrix$1 );
-
-			shadowMatrix.set(
-				0.5, 0.0, 0.0, 0.5,
-				0.0, 0.5, 0.0, 0.5,
-				0.0, 0.0, 0.5, 0.5,
-				0.0, 0.0, 0.0, 1.0
-			);
-
-			shadowMatrix.multiply( _projScreenMatrix$1 );
-
-		}
-
-		getViewport( viewportIndex ) {
-
-			return this._viewports[ viewportIndex ];
-
-		}
-
-		getFrameExtents() {
-
-			return this._frameExtents;
-
-		}
-
-		dispose() {
-
-			if ( this.map ) {
-
-				this.map.dispose();
-
-			}
-
-			if ( this.mapPass ) {
-
-				this.mapPass.dispose();
-
-			}
-
-		}
-
-		copy( source ) {
-
-			this.camera = source.camera.clone();
-
-			this.bias = source.bias;
-			this.radius = source.radius;
-
-			this.mapSize.copy( source.mapSize );
-
-			return this;
-
-		}
-
-		clone() {
-
-			return new this.constructor().copy( this );
-
-		}
-
-		toJSON() {
-
-			const object = {};
-
-			if ( this.bias !== 0 ) object.bias = this.bias;
-			if ( this.normalBias !== 0 ) object.normalBias = this.normalBias;
-			if ( this.radius !== 1 ) object.radius = this.radius;
-			if ( this.mapSize.x !== 512 || this.mapSize.y !== 512 ) object.mapSize = this.mapSize.toArray();
-
-			object.camera = this.camera.toJSON( false ).object;
-			delete object.camera.matrix;
-
-			return object;
-
-		}
-
-	}
-
-	class DirectionalLightShadow extends LightShadow {
-
-		constructor() {
-
-			super( new OrthographicCamera( - 5, 5, 5, - 5, 0.5, 500 ) );
-
-			this.isDirectionalLightShadow = true;
-
-		}
-
-	}
-
-	class DirectionalLight extends Light {
-
-		constructor( color, intensity ) {
-
-			super( color, intensity );
-
-			this.isDirectionalLight = true;
-
-			this.type = 'DirectionalLight';
-
-			this.position.copy( Object3D.DEFAULT_UP );
-			this.updateMatrix();
-
-			this.target = new Object3D();
-
-			this.shadow = new DirectionalLightShadow();
-
-		}
-
-		dispose() {
-
-			this.shadow.dispose();
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.target = source.target.clone();
-			this.shadow = source.shadow.clone();
-
-			return this;
-
-		}
-
-	}
-
 	class AmbientLight extends Light {
 
 		constructor( color, intensity ) {
@@ -30866,6 +31046,79 @@
 			this.type = 'AmbientLight';
 
 		}
+
+	}
+
+	class Clock {
+
+		constructor( autoStart = true ) {
+
+			this.autoStart = autoStart;
+
+			this.startTime = 0;
+			this.oldTime = 0;
+			this.elapsedTime = 0;
+
+			this.running = false;
+
+		}
+
+		start() {
+
+			this.startTime = now$1();
+
+			this.oldTime = this.startTime;
+			this.elapsedTime = 0;
+			this.running = true;
+
+		}
+
+		stop() {
+
+			this.getElapsedTime();
+			this.running = false;
+			this.autoStart = false;
+
+		}
+
+		getElapsedTime() {
+
+			this.getDelta();
+			return this.elapsedTime;
+
+		}
+
+		getDelta() {
+
+			let diff = 0;
+
+			if ( this.autoStart && ! this.running ) {
+
+				this.start();
+				return 0;
+
+			}
+
+			if ( this.running ) {
+
+				const newTime = now$1();
+
+				diff = ( newTime - this.oldTime ) / 1000;
+				this.oldTime = newTime;
+
+				this.elapsedTime += diff;
+
+			}
+
+			return diff;
+
+		}
+
+	}
+
+	function now$1() {
+
+		return ( typeof performance === 'undefined' ? Date : performance ).now(); // see #10732
 
 	}
 
@@ -32546,29 +32799,6 @@
 
 	}
 
-	// MapControls performs orbiting, dollying (zooming), and panning.
-	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-	//
-	//    Orbit - right mouse, or left mouse + ctrl/meta/shiftKey / touch: two-finger rotate
-	//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-	//    Pan - left mouse, or arrow keys / touch: one-finger move
-
-	class MapControls extends OrbitControls {
-
-		constructor( object, domElement ) {
-
-			super( object, domElement );
-
-			this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
-
-			this.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
-
-			this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_ROTATE };
-
-		}
-
-	}
-
 	/**
 	 * A map provider is a object that handles the access to map tiles of a specific service.
 	 *
@@ -32592,6 +32822,11 @@
 		 * Maximum tile level.
 		 */
 		maxZoom = 25;
+
+		/**
+		 * Map tile size.
+		 */
+		tileSize = 256;
 
 		/**
 		 * Map bounds.
@@ -32700,6 +32935,20 @@
 				return canvas;
 			}
 		}
+
+		static createImageData(image,imgWidth,imgHeight, targetWidth, targetHeight){
+			const canvas = CanvasUtils.createOffscreenCanvas(targetWidth, targetHeight); 
+
+			const context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			context.drawImage(image, 0, 0, imgWidth, imgHeight, 0, 0, canvas.width, canvas.height);
+
+			const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+			// var img = new Image();
+			// img.src = canvas.toDataURL();
+			// 这里返回OffscreenCanvas是因为threejs的Texture可以接受image和offscreenCanvas
+			return imageData;
+		}
 	}
 
 	/**
@@ -32733,16 +32982,6 @@
 	        
 			return texture;
 		}
-	}
-
-	class WMSProvider {
-	    constructor(){}
-	    // 只要是WMTS标准的瓦片格式都应该继承这个类;以在level 1时能正确分类 
-	    // 增加这个判断的意义在于，某些WMTS标准在level 1 层的图片数量不一致;
-			// 比如WMTS标准 level 1 层的图片数量是 2x1，而很多tile服务器的level 1图片数量是 2x2;
-	// 		if (level === 1 && this.mapView.provider instanceof WMSProvider){
-	// 			return;
-	// 		}
 	}
 
 	/**
@@ -32781,17 +33020,17 @@
 	class UnitsUtils 
 	{
 		/**
-		 * Average radius of earth in meters.
+		 * Average radius of earth in meters. // 赤道平均半径
 		 */
 		static EARTH_RADIUS = 6371008;
 
 		/**
-		 * Earth radius in semi-major axis A as defined in WGS84.
+		 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
 		 */
 		static EARTH_RADIUS_A = 6378137.0;
 
 		/**
-		 * Earth radius in semi-minor axis B as defined in WGS84.
+		 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
 		 */
 		static EARTH_RADIUS_B = 6356752.314245;
 
@@ -32804,6 +33043,11 @@
 		 * Earth equator perimeter in meters.
 		 */
 		static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
+
+			/**
+		 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
+		 */
+		static MERCATOR_MAX_EXTENT = 20037508.342789244;
 
 		static tileWidth(level){
 			return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
@@ -32912,6 +33156,96 @@
 		{
 			return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
 		}
+		
+		/**
+		 * WGS84经纬度转平面xy坐标
+		 * @param {*} lat 维度
+		 * @param {*} lon 经度
+		 * @returns {Vector2}
+		 */
+		static latLonToXy(lat, lon){
+			let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
+			let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
+			return new Vector2(x, y);
+		}
+
+		/**
+		 * 平面xy坐标转WGS84经纬度
+		 * @param {*} x 
+		 * @param {*} y 
+		 * @returns {Geolocation}
+		 */
+		static xyToLatLon(x, y){
+		    let lat = y/UnitsUtils.EARTH_RADIUS_A *180 /Math.PI;
+			let lon = x/(UnitsUtils.EARTH_RADIUS_A * Math.cos(lat/180 *Math.PI))*180 /Math.PI;
+			return new Geolocation(lat, lon);
+		}
+
+		/**
+		 * @param {*} lat 维度 
+		 * @param {*} lng 经度
+		 * @returns {Vector2}
+		 */
+		static mecatorLL2XY(lat, lng){
+			let earthRad = UnitsUtils.EARTH_RADIUS_A;
+			let x = ((lng * Math.PI) / 180) * earthRad;
+			let a = (lat * Math.PI) / 180;
+			let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
+			return new Vector2(x, y)
+		}
+
+
+		/**
+		 * Get the size of a web mercator tile in mercator coordinates
+		 * 计算每个tile的大小，单位是米
+		 * 	 
+		 * @param zoom - the zoom level of the tile
+		 * @returns the size of the tile in mercator coordinates
+		 */
+		static getTileSize(zoom){
+			const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
+			const numTiles = Math.pow(2, zoom);
+			return 2 * maxExtent / numTiles;	
+		}
+
+		/**
+		 * Get the bounds of a web mercator tile in mercator coordinates
+		 * 	 x,y的起止， 和tilsize的大小。
+		 * @param zoom - the zoom level of the tile
+		 * @param x - the x coordinate of the tile
+		 * @param y - the y coordinate of the tile
+		 * @returns list of bounds - [startX, sizeX, startY, sizeY]
+		 */
+		static tileBounds(zoom, x, y){
+			const tileSize = UnitsUtils.getTileSize(zoom);
+			const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+			const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
+			return [minX, tileSize, minY, tileSize];
+		}
+
+		/**
+		 * Get the latitude value of a given mercator coordinate and zoom level
+		 * 
+		 * @param zoom - the zoom level of the coordinate
+		 * @param y - the y mercator coordinate
+		 * @returns - latitude of coordinate in radians
+		 */
+		static mercatorToLatitude(zoom, y) {
+			const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
+			return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS));
+		}
+
+		/**
+		 * Get the latitude value of a given mercator coordinate and zoom level
+		 * 
+		 * @param zoom - the zoom level of the coordinate
+		 * @param x - the x mercator coordinate
+		 * @returns - longitude of coordinate in radians
+		 */
+		static mercatorToLongitude(zoom, x) {
+			const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
+			return xMerc / UnitsUtils.EARTH_RADIUS;
+		}
 	}
 
 	/**
@@ -32999,14 +33333,7 @@
 		 */
 		y;
 
-		static baseBbox = [90, -180, -90, 180];
-		static wmtsBbox = [[90, -180, -90, 0],[90, 0, -90, 180]];
-		/**
-		 * Bounding box of the map node.
-		 * [topleft, bottomright]
-		 * [左上角【维度，经度】，右下角【纬度，经度】]
-		 */
-		bbox;
+
 
 		/**
 		 * Variable to check if the node is subdivided.
@@ -33066,7 +33393,7 @@
 		isMesh = true;
 
 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = null, material = null) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
 		{
 			super(geometry, material);
 
@@ -33078,7 +33405,6 @@
 			this.level = level;
 			this.x = x;
 			this.y = y;
-			this.bbox = bbox;
 			// this.transparent = mapView.transparent;
 			// this.opacity = mapView.opacity;
 
@@ -33108,10 +33434,8 @@
 		{
 			const maxZoom = this.mapView.maxZoom();
 			// 先计算与，后计算或
-			// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂，这里 最后一个判断应该不对
-			// 每次要么加载四个，要么不加载，不会出现三个或者两个、一个的情况，所以这种判断不太对。
+			// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂
 			if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
-			// if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens && !(this.mapView.provider instanceof WMSProvider)) )
 			{
 				return;
 			}
@@ -33234,27 +33558,7 @@
 			this.material.needsUpdate = true;
 		}
 
-		/**
-		 * 计算孩子的经纬度范围bbox
-		 */
-		/**
-		 * Bounding box of the map node.
-		 * [topleft, bottomright]
-		 * [左上角【维度，经度】，右下角【纬度，经度】]
-		 */
-		calculateChildLatLon(){
-			let boxs = new Array(4);
-			let top = this.bbox[0], left = this.bbox[1];
-			let bottom = this.bbox[2], right = this.bbox[3];
-			let center = new Array(2);
-			center[0] = ((top - bottom) / 2) + bottom; // 瓦片中心点维度
-			center[1] = ((left - right) / 2) + right; // 瓦片中心点经度
-			boxs[QuadTreePosition.topLeft] = [top,left,center[0],center[1]];
-			boxs[QuadTreePosition.topRight] = [top, center[1], center[0], right];
-			boxs[QuadTreePosition.bottomLeft] = [center[0],left, bottom,center[1]];
-			boxs[QuadTreePosition.bottomRight] = [center[0],center[1],bottom,right];
-			return boxs;
-		}
+
 
 		/**
 		 * Increment the child loaded counter.
@@ -33585,7 +33889,7 @@
 	 */
 	class MapPlaneNode extends MapNode 
 	{
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 		{
 			super(parentNode, mapView, location, bbox, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
@@ -33619,7 +33923,6 @@
 			const y = this.y * 2;
 
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
 
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
@@ -33847,9 +34150,9 @@
 		 * @param material - Material used to render this height node.
 		 * @param geometry - Geometry used to render this height node.
 		 */
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
 		{
-			super(parentNode, mapView, location, bbox, level, x, y, geometry, material);
+			super(parentNode, mapView, location, level, x, y, geometry, material);
 
 			this.isMesh = true;
 			this.visible = false;
@@ -33990,12 +34293,13 @@
 		/**
 		 * Map sphere geometry constructor.
 		 * 
+		 * @param radius - Radius of the sphere.
 		 * @param width - Width of the node.
 		 * @param height - Height of the node.
 		 * @param widthSegments - Number of subdivisions along the width.
 		 * @param heightSegments - Number of subdivisions along the height.
 		 */
-		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) 
+		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
 		{
 			super();
 
@@ -34023,7 +34327,7 @@
 
 					// Vertex
 					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
+					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
 					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
 
 					vertices.push(vertex.x, vertex.y, vertex.z);
@@ -34032,8 +34336,28 @@
 					normal.set(vertex.x, vertex.y, vertex.z).normalize();
 					normals.push(normal.x, normal.y, normal.z);
 
-					// UV
-					uvs.push(u, 1 - v);
+					// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
+					// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
+				
+					// modify uv
+					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS);
+					
+					let len = this.distance(vertex); // length of the vertex, distance from the center
+					// let len = radius; // length of the vertex, distance from the center
+					let latitude = Math.asin(vertex.y/len); 
+					let longitude = Math.atan2(-vertex.z,vertex.x);
+					// let longitude = Math.atan(-vertex.z);
+					let mercator_x = len * longitude;
+					let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
+					let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+					let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+					uvs.push(x, y);
+					// modify uv end
+					
+					// let latitude = Math.acos(vertex.y);
+					// let longitude = Math.atan(-vertex.z, vertex.x);
+					// uvs.push(longitude, latitude);
+					// uvs.push(u, 1 - v);
 					verticesRow.push(index++);
 				}
 
@@ -34067,6 +34391,15 @@
 			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
 			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
 		}
+
+		/**
+		 * 计算position的长度
+		 * @param {*} postion  
+		 */
+		distance(postion){
+			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
+			return distance;
+		}
 	}
 
 	/** 
@@ -34083,7 +34416,7 @@
 		 * 
 		 * Applied to the map view on initialization.
 		 */
-		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI);
+		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
 
 		/**
 		 * Base scale of the node.
@@ -34097,14 +34430,18 @@
 		 * 
 		 * Can be configured globally and is applied to all nodes.
 		 */
-		static segments = 80;
+		static segments = 160;
+		// static segments = 64;
 
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, bbox = MapNode.baseBbox, level = 0, x = 0, y = 0) 
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 		{
-			super(parentNode, mapView, location,bbox, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+			
+			
+			super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+			// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 		
 			this.applyScaleNode();
-		
 			this.matrixAutoUpdate = false;
 			this.isMesh = true;
 			this.visible = false;
@@ -34131,16 +34468,30 @@
 			const range = Math.pow(2, zoom);
 			const max = 40;
 			const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
+
+
 		
 			// X
-			const phiLength = 1 / range * 2 * Math.PI;
-			const phiStart = x * phiLength;
+			// const phiLength = 1 / range * 2 * Math.PI;
+			// const phiStart = x * phiLength;
+			
+			// // 经度
+			const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+			const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+			const phiStart = lon1;
+			const phiLength = lon2 - lon1;
 		
 			// Y
-			const thetaLength = 1 / range * Math.PI;
-			const thetaStart = y * thetaLength;
-		
-			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength);
+			// const thetaLength = 1 / range * Math.PI;
+			// const thetaStart = y * thetaLength;
+			// 维度
+			const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+			const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+			const thetaLength = lat1 - lat2;
+			const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+			let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+
+			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
 		}
 		
 		/** 
@@ -34156,8 +34507,11 @@
 			const matrix = new Matrix4();
 			matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
 			this.geometry.applyMatrix4(matrix);
-		
+			// 未赋值matrix的缘故？
+			// this.matrix = matrix;
 			this.position.copy(center);
+			
+			// var centerCopy = this.geometry.boundingBox.getCenter(new Vector3());
 		
 			this.updateMatrix();
 			this.updateMatrixWorld();
@@ -34173,6 +34527,8 @@
 		{
 			if (this.matrixWorldNeedsUpdate || force) 
 			{
+				// var temp = this.matrix.clone().multiplyScalar(6371008);
+				// this.matrixWorld.copy(temp);
 				this.matrixWorld.copy(this.matrix);
 				this.matrixWorldNeedsUpdate = false;
 			}
@@ -34185,22 +34541,82 @@
 			const y = this.y * 2;
 
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			// return;
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 			node.renderOrder = this.renderOrder;
 			this.add(node);
+		}
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
+		async loadData()
+		{
+			if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// @ts-ignore
+				this.material.needsUpdate = true;
+				return;
+			}
+
+			try 
+			{
+				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+				
+				if (this.disposed) 
+				{
+					return;
+				}
+							
+				// const textureLoader = new TextureLoader();
+				// const texture = textureLoader.load(image.src, function() {});
+				
+				const texture = new Texture(image);
+				texture.generateMipmaps = false;
+				texture.format = RGBAFormat;
+				texture.magFilter = LinearFilter;
+				texture.minFilter = LinearFilter;
+				texture.needsUpdate = true;
+				// texture.wrapS = RepeatWrapping;
+	            // texture.wrapT = RepeatWrapping;
+				
+				// @ts-ignore
+				this.material.map = texture;
+				// this.material.uniforms.uTexture.value = texture;
+				// this.material.uniforms.uTexture.needsUpdate = true;
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.warn('Geo-Three: Failed to load node tile data.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
+
+			// @ts-ignore
+			this.material.needsUpdate = true;
 		}
 		
 		/**
@@ -34212,6 +34628,48 @@
 			{
 				super.raycast(raycaster, intersects);
 			}
+		}
+
+		shaderMaterial(level,x,y){
+			let bounds = UnitsUtils.tileBounds(level, x, y);
+			// Load shaders
+			const vertexShader = /* WGSL */`
+		varying vec3 vPosition;
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+			const fragmentShader =  /* WGSL */`
+		#define PI 3.141592653589
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 mercatorBounds;
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+			float mercator_x = radius * longitude;
+			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
+			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+			
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
+			
+			// Create shader material
+			let vBounds = new Vector4(...bounds);
+			const material = new ShaderMaterial({
+				uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
+				vertexShader: vertexShader,
+				fragmentShader: fragmentShader
+			});
+			return material;
 		}
 	}
 
@@ -34405,6 +34863,10 @@
 	 */
 	class LODControl 
 	{
+
+		constructor(){
+			
+		}
 		/**
 		 * Update LOD of the MapView and Camera position on the world.
 		 * 
@@ -34465,6 +34927,10 @@
 		 * If distance is not considered threshold values should be absolute distances.
 		 */
 		scaleDistance = true;
+
+		constructor(){
+			super();
+		}
 
 		updateLOD(view, camera, renderer, scene)
 		{
@@ -35512,11 +35978,10 @@
 		{
 			const level = this.level + 1;
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
 
 			const x = this.x * 2;
 			const y = this.y * 2;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -35524,7 +35989,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
 			node.renderOrder = this.renderOrder;
@@ -35532,7 +35997,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -35540,7 +36005,7 @@
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
 			node.renderOrder = this.renderOrder;
@@ -35851,67 +36316,383 @@
 		}
 	}
 
-	//http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
-
-
-	class GeoserverWMTSProvider extends WMSProvider{
-		mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
-	    minZoom = 0;
-	    maxZoom = 13;
-	    tileSize = 256;
+	new Vector3();
+	new Vector3();
+	/**
+	 * Use random raycasting to randomly pick n objects to be tested on screen space.
+	 *
+	 * Overall the fastest solution but does not include out of screen objects.
+	 */
+	class LODSphere extends LODControl 
+	{
 		/**
-		 * 使用这种zxy的方式进行切分数据
-		 * 
-		 * // 使用该方式计算出来的结果,y的方向是反的，无法直接使用。
+		 * Number of rays used to test nodes and subdivide the map.
+		 *
+		 * N rays are cast each frame dependeing on this value to check distance to the visible map nodes. A single ray should be enough for must scenarios.
 		 */
-		// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
+		subdivisionRays = 1;
 
-	    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
-	    // %3A 表示冒号
-	    // %2F 表示斜杠
-	    // %20 表示空格
-	    // %5F 表示下划线
-		// %3C 表示<
-		// %3E 表示>
-		// %2C 表示，
-		url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts';
-		data = 'xinjiang';
-		layer = 'xinjiang';
-		tilematrixset = 'unkonwn'; // 设置该参数，则同时需要设置tilematrix,
-		TileMatrix = 'unkonwn'; // 同上
-		EPSG = '3857';
-		version = '1.0.0';
-		
-	    imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{tilematrixset}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{TileMatrix}:{z}&TileCol={x}&TileRow={y}';    
-		constructor(options) {
-			super(options);
-	        Object.assign(this, options);
-			this.imageUrl = this.imageUrl.replace('{url}', this.url);
-			this.imageUrl = this.imageUrl.replace('{version}', this.version);
-			this.imageUrl = this.imageUrl.replace('{data}', this.data);
-			this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
-			if(this.tilematrixset === 'unkonwn'){
-			    this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.EPSG);
-				this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.EPSG);
-			} else {
-				this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.tilematrixset);
-				this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.TileMatrix);
-			}
-			
-	    }
-	    fetchTile(zoom, x, y, bbox)
+		/**
+		 * Raycaster object used to cast rays into the world and check for hits.
+		 */
+		raycaster = new Raycaster();
+
+		/**
+		 * Normalized mouse coordinates.
+		 */
+		mouse = new Vector2();
+
+
+		constructor(subdivideDistance = 120, simplifyDistance = 400){
+			super();
+	        this.subdivideDistance = subdivideDistance;
+			this.simplifyDistance = simplifyDistance;
+		}
+
+		updateLOD(view, camera, renderer, scene)
 		{
-			if(zoom < 0){
-				return;
+			const intersects = [];
+			
+			for (let t = 0; t < this.subdivisionRays; t++) 
+			{
+				// Generate random point in viewport
+				this.mouse.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
+
+				// Check intersection
+				this.raycaster.setFromCamera(this.mouse, camera);
+				this.raycaster.intersectObjects(view.children, true, intersects);
 			}
-			
-	        let urlTemp = this.imageUrl.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
-			
+
+			for (let i = 0; i < intersects.length; i++) 
+			{
+				const node = intersects[i].object;
+				let distance = intersects[i].distance;
+
+				distance /= Math.pow(2, view.provider.maxZoom - node.level);
+
+				if (distance < this.subdivideDistance) 
+				{
+					node.subdivide();
+				}
+				else if (distance > this.simplifyDistance && node.parentNode) 
+				{
+					node.parentNode.simplify();
+				}
+			}
+		}
+	}
+
+	/**
+	 * XHR utils contains public static methods to allow easy access to services via XHR.
+	 */
+	class XHRUtils 
+	{
+		/**
+		 * Get file data from URL as text, using a XHR call.
+		 *
+		 * @param url - Target for the request.
+		 * @param onLoad - On load callback.
+		 * @param onError - On progress callback.
+		 */
+		static async get(url)
+		{
+			return new Promise(function(resolve, reject) 
+			{
+				const xhr = new XMLHttpRequest();
+				xhr.overrideMimeType('text/plain');
+				xhr.open('GET', url, true);
+
+				xhr.onload = function() 
+				{
+					resolve(xhr.response);
+				};
+
+				xhr.onerror = reject;
+				xhr.send(null);
+			});
+		}
+
+		/**
+		 * Get raw file data from URL, using a XHR call.
+		 *
+		 * @param url - Target for the request.
+		 * @param onLoad - On load callback.
+		 * @param onError - On progress callback.
+		 */
+		static async getRaw(url)
+		{
+			return new Promise(function(resolve, reject) 
+			{
+				var xhr = new XMLHttpRequest();
+				xhr.responseType = 'arraybuffer';
+				xhr.open('GET', url, true);
+
+				xhr.onload = function() 
+				{
+					resolve(xhr.response);
+				};
+
+				xhr.onerror = reject;
+				xhr.send(null);
+			});
+		}
+
+		/**
+		 * Perform a request with the specified configuration.
+		 *
+		 * Syncronous request should be avoided unless they are strictly necessary.
+		 *
+		 * @param url - Target for the request.
+		 * @param type - Resquest type (POST, GET, ...)
+		 * @param header - Object with data to be added to the request header.
+		 * @param body - Data to be sent in the resquest.
+		 * @param onLoad - On load callback, receives data (String or Object) and XHR as arguments.
+		 * @param onError - XHR onError callback.
+		 */
+		static request(url, type, header, body, onLoad, onError, onProgress) 
+		{
+			function parseResponse(response)
+			{
+				try 
+				{
+					return JSON.parse(response);
+				}
+				catch (e) 
+				{
+					return response;
+				}
+			}
+
+			const xhr = new XMLHttpRequest();
+			xhr.overrideMimeType('text/plain');
+			xhr.open(type, url, true);
+
+			// Fill header data from Object
+			if (header !== null && header !== undefined) 
+			{
+				for (const i in header) 
+				{
+					xhr.setRequestHeader(i, header[i]);
+				}
+			}
+
+			if (onLoad !== undefined) 
+			{
+				xhr.onload = function(event) 
+				{
+					onLoad(parseResponse(xhr.response), xhr);
+				};
+			}
+
+			if (onError !== undefined) 
+			{
+				// @ts-ignore
+				xhr.onerror = onError;
+			}
+
+			if (onProgress !== undefined) 
+			{
+				// @ts-ignore
+				xhr.onprogress = onProgress;
+			}
+
+			xhr.send(body !== undefined ? body : null);
+
+			return xhr;
+		}
+	}
+
+	class ErrorCode {
+	    static  UNKNOWN_ERROR = 'UNKNOWN_ERROR';
+	    static  INVALID_REQUEST = 'INVALID_REQUEST';
+	    // 不同类型的错误用不同的数字进行开头
+	    static  ImageConvert = '10001';
+	    static  ImageDownload = '10002';
+	}
+
+	/**
+	 * Bing maps tile provider.
+	 *
+	 * API Reference
+	 *  - https://msdn.microsoft.com/en-us/library/bb259689.aspx (Bing Maps Tile System)
+	 *  - https://msdn.microsoft.com/en-us/library/mt823633.aspx (Directly accessing the Bing Maps tiles)
+	 *  - https://www.bingmapsportal.com/
+	 */
+	class BingMapsProvider extends MapProvider 
+	{
+		/**
+		 * Base address of the bing map provider.
+		 */
+		static ADDRESS = 'https://dev.virtualearth.net';
+
+		/**
+		 * Maximum zoom level allowed by the provider.
+		 */
+		maxZoom = 19;
+
+		/**
+		 * Minimum zoom level allowed by the provider.
+		 */
+		minZoom = 1;
+
+		/**
+		 * Server API access token.
+		 */
+		apiKey;
+
+		/**
+		 * The type of the map used.
+		 */
+		type;
+
+		/**
+		 * Map image tile format, the formats available are:
+		 *  - gif: Use GIF image format.
+		 *  - jpeg: Use JPEG image format. JPEG format is the default for Road, Aerial and AerialWithLabels imagery.
+		 *  - png: Use PNG image format. PNG is the default format for OrdnanceSurvey imagery.
+		 */
+		format = 'jpeg';
+
+		/**
+		 * Size of the map tiles.
+		 */
+		tileSize = 256;
+
+		/**
+		 * Tile server subdomain.
+		 */
+		subdomain = 't1';
+
+		/**
+		 * Metadata of the provider.
+		 */
+		meta = null;
+
+		/**
+		 * @param apiKey - Bing API key.
+		 * @param type - Type provider.
+		 */
+		constructor(apiKey = '', type = BingMapsProvider.AERIAL) 
+		{
+			super();
+
+			this.apiKey = apiKey;
+			this.type = type;
+		}
+
+		/**
+		 * Display an aerial view of the map.
+		 */
+		static AERIAL = 'a';
+
+		/**
+		 * Display a road view of the map.
+		 */
+		static ROAD = 'r';
+
+		/**
+		 * Display an aerial view of the map with labels.
+		 */
+		static AERIAL_LABELS = 'h';
+
+		/**
+		 * Use this value to display a bird's eye (oblique) view of the map.
+		 */
+		static OBLIQUE = 'o';
+
+		/**
+		 * Display a bird's eye (oblique) with labels view of the map.
+		 */
+		static OBLIQUE_LABELS = 'b';
+
+		/**
+		 * Get the base URL for the map configuration requested.
+		 *
+		 * Uses the follwing format
+		 * 
+		 * http://ecn.\{subdomain\}.tiles.virtualearth.net/tiles/r\{quadkey\}.jpeg?g=129&mkt=\{culture\}&shading=hill&stl=H
+		 */
+		async getMetaData() 
+		{
+			const address = BingMapsProvider.ADDRESS + '/REST/V1/Imagery/Metadata/RoadOnDemand?output=json&include=ImageryProviders&key=' + this.apiKey;
+			const data = await XHRUtils.get(address);
+
+			this.meta = JSON.parse(data);
+		}
+
+		/**
+		 * Convert x, y, zoom quadtree to a bing maps specific quadkey.
+		 *
+		 * Adapted from original C# code at https://msdn.microsoft.com/en-us/library/bb259689.aspx.
+		 */
+		static quadKey(zoom, x, y)
+		{
+			let quad = '';
+
+			for (let i = zoom; i > 0; i--) 
+			{
+				const mask = 1 << i - 1;
+				let cell = 0;
+
+				if ((x & mask) !== 0) 
+				{
+					cell++;
+				}
+
+				if ((y & mask) !== 0) 
+				{
+					cell += 2;
+				}
+
+				quad += cell;
+			}
+
+			return quad;
+		}
+
+		static convert(image, resolve, reject){
+			let imageSize = 256;
+			const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
+			const context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			context.drawImage(image, 0, 0, imageSize, imageSize, 0, 0, imageSize, imageSize);
+
+			const imageData = context.getImageData(0, 0, imageSize, imageSize); // 图像变成17*17像素
+			const data = imageData.data;
+			for (let i = 0; i < data.length; i += 4) {
+			    let gray = (data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11);
+				data[i] = gray;
+				data[i+1] = gray;
+				data[i+2] = gray;	
+			}
+			// context.putImageData(imageData, 0, 0);
+			// 此处仅仅是修改了画布上的数据。
+			// 如何生成一个图片对象并返回。
+			var img = new Image();
+			img.onload = () => {
+			// 画图片
+				ctx.drawImage(img, 60, 0);
+				// toImage
+				var dataImg = new Image();
+				dataImg.src = canvas.toDataURL('image/png');
+				resolve(dataImg);
+			};
+			img.onerror = function() {
+					reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
+			};
+
+		}
+
+		fetchTile(zoom, x, y)
+		{
 			return new Promise((resolve, reject) => 
 			{
 				const image = document.createElement('img');
+				// imgage = new Image();
 				image.onload = function() 
 				{
+					// BingMapsProvider.convert(image);
+					// 这里这个convert先禁用。
 					resolve(image);
 				};
 				image.onerror = function() 
@@ -35919,203 +36700,1095 @@
 					reject();
 				};
 				image.crossOrigin = 'Anonymous';
-				image.src = urlTemp;
+				image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
+				// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
+				// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
 			});
 		}
 	}
 
-	class RoadImageProvider extends MapProvider{
-	    minZoom = 1;
-	    maxZoom = 18;
-	    url = "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}";
-	    constructor() {
-	        super();
-	    }
+	/**
+	 * The Ease class provides a collection of easing functions for use with tween.js.
+	 */
 
-	    fetchTile(zoom, x, y){
-	        if(zoom < 0){
-				return;
-			}
-			
-	        let urlTemp = this.url.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
-			
-			return new Promise((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = urlTemp;
-			});
+	var now = function () { return performance.now(); };
+
+	/**
+	 * Controlling groups of tweens
+	 *
+	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+	 * In these cases, you may want to create your own smaller groups of tween
+	 */
+	var Group = /** @class */ (function () {
+	    function Group() {
+	        this._tweens = {};
+	        this._tweensAddedDuringUpdate = {};
 	    }
+	    Group.prototype.getAll = function () {
+	        var _this = this;
+	        return Object.keys(this._tweens).map(function (tweenId) {
+	            return _this._tweens[tweenId];
+	        });
+	    };
+	    Group.prototype.removeAll = function () {
+	        this._tweens = {};
+	    };
+	    Group.prototype.add = function (tween) {
+	        this._tweens[tween.getId()] = tween;
+	        this._tweensAddedDuringUpdate[tween.getId()] = tween;
+	    };
+	    Group.prototype.remove = function (tween) {
+	        delete this._tweens[tween.getId()];
+	        delete this._tweensAddedDuringUpdate[tween.getId()];
+	    };
+	    Group.prototype.update = function (time, preserve) {
+	        if (time === void 0) { time = now(); }
+	        if (preserve === void 0) { preserve = false; }
+	        var tweenIds = Object.keys(this._tweens);
+	        if (tweenIds.length === 0) {
+	            return false;
+	        }
+	        // Tweens are updated in "batches". If you add a new tween during an
+	        // update, then the new tween will be updated in the next batch.
+	        // If you remove a tween during an update, it may or may not be updated.
+	        // However, if the removed tween was added during the current batch,
+	        // then it will not be updated.
+	        while (tweenIds.length > 0) {
+	            this._tweensAddedDuringUpdate = {};
+	            for (var i = 0; i < tweenIds.length; i++) {
+	                var tween = this._tweens[tweenIds[i]];
+	                var autoStart = !preserve;
+	                if (tween && tween.update(time, autoStart) === false && !preserve) {
+	                    delete this._tweens[tweenIds[i]];
+	                }
+	            }
+	            tweenIds = Object.keys(this._tweensAddedDuringUpdate);
+	        }
+	        return true;
+	    };
+	    return Group;
+	}());
+
+	var mainGroup = new Group();
+	/**
+	 * Controlling groups of tweens
+	 *
+	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
+	 * In these cases, you may want to create your own smaller groups of tweens.
+	 */
+	var TWEEN = mainGroup;
+	// This is the best way to export things in a way that's compatible with both ES
+	// Modules and CommonJS, without build hacks, and so as not to break the
+	// existing API.
+	// https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
+	TWEEN.getAll.bind(TWEEN);
+	TWEEN.removeAll.bind(TWEEN);
+	TWEEN.add.bind(TWEEN);
+	TWEEN.remove.bind(TWEEN);
+	var update = TWEEN.update.bind(TWEEN);
+
+	class Reflector extends Mesh {
+
+		constructor( geometry, options = {} ) {
+
+			super( geometry );
+
+			this.isReflector = true;
+
+			this.type = 'Reflector';
+			this.camera = new PerspectiveCamera();
+
+			const scope = this;
+
+			const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0x7F7F7F );
+			const textureWidth = options.textureWidth || 512;
+			const textureHeight = options.textureHeight || 512;
+			const clipBias = options.clipBias || 0;
+			const shader = options.shader || Reflector.ReflectorShader;
+			const multisample = ( options.multisample !== undefined ) ? options.multisample : 4;
+
+			//
+
+			const reflectorPlane = new Plane();
+			const normal = new Vector3();
+			const reflectorWorldPosition = new Vector3();
+			const cameraWorldPosition = new Vector3();
+			const rotationMatrix = new Matrix4();
+			const lookAtPosition = new Vector3( 0, 0, - 1 );
+			const clipPlane = new Vector4();
+
+			const view = new Vector3();
+			const target = new Vector3();
+			const q = new Vector4();
+
+			const textureMatrix = new Matrix4();
+			const virtualCamera = this.camera;
+
+			const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight, { samples: multisample, type: HalfFloatType } );
+
+			const material = new ShaderMaterial( {
+				name: ( shader.name !== undefined ) ? shader.name : 'unspecified',
+				uniforms: UniformsUtils.clone( shader.uniforms ),
+				fragmentShader: shader.fragmentShader,
+				vertexShader: shader.vertexShader
+			} );
+
+			material.uniforms[ 'tDiffuse' ].value = renderTarget.texture;
+			material.uniforms[ 'color' ].value = color;
+			material.uniforms[ 'textureMatrix' ].value = textureMatrix;
+
+			this.material = material;
+
+			this.onBeforeRender = function ( renderer, scene, camera ) {
+
+				reflectorWorldPosition.setFromMatrixPosition( scope.matrixWorld );
+				cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
+
+				rotationMatrix.extractRotation( scope.matrixWorld );
+
+				normal.set( 0, 0, 1 );
+				normal.applyMatrix4( rotationMatrix );
+
+				view.subVectors( reflectorWorldPosition, cameraWorldPosition );
+
+				// Avoid rendering when reflector is facing away
+
+				if ( view.dot( normal ) > 0 ) return;
+
+				view.reflect( normal ).negate();
+				view.add( reflectorWorldPosition );
+
+				rotationMatrix.extractRotation( camera.matrixWorld );
+
+				lookAtPosition.set( 0, 0, - 1 );
+				lookAtPosition.applyMatrix4( rotationMatrix );
+				lookAtPosition.add( cameraWorldPosition );
+
+				target.subVectors( reflectorWorldPosition, lookAtPosition );
+				target.reflect( normal ).negate();
+				target.add( reflectorWorldPosition );
+
+				virtualCamera.position.copy( view );
+				virtualCamera.up.set( 0, 1, 0 );
+				virtualCamera.up.applyMatrix4( rotationMatrix );
+				virtualCamera.up.reflect( normal );
+				virtualCamera.lookAt( target );
+
+				virtualCamera.far = camera.far; // Used in WebGLBackground
+
+				virtualCamera.updateMatrixWorld();
+				virtualCamera.projectionMatrix.copy( camera.projectionMatrix );
+
+				// Update the texture matrix
+				textureMatrix.set(
+					0.5, 0.0, 0.0, 0.5,
+					0.0, 0.5, 0.0, 0.5,
+					0.0, 0.0, 0.5, 0.5,
+					0.0, 0.0, 0.0, 1.0
+				);
+				textureMatrix.multiply( virtualCamera.projectionMatrix );
+				textureMatrix.multiply( virtualCamera.matrixWorldInverse );
+				textureMatrix.multiply( scope.matrixWorld );
+
+				// Now update projection matrix with new clip plane, implementing code from: http://www.terathon.com/code/oblique.html
+				// Paper explaining this technique: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
+				reflectorPlane.setFromNormalAndCoplanarPoint( normal, reflectorWorldPosition );
+				reflectorPlane.applyMatrix4( virtualCamera.matrixWorldInverse );
+
+				clipPlane.set( reflectorPlane.normal.x, reflectorPlane.normal.y, reflectorPlane.normal.z, reflectorPlane.constant );
+
+				const projectionMatrix = virtualCamera.projectionMatrix;
+
+				q.x = ( Math.sign( clipPlane.x ) + projectionMatrix.elements[ 8 ] ) / projectionMatrix.elements[ 0 ];
+				q.y = ( Math.sign( clipPlane.y ) + projectionMatrix.elements[ 9 ] ) / projectionMatrix.elements[ 5 ];
+				q.z = - 1.0;
+				q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
+
+				// Calculate the scaled plane vector
+				clipPlane.multiplyScalar( 2.0 / clipPlane.dot( q ) );
+
+				// Replacing the third row of the projection matrix
+				projectionMatrix.elements[ 2 ] = clipPlane.x;
+				projectionMatrix.elements[ 6 ] = clipPlane.y;
+				projectionMatrix.elements[ 10 ] = clipPlane.z + 1.0 - clipBias;
+				projectionMatrix.elements[ 14 ] = clipPlane.w;
+
+				// Render
+				scope.visible = false;
+
+				const currentRenderTarget = renderer.getRenderTarget();
+
+				const currentXrEnabled = renderer.xr.enabled;
+				const currentShadowAutoUpdate = renderer.shadowMap.autoUpdate;
+
+				renderer.xr.enabled = false; // Avoid camera modification
+				renderer.shadowMap.autoUpdate = false; // Avoid re-computing shadows
+
+				renderer.setRenderTarget( renderTarget );
+
+				renderer.state.buffers.depth.setMask( true ); // make sure the depth buffer is writable so it can be properly cleared, see #18897
+
+				if ( renderer.autoClear === false ) renderer.clear();
+				renderer.render( scene, virtualCamera );
+
+				renderer.xr.enabled = currentXrEnabled;
+				renderer.shadowMap.autoUpdate = currentShadowAutoUpdate;
+
+				renderer.setRenderTarget( currentRenderTarget );
+
+				// Restore viewport
+
+				const viewport = camera.viewport;
+
+				if ( viewport !== undefined ) {
+
+					renderer.state.viewport( viewport );
+
+				}
+
+				scope.visible = true;
+
+			};
+
+			this.getRenderTarget = function () {
+
+				return renderTarget;
+
+			};
+
+			this.dispose = function () {
+
+				renderTarget.dispose();
+				scope.material.dispose();
+
+			};
+
+		}
 
 	}
 
+	Reflector.ReflectorShader = {
+
+		name: 'ReflectorShader',
+
+		uniforms: {
+
+			'color': {
+				value: null
+			},
+
+			'tDiffuse': {
+				value: null
+			},
+
+			'textureMatrix': {
+				value: null
+			}
+
+		},
+
+		vertexShader: /* glsl */`
+		uniform mat4 textureMatrix;
+		varying vec4 vUv;
+
+		#include <common>
+		#include <logdepthbuf_pars_vertex>
+
+		void main() {
+
+			vUv = textureMatrix * vec4( position, 1.0 );
+
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+			#include <logdepthbuf_vertex>
+
+		}`,
+
+		fragmentShader: /* glsl */`
+		uniform vec3 color;
+		uniform sampler2D tDiffuse;
+		varying vec4 vUv;
+
+		#include <logdepthbuf_pars_fragment>
+
+		float blendOverlay( float base, float blend ) {
+
+			return( base < 0.5 ? ( 2.0 * base * blend ) : ( 1.0 - 2.0 * ( 1.0 - base ) * ( 1.0 - blend ) ) );
+
+		}
+
+		vec3 blendOverlay( vec3 base, vec3 blend ) {
+
+			return vec3( blendOverlay( base.r, blend.r ), blendOverlay( base.g, blend.g ), blendOverlay( base.b, blend.b ) );
+
+		}
+
+		void main() {
+
+			#include <logdepthbuf_fragment>
+
+			vec4 base = texture2DProj( tDiffuse, vUv );
+			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );
+
+			#include <tonemapping_fragment>
+			#include <colorspace_fragment>
+
+		}`
+	};
+
+	class Refractor extends Mesh {
+
+		constructor( geometry, options = {} ) {
+
+			super( geometry );
+
+			this.isRefractor = true;
+
+			this.type = 'Refractor';
+			this.camera = new PerspectiveCamera();
+
+			const scope = this;
+
+			const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0x7F7F7F );
+			const textureWidth = options.textureWidth || 512;
+			const textureHeight = options.textureHeight || 512;
+			const clipBias = options.clipBias || 0;
+			const shader = options.shader || Refractor.RefractorShader;
+			const multisample = ( options.multisample !== undefined ) ? options.multisample : 4;
+
+			//
+
+			const virtualCamera = this.camera;
+			virtualCamera.matrixAutoUpdate = false;
+			virtualCamera.userData.refractor = true;
+
+			//
+
+			const refractorPlane = new Plane();
+			const textureMatrix = new Matrix4();
+
+			// render target
+
+			const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight, { samples: multisample, type: HalfFloatType } );
+
+			// material
+
+			this.material = new ShaderMaterial( {
+				name: ( shader.name !== undefined ) ? shader.name : 'unspecified',
+				uniforms: UniformsUtils.clone( shader.uniforms ),
+				vertexShader: shader.vertexShader,
+				fragmentShader: shader.fragmentShader,
+				transparent: true // ensures, refractors are drawn from farthest to closest
+			} );
+
+			this.material.uniforms[ 'color' ].value = color;
+			this.material.uniforms[ 'tDiffuse' ].value = renderTarget.texture;
+			this.material.uniforms[ 'textureMatrix' ].value = textureMatrix;
+
+			// functions
+
+			const visible = ( function () {
+
+				const refractorWorldPosition = new Vector3();
+				const cameraWorldPosition = new Vector3();
+				const rotationMatrix = new Matrix4();
+
+				const view = new Vector3();
+				const normal = new Vector3();
+
+				return function visible( camera ) {
+
+					refractorWorldPosition.setFromMatrixPosition( scope.matrixWorld );
+					cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
+
+					view.subVectors( refractorWorldPosition, cameraWorldPosition );
+
+					rotationMatrix.extractRotation( scope.matrixWorld );
+
+					normal.set( 0, 0, 1 );
+					normal.applyMatrix4( rotationMatrix );
+
+					return view.dot( normal ) < 0;
+
+				};
+
+			} )();
+
+			const updateRefractorPlane = ( function () {
+
+				const normal = new Vector3();
+				const position = new Vector3();
+				const quaternion = new Quaternion();
+				const scale = new Vector3();
+
+				return function updateRefractorPlane() {
+
+					scope.matrixWorld.decompose( position, quaternion, scale );
+					normal.set( 0, 0, 1 ).applyQuaternion( quaternion ).normalize();
+
+					// flip the normal because we want to cull everything above the plane
+
+					normal.negate();
+
+					refractorPlane.setFromNormalAndCoplanarPoint( normal, position );
+
+				};
+
+			} )();
+
+			const updateVirtualCamera = ( function () {
+
+				const clipPlane = new Plane();
+				const clipVector = new Vector4();
+				const q = new Vector4();
+
+				return function updateVirtualCamera( camera ) {
+
+					virtualCamera.matrixWorld.copy( camera.matrixWorld );
+					virtualCamera.matrixWorldInverse.copy( virtualCamera.matrixWorld ).invert();
+					virtualCamera.projectionMatrix.copy( camera.projectionMatrix );
+					virtualCamera.far = camera.far; // used in WebGLBackground
+
+					// The following code creates an oblique view frustum for clipping.
+					// see: Lengyel, Eric. “Oblique View Frustum Depth Projection and Clipping”.
+					// Journal of Game Development, Vol. 1, No. 2 (2005), Charles River Media, pp. 5–16
+
+					clipPlane.copy( refractorPlane );
+					clipPlane.applyMatrix4( virtualCamera.matrixWorldInverse );
+
+					clipVector.set( clipPlane.normal.x, clipPlane.normal.y, clipPlane.normal.z, clipPlane.constant );
+
+					// calculate the clip-space corner point opposite the clipping plane and
+					// transform it into camera space by multiplying it by the inverse of the projection matrix
+
+					const projectionMatrix = virtualCamera.projectionMatrix;
+
+					q.x = ( Math.sign( clipVector.x ) + projectionMatrix.elements[ 8 ] ) / projectionMatrix.elements[ 0 ];
+					q.y = ( Math.sign( clipVector.y ) + projectionMatrix.elements[ 9 ] ) / projectionMatrix.elements[ 5 ];
+					q.z = - 1.0;
+					q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
+
+					// calculate the scaled plane vector
+
+					clipVector.multiplyScalar( 2.0 / clipVector.dot( q ) );
+
+					// replacing the third row of the projection matrix
+
+					projectionMatrix.elements[ 2 ] = clipVector.x;
+					projectionMatrix.elements[ 6 ] = clipVector.y;
+					projectionMatrix.elements[ 10 ] = clipVector.z + 1.0 - clipBias;
+					projectionMatrix.elements[ 14 ] = clipVector.w;
+
+				};
+
+			} )();
+
+			// This will update the texture matrix that is used for projective texture mapping in the shader.
+			// see: http://developer.download.nvidia.com/assets/gamedev/docs/projective_texture_mapping.pdf
+
+			function updateTextureMatrix( camera ) {
+
+				// this matrix does range mapping to [ 0, 1 ]
+
+				textureMatrix.set(
+					0.5, 0.0, 0.0, 0.5,
+					0.0, 0.5, 0.0, 0.5,
+					0.0, 0.0, 0.5, 0.5,
+					0.0, 0.0, 0.0, 1.0
+				);
+
+				// we use "Object Linear Texgen", so we need to multiply the texture matrix T
+				// (matrix above) with the projection and view matrix of the virtual camera
+				// and the model matrix of the refractor
+
+				textureMatrix.multiply( camera.projectionMatrix );
+				textureMatrix.multiply( camera.matrixWorldInverse );
+				textureMatrix.multiply( scope.matrixWorld );
+
+			}
+
+			//
+
+			function render( renderer, scene, camera ) {
+
+				scope.visible = false;
+
+				const currentRenderTarget = renderer.getRenderTarget();
+				const currentXrEnabled = renderer.xr.enabled;
+				const currentShadowAutoUpdate = renderer.shadowMap.autoUpdate;
+
+				renderer.xr.enabled = false; // avoid camera modification
+				renderer.shadowMap.autoUpdate = false; // avoid re-computing shadows
+
+				renderer.setRenderTarget( renderTarget );
+				if ( renderer.autoClear === false ) renderer.clear();
+				renderer.render( scene, virtualCamera );
+
+				renderer.xr.enabled = currentXrEnabled;
+				renderer.shadowMap.autoUpdate = currentShadowAutoUpdate;
+				renderer.setRenderTarget( currentRenderTarget );
+
+				// restore viewport
+
+				const viewport = camera.viewport;
+
+				if ( viewport !== undefined ) {
+
+					renderer.state.viewport( viewport );
+
+				}
+
+				scope.visible = true;
+
+			}
+
+			//
+
+			this.onBeforeRender = function ( renderer, scene, camera ) {
+
+				// ensure refractors are rendered only once per frame
+
+				if ( camera.userData.refractor === true ) return;
+
+				// avoid rendering when the refractor is viewed from behind
+
+				if ( ! visible( camera ) === true ) return;
+
+				// update
+
+				updateRefractorPlane();
+
+				updateTextureMatrix( camera );
+
+				updateVirtualCamera( camera );
+
+				render( renderer, scene, camera );
+
+			};
+
+			this.getRenderTarget = function () {
+
+				return renderTarget;
+
+			};
+
+			this.dispose = function () {
+
+				renderTarget.dispose();
+				scope.material.dispose();
+
+			};
+
+		}
+
+	}
+
+	Refractor.RefractorShader = {
+
+		name: 'RefractorShader',
+
+		uniforms: {
+
+			'color': {
+				value: null
+			},
+
+			'tDiffuse': {
+				value: null
+			},
+
+			'textureMatrix': {
+				value: null
+			}
+
+		},
+
+		vertexShader: /* glsl */`
+
+		uniform mat4 textureMatrix;
+
+		varying vec4 vUv;
+
+		void main() {
+
+			vUv = textureMatrix * vec4( position, 1.0 );
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+
+		fragmentShader: /* glsl */`
+
+		uniform vec3 color;
+		uniform sampler2D tDiffuse;
+
+		varying vec4 vUv;
+
+		float blendOverlay( float base, float blend ) {
+
+			return( base < 0.5 ? ( 2.0 * base * blend ) : ( 1.0 - 2.0 * ( 1.0 - base ) * ( 1.0 - blend ) ) );
+
+		}
+
+		vec3 blendOverlay( vec3 base, vec3 blend ) {
+
+			return vec3( blendOverlay( base.r, blend.r ), blendOverlay( base.g, blend.g ), blendOverlay( base.b, blend.b ) );
+
+		}
+
+		void main() {
+
+			vec4 base = texture2DProj( tDiffuse, vUv );
+			gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );
+
+			#include <tonemapping_fragment>
+			#include <colorspace_fragment>
+
+		}`
+
+	};
+
+	/**
+	 * References:
+	 *	https://alex.vlachos.com/graphics/Vlachos-SIGGRAPH10-WaterFlow.pdf
+	 *	http://graphicsrunner.blogspot.de/2010/08/water-using-flow-maps.html
+	 *
+	 */
+
+	class Water extends Mesh {
+
+		constructor( geometry, options = {} ) {
+
+			super( geometry );
+
+			this.isWater = true;
+
+			this.type = 'Water';
+
+			const scope = this;
+
+			const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0xFFFFFF );
+			const textureWidth = options.textureWidth || 512;
+			const textureHeight = options.textureHeight || 512;
+			const clipBias = options.clipBias || 0;
+			const flowDirection = options.flowDirection || new Vector2( 1, 0 );
+			const flowSpeed = options.flowSpeed || 0.03;
+			const reflectivity = options.reflectivity || 0.02;
+			const scale = options.scale || 1;
+			const shader = options.shader || Water.WaterShader;
+
+			const textureLoader = new TextureLoader();
+
+			const flowMap = options.flowMap || undefined;
+			const normalMap0 = options.normalMap0 || textureLoader.load( 'textures/water/Water_1_M_Normal.jpg' );
+			const normalMap1 = options.normalMap1 || textureLoader.load( 'textures/water/Water_2_M_Normal.jpg' );
+
+			const cycle = 0.15; // a cycle of a flow map phase
+			const halfCycle = cycle * 0.5;
+			const textureMatrix = new Matrix4();
+			const clock = new Clock();
+
+			// internal components
+
+			if ( Reflector === undefined ) {
+
+				console.error( 'THREE.Water: Required component Reflector not found.' );
+				return;
+
+			}
+
+			if ( Refractor === undefined ) {
+
+				console.error( 'THREE.Water: Required component Refractor not found.' );
+				return;
+
+			}
+
+			const reflector = new Reflector( geometry, {
+				textureWidth: textureWidth,
+				textureHeight: textureHeight,
+				clipBias: clipBias
+			} );
+
+			const refractor = new Refractor( geometry, {
+				textureWidth: textureWidth,
+				textureHeight: textureHeight,
+				clipBias: clipBias
+			} );
+
+			reflector.matrixAutoUpdate = false;
+			refractor.matrixAutoUpdate = false;
+
+			// material
+
+			this.material = new ShaderMaterial( {
+				name: shader.name,
+				uniforms: UniformsUtils.merge( [
+					UniformsLib[ 'fog' ],
+					shader.uniforms
+				] ),
+				vertexShader: shader.vertexShader,
+				fragmentShader: shader.fragmentShader,
+				transparent: true,
+				fog: true
+			} );
+
+			if ( flowMap !== undefined ) {
+
+				this.material.defines.USE_FLOWMAP = '';
+				this.material.uniforms[ 'tFlowMap' ] = {
+					type: 't',
+					value: flowMap
+				};
+
+			} else {
+
+				this.material.uniforms[ 'flowDirection' ] = {
+					type: 'v2',
+					value: flowDirection
+				};
+
+			}
+
+			// maps
+
+			normalMap0.wrapS = normalMap0.wrapT = RepeatWrapping;
+			normalMap1.wrapS = normalMap1.wrapT = RepeatWrapping;
+
+			this.material.uniforms[ 'tReflectionMap' ].value = reflector.getRenderTarget().texture;
+			this.material.uniforms[ 'tRefractionMap' ].value = refractor.getRenderTarget().texture;
+			this.material.uniforms[ 'tNormalMap0' ].value = normalMap0;
+			this.material.uniforms[ 'tNormalMap1' ].value = normalMap1;
+
+			// water
+
+			this.material.uniforms[ 'color' ].value = color;
+			this.material.uniforms[ 'reflectivity' ].value = reflectivity;
+			this.material.uniforms[ 'textureMatrix' ].value = textureMatrix;
+
+			// inital values
+
+			this.material.uniforms[ 'config' ].value.x = 0; // flowMapOffset0
+			this.material.uniforms[ 'config' ].value.y = halfCycle; // flowMapOffset1
+			this.material.uniforms[ 'config' ].value.z = halfCycle; // halfCycle
+			this.material.uniforms[ 'config' ].value.w = scale; // scale
+
+			// functions
+
+			function updateTextureMatrix( camera ) {
+
+				textureMatrix.set(
+					0.5, 0.0, 0.0, 0.5,
+					0.0, 0.5, 0.0, 0.5,
+					0.0, 0.0, 0.5, 0.5,
+					0.0, 0.0, 0.0, 1.0
+				);
+
+				textureMatrix.multiply( camera.projectionMatrix );
+				textureMatrix.multiply( camera.matrixWorldInverse );
+				textureMatrix.multiply( scope.matrixWorld );
+
+			}
+
+			function updateFlow() {
+
+				const delta = clock.getDelta();
+				const config = scope.material.uniforms[ 'config' ];
+
+				config.value.x += flowSpeed * delta; // flowMapOffset0
+				config.value.y = config.value.x + halfCycle; // flowMapOffset1
+
+				// Important: The distance between offsets should be always the value of "halfCycle".
+				// Moreover, both offsets should be in the range of [ 0, cycle ].
+				// This approach ensures a smooth water flow and avoids "reset" effects.
+
+				if ( config.value.x >= cycle ) {
+
+					config.value.x = 0;
+					config.value.y = halfCycle;
+
+				} else if ( config.value.y >= cycle ) {
+
+					config.value.y = config.value.y - cycle;
+
+				}
+
+			}
+
+			//
+
+			this.onBeforeRender = function ( renderer, scene, camera ) {
+
+				updateTextureMatrix( camera );
+				updateFlow();
+
+				scope.visible = false;
+
+				reflector.matrixWorld.copy( scope.matrixWorld );
+				refractor.matrixWorld.copy( scope.matrixWorld );
+
+				reflector.onBeforeRender( renderer, scene, camera );
+				refractor.onBeforeRender( renderer, scene, camera );
+
+				scope.visible = true;
+
+			};
+
+		}
+
+	}
+
+	Water.WaterShader = {
+
+		name: 'WaterShader',
+
+		uniforms: {
+
+			'color': {
+				type: 'c',
+				value: null
+			},
+
+			'reflectivity': {
+				type: 'f',
+				value: 0
+			},
+
+			'tReflectionMap': {
+				type: 't',
+				value: null
+			},
+
+			'tRefractionMap': {
+				type: 't',
+				value: null
+			},
+
+			'tNormalMap0': {
+				type: 't',
+				value: null
+			},
+
+			'tNormalMap1': {
+				type: 't',
+				value: null
+			},
+
+			'textureMatrix': {
+				type: 'm4',
+				value: null
+			},
+
+			'config': {
+				type: 'v4',
+				value: new Vector4()
+			}
+
+		},
+
+		vertexShader: /* glsl */`
+
+		#include <common>
+		#include <fog_pars_vertex>
+		#include <logdepthbuf_pars_vertex>
+
+		uniform mat4 textureMatrix;
+
+		varying vec4 vCoord;
+		varying vec2 vUv;
+		varying vec3 vToEye;
+
+		void main() {
+
+			vUv = uv;
+			vCoord = textureMatrix * vec4( position, 1.0 );
+
+			vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+			vToEye = cameraPosition - worldPosition.xyz;
+
+			vec4 mvPosition =  viewMatrix * worldPosition; // used in fog_vertex
+			gl_Position = projectionMatrix * mvPosition;
+
+			#include <logdepthbuf_vertex>
+			#include <fog_vertex>
+
+		}`,
+
+		fragmentShader: /* glsl */`
+
+		#include <common>
+		#include <fog_pars_fragment>
+		#include <logdepthbuf_pars_fragment>
+
+		uniform sampler2D tReflectionMap;
+		uniform sampler2D tRefractionMap;
+		uniform sampler2D tNormalMap0;
+		uniform sampler2D tNormalMap1;
+
+		#ifdef USE_FLOWMAP
+			uniform sampler2D tFlowMap;
+		#else
+			uniform vec2 flowDirection;
+		#endif
+
+		uniform vec3 color;
+		uniform float reflectivity;
+		uniform vec4 config;
+
+		varying vec4 vCoord;
+		varying vec2 vUv;
+		varying vec3 vToEye;
+
+		void main() {
+
+			#include <logdepthbuf_fragment>
+
+			float flowMapOffset0 = config.x;
+			float flowMapOffset1 = config.y;
+			float halfCycle = config.z;
+			float scale = config.w;
+
+			vec3 toEye = normalize( vToEye );
+
+			// determine flow direction
+			vec2 flow;
+			#ifdef USE_FLOWMAP
+				flow = texture2D( tFlowMap, vUv ).rg * 2.0 - 1.0;
+			#else
+				flow = flowDirection;
+			#endif
+			flow.x *= - 1.0;
+
+			// sample normal maps (distort uvs with flowdata)
+			vec4 normalColor0 = texture2D( tNormalMap0, ( vUv * scale ) + flow * flowMapOffset0 );
+			vec4 normalColor1 = texture2D( tNormalMap1, ( vUv * scale ) + flow * flowMapOffset1 );
+
+			// linear interpolate to get the final normal color
+			float flowLerp = abs( halfCycle - flowMapOffset0 ) / halfCycle;
+			vec4 normalColor = mix( normalColor0, normalColor1, flowLerp );
+
+			// calculate normal vector
+			vec3 normal = normalize( vec3( normalColor.r * 2.0 - 1.0, normalColor.b,  normalColor.g * 2.0 - 1.0 ) );
+
+			// calculate the fresnel term to blend reflection and refraction maps
+			float theta = max( dot( toEye, normal ), 0.0 );
+			float reflectance = reflectivity + ( 1.0 - reflectivity ) * pow( ( 1.0 - theta ), 5.0 );
+
+			// calculate final uv coords
+			vec3 coord = vCoord.xyz / vCoord.w;
+			vec2 uv = coord.xy + coord.z * normal.xz * 0.05;
+
+			vec4 reflectColor = texture2D( tReflectionMap, vec2( 1.0 - uv.x, uv.y ) );
+			vec4 refractColor = texture2D( tRefractionMap, uv );
+
+			// multiply water color with the mix of both textures
+			gl_FragColor = vec4( color, 1.0 ) * mix( refractColor, reflectColor, reflectance );
+
+			#include <tonemapping_fragment>
+			#include <colorspace_fragment>
+			#include <fog_fragment>
+
+		}`
+
+	};
+
 	// @ts-nocheck
+
 	var canvas = document.getElementById('canvas');
 
-	var renderer = new WebGLRenderer({
+
+	let renderer = new WebGLRenderer({
 		canvas: canvas,
 		antialias: true
 	});
-	renderer.setClearColor(0xFFFFFF, 1.0);
+
+	// Create scene for spherical earth
+
 	var scene = new Scene();
-	scene.background = new Color(0.4, 0.4, 0.4, LinearSRGBColorSpace);
+	scene.background = new Color(0x000000, LinearSRGBColorSpace);
 
-
-
-
-
-
-	// var provider = new BingMapsProvider('', BingMapsProvider.AERIAL);
-	// var map = new MapView(MapView.PLANAR, provider);
-	// map.addmessage = "aerial";
-	// map.renderOrder = 1;
-	// scene.add(map);
-	// map.updateMatrixWorld(true);
-
-	var provider = new RoadImageProvider();
-	var map = new MapView(MapView.PLANAR , provider);
-	map.addmessage = "road";
-	// // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
-	// // 值越小越先渲染，但越容易被覆盖
-	map.renderOrder = 1;
-	map.position.y = 1;
-	map.opacity = 1;
-	scene.add(map);
-	map.updateMatrixWorld(true);
-
-
-	// var provider = new BingMapsProvider('', BingMapsProvider.ROAD);
-	// var map = new MapView(MapView.PLANAR, provider);
-	// map.addmessage = "road";
-	// map.renderOrder = 2; // 渲染顺序可以不需要
-	// map.opacity  = 1; // 该参数在解决两个图片图层之间交替闪烁是是必须的
-	// scene.add(map);
-	// map.updateMatrixWorld(true);
-
-
-
-	// var s101HeightProvider = new S101HeightProvider();
-	// var s101Provider = new S101Provider();
-	// var tileWidth = UnitsUtils.tileWidth(12)
-	// var position = UnitsUtils.datumsToSpherical(44.1076, 86.3619);
-	// var scale = new Vector3(tileWidth, 1.0, tileWidth);
-	// var map2 = new MapView(MapView.HEIGHTS101, s101Provider, s101HeightProvider,scale);
-	// map2.position.set(position.x, 1000, -position.y);
-	// scene.add(map2);
-	// map2.updateMatrixWorld(true);
-
-
-	var provider = new GeoserverWMTSProvider({
-		url: 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts',
-		data: 'xinjiang',
-		layer: 'xinjiang',
-		EPSG: '900913',
-	});
-	var height = new GeoserverWMTSProvider({
-	    url: 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts',
-	    data: 'xinjiang',
-	    layer: 'xinjiang_rgb_remake',
-	    EPSG: '900913',
-	});
-	// var provider = new GeoserverWMTSProvider();
-	var map = new MapView(MapView.HEIGHT , provider, height);
-	// map.addmessage = "xinjiang"
-	map.renderOrder = 4;
-	map.position.y = 3;
-	// map.transparent = false;
-	map.opacity = 1;
-	scene.add(map);
-	map.updateMatrixWorld(true);
-
-	// var provider = new GeoserverWMSProvider({
-	//    url: 'http://10.109.118.229:8080/geoserver/xinjiang/wms',
-	//    data: 'xinjiang',
-	//    layer: 's228_result',
-	//    EPSG: '3857',
+	// Globe
+	// var loader = new TextureLoader();
+	// loader.load('2k_earth_daymap.jpg', function(texture) 
+	// {
+	// 	var sphere = new Mesh(new SphereGeometry(UnitsUtils.EARTH_RADIUS, 256, 256), new MeshBasicMaterial({map: texture}));
+	// 	scene.add(sphere);
 	// });
-	// var height = new GeoserverWMSProvider({
-	// 	url: 'http://10.109.118.229:8080/geoserver/xinjiang/wms',
-	// 	data: 'xinjiang',
-	// 	layer: 's228_dsm',
-	// 	EPSG: '3857',
-	//  });
-	// // var provider = new GeoserverWMTSProvider();
-	// var map = new MapView(MapView.HEIGHT , provider, height);
-	// // map.addmessage = "xinjiang"
-	// // // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
-	// // // // 值越小越先渲染，但越容易被覆盖
-	// map.renderOrder = 5;
-	// map.position.y = 5;
-	// // map.transparent = true;
-	// map.opacity = 1;
-	// scene.add(map);
-	// map.updateMatrixWorld(true);
+	var provider = new BingMapsProvider('', BingMapsProvider.AERIAL); // new OpenStreetMapsProvider()
+	// var provider = new TianDiTuProvider();
+	var map = new MapView(MapView.SPHERICAL, provider);
+	map.lod = new LODSphere();
+	scene.add(map);
+	map.updateMatrixWorld(true);
+	var camera = new PerspectiveCamera(60, 1, 0.01, 1e8);
+
+	var controls = new OrbitControls(camera, canvas);
+	controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
+	controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
+	controls.enablePan = false;
+	// controls.zoomSpeed = 0.2;
+	// controls.rotateSpeed = 0.1; 
+	// controls.panSpeed = 0.5;
+	controls.addEventListener('change', function(event){
+	    let distance = camera.position.distanceTo(new Vector3(0,0,0));
+		// console.log(distance);
+		if(distance > UnitsUtils.EARTH_RADIUS *2.5){
+			distance = UnitsUtils.EARTH_RADIUS *2.5;
+		}
+		let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
+		controls.zoomSpeed = thirdPow;
+		controls.rotateSpeed = thirdPow * 0.2;
+		controls.panSpeed = thirdPow;
+		// console.log("ratio:",ratio, " distance:", distance, " thirdPow:", thirdPow);
+	});
+	controls.mouseButtons = {
+		LEFT: MOUSE.ROTATE,
+		MIDDLE: MOUSE.DOLLY,
+		RIGHT: MOUSE.PAN
+	};
+
+	// Set initial camera position 
+	camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
+
+	// var action = new Animate(
+	// 	{
+	// 		update: function(obj)
+	// 		{
+	// 			// camera.position.copy(obj);
+	// 			console.log(camera.position);
+	// 		}
+	// 	}
+	// ).action(camera.position, new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5), 5, true).start();
+	// new TWEEN.Tween(camera.position).to(new Vector3(0, 0, UnitsUtils.EARTH_RADIUS + 1e5),5).easing(TWEEN.Easing.Sinusoidal.InOut).start();
 
 
+	scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
+
+		
 
 
+	new Raycaster();
 
-	// var provider = new GeoserverWMSProvider();
-	// var height = new GeoserverWMTSProvider();
-	// var map = new MapView(MapView.HEIGHT , provider, height);
-	// map.addmessage = "xinjiang"
-	// scene.add(map);
-	// map.updateMatrixWorld(true);
-
-
-	var camera = new PerspectiveCamera(80, 1, 0.1, 1e12);
-
-	var controls = new MapControls(camera, canvas);
-	controls.minDistance = 1e1;
-	controls.zoomSpeed = 2.0;
-
-	var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
-	controls.target.set(coords.x, 0, -coords.y);
-	camera.position.set(coords.x, 38472.48763833733, -coords.y); // 设置摄像头在改点上空，垂直向下看
-
-
-	// level 12
-	// camera position { "x": 9629774.138769785,"y": 20262.607637481837,"z": -5466926.510479696}
-
-	// scene.add(new AmbientLight(0x777777));
-
-	var light = new AmbientLight(0x404040);
-
-
-	scene.add(light);
-	light = new DirectionalLight(0xFFFFFF);
-
-	// light.target = map2;
-	scene.add(light);
-	// scene.add(new AmbientLight(0x404040));
-
-	document.body.onresize = function(){
+	document.body.onresize = function()
+	{
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		renderer.setSize(width, height);
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
 	};
+
 	// @ts-ignore
 	document.body.onresize();
 
-	function animate(){
+	function animate()
+	{
 		requestAnimationFrame(animate);
-
+		update(undefined);
 		controls.update();
-		renderer.autoClear = true;
 		renderer.render(scene, camera);
-		// renderer.autoClear = false;
-		// renderer.render(layerScene, camera);
 	}
+
+	// Start animation loop
 	animate();
 
 })();

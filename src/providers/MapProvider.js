@@ -25,6 +25,11 @@ export class MapProvider
 	maxZoom = 25;
 
 	/**
+	 * Map tile size.
+	 */
+	tileSize = 256;
+
+	/**
 	 * Map bounds.
 	 */
 	bounds = [];

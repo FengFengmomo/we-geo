@@ -197,49 +197,7 @@ export class D3TilesLayer {
             this.renderer.render(this.scene, this.camera);
         }
     }
-    /**
-     * 相机飞往某点,只能通过basemap的方式使用，不建议通过layer层调用，否则会导致多个canvas之间位置不同步
-     * 因为layer层是随着最底层的map的相机进行同步移动的，详见wegeoMap中addBaseMap()方法下对相机控制的同步。
-     * @param {number} lat 维度 
-     * @param {number} lng 经度
-     * @param {number} seconds 动画执行需要的时间，秒 
-     */
-    flyTo(lat, lng, seconds){
-        let from  = this.camera.position.clone();
-        var targetXZ = UnitsUtils.datumsToSpherical(lat, lng);
-        let to = new Vector3(targetXZ.x, from.y, targetXZ.y);
-        let tween = new TWEEN.Tween({
-            // 相机开始坐标
-            x: from.x,
-            y: from.y,
-            z: from.z,
-            // 相机开始指向的目标观察点
-            tx: this.controls.target.x,
-            ty: this.controls.target.y,
-            tz: this.controls.target.z,
-        })
-        .to({
-            // 相机结束坐标
-            x: to.x,
-            y: to.y,
-            z: to.z,
-            // 相机结束指向的目标观察点
-            tx: to.x,
-            ty: 0,
-            tz: to.z,
-        }, seconds*1000)
-        .onStart(function(obj){
-            
-        })
-        .onUpdate(function(obj){
-            this.camera.position.set(obj.x, 0, obj.z);
-            this.controls.target.set(obj.tx, 0, obj.tz);
-            this.controls.update();
-        }).onComplete(function(obj){
-            console.log('complete');
-        }).start();
-    }
-
+    
     _raycast(meshes, recursive, faceExclude) {
         const isects = this._raycaster.intersectObjects(meshes, recursive);
         if (faceExclude) {

@@ -10,7 +10,7 @@ WE-GEO
 
 **案例**
 * 一个3D地球例子，目前市面上暂时无基于threejs开发的3d地图，地图图源选自bing的数据，带有LOD功能，目前在放大以后平移操作存在一些问题，后续会进行调整。
-* [3D地球](https://fengfengmomo.github.io/we-geo/examples/transition.html)
+* [3D地球](https://fengfengmomo.github.io/we-geo/examples/main.html)
 
 **引用**
 

@@ -41,7 +41,9 @@ var controls = new OrbitControls(camera, canvas);
 controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
 controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
 controls.enablePan = false;
-
+// controls.zoomSpeed = 0.2;
+// controls.rotateSpeed = 0.1; 
+// controls.panSpeed = 0.5;
 controls.addEventListener('change', function(event){
     let distance = camera.position.distanceTo(new Vector3(0,0,0));
 	// console.log(distance);
@@ -78,30 +80,8 @@ camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
+	
 
-const geometry = new SphereGeometry(UnitsUtils.EARTH_ORIGIN+2000, 160, 160);
-            const material = new MeshBasicMaterial({
-              color: 0x000088,
-              transparent: true,
-              opacity: 0.2
-            }); 
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
-
-
-
-const geometry = new SphereGeometry(UnitsUtils.EARTH_ORIGIN+2000, 160, 160);
-            const material = new MeshBasicMaterial({
-              color: 0x000088,
-              transparent: true,
-              opacity: 0.2
-            }); 
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
-
-
-let sky = new Skybox().loadBox();
-scene.background = sky;
 
 var raycaster = new Raycaster();
 

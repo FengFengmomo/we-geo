@@ -17,20 +17,20 @@ export default [
 		output: [
 			{
 				format: 'es',
-				file: 'build/we-geo.module.js',
+				file: 'build/wegeo.module.js',
 				indent: '\t'
 			},
 			{
 				format: 'cjs',
 				name: 'Geo',
-				file: 'build/we-geo.cjs',
+				file: 'build/wegeo.cjs',
 				indent: '\t'
 			},
 			{
 				globals: {three: 'THREE'},
 				format: 'umd',
 				name: 'Geo',
-				file: 'build/we-geo.js',
+				file: 'build/wegeo.js',
 				indent: '\t'
 			}
 		]

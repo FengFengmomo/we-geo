@@ -37,6 +37,11 @@ export class UnitsUtils
 	 */
 	static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
 
+		/**
+	 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
+	 */
+	static MERCATOR_MAX_EXTENT = 20037508.342789244;
+
 	static tileWidth(level){
 		return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
 	}
@@ -180,5 +185,58 @@ export class UnitsUtils
 		let a = (lat * Math.PI) / 180;
 		let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
 		return new Vector2(x, y)
+	}
+
+
+	/**
+	 * Get the size of a web mercator tile in mercator coordinates
+	 * 计算每个tile的大小，单位是米
+	 * 	 
+	 * @param zoom - the zoom level of the tile
+	 * @returns the size of the tile in mercator coordinates
+	 */
+	static getTileSize(zoom){
+		const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
+		const numTiles = Math.pow(2, zoom);
+		return 2 * maxExtent / numTiles;	
+	}
+
+	/**
+	 * Get the bounds of a web mercator tile in mercator coordinates
+	 * 	 x,y的起止， 和tilsize的大小。
+	 * @param zoom - the zoom level of the tile
+	 * @param x - the x coordinate of the tile
+	 * @param y - the y coordinate of the tile
+	 * @returns list of bounds - [startX, sizeX, startY, sizeY]
+	 */
+	static tileBounds(zoom, x, y){
+		const tileSize = UnitsUtils.getTileSize(zoom);
+		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+		const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
+		return [minX, tileSize, minY, tileSize];
+	}
+
+	/**
+	 * Get the latitude value of a given mercator coordinate and zoom level
+	 * 
+	 * @param zoom - the zoom level of the coordinate
+	 * @param y - the y mercator coordinate
+	 * @returns - latitude of coordinate in radians
+	 */
+	static mercatorToLatitude(zoom, y) {
+		const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
+		return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS));
+	}
+
+	/**
+	 * Get the latitude value of a given mercator coordinate and zoom level
+	 * 
+	 * @param zoom - the zoom level of the coordinate
+	 * @param x - the x mercator coordinate
+	 * @returns - longitude of coordinate in radians
+	 */
+	static mercatorToLongitude(zoom, x) {
+		const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
+		return xMerc / UnitsUtils.EARTH_RADIUS;
 	}
 }

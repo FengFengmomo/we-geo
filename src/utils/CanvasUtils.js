@@ -25,4 +25,18 @@ export class CanvasUtils
 			return canvas;
 		}
 	}
+
+	static createImageData(image,imgWidth,imgHeight, targetWidth, targetHeight){
+		const canvas = CanvasUtils.createOffscreenCanvas(targetWidth, targetHeight); 
+
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, imgWidth, imgHeight, 0, 0, canvas.width, canvas.height);
+
+		const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+		// var img = new Image();
+		// img.src = canvas.toDataURL();
+		// 这里返回OffscreenCanvas是因为threejs的Texture可以接受image和offscreenCanvas
+		return imageData;
+	}
 }

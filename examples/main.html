@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>three.js examples</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="./css/main.css">
+	</head>
+	<body>
+
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'G-JPPX9MZGZ4');
+		</script>
+
+		<div id="panel">
+
+			<div id="header">
+				<h1><a href="">wegeo基于threejs</a></h1>
+
+				<div id="sections">
+					<span class="selected">examples</span>
+				</div>
+
+				<div id="expandButton"></div>
+			</div>
+			<div id="panelScrim"></div>
+			<div id="contentWrapper" style="display: flex;">
+				<div id="content">
+					<div class="card selected">
+						<a href="./sphereEarth/Earth/earth.html" target="viewer" onclick="init(this)">
+							<div class="cover">
+								<img src="screenshots/basic_earth.png" loading="lazy" width="400">
+							</div>
+							<div class="title">圆形地球/基础地球</div>
+						</a>
+					</div>
+					<div class="card selected">
+						<a href="./planeEarth/basic/basic.html" target="viewer" onclick="init(this)">
+							<div class="cover">
+								<img src="screenshots/plane_basic.png" loading="lazy" width="400">
+							</div>
+							<div class="title">平面/基础地球</div>
+						</a>
+					</div>
+					<div class="card selected">
+						<a href="./planeEarth/localtionName/wegeo.html" target="viewer" onclick="init(this)">
+							<div class="cover">
+								<img src="screenshots/plane_localtionName.png" loading="lazy" width="400">
+							</div>
+							<div class="title">平面/地名和国境线</div>
+						</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<iframe id="viewer" name="viewer" allow="fullscreen; xr-spatial-tracking;"></iframe>
+		<script>
+			const panel = document.getElementById( 'panel' );
+			const viewer = document.getElementById( 'viewer' );
+			
+			function init(a) {
+				viewer.src = a.href;
+				viewer.style.display = 'unset';
+			}
+			viewer.src = "./sphereEarth/Earth/earth.html";
+			viewer.style.display = 'unset';
+		</script>
+	</body>
+</html>
