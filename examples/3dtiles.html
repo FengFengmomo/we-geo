@@ -1,25 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 	<head>
 		<title>three.js webgl - lensflares</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="./css/main.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      #canvas-parent {
+        width: 100vw;
+        height: 100vh;
+        touch-action: none;
+      }
+      #guide {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px;
+        padding: 1rem 2rem;
+        font-family:'Courier New', Courier, monospace;
+        line-height: 1.2;
+        background-color: white;
+        color: black;
+      }
+  
+      #guide p {
+        margin-top: 10px;
+      }
+  
+      #stats-widget  {
+        position: fixed;
+        top: 70px;
+        padding: 10px;
+      }
+      #stats-widget div {
+        width: 300px;
+        word-break: break-all;
+      }
+      #button {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        padding: 12px;
+        border-radius: 50%;
+        margin-bottom: 0px;
+        background-color: #FFF;
+        opacity: .9;
+        z-index: 999;
+        box-shadow: 0 0 4px rgb(0 0 0 / 15%);
+      }
+      @media (max-width:480px) {
+        #guide, #stats-widget { display: none; }
+      }
+    </style>
 	</head>
 
 	<body>
+
 		<div id="info">
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - lensflares<br/>
 			textures from <a href="http://www.ro.me" target="_blank" rel="noopener">ro.me</a><br/>
 			fly with WASD/RF/QE + mouse
 		</div>
+    <div id='canvas-parent'></div>
+  <div id="stats-widget"></div>
 
 		<script type="importmap">
 			{
 				"imports": {
-					"three": "../build/three.module.js",
-					"three/addons/": "../build/jsm/",
-          "three-loader-3dtiles": "../node_modules/three-loader-3dtiles/dist/lib/index.js"
+					"three": "../deps/three/build/three.module.js",
+					"three/examples/jsm/": "../deps/three/examples/jsm/",
+          "three-loader-3dtiles": "../node_modules/three-loader-3dtiles/dist/lib/three-loader-3dtiles.js"
 				}
 			}
 		</script>
@@ -38,11 +98,11 @@
     MeshBasicMaterial
   } from 'three';
 
-  import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   import { Loader3DTiles } from 'three-loader-3dtiles';
-  import { GLTFLoader } from 'three/addons/jsm/loaders/GLTFLoader.js';
-  import Stats from 'three/addons/jsm/libs/stats.module.js';
+  import Stats from 'three/examples/jsm/libs/stats.module.js';
 
   const queryParams = new URLSearchParams(document.location.search);
 
@@ -151,7 +211,6 @@ controls.update();
     // for (const tilesRenderer of tilesRendererArr) {
     //   tilesRenderer.update()
     // }
-    groundTiles.update();
     renderer.render(scene, camera);
     threeJsStats.update();
     window.requestAnimationFrame(render);

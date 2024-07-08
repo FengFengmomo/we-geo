@@ -123,10 +123,6 @@ controls.update();
     if (tilesRuntime) {
       tilesRuntime.update(dt, viewportSize, camera);
     }
-    // for (const tilesRenderer of tilesRendererArr) {
-    //   tilesRenderer.update()
-    // }
-    groundTiles.update();
     renderer.render(scene, camera);
     threeJsStats.update();
     window.requestAnimationFrame(render);
