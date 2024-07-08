@@ -7,6 +7,7 @@ examples/cesiumlab_trean_3dtiles/*
 libs/*/*
 docs/
 package-lock.json
+rollup.example.js
 pnpm-lock.yaml
 yarn.lock
 jspm_packages/

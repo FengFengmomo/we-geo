@@ -1,4 +1,30 @@
-import { 
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - lensflares</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="./css/main.css">
+	</head>
+
+	<body>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - lensflares<br/>
+			textures from <a href="http://www.ro.me" target="_blank" rel="noopener">ro.me</a><br/>
+			fly with WASD/RF/QE + mouse
+		</div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "../build/jsm/",
+          "three-loader-3dtiles": "../node_modules/three-loader-3dtiles/dist/lib/index.js"
+				}
+			}
+		</script>
+    <script type="module">
+      import { 
     Scene, 
     PerspectiveCamera, 
     WebGLRenderer, 
@@ -12,12 +38,11 @@ import {
     MeshBasicMaterial
   } from 'three';
 
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+  import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls';
 
   import { Loader3DTiles } from 'three-loader-3dtiles';
-  import { TilesRenderer } from '3d-tiles-renderer';
-  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-  import Stats from 'three/examples/jsm/libs/stats.module.js';
+  import { GLTFLoader } from 'three/addons/jsm/loaders/GLTFLoader.js';
+  import Stats from 'three/addons/jsm/libs/stats.module.js';
 
   const queryParams = new URLSearchParams(document.location.search);
 
@@ -144,3 +169,9 @@ controls.update();
   window.addEventListener('resize', onWindowResize)
 
   render();
+
+    </script>
+
+    
+	</body>
+</html>

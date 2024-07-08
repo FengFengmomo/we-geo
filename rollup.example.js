@@ -20,18 +20,18 @@ export default [
 	// },
 	// {
 	// 	input: 'src/examples/3dtiles.js',
-	// 	plugins: [
-	// 		resolve(),
-	// 		typescript({
-	// 			tsconfig: './tsconfig.examples.json',
-	// 		})
-	// 	],
-	// 	output: [
-	// 		{
+		// 	plugins: [
+			// 		resolve(),
+			// 		typescript({
+				// 			tsconfig: './tsconfig.examples.json',
+			// 		})
+		// 	],
+		// 	output: [
+			// 		{
 	// 			format: 'iife',
-	// 			file: 'examples/js/3dtiles.js',
-	// 			indent: '\t'
-	// 		}
+				// 			file: 'examples/js/3dtiles.js',
+				// 			indent: '\t'
+			// 		}
 	// 	]
 	// },
 	// {
@@ -68,18 +68,18 @@ export default [
 	// },
 	{
 		input: 'src/main.js',
-		plugins: [
-			resolve(),
-			typescript({
-				tsconfig: './tsconfig.examples.json',
-			})
-		],
-		output: [
-			{
+	plugins: [
+	resolve(),
+	typescript({
+	tsconfig: './tsconfig.examples.json',
+	})
+	],
+	output: [
+	{
 				format: 'es',
-				file: 'build/wegeo.module.js',
-				indent: '\t'
-			},
-		]
+	file: 'build/wegeo.module.js',
+	indent: '\t'
+	},
+	]
 	}
 ];
