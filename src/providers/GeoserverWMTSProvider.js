@@ -1,8 +1,7 @@
 //http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
-import { WMSProvider } from "./WMSProvider";
 
 
-export class GeoserverWMTSProvider extends WMSProvider{
+export class GeoserverWMTSProvider{
 	mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
     minZoom = 0;
     maxZoom = 13;
@@ -32,7 +31,6 @@ export class GeoserverWMTSProvider extends WMSProvider{
 	
     imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{tilematrixset}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{TileMatrix}:{z}&TileCol={x}&TileRow={y}';    
 	constructor(options) {
-		super(options);
         Object.assign(this, options);
 		this.imageUrl = this.imageUrl.replace('{url}', this.url);
 		this.imageUrl = this.imageUrl.replace('{version}', this.version);

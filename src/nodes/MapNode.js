@@ -1,7 +1,6 @@
 import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
-import { WMSProvider } from '../providers/WMSProvider';
 import {GeoserverWMSProvider} from '../providers/GeoserverWMSProvider';
 /**
  * Constants to store quad-tree positions.

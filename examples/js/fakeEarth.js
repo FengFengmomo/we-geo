@@ -30946,6 +30946,57 @@
 
 	}
 
+	class CubeTextureLoader extends Loader {
+
+		constructor( manager ) {
+
+			super( manager );
+
+		}
+
+		load( urls, onLoad, onProgress, onError ) {
+
+			const texture = new CubeTexture();
+			texture.colorSpace = SRGBColorSpace;
+
+			const loader = new ImageLoader( this.manager );
+			loader.setCrossOrigin( this.crossOrigin );
+			loader.setPath( this.path );
+
+			let loaded = 0;
+
+			function loadTexture( i ) {
+
+				loader.load( urls[ i ], function ( image ) {
+
+					texture.images[ i ] = image;
+
+					loaded ++;
+
+					if ( loaded === 6 ) {
+
+						texture.needsUpdate = true;
+
+						if ( onLoad ) onLoad( texture );
+
+					}
+
+				}, undefined, onError );
+
+			}
+
+			for ( let i = 0; i < urls.length; ++ i ) {
+
+				loadTexture( i );
+
+			}
+
+			return texture;
+
+		}
+
+	}
+
 	class TextureLoader extends Loader {
 
 		constructor( manager ) {
@@ -37691,6 +37742,49 @@
 
 	};
 
+	class Skybox {
+
+	    loadSkyBox(scale) {
+			var aCubeMap = new CubeTextureLoader().load([
+			  'png/sky/px.jpg',
+			  'png/sky/nx.jpg',
+			  'png/sky/py.jpg',
+			  'png/sky/ny.jpg',
+			  'png/sky/pz.jpg',
+			  'png/sky/nz.jpg'
+			]);
+			aCubeMap.format = RGBAFormat;
+
+			var aShader = ShaderLib['cube'];
+			aShader.uniforms['tCube'].value = aCubeMap;
+
+			var aSkyBoxMaterial = new ShaderMaterial({
+			  fragmentShader: aShader.fragmentShader,
+			  vertexShader: aShader.vertexShader,
+			  uniforms: aShader.uniforms,
+			  depthWrite: false,
+			  side: BackSide
+			});
+
+			var aSkybox = new Mesh(
+			  new BoxGeometry(scale, scale, scale),
+			  aSkyBoxMaterial
+			);
+			return aSkybox;
+		}
+		loadBox(){
+			var cube = new CubeTextureLoader().load([
+			  'png/sky/px.jpg',
+			  'png/sky/nx.jpg',
+			  'png/sky/py.jpg',
+			  'png/sky/ny.jpg',
+			  'png/sky/pz.jpg',	
+			  'png/sky/nz.jpg'	
+			]);
+			return cube;
+		}
+	}
+
 	// @ts-nocheck
 
 	var canvas = document.getElementById('canvas');
@@ -37725,9 +37819,7 @@
 	controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
 	controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
 	controls.enablePan = false;
-	// controls.zoomSpeed = 0.2;
-	// controls.rotateSpeed = 0.1; 
-	// controls.panSpeed = 0.5;
+
 	controls.addEventListener('change', function(event){
 	    let distance = camera.position.distanceTo(new Vector3(0,0,0));
 		// console.log(distance);
@@ -37763,8 +37855,8 @@
 
 	scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
-		
-
+	let sky = new Skybox().loadBox();
+	scene.background = sky;
 
 	new Raycaster();
 

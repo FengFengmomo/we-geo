@@ -57631,7 +57631,7 @@ Char: ${this.c}`;
 	  const statsParent = document.querySelector('#stats-widget');
 
 	  const scene = new Scene();
-	  let ambientLight = new AmbientLight(0x404040);
+	  let ambientLight = new AmbientLight(0xFFFFFF);
 	  scene.add(ambientLight);
 	  let directionalLight = new DirectionalLight(0xFFFFFF);
 	  scene.add(directionalLight);
@@ -57673,34 +57673,19 @@ Char: ${this.c}`;
 	  if (queryParams.get('tilesetUrl')) {
 	    document.querySelector('#example-desc').style.display = 'none';
 	  }
-
-	  let path = 'http://10.109.118.228/Cesium_3dtiles/s228_3dtiles/tileset.json';
-	  // let path = 'https://int.nyt.com/data/3dscenes/ONA360/TILESET/0731_FREEMAN_ALLEY_10M_A_36x8K__10K-PN_50P_DB/tileset_tileset.json';
-	  // let path = './s228_checkpoint_3dtiles/tileset.json';
-	//   await fetch(option.jsonPath).then(res => res.json()).then(data => {
-	//     data.content.url;
-	//     if(data && data.content && data.content.url && !data.content.url.endsWidth('.json')){
-	//       loadTileset(path);
-	//     } else {
-	//        let childrens = data.root.children;
-
-	//        for(let model of childrens){
-	         
-	//        }
-	//     }
-	// });
+	  let path = './cesiumlab_trean_3dtiles/tileset.json';
 	  loadTileset(path);
 
 
 	  async function loadTileset(path) {
-	    
+	    // 支持加载geojson
 	    const result = await CB.load(
 	      {
 	        url: path,
 	        renderer: renderer,
 	        options: {
-	          dracoDecoderPath: './libs/draco',
-	          basisTranscoderPath: './libs/basis',
+	          dracoDecoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco',
+	          basisTranscoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis',
 	          maximumScreenSpaceError: queryParams.get('sse') ?? 48,
 	          resetTransform: true
 	        }
@@ -57735,19 +57720,9 @@ Char: ${this.c}`;
 			controls.target.set(model.position.x, model.position.y, model.position.z);
 			
 
-	    statsParent.style.visibility = 'visible';
+	    
 	  }
-
-	  /**
-	   * 
-	   import { OGC3DTile } from '@jdultra/threedtiles';
-
-	  const ogc3DTile = new OGC3DTile({
-	    url: "https://storage.googleapis.com/ogc-3d-tiles/ayutthaya/tileset.json",
-	    renderer: renderer
-	});
-	   */
-
+	  statsParent.style.visibility = 'visible';
 	  function render(t) {
 	    const dt = clock.getDelta();
 	    controls.update(t);

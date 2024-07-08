@@ -10,7 +10,6 @@ import {MeshBasicMaterial, Raycaster, Vector3} from 'three';
 import {MapNode, QuadTreePosition} from './MapNode';
 import {MapNodeGeometry} from '../geometries/MapNodeGeometry';
 import {UnitsUtils} from '../utils/UnitsUtils';
-import { WMSProvider } from '../providers/WMSProvider';
 /**
  * Represents a basic plane tile node.
  */

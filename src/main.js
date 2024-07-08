@@ -16,11 +16,8 @@ export {OpenMapTilesProvider} from './providers/OpenMapTilesProvider';
 export {OpenStreetMapsProvider} from './providers/OpenStreetMapsProvider';
 export {DebugProvider} from './providers/DebugProvider';
 export {HeightDebugProvider} from './providers/HeightDebugProvider';
-export {S101Provider} from './providers/S101Provider';
-export {S101HeightProvider} from './providers/S101HeightProvider';
 export {GeoserverWMSProvider} from './providers/GeoserverWMSProvider';
 export {GeoserverWMTSProvider} from './providers/GeoserverWMTSProvider';
-export {WMSProvider} from './providers/WMSProvider';
 export {RoadImageProvider} from './providers/RoadImageProvider';
 export {TianDiTuProvider} from './providers/TianDituProvider';
 export {TianDiTuHeightProvider} from './providers/TianDituHeightProvider';
@@ -50,3 +47,4 @@ export {WegeoMap} from './WegeoMap';
 export {Config} from './environment/config';
 
 export {Animate } from './animation/Animate';
+export {Skybox} from './sky/Skybox'
