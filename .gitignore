@@ -3,7 +3,7 @@
 node_modules/
 # examples/
 examples/data/*
-examples/s228_checkpoint_3dtiles/*
+examples/cesiumlab_trean_3dtiles/*
 libs/*/*
 docs/
 package-lock.json

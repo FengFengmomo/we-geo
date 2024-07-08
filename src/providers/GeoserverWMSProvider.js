@@ -64,10 +64,9 @@
  * @LastEditors: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
  * @LastEditTime: 2024-04-10 17:46:58
  */
-import { WMSProvider } from "./WMSProvider";
 import { UnitsUtils} from "../utils/UnitsUtils";
 
-export class GeoserverWMSProvider extends WMSProvider{
+export class GeoserverWMSProvider{
     minZoom = 1;
     maxZoom = 13;
     tileSize = 256;
@@ -93,7 +92,6 @@ export class GeoserverWMSProvider extends WMSProvider{
 	imageUrl = '{url}?SERVICE=WMS&VERSION={version}&REQUEST=GetMap&FORMAT=image/png8&TRANSPARENT=true&STYLES&LAYERS={data}:{layer}&exceptions=application/vnd.ogc.se_inimage&SRS=EPSG:{EPSG}&WIDTH={width}&HEIGHT={height}&BBOX={bbox}'
 	
 	constructor(options) {
-		super(options);
         Object.assign(this, options);
 		this.imageUrl = this.imageUrl.replace('{url}', this.url);
 		this.imageUrl = this.imageUrl.replace('{version}', this.version);

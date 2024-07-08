@@ -19,7 +19,7 @@ export default [
 	// 	]
 	// },
 	// {
-	// 	input: 'src/examples/fakeEarth.js',
+	// 	input: 'src/examples/3dtiles.js',
 	// 	plugins: [
 	// 		resolve(),
 	// 		typescript({
@@ -29,7 +29,7 @@ export default [
 	// 	output: [
 	// 		{
 	// 			format: 'iife',
-	// 			file: 'examples/js/fakeEarth.js',
+	// 			file: 'examples/js/3dtiles.js',
 	// 			indent: '\t'
 	// 		}
 	// 	]

@@ -70,7 +70,7 @@ controls.update();
 
   // let path = 'http://10.109.118.228/Cesium_3dtiles/s228_3dtiles/tileset.json';
   // let path = 'https://int.nyt.com/data/3dscenes/ONA360/TILESET/0731_FREEMAN_ALLEY_10M_A_36x8K__10K-PN_50P_DB/tileset_tileset.json';
-  let path = './s228_checkpoint_3dtiles/Data/Block/tileset.json';
+  let path = './cesiumlab_trean_3dtiles/tileset.json';
 //   await fetch(option.jsonPath).then(res => res.json()).then(data => {
 //     data.content.url;
 //     if(data && data.content && data.content.url && !data.content.url.endsWidth('.json')){
@@ -87,7 +87,7 @@ controls.update();
   // tilesRenderer.setCamera( camera );
   // tilesRenderer.setResolutionFromRenderer( camera, renderer );
   // scene.add( tilesRenderer.group );
-  // loadTileset(path);
+  loadTileset(path);
 
 
   async function loadTileset(path) {
@@ -139,26 +139,26 @@ controls.update();
 
 
 // 加载json，解析json 取出children中的路径进行拼装加载
-  const qzpath = './s228_checkpoint_3dtiles/';
-  const tilesRendererArr = [];
-  let tilesRenderer = null;
-  fetch(qzpath + 'tileset.json').then(res=>res.json()).then((res)=>{
-    // console.log(res)
-    const tilesetArr = res.root.children;
-    for (const tilese of tilesetArr) {
-      // console.log(qzpath + tilese.content.uri)
-      tilesRenderer = new TilesRenderer( qzpath + tilese.content.url );
-      tilesRenderer.setCamera( camera );
-      tilesRenderer.setResolutionFromRenderer( camera, renderer );
-      addModelListener(tilesRenderer);
-      const tilesObj = tilesRenderer.group;
-      tilesObj.rotation.set(-Math.PI / 2, 0, 0);
-      scene.add( tilesObj );
-      tilesRendererArr.push(tilesRenderer);
+  // const qzpath = './cesiumlab_trean_3dtiles/';
+  // const tilesRendererArr = [];
+  // let tilesRenderer = null;
+  // fetch(qzpath + 'tileset.json').then(res=>res.json()).then((res)=>{
+  //   // console.log(res)
+  //   const tilesetArr = res.root.children;
+  //   for (const tilese of tilesetArr) {
+  //     // console.log(qzpath + tilese.content.uri)
+  //     tilesRenderer = new TilesRenderer( qzpath + tilese.content.url );
+  //     tilesRenderer.setCamera( camera );
+  //     tilesRenderer.setResolutionFromRenderer( camera, renderer );
+  //     addModelListener(tilesRenderer);
+  //     const tilesObj = tilesRenderer.group;
+  //     tilesObj.rotation.set(-Math.PI / 2, 0, 0);
+  //     scene.add( tilesObj );
+  //     tilesRendererArr.push(tilesRenderer);
 
-      const loader = new GLTFLoader( tilesRenderer.manager );
-    }
-  });
+  //     const loader = new GLTFLoader( tilesRenderer.manager );
+  //   }
+  // });
 
   let groundTiles = new TilesRenderer( 'https://raw.githubusercontent.com/NASA-AMMOS/3DTilesSampleData/master/msl-dingo-gap/0528_0260184_to_s64o256_colorize/0528_0260184_to_s64o256_colorize/0528_0260184_to_s64o256_colorize_tileset.json' );
 	groundTiles.fetchOptions.mode = 'cors';
@@ -207,9 +207,9 @@ controls.update();
     if (tilesRuntime) {
       tilesRuntime.update(dt, viewportSize, camera);
     }
-    for (const tilesRenderer of tilesRendererArr) {
-      tilesRenderer.update()
-    }
+    // for (const tilesRenderer of tilesRendererArr) {
+    //   tilesRenderer.update()
+    // }
     groundTiles.update();
     renderer.render(scene, camera);
     threeJsStats.update();

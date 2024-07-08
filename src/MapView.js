@@ -11,8 +11,6 @@ import {LODFrustum} from './lod/LODFrustum';
 import {MapProvider} from './providers/MapProvider';
 import {LODControl} from './lod/LODControl';
 import {MapMartiniHeightNode} from './nodes/MapMartiniHeightNode';
-import { MapHeightNodeS101 } from './model/image/MapHeightNodeS101';
-import { WMSProvider } from './providers/WMSProvider';
 /**
  * Map viewer is used to read and display map tiles from a server.
  *
