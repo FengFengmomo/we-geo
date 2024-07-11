@@ -38,10 +38,6 @@ export class WegeoMap {
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, this.camera);
         this.baseMap.moveTo(44.266119,90.139228);
-        this.baseMap.ambientLight = new AmbientLight(0x404040);
-        this.baseMap.add(this.baseMap.ambientLight);
-        this.baseMap.directionalLight = new DirectionalLight(0xFFFFFF);
-        this.baseMap.add(this.baseMap.directionalLight);
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
@@ -61,10 +57,6 @@ export class WegeoMap {
         let map = new MapView(MapView.SPHERICAL , provider);
         this.baseMap = new Layer(1, container, canvas, map);
         this.baseMap.moveTo(44.266119,90.139228); // 移动到指定位置。
-        this.baseMap.ambientLight = new AmbientLight(0x404040);
-        this.baseMap.add(this.baseMap.ambientLight);
-        this.baseMap.directionalLight = new DirectionalLight(0xFFFFFF);
-        this.baseMap.add(this.baseMap.directionalLight);
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){

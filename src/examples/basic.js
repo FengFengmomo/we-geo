@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import {WebGLRenderer, Scene, Color, AmbientLight, PerspectiveCamera, LinearSRGBColorSpace} from 'three';
-import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
+import {MapControls} from '../jsm/controls/MapControls.js';
 import {MapView, BingMapsProvider, UnitsUtils} from '../main';
 
 var canvas = document.getElementById('canvas');

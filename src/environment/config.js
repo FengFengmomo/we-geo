@@ -1,4 +1,26 @@
 let Config = {
+    layer: {
+        map: {
+            ambientLight: {
+                add: true,
+                color: '#404040',
+                intensity: 1
+            },
+            directionalLight: {
+                add: true,
+                color: '#ffffff',
+                intensity: 1
+            },
+            
+            pointLight: {
+                add: false,
+                color: '#ffffff',
+                intensity: 1,
+                distance: 0,
+                position: [0, 0, 0]
+            }
+        }
+    },
     selectModelTriggle: true,
     al: '#404040', // AmbientLight 灯光颜色
     dl: '#ffffff', // DirectionalLight 灯光颜色 

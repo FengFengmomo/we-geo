@@ -1,7 +1,7 @@
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
+import { GLTFLoader } from '../jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from '../jsm/loaders/DRACOLoader.js';
+import { OBJLoader } from '../jsm/loaders/OBJLoader.js';
+import { SVGLoader } from '../jsm/loaders/SVGLoader.js';
 import { Config } from '../environment/config';
 import { ObjectLoader } from 'three';
 

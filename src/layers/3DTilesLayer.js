@@ -1,9 +1,9 @@
 // 多个canvas并没有id，只有父节点
 import { Element } from "../utils/Element";
-import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
+import {MapControls} from '../jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Vector3, Vector2, Clock } from 'three';
-import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
+import * as TWEEN from '../jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config';
 import { Loader3DTiles } from 'three-loader-3dtiles';

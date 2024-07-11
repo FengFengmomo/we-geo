@@ -39,12 +39,12 @@
 	</script>
 
 	<script type="module">
-		// import 'three';
+		// 需要全量构建geo，目前不能把threejs排除在外
 		import {WegeoMap,MapView, TianDiTuProvider} from 'Geo';
 
 
-const map = new WegeoMap();
-map.addBaseMap();
+		const map = new WegeoMap();
+		map.addBaseMap();
 
 
 // var provider = new TianDiTuProvider({

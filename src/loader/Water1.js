@@ -1,4 +1,4 @@
-import {Water} from 'three/examples/jsm/objects/Water.js';
+import {Water} from '../jsm/objects/Water.js';
 import { TextureLoader, Vector3 ,  RepeatWrapping, DoubleSide, FrontSide, BackSide} from 'three';
 
 export class Water1 {

@@ -1,15 +1,15 @@
 // 多个canvas并没有id，只有父节点
 import { Element } from "../utils/Element";
-import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
+import {MapControls} from '../jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, 
     Vector3, Vector2, ACESFilmicToneMapping,
-    PMREMGenerator, MathUtils } from 'three';
-import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
+    PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight } from 'three';
+import * as TWEEN from '../jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
 import BasLayer from "./basLayer";
-import { Sky } from 'three/examples/jsm/objects/Sky.js';
+import { Sky } from '../jsm/objects/Sky.js';
 
 export class Layer  extends BasLayer{
     id; // 唯一标识
@@ -63,6 +63,17 @@ export class Layer  extends BasLayer{
         this._raycaster = new Raycaster();
         if(Config.outLineMode){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
+        }
+        if (Config.layer.map.ambientLight.add){
+            this.scene.add(new AmbientLight(Config.layer.map.ambientLight.color, Config.layer.map.ambientLight.intensity));
+        }
+        if (Config.layer.map.directionalLight.add){
+            this.scene.add(new DirectionalLight(Config.layer.map.directionalLight.color, Config.layer.map.directionalLight.intensity));
+        }
+        if (Config.layer.map.pointLight.add){
+            let pointLight = new PointLight(Config.layer.map.pointLight.color, Config.layer.map.pointLight.intensity, Config.layer.map.pointLight.distance);
+            pointLight.position.set(...Config.layer.map.pointLight.position);
+            this.scene.add(pointLight);
         }
     }
 
@@ -250,48 +261,6 @@ export class Layer  extends BasLayer{
             this.renderer.autoClear = true;
             this.renderer.render(this.scene, this.camera);
         }
-    }
-    /**
-     * 相机飞往某点,只能通过basemap的方式使用，不建议通过layer层调用，否则会导致多个canvas之间位置不同步
-     * 因为layer层是随着最底层的map的相机进行同步移动的，详见wegeoMap中addBaseMap()方法下对相机控制的同步。
-     * @param {number} lat 维度 
-     * @param {number} lng 经度
-     * @param {number} seconds 动画执行需要的时间，秒 
-     */
-    flyTo(lat, lng, seconds){
-        let from  = this.camera.position.clone();
-        var targetXZ = UnitsUtils.datumsToSpherical(lat, lng);
-        let to = new Vector3(targetXZ.x, from.y, targetXZ.y);
-        let tween = new TWEEN.Tween({
-            // 相机开始坐标
-            x: from.x,
-            y: from.y,
-            z: from.z,
-            // 相机开始指向的目标观察点
-            tx: this.controls.target.x,
-            ty: this.controls.target.y,
-            tz: this.controls.target.z,
-        })
-        .to({
-            // 相机结束坐标
-            x: to.x,
-            y: to.y,
-            z: to.z,
-            // 相机结束指向的目标观察点
-            tx: to.x,
-            ty: 0,
-            tz: to.z,
-        }, seconds*1000)
-        .onStart(function(obj){
-            
-        })
-        .onUpdate(function(obj){
-            this.camera.position.set(obj.x, 0, obj.z);
-            this.controls.target.set(obj.tx, 0, obj.tz);
-            this.controls.update();
-        }).onComplete(function(obj){
-            console.log('complete');
-        }).start();
     }
 
     _raycast(meshes, recursive, faceExclude) {

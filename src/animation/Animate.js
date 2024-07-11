@@ -1,4 +1,4 @@
-import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
+import * as TWEEN from '../jsm/libs/tween.module.js';
 // import TWEEN from '@tweenjs/tween.js';
 /**
  * 相机移动控制

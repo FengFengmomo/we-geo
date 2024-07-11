@@ -1,5 +1,6 @@
 import strip from '@rollup/plugin-strip';
 import typescript from '@rollup/plugin-typescript';
+import resolve from '@rollup/plugin-node-resolve'
 
 export default [
 	{
@@ -12,6 +13,9 @@ export default [
 			}),
 			typescript({
 				tsconfig: './tsconfig.json'
+			}),
+			resolve({
+				browser: true,
 			})
 		],
 		output: [

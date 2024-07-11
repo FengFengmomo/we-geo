@@ -45,8 +45,6 @@ export class MapView extends Mesh
 	 */
 	static MARTINI = 204;
 
-	static HEIGHTS101 = 205;
-
 	/**
 	 * Map of the map node types available.
 	 */
@@ -55,9 +53,7 @@ export class MapView extends Mesh
 		[MapView.SPHERICAL, MapSphereNode],
 		[MapView.HEIGHT, MapHeightNode],
 		[MapView.HEIGHT_SHADER, MapHeightNodeShader],
-		[MapView.MARTINI, MapMartiniHeightNode],
-		[MapView.HEIGHTS101, MapHeightNodeS101],
-		
+		[MapView.MARTINI, MapMartiniHeightNode]
 	]);
 
 	/**
