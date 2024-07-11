@@ -31,9 +31,9 @@
 	<script type="importmap">
 		{
 			"imports": {
-				"three": "../build/three.module.js",
+				"three": "../../../build/three.module.js",
 				"three/addons/": "../build/jsm/",
-				"Geo": "../build/wegeo.module.js"
+				"Geo": "../../../build/wegeo.module.js"
 			}
 		}
 	</script>
@@ -41,8 +41,9 @@
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
 		import {WegeoMap,MapView, TianDiTuProvider, Config} from 'Geo';
+		Config.outLine.on = true;
 
-		// Config.outLine.on = true;
+
 		const map = new WegeoMap();
 		map.addBaseMap();
 

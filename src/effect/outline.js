@@ -5,6 +5,7 @@ import { OutlinePass } from '../jsm/postprocessing/OutlinePass.js';
 import { OutputPass } from '../jsm/postprocessing/OutputPass.js';
 import { FXAAShader } from '../jsm/shaders/FXAAShader.js';
 import { Vector2 } from 'three';
+import { Config} from '../environment/config.js';
 // 上述几个包是做outline效果必须的几个包
 
 export class EffectOutline {
@@ -76,23 +77,26 @@ export class EffectOutline {
         this.effectFXAA.uniforms[ 'resolution' ].value.set( 1 / width, 1 / height );
         this.composer.addPass( this.effectFXAA );
         // 需要在 render前进行 渲染 composer.render();
-        this.outlinePass.edgeStrength = 3.0;
-        this.outlinePass.edgeGlow = 0.0;
-        this.outlinePass.edgeThickness = 1.0;
-        this.outlinePass.pulsePeriod = 1.5;
-        this.outlinePass.visibleEdgeColor.set('#ffff00');
-        this.outlinePass.hiddenEdgeColor.set('#552121');
+        this.outlinePass.edgeStrength = Config.outLine.edgeStrength;
+        this.outlinePass.edgeGlow = Config.outLine.edgeGlow;
+        this.outlinePass.edgeThickness = Config.outLine.edgeThickness;
+        this.outlinePass.pulsePeriod = Config.outLine.pulsePeriod;
+        this.outlinePass.visibleEdgeColor.set(Config.outLine.visibleEdgeColor);
+        this.outlinePass.hiddenEdgeColor.set(Config.outLine.hiddenEdgeColor);
     }
 
     selectModel(insect){
-        if (insect)
-            this.outlinePass.selectedObjects = [insect.object];
+        if (insect){
+            let selectedObjects = [];
+			selectedObjects.push( insect.object );
+            this.outlinePass.selectedObjects = selectedObjects;
+        }
         else
             this.outlinePass.selectedObjects = [];
     }
 
     resize(width, height) {
-        this.InitOutLineEffect(width, height);
+        // this.InitOutLineEffect(width, height);
         // 更新OutlinePass的渲染大小
         this.composer.setSize( width, height );
         // 更新FXAAShader的分辨率

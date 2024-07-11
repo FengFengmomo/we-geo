@@ -3,13 +3,14 @@ import { Element } from "../utils/Element";
 import {MapControls} from '../jsm/controls/MapControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, 
-    Vector3, Vector2, ACESFilmicToneMapping,
+    Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
     PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight } from 'three';
 import * as TWEEN from '../jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
 import BasLayer from "./basLayer";
 import { Sky } from '../jsm/objects/Sky.js';
+
 
 export class Layer  extends BasLayer{
     id; // 唯一标识
@@ -61,7 +62,7 @@ export class Layer  extends BasLayer{
         this.controls.minDistance = 1e1;
         this.controls.zoomSpeed = 2.0;
         this._raycaster = new Raycaster();
-        if(Config.outLineMode){
+        if(Config.outLine.on){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
         }
         if (Config.layer.map.ambientLight.add){
@@ -75,6 +76,13 @@ export class Layer  extends BasLayer{
             pointLight.position.set(...Config.layer.map.pointLight.position);
             this.scene.add(pointLight);
         }
+        const geometry = new BoxGeometry( 1, 1, 1 ); 
+        const material = new MeshBasicMaterial( {color: 0x00ff00} ); 
+        const cube = new Mesh( geometry, material );
+        cube.scale.set( 10000, 10000, 10000 );
+        var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228); 
+        cube.position.set(coords.x, 8000, -coords.y);
+        this.scene.add( cube );
     }
 
     moveTo(lat, lon, height = 38472.48763833733){
@@ -238,7 +246,7 @@ export class Layer  extends BasLayer{
         this.renderer.setSize(width, height);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
-        if(Config.outLineMode){
+        if(Config.outLine.on){
             this.effectOutline.resize(width, height);
         }
     }
@@ -254,9 +262,8 @@ export class Layer  extends BasLayer{
         for(let water of this.waters){
             water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
         }
-        if (Config.outLineMode){
+        if (Config.outLine.on){
             this.effectOutline.render(); // 合成器渲染
-            // this.effectOutline.composer.render(); // 合成器渲染
         } else {
             this.renderer.autoClear = true;
             this.renderer.render(this.scene, this.camera);
@@ -303,6 +310,14 @@ export class Layer  extends BasLayer{
         return this._raycastFromMouse(
             mx, my, clientWidth, clientHeight, this.camera,
             this.mapView.children, recursive);
+    }
+
+    insectALL(mx, my, recursive=false) {
+        const {clientWidth, clientHeight} = this.canvas;
+
+        return this._raycastFromMouse(
+            mx, my, clientWidth, clientHeight, this.camera,
+            this.scene.children, recursive);
     }
 
 }

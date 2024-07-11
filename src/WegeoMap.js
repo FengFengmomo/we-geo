@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, PerspectiveCamera} from 'three';
+import { AmbientLight, DirectionalLight, PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh} from 'three';
 import {RoadImageProvider} from './providers/RoadImageProvider';
 import {MapView} from './MapView';
 import { Layer } from './layers/Layer';
@@ -38,6 +38,7 @@ export class WegeoMap {
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, this.camera);
         this.baseMap.moveTo(44.266119,90.139228);
+        this.baseMap.add()
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
@@ -68,6 +69,7 @@ export class WegeoMap {
         this.selectModel(RaycasterUtils.casterMesh);
     }
 
+
     // 鼠标点击获取模型
     selectModel(fn){
         if (!fn){
@@ -79,7 +81,7 @@ export class WegeoMap {
             }
             let [isect, layer] = this.getModel(mx,my);
             if(isect){
-                if (Config.outLineMode){
+                if (Config.outLine.on){
                     layer.selectModel(isect);
                 } else{
                     fn(isect);
@@ -120,12 +122,20 @@ export class WegeoMap {
         let layers = Array.from(this.layers).reverse();
         let isect;
         for(let [id, layer] of layers){
+            isect = layer.insectALL(mx, my, true);
+            if(isect){
+                return [isect, layer];
+            }
             isect = layer.raycastFromMouse(mx,my, true);
             if(isect){
                 return [isect, layer];
             }
         }
         if(this.baseMap){
+            isect = this.baseMap.insectALL(mx, my, true);
+            if(isect){
+                return [isect, this.baseMap];
+            }
             isect = this.baseMap.raycastFromMouse(mx,my, true);
             if(isect){
                 return [isect, this.baseMap];
