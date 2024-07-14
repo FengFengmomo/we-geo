@@ -13,7 +13,9 @@
   * 5、需要数据驱动。 
   基于以上原因，选择基于threejs重新造轮子。
 <!-- ![image](https://github.com/FengFengmomo/we-geo/assets/12838106/3db37ebe-7f33-414f-8dc5-2ed4bc538f50) -->
-![image](https://github.com/FengFengmomo/we-geo/examples/screenshots/plane_localtionName.png)
+
+![image](https://github.com/user-attachments/assets/b5238ef2-dc42-4f9f-ada4-4f396bcc9310)
+
 
 
 ## **案例**
