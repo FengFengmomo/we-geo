@@ -161,7 +161,7 @@ export class MapSphereNode extends MapNode
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}
-
+	/**
 	async loadData()
 	{
 		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
@@ -184,22 +184,14 @@ export class MapSphereNode extends MapNode
 				return;
 			}
 						
-			// const textureLoader = new TextureLoader();
-			// const texture = textureLoader.load(image.src, function() {});
-			
 			const texture = new Texture(image);
 			texture.generateMipmaps = false;
 			texture.format = RGBAFormat;
 			texture.magFilter = LinearFilter;
 			texture.minFilter = LinearFilter;
 			texture.needsUpdate = true;
-			// texture.wrapS = RepeatWrapping;
-            // texture.wrapT = RepeatWrapping;
-			
 			// @ts-ignore
 			this.material.map = texture;
-			// this.material.uniforms.uTexture.value = texture;
-			// this.material.uniforms.uTexture.needsUpdate = true;
 		}
 		catch (e) 
 		{
@@ -221,6 +213,7 @@ export class MapSphereNode extends MapNode
 		// @ts-ignore
 		this.material.needsUpdate = true;
 	}
+	 */
 	
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
@@ -273,5 +266,9 @@ export class MapSphereNode extends MapNode
 			fragmentShader: fragmentShader
 		});
 		return material;
+	}
+	static getGeometry(scale = 0){
+		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+		return geometry;
 	}
 }

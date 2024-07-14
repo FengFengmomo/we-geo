@@ -1,6 +1,4 @@
-'use strict';
-
-var three = require('three');
+import { Texture, RGBAFormat, LinearFilter, Vector2, Vector3, Mesh, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Ray, Plane, MathUtils, EventDispatcher, MOUSE, TOUCH, Spherical, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, Matrix3, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, BackSide, BoxGeometry, WebGLRenderer, Scene, AmbientLight, PMREMGenerator, CompressedCubeTexture, UnsignedByteType, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, FloatType, DataTexture, Data3DTexture, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, Euler, PlaneGeometry, ArrowHelper, EdgesGeometry, Uint8BufferAttribute, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib } from 'three';
 
 /**
  * A map provider is a object that handles the access to map tiles of a specific service.
@@ -176,10 +174,10 @@ class TextureUtils
 		context.fillStyle = color;
 		context.fillRect(0, 0, width, height);
 
-		const texture = new three.Texture(canvas);
-		texture.format = three.RGBAFormat;
-		texture.magFilter = three.LinearFilter;
-		texture.minFilter = three.LinearFilter;
+		const texture = new Texture(canvas);
+		texture.format = RGBAFormat;
+		texture.magFilter = LinearFilter;
+		texture.minFilter = LinearFilter;
 		texture.generateMipmaps = false;
 		texture.needsUpdate = true;
         
@@ -258,7 +256,7 @@ class UnitsUtils
 
 	/**
 	 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
-	 *	经纬度转为世界坐标（x,y） 
+	 *
 	 * @param latitude - Latitude value in degrees. 纬度
 	 * @param longitude - Longitude value in degrees. 经度
 	 */
@@ -269,12 +267,12 @@ class UnitsUtils
 
 		y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
 
-		return new three.Vector2(x, y);
+		return new Vector2(x, y);
 	}
 
 	/**
 	 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-	 * 计算世界坐标(x,y)到经纬度(lat,lon)
+	 * 计算世界坐标到经纬度
 	 * @param x - X coordinate.
 	 * @param y - Y coordinate.
 	 */
@@ -311,7 +309,7 @@ class UnitsUtils
 	 * Direction vector to WGS84 coordinates.
 	 * 
 	 * Can be used to transform surface points of world sphere to coordinates.
-	 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
+	 * 
 	 * @param dir - Direction vector.
 	 * @returns WGS84 coordinates.
 	 */
@@ -330,7 +328,7 @@ class UnitsUtils
 	 * Get a direction vector from WGS84 coordinates.
 	 * 
 	 * The vector obtained will be normalized.
-	 * 经纬度到空间内（x,y,z）的转换。
+	 * 
 	 * @param latitude - Latitude value in degrees.
 	 * @param longitude - Longitude value in degrees.
 	 * @returns Direction vector normalized.
@@ -344,7 +342,7 @@ class UnitsUtils
 
 		var cos = Math.cos(rotY);
 		
-		return new three.Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
+		return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
 	}
 
 	/**
@@ -369,7 +367,7 @@ class UnitsUtils
 	static latLonToXy(lat, lon){
 		let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
 		let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
-		return new three.Vector2(x, y);
+		return new Vector2(x, y);
 	}
 
 	/**
@@ -394,7 +392,7 @@ class UnitsUtils
 		let x = ((lng * Math.PI) / 180) * earthRad;
 		let a = (lat * Math.PI) / 180;
 		let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
-		return new three.Vector2(x, y)
+		return new Vector2(x, y)
 	}
 
 
@@ -599,7 +597,7 @@ class QuadTreePosition
  *
  * It is intended to be used as a base class for other map node implementations.
  */
-class MapNode extends three.Mesh 
+class MapNode extends Mesh 
 {
 	/**
 	 * Default texture used when texture fails to load.
@@ -803,7 +801,7 @@ class MapNode extends three.Mesh
 	 */
 	async loadData()
 	{
-		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
 		{
 
 			// @ts-ignore
@@ -815,59 +813,49 @@ class MapNode extends three.Mesh
 			// this.material.opacity = 0;
 			return;
 		}
-		let materials = [];
-		for (let provider of this.mapView.providers){
-			let material = this.material.clone();
-			try 
-			{
-				let image = await provider.fetchTile(this.level, this.x, this.y, this.bbox);
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				const texture = new three.Texture(image);
-				texture.generateMipmaps = false;
-				texture.format = three.RGBAFormat;
-				texture.magFilter = three.LinearFilter;
-				texture.minFilter = three.LinearFilter;
-				texture.needsUpdate = true;
-				// texture.wrapS = RepeatWrapping;
-				// texture.wrapT = RepeatWrapping;
-				
-				// @ts-ignore
-				material.map = texture;
-				
-				// this.material.transparent = true;
-				material.alphaTest = 0.01;
-				// this.material.opacity = this.opacity;
-			}
-			catch (e) 
-			{
-				if (this.disposed) 
-				{
-					return;
-				}
 
-				// @ts-ignore
-				this.material.map = MapNode.defaultTexture;
-				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-				this.material.transparent = true;
-				// this.material.alphaTest = 0.01;
-				this.material.opacity = 0;
+		try 
+		{
+			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
+			
+			if (this.disposed) 
+			{
+				return;
 			}
+			
+			const texture = new Texture(image);
+			texture.generateMipmaps = false;
+			texture.format = RGBAFormat;
+			texture.magFilter = LinearFilter;
+			texture.minFilter = LinearFilter;
+			texture.needsUpdate = true;
+			// texture.wrapS = RepeatWrapping;
+            // texture.wrapT = RepeatWrapping;
+			
+			// @ts-ignore
+			this.material.map = texture;
+			
+			// this.material.transparent = true;
+			this.material.alphaTest = 0.01;
+			// this.material.opacity = this.opacity;
+		}
+		catch (e) 
+		{
+			if (this.disposed) 
+			{
+				return;
+			}
+
+			// @ts-ignore
+			this.material.map = MapNode.defaultTexture;
+			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+			this.material.transparent = true;
+			// this.material.alphaTest = 0.01;
+			this.material.opacity = 0;
+		}
 
 		// @ts-ignore
-			material.needsUpdate = true;
-			materials.push(material);
-		}
-
-		
-		this.material = materials;
-		this.geometry.clearGroups();
-		for (let i = 0; i < materials.length; i++) {
-			this.geometry.addGroup(0, Infinity, i);
-		}
+		this.material.needsUpdate = true;
 	}
 
 
@@ -956,7 +944,7 @@ class MapNode extends three.Mesh
  * 
  * Geometry can also include skirts to mask off missalignments between tiles.
  */
-class MapNodeGeometry extends three.BufferGeometry
+class MapNodeGeometry extends BufferGeometry
 {
 	/**
 	 * Map node geometry constructor.
@@ -988,9 +976,9 @@ class MapNodeGeometry extends three.BufferGeometry
 		}
 
 		this.setIndex(indices);
-		this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
-		this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
-		this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+		this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+		this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
+		this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
 	}
 
 	static buildPlane(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, indices=[], vertices=[], normals=[], uvs=[])
@@ -1200,7 +1188,7 @@ class MapPlaneNode extends MapNode
 {
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new three.MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
+		super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
 		this.matrixAutoUpdate = false;
 		this.isMesh = true;
@@ -1214,7 +1202,7 @@ class MapPlaneNode extends MapNode
 
 	static baseGeometry = MapPlaneNode.geometry;
 
-	static baseScale = new three.Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
+	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
 
 	async initialize()
 	{
@@ -1281,7 +1269,7 @@ class MapPlaneNode extends MapNode
 	}
 }
 
-class MapNodeHeightGeometry extends three.BufferGeometry
+class MapNodeHeightGeometry extends BufferGeometry
 {
 	/**
 	 * Map node geometry constructor.
@@ -1327,9 +1315,9 @@ class MapNodeHeightGeometry extends three.BufferGeometry
 		}
 
 		this.setIndex(indices);
-		this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
-		this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
-		this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+		this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+		this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
+		this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
 
 		if (calculateNormals)
 		{
@@ -1359,9 +1347,9 @@ class MapNodeHeightGeometry extends three.BufferGeometry
 				normalAttribute.setXYZ(i, 0, 0, 0);
 			}
 
-			const pA = new three.Vector3(), pB = new three.Vector3(), pC = new three.Vector3();
-			const nA = new three.Vector3(), nB = new three.Vector3(), nC = new three.Vector3();
-			const cb = new three.Vector3(), ab = new three.Vector3();
+			const pA = new Vector3(), pB = new Vector3(), pC = new Vector3();
+			const nA = new Vector3(), nB = new Vector3(), nC = new Vector3();
+			const cb = new Vector3(), ab = new Vector3();
 			
 			const indexLength = heightSegments * widthSegments * 6;
 			for (let i = 0; i < indexLength ; i += 3)
@@ -1445,7 +1433,7 @@ class MapHeightNode extends MapNode
 	/**
 	 * Scale to apply to each node.
 	 */
-	static baseScale = new three.Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
+	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
 
 	/**
 	 * Map height node constructor.
@@ -1459,7 +1447,7 @@ class MapHeightNode extends MapNode
 	 * @param material - Material used to render this height node.
 	 * @param geometry - Geometry used to render this height node.
 	 */
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new three.MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
 	{
 		super(parentNode, mapView, location, level, x, y, geometry, material);
 
@@ -1596,7 +1584,7 @@ class MapHeightNode extends MapNode
 /**
  * Map node geometry is a geometry used to represent the spherical map nodes.
  */
-class MapSphereNodeGeometry extends three.BufferGeometry 
+class MapSphereNodeGeometry extends BufferGeometry 
 {
 	/**
 	 * Map sphere geometry constructor.
@@ -1614,8 +1602,8 @@ class MapSphereNodeGeometry extends three.BufferGeometry
 		const thetaEnd = thetaStart + thetaLength;
 		let index = 0;
 		const grid = [];
-		const vertex = new three.Vector3();
-		const normal = new three.Vector3();
+		const vertex = new Vector3();
+		const normal = new Vector3();
 
 		// Buffers
 		const indices = [];
@@ -1695,9 +1683,9 @@ class MapSphereNodeGeometry extends three.BufferGeometry
 		}
 
 		this.setIndex(indices);
-		this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
-		this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
-		this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+		this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+		this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
+		this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
 	}
 
 	/**
@@ -1724,14 +1712,14 @@ class MapSphereNode extends MapNode
 	 * 
 	 * Applied to the map view on initialization.
 	 */
-	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new three.Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
 
 	/**
 	 * Base scale of the node.
 	 * 
 	 * Applied to the map view on initialization.
 	 */
-	static baseScale = new three.Vector3(1, 1, 1);
+	static baseScale = new Vector3(1, 1, 1);
 
 	/**
 	 * Number of segments per node geometry.
@@ -1746,7 +1734,7 @@ class MapSphereNode extends MapNode
 	{
 		
 		
-		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new three.MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
 		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 	
 		this.applyScaleNode();
@@ -1797,7 +1785,7 @@ class MapSphereNode extends MapNode
 		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
 		const thetaLength = lat1 - lat2;
 		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
-		let vBounds = new three.Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+		let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
 
 		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
 	}
@@ -1810,10 +1798,10 @@ class MapSphereNode extends MapNode
 		this.geometry.computeBoundingBox();
 	
 		const box = this.geometry.boundingBox.clone();
-		const center = box.getCenter(new three.Vector3());
+		const center = box.getCenter(new Vector3());
 	
-		const matrix = new three.Matrix4();
-		matrix.compose(new three.Vector3(-center.x, -center.y, -center.z), new three.Quaternion(), new three.Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
+		const matrix = new Matrix4();
+		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
 		this.geometry.applyMatrix4(matrix);
 		// 未赋值matrix的缘故？
 		// this.matrix = matrix;
@@ -1866,12 +1854,11 @@ class MapSphereNode extends MapNode
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}
-	/**
+
 	async loadData()
 	{
 		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
 		{
-			console.warn('Geo-Three: Loading tile outside of provider range.', this);
 
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
@@ -1889,14 +1876,22 @@ class MapSphereNode extends MapNode
 				return;
 			}
 						
+			// const textureLoader = new TextureLoader();
+			// const texture = textureLoader.load(image.src, function() {});
+			
 			const texture = new Texture(image);
 			texture.generateMipmaps = false;
 			texture.format = RGBAFormat;
 			texture.magFilter = LinearFilter;
 			texture.minFilter = LinearFilter;
 			texture.needsUpdate = true;
+			// texture.wrapS = RepeatWrapping;
+            // texture.wrapT = RepeatWrapping;
+			
 			// @ts-ignore
 			this.material.map = texture;
+			// this.material.uniforms.uTexture.value = texture;
+			// this.material.uniforms.uTexture.needsUpdate = true;
 		}
 		catch (e) 
 		{
@@ -1904,8 +1899,6 @@ class MapSphereNode extends MapNode
 			{
 				return;
 			}
-			
-			console.warn('Geo-Three: Failed to load node tile data.', this);
 
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
@@ -1918,7 +1911,6 @@ class MapSphereNode extends MapNode
 		// @ts-ignore
 		this.material.needsUpdate = true;
 	}
-	 */
 	
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
@@ -1964,17 +1956,13 @@ class MapSphereNode extends MapNode
 		`;
 		
 		// Create shader material
-		let vBounds = new three.Vector4(...bounds);
-		const material = new three.ShaderMaterial({
-			uniforms: {uTexture: {value: new three.Texture()}, mercatorBounds: {value: vBounds}},
+		let vBounds = new Vector4(...bounds);
+		const material = new ShaderMaterial({
+			uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
 			vertexShader: vertexShader,
 			fragmentShader: fragmentShader
 		});
 		return material;
-	}
-	static getGeometry(scale = 0){
-		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new three.Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
-		return geometry;
 	}
 }
 
@@ -2017,11 +2005,11 @@ class MapHeightNodeShader extends MapHeightNode
 	/**
 	 * Base scale of the map node.
 	 */
-	static baseScale = new three.Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
+	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
 
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 	{
-		const material = MapHeightNodeShader.prepareMaterial(new three.MeshPhongMaterial({map: MapNode.defaultTexture, color: 0xFFFFFF}));
+		const material = MapHeightNodeShader.prepareMaterial(new MeshPhongMaterial({map: MapNode.defaultTexture, color: 0xFFFFFF}));
 
 		super(parentNode, mapView, location, level, x, y, MapHeightNodeShader.geometry, material);
 
@@ -2102,11 +2090,11 @@ class MapHeightNodeShader extends MapHeightNode
 				return;
 			}
 			
-			const texture = new three.Texture(image);
+			const texture = new Texture(image);
 			texture.generateMipmaps = false;
-			texture.format = three.RGBAFormat;
-			texture.magFilter = three.NearestFilter;
-			texture.minFilter = three.NearestFilter;
+			texture.format = RGBAFormat;
+			texture.magFilter = NearestFilter;
+			texture.minFilter = NearestFilter;
 			texture.needsUpdate = true;
 			
 			// @ts-ignore
@@ -2211,12 +2199,12 @@ class LODRaycast extends LODControl
 	/**
 	 * Raycaster object used to cast rays into the world and check for hits.
 	 */
-	raycaster = new three.Raycaster();
+	raycaster = new Raycaster();
 
 	/**
 	 * Normalized mouse coordinates.
 	 */
-	mouse = new three.Vector2();
+	mouse = new Vector2();
 
 	/**
 	 * Consider the distance powered to level of the node.
@@ -2262,7 +2250,7 @@ class LODRaycast extends LODControl
 			{
 				// Get scale from transformation matrix directly
 				const matrix = node.matrixWorld.elements;
-				const vector = new three.Vector3(matrix[0], matrix[1], matrix[2]);
+				const vector = new Vector3(matrix[0], matrix[1], matrix[2]);
 				distance = vector.length() / distance;
 			}
 
@@ -2278,8 +2266,8 @@ class LODRaycast extends LODControl
 	}
 }
 
-const pov$1 = new three.Vector3();
-const position$1 = new three.Vector3();
+const pov$1 = new Vector3();
+const position$1 = new Vector3();
 
 /**
  * Check the planar distance between the nodes center and the view position.
@@ -2327,10 +2315,10 @@ class LODRadial extends LODControl
 	}
 }
 
-const projection = new three.Matrix4();
-const pov = new three.Vector3();
-const frustum = new three.Frustum();
-const position = new three.Vector3();
+const projection = new Matrix4();
+const pov = new Vector3();
+const frustum = new Frustum();
+const position = new Vector3();
 
 /**
  * Check the planar distance between the nodes center and the view position.
@@ -2807,7 +2795,7 @@ class MapMartiniHeightNode extends MapHeightNode
 	/**
 	 * Empty texture used as a placeholder for missing textures.
 	 */
-	static emptyTexture = new three.Texture();
+	static emptyTexture = new Texture();
 	
 	/**
 	 * Base geometry appied before any custom geometru is used.
@@ -2845,10 +2833,10 @@ class MapMartiniHeightNode extends MapHeightNode
 
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, {elevationDecoder = null, meshMaxError = 10, exageration = 1} = {})
 	{
-		super(parentNode, mapView, location, level, x, y, MapMartiniHeightNode.geometry, MapMartiniHeightNode.prepareMaterial(new three.MeshPhongMaterial({
+		super(parentNode, mapView, location, level, x, y, MapMartiniHeightNode.geometry, MapMartiniHeightNode.prepareMaterial(new MeshPhongMaterial({
 			map: MapMartiniHeightNode.emptyTexture,
 			color: 0xFFFFFF,
-			side: three.DoubleSide
+			side: DoubleSide
 		}), level, exageration));
 
 		
@@ -3082,17 +3070,17 @@ class MapMartiniHeightNode extends MapHeightNode
 
 		const attributes = MapMartiniHeightNode.getMeshAttributes(vertices, terrain, tileSize, [-0.5, -0.5, 0.5, 0.5], this.exageration);
 
-		this.geometry = new three.BufferGeometry();
-		this.geometry.setIndex(new three.Uint32BufferAttribute(triangles, 1));
-		this.geometry.setAttribute('position', new three.Float32BufferAttribute( attributes.position.value, attributes.position.size));
-		this.geometry.setAttribute('uv', new three.Float32BufferAttribute( attributes.uv.value, attributes.uv.size));
+		this.geometry = new BufferGeometry();
+		this.geometry.setIndex(new Uint32BufferAttribute(triangles, 1));
+		this.geometry.setAttribute('position', new Float32BufferAttribute( attributes.position.value, attributes.position.size));
+		this.geometry.setAttribute('uv', new Float32BufferAttribute( attributes.uv.value, attributes.uv.size));
 		this.geometry.rotateX(Math.PI);
 
-		var texture = new three.Texture(image);
+		var texture = new Texture(image);
 		texture.generateMipmaps = false;
-		texture.format = three.RGBAFormat;
-		texture.magFilter = three.NearestFilter;
-		texture.minFilter = three.NearestFilter;
+		texture.format = RGBAFormat;
+		texture.magFilter = NearestFilter;
+		texture.minFilter = NearestFilter;
 		texture.needsUpdate = true;
 
 		this.material.userData.heightMap.value = texture;
@@ -3133,7 +3121,7 @@ class MapMartiniHeightNode extends MapHeightNode
  *
  * The map is drawn in plane map nodes using a quad tree that is subdivided as necessary to guaratee good map quality.
  */
-class MapView extends three.Mesh 
+class MapView extends Mesh 
 {
 	/**
 	 * Planar map projection.
@@ -3179,7 +3167,7 @@ class MapView extends three.Mesh
 	/**
 	 * Map tile color layer provider.
 	 */
-	providers = null;
+	provider = null;
 
 	/**
 	 * Map height (terrain elevation) layer provider.
@@ -3210,18 +3198,18 @@ class MapView extends three.Mesh
 	 * Constructor for the map view objects.
 	 *
 	 * @param root - Map view node modes can be SPHERICAL, HEIGHT or PLANAR. PLANAR is used by default. Can also be a custom MapNode instance.
-	 * @param providers - Map color tile provider by default a OSM maps provider is used if none specified.
+	 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
 	 * @param heightProvider - Map height tile provider, by default no height provider is used.
 	 */
-	constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+	constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
 	{
-		super(undefined, new three.MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
+		super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
 		this.lod = new LODRaycast();
 		// this.lod = new LODRadial();
 		// this.lod = new LODFrustum();
 
-		this.providers = providers;
+		this.provider = provider;
 		this.heightProvider = heightProvider;
 		// 设置根节点，准备开始分裂
 		this.setRoot(root, scale);
@@ -3273,14 +3261,15 @@ class MapView extends three.Mesh
 		if (this.root !== null) 
 		{
 			// @ts-ignore
-			
+			this.geometry = this.root.constructor.baseGeometry;
 			// @ts-ignore
 			if (scale === null)
-				this.geometry = this.root.constructor.baseGeometry;
+				this.scale.copy(this.root.constructor.baseScale);
 			else
-				this.geometry = this.root.constructor.getGeometry(scale);
-			this.scale.copy(this.root.constructor.baseScale);
+				this.scale.copy(scale);
+
 			this.root.mapView = this;
+			this.root.bbox = MapNode.baseBbox;
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
 		}
@@ -3314,7 +3303,7 @@ class MapView extends three.Mesh
 			}
 		}
 
-		const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		const minZoom = Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
 		if (minZoom > 0) 
 		{
 			subdivide(this.root, minZoom);
@@ -3323,33 +3312,16 @@ class MapView extends three.Mesh
 
 	/**
 	 * Change the map provider of this map view.
-	 * 
+	 *
 	 * Will discard all the tiles already loaded using the old provider.
-	 * @deprecated
 	 */
-	setProvider(providers)
+	setProvider(provider)
 	{
-		if (providers !== this.providers) 
+		if (provider !== this.provider) 
 		{
-			this.providers = providers;
+			this.provider = provider;
 			this.clear();
 		}
-	}
-	
-	/**
-	 * 添加一个数据提供器
-	 */
-	addProvider(provider){
-		this.providers.push(provider);
-	}
-
-	/**
-	 * 删除一个数据提供器
-	 * @param {*} index 数组索引
-	 */ 
-	removeProvider(index){
-	    // 删除index索引处的 provider
-		this.providers.splice(index, 1);
 	}
 
 	/**
@@ -3400,7 +3372,7 @@ class MapView extends three.Mesh
 	 */
 	minZoom() 
 	{
-		return Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		return Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
 	}
 
 	/**
@@ -3410,7 +3382,7 @@ class MapView extends three.Mesh
 	 */
 	maxZoom() 
 	{
-		return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		return Math.min(this.provider.maxZoom, this.heightProvider?.maxZoom ?? Infinity);
 	}
 
 	/**
@@ -3418,7 +3390,7 @@ class MapView extends three.Mesh
 	 */
 	getMetaData()
 	{
-		this.providers[0].getMetaData();
+		this.provider.getMetaData();
 	}
 
 	raycast(raycaster, intersects)
@@ -3427,8 +3399,8 @@ class MapView extends three.Mesh
 	}
 }
 
-new three.Vector3();
-new three.Vector3();
+new Vector3();
+new Vector3();
 /**
  * Use random raycasting to randomly pick n objects to be tested on screen space.
  *
@@ -3446,12 +3418,12 @@ class LODSphere extends LODControl
 	/**
 	 * Raycaster object used to cast rays into the world and check for hits.
 	 */
-	raycaster = new three.Raycaster();
+	raycaster = new Raycaster();
 
 	/**
 	 * Normalized mouse coordinates.
 	 */
-	mouse = new three.Vector2();
+	mouse = new Vector2();
 
 
 	constructor(subdivideDistance = 120, simplifyDistance = 400){
@@ -3479,7 +3451,7 @@ class LODSphere extends LODControl
 			const node = intersects[i].object;
 			let distance = intersects[i].distance;
 
-			distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+			distance /= Math.pow(2, view.provider.maxZoom - node.level);
 
 			if (distance < this.subdivideDistance) 
 			{
@@ -4376,8 +4348,8 @@ class DebugProvider extends MapProvider
 		const canvas = CanvasUtils.createOffscreenCanvas(this.resolution, this.resolution);
 		const context = canvas.getContext('2d');
 
-		const green = new three.Color(0x00ff00);
-		const red = new three.Color(0xff0000);
+		const green = new Color(0x00ff00);
+		const red = new Color(0xff0000);
 
 		const color = green.lerpHSL(red, (zoom - this.minZoom) / (this.maxZoom - this.minZoom));
 
@@ -4410,12 +4382,12 @@ class HeightDebugProvider extends MapProvider
 	/**
 	 * Initial color to be used for lower values.
 	 */
-	fromColor = new three.Color(0xff0000);
+	fromColor = new Color(0xff0000);
 
 	/**
 	 * Final color to be used for higher values.
 	 */
-	toColor = new three.Color(0x00ff00);
+	toColor = new Color(0x00ff00);
 
 	constructor(provider) 
 	{
@@ -5019,11 +4991,11 @@ class Element {
 const _changeEvent = { type: 'change' };
 const _startEvent = { type: 'start' };
 const _endEvent = { type: 'end' };
-const _ray = new three.Ray();
-const _plane = new three.Plane();
-const TILT_LIMIT = Math.cos( 70 * three.MathUtils.DEG2RAD );
+const _ray = new Ray();
+const _plane = new Plane();
+const TILT_LIMIT = Math.cos( 70 * MathUtils.DEG2RAD );
 
-class OrbitControls extends three.EventDispatcher {
+class OrbitControls extends EventDispatcher {
 
 	constructor( object, domElement ) {
 
@@ -5037,10 +5009,10 @@ class OrbitControls extends three.EventDispatcher {
 		this.enabled = true;
 
 		// "target" sets the location of focus, where the object orbits around
-		this.target = new three.Vector3();
+		this.target = new Vector3();
 
 		// Sets the 3D cursor (similar to Blender), from which the maxTargetRadius takes effect
-		this.cursor = new three.Vector3();
+		this.cursor = new Vector3();
 
 		// How far you can dolly in and out ( PerspectiveCamera only )
 		this.minDistance = 0;
@@ -5094,10 +5066,10 @@ class OrbitControls extends three.EventDispatcher {
 		this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
 
 		// Mouse buttons
-		this.mouseButtons = { LEFT: three.MOUSE.ROTATE, MIDDLE: three.MOUSE.DOLLY, RIGHT: three.MOUSE.PAN };
+		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
 
 		// Touch fingers
-		this.touches = { ONE: three.TOUCH.ROTATE, TWO: three.TOUCH.DOLLY_PAN };
+		this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
 
 		// for reset
 		this.target0 = this.target.clone();
@@ -5169,15 +5141,15 @@ class OrbitControls extends three.EventDispatcher {
 		// this method is exposed, but perhaps it would be better if we can make it private...
 		this.update = function () {
 
-			const offset = new three.Vector3();
+			const offset = new Vector3();
 
 			// so camera.up is the orbit axis
-			const quat = new three.Quaternion().setFromUnitVectors( object.up, new three.Vector3( 0, 1, 0 ) );
+			const quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
 			const quatInverse = quat.clone().invert();
 
-			const lastPosition = new three.Vector3();
-			const lastQuaternion = new three.Quaternion();
-			const lastTargetPosition = new three.Vector3();
+			const lastPosition = new Vector3();
+			const lastQuaternion = new Quaternion();
+			const lastTargetPosition = new Vector3();
 
 			const twoPI = 2 * Math.PI;
 
@@ -5314,14 +5286,14 @@ class OrbitControls extends three.EventDispatcher {
 					} else if ( scope.object.isOrthographicCamera ) {
 
 						// adjust the ortho camera position based on zoom changes
-						const mouseBefore = new three.Vector3( mouse.x, mouse.y, 0 );
+						const mouseBefore = new Vector3( mouse.x, mouse.y, 0 );
 						mouseBefore.unproject( scope.object );
 
 						scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
 						scope.object.updateProjectionMatrix();
 						zoomChanged = true;
 
-						const mouseAfter = new three.Vector3( mouse.x, mouse.y, 0 );
+						const mouseAfter = new Vector3( mouse.x, mouse.y, 0 );
 						mouseAfter.unproject( scope.object );
 
 						scope.object.position.sub( mouseAfter ).add( mouseBefore );
@@ -5449,26 +5421,26 @@ class OrbitControls extends three.EventDispatcher {
 		const EPS = 0.000001;
 
 		// current position in spherical coordinates
-		const spherical = new three.Spherical();
-		const sphericalDelta = new three.Spherical();
+		const spherical = new Spherical();
+		const sphericalDelta = new Spherical();
 
 		let scale = 1;
-		const panOffset = new three.Vector3();
+		const panOffset = new Vector3();
 
-		const rotateStart = new three.Vector2();
-		const rotateEnd = new three.Vector2();
-		const rotateDelta = new three.Vector2();
+		const rotateStart = new Vector2();
+		const rotateEnd = new Vector2();
+		const rotateDelta = new Vector2();
 
-		const panStart = new three.Vector2();
-		const panEnd = new three.Vector2();
-		const panDelta = new three.Vector2();
+		const panStart = new Vector2();
+		const panEnd = new Vector2();
+		const panDelta = new Vector2();
 
-		const dollyStart = new three.Vector2();
-		const dollyEnd = new three.Vector2();
-		const dollyDelta = new three.Vector2();
+		const dollyStart = new Vector2();
+		const dollyEnd = new Vector2();
+		const dollyDelta = new Vector2();
 
-		const dollyDirection = new three.Vector3();
-		const mouse = new three.Vector2();
+		const dollyDirection = new Vector3();
+		const mouse = new Vector2();
 		let performCursorZoom = false;
 
 		const pointers = [];
@@ -5511,7 +5483,7 @@ class OrbitControls extends three.EventDispatcher {
 
 		const panLeft = function () {
 
-			const v = new three.Vector3();
+			const v = new Vector3();
 
 			return function panLeft( distance, objectMatrix ) {
 
@@ -5526,7 +5498,7 @@ class OrbitControls extends three.EventDispatcher {
 
 		const panUp = function () {
 
-			const v = new three.Vector3();
+			const v = new Vector3();
 
 			return function panUp( distance, objectMatrix ) {
 
@@ -5552,7 +5524,7 @@ class OrbitControls extends three.EventDispatcher {
 		// deltaX and deltaY are in pixels; right and down are positive
 		const pan = function () {
 
-			const offset = new three.Vector3();
+			const offset = new Vector3();
 
 			return function pan( deltaX, deltaY ) {
 
@@ -6077,7 +6049,7 @@ class OrbitControls extends three.EventDispatcher {
 
 			switch ( mouseAction ) {
 
-				case three.MOUSE.DOLLY:
+				case MOUSE.DOLLY:
 
 					if ( scope.enableZoom === false ) return;
 
@@ -6087,7 +6059,7 @@ class OrbitControls extends three.EventDispatcher {
 
 					break;
 
-				case three.MOUSE.ROTATE:
+				case MOUSE.ROTATE:
 
 					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
 
@@ -6109,7 +6081,7 @@ class OrbitControls extends three.EventDispatcher {
 
 					break;
 
-				case three.MOUSE.PAN:
+				case MOUSE.PAN:
 
 					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
 
@@ -6267,7 +6239,7 @@ class OrbitControls extends three.EventDispatcher {
 
 					switch ( scope.touches.ONE ) {
 
-						case three.TOUCH.ROTATE:
+						case TOUCH.ROTATE:
 
 							if ( scope.enableRotate === false ) return;
 
@@ -6277,7 +6249,7 @@ class OrbitControls extends three.EventDispatcher {
 
 							break;
 
-						case three.TOUCH.PAN:
+						case TOUCH.PAN:
 
 							if ( scope.enablePan === false ) return;
 
@@ -6299,7 +6271,7 @@ class OrbitControls extends three.EventDispatcher {
 
 					switch ( scope.touches.TWO ) {
 
-						case three.TOUCH.DOLLY_PAN:
+						case TOUCH.DOLLY_PAN:
 
 							if ( scope.enableZoom === false && scope.enablePan === false ) return;
 
@@ -6309,7 +6281,7 @@ class OrbitControls extends three.EventDispatcher {
 
 							break;
 
-						case three.TOUCH.DOLLY_ROTATE:
+						case TOUCH.DOLLY_ROTATE:
 
 							if ( scope.enableZoom === false && scope.enableRotate === false ) return;
 
@@ -6432,7 +6404,7 @@ class OrbitControls extends three.EventDispatcher {
 
 			if ( position === undefined ) {
 
-				position = new three.Vector2();
+				position = new Vector2();
 				pointerPositions[ event.pointerId ] = position;
 
 			}
@@ -6482,9 +6454,9 @@ class MapControls extends OrbitControls {
 
 		this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
 
-		this.mouseButtons = { LEFT: three.MOUSE.PAN, MIDDLE: three.MOUSE.DOLLY, RIGHT: three.MOUSE.ROTATE };
+		this.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
 
-		this.touches = { ONE: three.TOUCH.PAN, TWO: three.TOUCH.DOLLY_ROTATE };
+		this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_ROTATE };
 
 	}
 
@@ -7405,18 +7377,18 @@ class Pass {
 
 // Helper for passes that need to fill the viewport with a single quad.
 
-const _camera = new three.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+const _camera = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
 
 // https://github.com/mrdoob/three.js/pull/21358
 
-class FullscreenTriangleGeometry extends three.BufferGeometry {
+class FullscreenTriangleGeometry extends BufferGeometry {
 
 	constructor() {
 
 		super();
 
-		this.setAttribute( 'position', new three.Float32BufferAttribute( [ - 1, 3, 0, - 1, - 1, 0, 3, - 1, 0 ], 3 ) );
-		this.setAttribute( 'uv', new three.Float32BufferAttribute( [ 0, 2, 0, 0, 2, 0 ], 2 ) );
+		this.setAttribute( 'position', new Float32BufferAttribute( [ - 1, 3, 0, - 1, - 1, 0, 3, - 1, 0 ], 3 ) );
+		this.setAttribute( 'uv', new Float32BufferAttribute( [ 0, 2, 0, 0, 2, 0 ], 2 ) );
 
 	}
 
@@ -7428,7 +7400,7 @@ class FullScreenQuad {
 
 	constructor( material ) {
 
-		this._mesh = new three.Mesh( _geometry, material );
+		this._mesh = new Mesh( _geometry, material );
 
 	}
 
@@ -7466,7 +7438,7 @@ class ShaderPass extends Pass {
 
 		this.textureID = ( textureID !== undefined ) ? textureID : 'tDiffuse';
 
-		if ( shader instanceof three.ShaderMaterial ) {
+		if ( shader instanceof ShaderMaterial ) {
 
 			this.uniforms = shader.uniforms;
 
@@ -7474,9 +7446,9 @@ class ShaderPass extends Pass {
 
 		} else if ( shader ) {
 
-			this.uniforms = three.UniformsUtils.clone( shader.uniforms );
+			this.uniforms = UniformsUtils.clone( shader.uniforms );
 
-			this.material = new three.ShaderMaterial( {
+			this.material = new ShaderMaterial( {
 
 				name: ( shader.name !== undefined ) ? shader.name : 'unspecified',
 				defines: Object.assign( {}, shader.defines ),
@@ -7639,11 +7611,11 @@ class EffectComposer {
 
 		if ( renderTarget === undefined ) {
 
-			const size = renderer.getSize( new three.Vector2() );
+			const size = renderer.getSize( new Vector2() );
 			this._width = size.width;
 			this._height = size.height;
 
-			renderTarget = new three.WebGLRenderTarget( this._width * this._pixelRatio, this._height * this._pixelRatio, { type: three.HalfFloatType } );
+			renderTarget = new WebGLRenderTarget( this._width * this._pixelRatio, this._height * this._pixelRatio, { type: HalfFloatType } );
 			renderTarget.texture.name = 'EffectComposer.rt1';
 
 		} else {
@@ -7665,9 +7637,9 @@ class EffectComposer {
 		this.passes = [];
 
 		this.copyPass = new ShaderPass( CopyShader );
-		this.copyPass.material.blending = three.NoBlending;
+		this.copyPass.material.blending = NoBlending;
 
-		this.clock = new three.Clock();
+		this.clock = new Clock();
 
 	}
 
@@ -7789,7 +7761,7 @@ class EffectComposer {
 
 		if ( renderTarget === undefined ) {
 
-			const size = this.renderer.getSize( new three.Vector2() );
+			const size = this.renderer.getSize( new Vector2() );
 			this._pixelRatio = this.renderer.getPixelRatio();
 			this._width = size.width;
 			this._height = size.height;
@@ -7864,7 +7836,7 @@ class RenderPass extends Pass {
 		this.clear = true;
 		this.clearDepth = false;
 		this.needsSwap = false;
-		this._oldClearColor = new three.Color();
+		this._oldClearColor = new Color();
 
 	}
 
@@ -7949,8 +7921,8 @@ class OutlinePass extends Pass {
 		this.renderScene = scene;
 		this.renderCamera = camera;
 		this.selectedObjects = selectedObjects !== undefined ? selectedObjects : [];
-		this.visibleEdgeColor = new three.Color( 1, 1, 1 );
-		this.hiddenEdgeColor = new three.Color( 0.1, 0.04, 0.02 );
+		this.visibleEdgeColor = new Color( 1, 1, 1 );
+		this.hiddenEdgeColor = new Color( 0.1, 0.04, 0.02 );
 		this.edgeGlow = 0.0;
 		this.usePatternTexture = false;
 		this.edgeThickness = 1.0;
@@ -7961,44 +7933,44 @@ class OutlinePass extends Pass {
 		this._visibilityCache = new Map();
 
 
-		this.resolution = ( resolution !== undefined ) ? new three.Vector2( resolution.x, resolution.y ) : new three.Vector2( 256, 256 );
+		this.resolution = ( resolution !== undefined ) ? new Vector2( resolution.x, resolution.y ) : new Vector2( 256, 256 );
 
 		const resx = Math.round( this.resolution.x / this.downSampleRatio );
 		const resy = Math.round( this.resolution.y / this.downSampleRatio );
 
-		this.renderTargetMaskBuffer = new three.WebGLRenderTarget( this.resolution.x, this.resolution.y );
+		this.renderTargetMaskBuffer = new WebGLRenderTarget( this.resolution.x, this.resolution.y );
 		this.renderTargetMaskBuffer.texture.name = 'OutlinePass.mask';
 		this.renderTargetMaskBuffer.texture.generateMipmaps = false;
 
-		this.depthMaterial = new three.MeshDepthMaterial();
-		this.depthMaterial.side = three.DoubleSide;
-		this.depthMaterial.depthPacking = three.RGBADepthPacking;
-		this.depthMaterial.blending = three.NoBlending;
+		this.depthMaterial = new MeshDepthMaterial();
+		this.depthMaterial.side = DoubleSide;
+		this.depthMaterial.depthPacking = RGBADepthPacking;
+		this.depthMaterial.blending = NoBlending;
 
 		this.prepareMaskMaterial = this.getPrepareMaskMaterial();
-		this.prepareMaskMaterial.side = three.DoubleSide;
+		this.prepareMaskMaterial.side = DoubleSide;
 		this.prepareMaskMaterial.fragmentShader = replaceDepthToViewZ( this.prepareMaskMaterial.fragmentShader, this.renderCamera );
 
-		this.renderTargetDepthBuffer = new three.WebGLRenderTarget( this.resolution.x, this.resolution.y, { type: three.HalfFloatType } );
+		this.renderTargetDepthBuffer = new WebGLRenderTarget( this.resolution.x, this.resolution.y, { type: HalfFloatType } );
 		this.renderTargetDepthBuffer.texture.name = 'OutlinePass.depth';
 		this.renderTargetDepthBuffer.texture.generateMipmaps = false;
 
-		this.renderTargetMaskDownSampleBuffer = new three.WebGLRenderTarget( resx, resy, { type: three.HalfFloatType } );
+		this.renderTargetMaskDownSampleBuffer = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
 		this.renderTargetMaskDownSampleBuffer.texture.name = 'OutlinePass.depthDownSample';
 		this.renderTargetMaskDownSampleBuffer.texture.generateMipmaps = false;
 
-		this.renderTargetBlurBuffer1 = new three.WebGLRenderTarget( resx, resy, { type: three.HalfFloatType } );
+		this.renderTargetBlurBuffer1 = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
 		this.renderTargetBlurBuffer1.texture.name = 'OutlinePass.blur1';
 		this.renderTargetBlurBuffer1.texture.generateMipmaps = false;
-		this.renderTargetBlurBuffer2 = new three.WebGLRenderTarget( Math.round( resx / 2 ), Math.round( resy / 2 ), { type: three.HalfFloatType } );
+		this.renderTargetBlurBuffer2 = new WebGLRenderTarget( Math.round( resx / 2 ), Math.round( resy / 2 ), { type: HalfFloatType } );
 		this.renderTargetBlurBuffer2.texture.name = 'OutlinePass.blur2';
 		this.renderTargetBlurBuffer2.texture.generateMipmaps = false;
 
 		this.edgeDetectionMaterial = this.getEdgeDetectionMaterial();
-		this.renderTargetEdgeBuffer1 = new three.WebGLRenderTarget( resx, resy, { type: three.HalfFloatType } );
+		this.renderTargetEdgeBuffer1 = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
 		this.renderTargetEdgeBuffer1.texture.name = 'OutlinePass.edge1';
 		this.renderTargetEdgeBuffer1.texture.generateMipmaps = false;
-		this.renderTargetEdgeBuffer2 = new three.WebGLRenderTarget( Math.round( resx / 2 ), Math.round( resy / 2 ), { type: three.HalfFloatType } );
+		this.renderTargetEdgeBuffer2 = new WebGLRenderTarget( Math.round( resx / 2 ), Math.round( resy / 2 ), { type: HalfFloatType } );
 		this.renderTargetEdgeBuffer2.texture.name = 'OutlinePass.edge2';
 		this.renderTargetEdgeBuffer2.texture.generateMipmaps = false;
 
@@ -8019,13 +7991,13 @@ class OutlinePass extends Pass {
 
 		const copyShader = CopyShader;
 
-		this.copyUniforms = three.UniformsUtils.clone( copyShader.uniforms );
+		this.copyUniforms = UniformsUtils.clone( copyShader.uniforms );
 
-		this.materialCopy = new three.ShaderMaterial( {
+		this.materialCopy = new ShaderMaterial( {
 			uniforms: this.copyUniforms,
 			vertexShader: copyShader.vertexShader,
 			fragmentShader: copyShader.fragmentShader,
-			blending: three.NoBlending,
+			blending: NoBlending,
 			depthTest: false,
 			depthWrite: false
 		} );
@@ -8033,14 +8005,14 @@ class OutlinePass extends Pass {
 		this.enabled = true;
 		this.needsSwap = false;
 
-		this._oldClearColor = new three.Color();
+		this._oldClearColor = new Color();
 		this.oldClearAlpha = 1;
 
 		this.fsQuad = new FullScreenQuad( null );
 
-		this.tempPulseColor1 = new three.Color();
-		this.tempPulseColor2 = new three.Color();
-		this.textureMatrix = new three.Matrix4();
+		this.tempPulseColor1 = new Color();
+		this.tempPulseColor2 = new Color();
+		this.textureMatrix = new Matrix4();
 
 		function replaceDepthToViewZ( string, camera ) {
 
@@ -8353,11 +8325,11 @@ class OutlinePass extends Pass {
 
 	getPrepareMaskMaterial() {
 
-		return new three.ShaderMaterial( {
+		return new ShaderMaterial( {
 
 			uniforms: {
 				'depthTexture': { value: null },
-				'cameraNearFar': { value: new three.Vector2( 0.5, 0.5 ) },
+				'cameraNearFar': { value: new Vector2( 0.5, 0.5 ) },
 				'textureMatrix': { value: null }
 			},
 
@@ -8415,13 +8387,13 @@ class OutlinePass extends Pass {
 
 	getEdgeDetectionMaterial() {
 
-		return new three.ShaderMaterial( {
+		return new ShaderMaterial( {
 
 			uniforms: {
 				'maskTexture': { value: null },
-				'texSize': { value: new three.Vector2( 0.5, 0.5 ) },
-				'visibleEdgeColor': { value: new three.Vector3( 1.0, 1.0, 1.0 ) },
-				'hiddenEdgeColor': { value: new three.Vector3( 1.0, 1.0, 1.0 ) },
+				'texSize': { value: new Vector2( 0.5, 0.5 ) },
+				'visibleEdgeColor': { value: new Vector3( 1.0, 1.0, 1.0 ) },
+				'hiddenEdgeColor': { value: new Vector3( 1.0, 1.0, 1.0 ) },
 			},
 
 			vertexShader:
@@ -8462,7 +8434,7 @@ class OutlinePass extends Pass {
 
 	getSeperableBlurMaterial( maxRadius ) {
 
-		return new three.ShaderMaterial( {
+		return new ShaderMaterial( {
 
 			defines: {
 				'MAX_RADIUS': maxRadius,
@@ -8470,8 +8442,8 @@ class OutlinePass extends Pass {
 
 			uniforms: {
 				'colorTexture': { value: null },
-				'texSize': { value: new three.Vector2( 0.5, 0.5 ) },
-				'direction': { value: new three.Vector2( 0.5, 0.5 ) },
+				'texSize': { value: new Vector2( 0.5, 0.5 ) },
+				'direction': { value: new Vector2( 0.5, 0.5 ) },
 				'kernelRadius': { value: 1.0 }
 			},
 
@@ -8519,7 +8491,7 @@ class OutlinePass extends Pass {
 
 	getOverlayMaterial() {
 
-		return new three.ShaderMaterial( {
+		return new ShaderMaterial( {
 
 			uniforms: {
 				'maskTexture': { value: null },
@@ -8562,7 +8534,7 @@ class OutlinePass extends Pass {
 						finalColor += + visibilityFactor * (1.0 - maskColor.r) * (1.0 - patternColor.r);
 					gl_FragColor = finalColor;
 				}`,
-			blending: three.AdditiveBlending,
+			blending: AdditiveBlending,
 			depthTest: false,
 			depthWrite: false,
 			transparent: true
@@ -8572,8 +8544,8 @@ class OutlinePass extends Pass {
 
 }
 
-OutlinePass.BlurDirectionX = new three.Vector2( 1.0, 0.0 );
-OutlinePass.BlurDirectionY = new three.Vector2( 0.0, 1.0 );
+OutlinePass.BlurDirectionX = new Vector2( 1.0, 0.0 );
+OutlinePass.BlurDirectionY = new Vector2( 0.0, 1.0 );
 
 const OutputShader = {
 
@@ -8665,9 +8637,9 @@ class OutputPass extends Pass {
 
 		const shader = OutputShader;
 
-		this.uniforms = three.UniformsUtils.clone( shader.uniforms );
+		this.uniforms = UniformsUtils.clone( shader.uniforms );
 
-		this.material = new three.RawShaderMaterial( {
+		this.material = new RawShaderMaterial( {
 			name: shader.name,
 			uniforms: this.uniforms,
 			vertexShader: shader.vertexShader,
@@ -8697,13 +8669,13 @@ class OutputPass extends Pass {
 
 			this.material.defines = {};
 
-			if ( three.ColorManagement.getTransfer( this._outputColorSpace ) === three.SRGBTransfer ) this.material.defines.SRGB_TRANSFER = '';
+			if ( ColorManagement.getTransfer( this._outputColorSpace ) === SRGBTransfer ) this.material.defines.SRGB_TRANSFER = '';
 
-			if ( this._toneMapping === three.LinearToneMapping ) this.material.defines.LINEAR_TONE_MAPPING = '';
-			else if ( this._toneMapping === three.ReinhardToneMapping ) this.material.defines.REINHARD_TONE_MAPPING = '';
-			else if ( this._toneMapping === three.CineonToneMapping ) this.material.defines.CINEON_TONE_MAPPING = '';
-			else if ( this._toneMapping === three.ACESFilmicToneMapping ) this.material.defines.ACES_FILMIC_TONE_MAPPING = '';
-			else if ( this._toneMapping === three.AgXToneMapping ) this.material.defines.AGX_TONE_MAPPING = '';
+			if ( this._toneMapping === LinearToneMapping ) this.material.defines.LINEAR_TONE_MAPPING = '';
+			else if ( this._toneMapping === ReinhardToneMapping ) this.material.defines.REINHARD_TONE_MAPPING = '';
+			else if ( this._toneMapping === CineonToneMapping ) this.material.defines.CINEON_TONE_MAPPING = '';
+			else if ( this._toneMapping === ACESFilmicToneMapping ) this.material.defines.ACES_FILMIC_TONE_MAPPING = '';
+			else if ( this._toneMapping === AgXToneMapping ) this.material.defines.AGX_TONE_MAPPING = '';
 
 			this.material.needsUpdate = true;
 
@@ -8750,7 +8722,7 @@ const FXAAShader = {
 	uniforms: {
 
 		'tDiffuse': { value: null },
-		'resolution': { value: new three.Vector2( 1 / 1024, 1 / 512 ) }
+		'resolution': { value: new Vector2( 1 / 1024, 1 / 512 ) }
 
 	},
 
@@ -9119,7 +9091,7 @@ class EffectOutline {
         const renderPass = new RenderPass( this.scene, this.camera );
         this.composer.addPass( renderPass );
 
-        this.outlinePass = new OutlinePass( new three.Vector2(width, height ), this.scene, this.camera );
+        this.outlinePass = new OutlinePass( new Vector2(width, height ), this.scene, this.camera );
         this.composer.addPass( this.outlinePass );
 
         // const textureLoader = new THREE.TextureLoader();
@@ -9175,12 +9147,12 @@ class EffectOutline {
  */
 function toTrianglesDrawMode$1( geometry, drawMode ) {
 
-	if ( drawMode === three.TrianglesDrawMode ) {
+	if ( drawMode === TrianglesDrawMode ) {
 		return geometry;
 
 	}
 
-	if ( drawMode === three.TriangleFanDrawMode || drawMode === three.TriangleStripDrawMode ) {
+	if ( drawMode === TriangleFanDrawMode || drawMode === TriangleStripDrawMode ) {
 
 		let index = geometry.getIndex();
 
@@ -9215,7 +9187,7 @@ function toTrianglesDrawMode$1( geometry, drawMode ) {
 		const numberOfTriangles = index.count - 2;
 		const newIndices = [];
 
-		if ( drawMode === three.TriangleFanDrawMode ) {
+		if ( drawMode === TriangleFanDrawMode ) {
 
 			// gl.TRIANGLE_FAN
 
@@ -9268,7 +9240,7 @@ function toTrianglesDrawMode$1( geometry, drawMode ) {
 
 }
 
-let GLTFLoader$1 = class GLTFLoader extends three.Loader {
+let GLTFLoader$1 = class GLTFLoader extends Loader {
 
 	constructor( manager ) {
 
@@ -9395,12 +9367,12 @@ let GLTFLoader$1 = class GLTFLoader extends three.Loader {
 			// resourcePath = 'https://my-cnd-server.com/assets/models/'
 			// referenced resource 'model.bin' will be loaded from 'https://my-cnd-server.com/assets/models/model.bin'
 			// referenced resource '../textures/texture.png' will be loaded from 'https://my-cnd-server.com/assets/textures/texture.png'
-			const relativeUrl = three.LoaderUtils.extractUrlBase( url );
-			resourcePath = three.LoaderUtils.resolveURL( relativeUrl, this.path );
+			const relativeUrl = LoaderUtils.extractUrlBase( url );
+			resourcePath = LoaderUtils.resolveURL( relativeUrl, this.path );
 
 		} else {
 
-			resourcePath = three.LoaderUtils.extractUrlBase( url );
+			resourcePath = LoaderUtils.extractUrlBase( url );
 
 		}
 
@@ -9422,7 +9394,7 @@ let GLTFLoader$1 = class GLTFLoader extends three.Loader {
 
 		};
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 
 		loader.setPath( this.path );
 		loader.setResponseType( 'arraybuffer' );
@@ -9755,27 +9727,27 @@ let GLTFLightsExtension$1 = class GLTFLightsExtension {
 		const lightDef = lightDefs[ lightIndex ];
 		let lightNode;
 
-		const color = new three.Color( 0xffffff );
+		const color = new Color( 0xffffff );
 
-		if ( lightDef.color !== undefined ) color.setRGB( lightDef.color[ 0 ], lightDef.color[ 1 ], lightDef.color[ 2 ], three.LinearSRGBColorSpace );
+		if ( lightDef.color !== undefined ) color.setRGB( lightDef.color[ 0 ], lightDef.color[ 1 ], lightDef.color[ 2 ], LinearSRGBColorSpace );
 
 		const range = lightDef.range !== undefined ? lightDef.range : 0;
 
 		switch ( lightDef.type ) {
 
 			case 'directional':
-				lightNode = new three.DirectionalLight( color );
+				lightNode = new DirectionalLight( color );
 				lightNode.target.position.set( 0, 0, - 1 );
 				lightNode.add( lightNode.target );
 				break;
 
 			case 'point':
-				lightNode = new three.PointLight( color );
+				lightNode = new PointLight( color );
 				lightNode.distance = range;
 				break;
 
 			case 'spot':
-				lightNode = new three.SpotLight( color );
+				lightNode = new SpotLight( color );
 				lightNode.distance = range;
 				// Handle spotlight properties.
 				lightDef.spot = lightDef.spot || {};
@@ -9856,7 +9828,7 @@ let GLTFMaterialsUnlitExtension$1 = class GLTFMaterialsUnlitExtension {
 
 	getMaterialType() {
 
-		return three.MeshBasicMaterial;
+		return MeshBasicMaterial;
 
 	}
 
@@ -9864,7 +9836,7 @@ let GLTFMaterialsUnlitExtension$1 = class GLTFMaterialsUnlitExtension {
 
 		const pending = [];
 
-		materialParams.color = new three.Color( 1.0, 1.0, 1.0 );
+		materialParams.color = new Color( 1.0, 1.0, 1.0 );
 		materialParams.opacity = 1.0;
 
 		const metallicRoughness = materialDef.pbrMetallicRoughness;
@@ -9875,14 +9847,14 @@ let GLTFMaterialsUnlitExtension$1 = class GLTFMaterialsUnlitExtension {
 
 				const array = metallicRoughness.baseColorFactor;
 
-				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], three.LinearSRGBColorSpace );
+				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], LinearSRGBColorSpace );
 				materialParams.opacity = array[ 3 ];
 
 			}
 
 			if ( metallicRoughness.baseColorTexture !== undefined ) {
 
-				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, three.SRGBColorSpace ) );
+				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
 
 			}
 
@@ -9954,7 +9926,7 @@ let GLTFMaterialsClearcoatExtension$1 = class GLTFMaterialsClearcoatExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10005,7 +9977,7 @@ let GLTFMaterialsClearcoatExtension$1 = class GLTFMaterialsClearcoatExtension {
 
 				const scale = extension.clearcoatNormalTexture.scale;
 
-				materialParams.clearcoatNormalScale = new three.Vector2( scale, scale );
+				materialParams.clearcoatNormalScale = new Vector2( scale, scale );
 
 			}
 
@@ -10038,7 +10010,7 @@ let GLTFMaterialsIridescenceExtension$1 = class GLTFMaterialsIridescenceExtensio
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10126,7 +10098,7 @@ let GLTFMaterialsSheenExtension$1 = class GLTFMaterialsSheenExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10143,7 +10115,7 @@ let GLTFMaterialsSheenExtension$1 = class GLTFMaterialsSheenExtension {
 
 		const pending = [];
 
-		materialParams.sheenColor = new three.Color( 0, 0, 0 );
+		materialParams.sheenColor = new Color( 0, 0, 0 );
 		materialParams.sheenRoughness = 0;
 		materialParams.sheen = 1;
 
@@ -10152,7 +10124,7 @@ let GLTFMaterialsSheenExtension$1 = class GLTFMaterialsSheenExtension {
 		if ( extension.sheenColorFactor !== undefined ) {
 
 			const colorFactor = extension.sheenColorFactor;
-			materialParams.sheenColor.setRGB( colorFactor[ 0 ], colorFactor[ 1 ], colorFactor[ 2 ], three.LinearSRGBColorSpace );
+			materialParams.sheenColor.setRGB( colorFactor[ 0 ], colorFactor[ 1 ], colorFactor[ 2 ], LinearSRGBColorSpace );
 
 		}
 
@@ -10164,7 +10136,7 @@ let GLTFMaterialsSheenExtension$1 = class GLTFMaterialsSheenExtension {
 
 		if ( extension.sheenColorTexture !== undefined ) {
 
-			pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, three.SRGBColorSpace ) );
+			pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, SRGBColorSpace ) );
 
 		}
 
@@ -10202,7 +10174,7 @@ let GLTFMaterialsTransmissionExtension$1 = class GLTFMaterialsTransmissionExtens
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10260,7 +10232,7 @@ let GLTFMaterialsVolumeExtension$1 = class GLTFMaterialsVolumeExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10290,7 +10262,7 @@ let GLTFMaterialsVolumeExtension$1 = class GLTFMaterialsVolumeExtension {
 		materialParams.attenuationDistance = extension.attenuationDistance || Infinity;
 
 		const colorArray = extension.attenuationColor || [ 1, 1, 1 ];
-		materialParams.attenuationColor = new three.Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], three.LinearSRGBColorSpace );
+		materialParams.attenuationColor = new Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], LinearSRGBColorSpace );
 
 		return Promise.all( pending );
 
@@ -10319,7 +10291,7 @@ let GLTFMaterialsIorExtension$1 = class GLTFMaterialsIorExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10365,7 +10337,7 @@ let GLTFMaterialsSpecularExtension$1 = class GLTFMaterialsSpecularExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10393,11 +10365,11 @@ let GLTFMaterialsSpecularExtension$1 = class GLTFMaterialsSpecularExtension {
 		}
 
 		const colorArray = extension.specularColorFactor || [ 1, 1, 1 ];
-		materialParams.specularColor = new three.Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], three.LinearSRGBColorSpace );
+		materialParams.specularColor = new Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], LinearSRGBColorSpace );
 
 		if ( extension.specularColorTexture !== undefined ) {
 
-			pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, three.SRGBColorSpace ) );
+			pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, SRGBColorSpace ) );
 
 		}
 
@@ -10429,7 +10401,7 @@ let GLTFMaterialsBumpExtension$1 = class GLTFMaterialsBumpExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10483,7 +10455,7 @@ let GLTFMaterialsAnisotropyExtension$1 = class GLTFMaterialsAnisotropyExtension 
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -10910,12 +10882,12 @@ let GLTFMeshGpuInstancing$1 = class GLTFMeshGpuInstancing {
 			for ( const mesh of meshes ) {
 
 				// Temporal variables
-				const m = new three.Matrix4();
-				const p = new three.Vector3();
-				const q = new three.Quaternion();
-				const s = new three.Vector3( 1, 1, 1 );
+				const m = new Matrix4();
+				const p = new Vector3();
+				const q = new Quaternion();
+				const s = new Vector3( 1, 1, 1 );
 
-				const instancedMesh = new three.InstancedMesh( mesh.geometry, mesh.material, count );
+				const instancedMesh = new InstancedMesh( mesh.geometry, mesh.material, count );
 
 				for ( let i = 0; i < count; i ++ ) {
 
@@ -10947,7 +10919,7 @@ let GLTFMeshGpuInstancing$1 = class GLTFMeshGpuInstancing {
 					if ( attributeName === '_COLOR_0' ) {
 
 						const attr = attributes[ attributeName ];
-						instancedMesh.instanceColor = new three.InstancedBufferAttribute( attr.array, attr.itemSize, attr.normalized );
+						instancedMesh.instanceColor = new InstancedBufferAttribute( attr.array, attr.itemSize, attr.normalized );
 
 					} else if ( attributeName !== 'TRANSLATION' &&
 						 attributeName !== 'ROTATION' &&
@@ -10960,7 +10932,7 @@ let GLTFMeshGpuInstancing$1 = class GLTFMeshGpuInstancing {
 				}
 
 				// Just in case
-				three.Object3D.prototype.copy.call( instancedMesh, mesh );
+				Object3D.prototype.copy.call( instancedMesh, mesh );
 
 				this.parser.assignFinalMaterial( instancedMesh );
 
@@ -11131,7 +11103,7 @@ let GLTFDracoMeshCompressionExtension$1 = class GLTFDracoMeshCompressionExtensio
 
 					resolve( geometry );
 
-				}, threeAttributeMap, attributeTypeMap, three.LinearSRGBColorSpace, reject );
+				}, threeAttributeMap, attributeTypeMap, LinearSRGBColorSpace, reject );
 
 			} );
 
@@ -11221,7 +11193,7 @@ let GLTFMeshQuantizationExtension$1 = class GLTFMeshQuantizationExtension {
 
 // Spline Interpolation
 // Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
-let GLTFCubicSplineInterpolant$1 = class GLTFCubicSplineInterpolant extends three.Interpolant {
+let GLTFCubicSplineInterpolant$1 = class GLTFCubicSplineInterpolant extends Interpolant {
 
 	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
@@ -11291,7 +11263,7 @@ let GLTFCubicSplineInterpolant$1 = class GLTFCubicSplineInterpolant extends thre
 
 };
 
-const _q$1 = new three.Quaternion();
+const _q$1 = new Quaternion();
 
 let GLTFCubicSplineQuaternionInterpolant$1 = class GLTFCubicSplineQuaternionInterpolant extends GLTFCubicSplineInterpolant$1 {
 
@@ -11346,18 +11318,18 @@ const WEBGL_COMPONENT_TYPES$1 = {
 };
 
 const WEBGL_FILTERS$1 = {
-	9728: three.NearestFilter,
-	9729: three.LinearFilter,
-	9984: three.NearestMipmapNearestFilter,
-	9985: three.LinearMipmapNearestFilter,
-	9986: three.NearestMipmapLinearFilter,
-	9987: three.LinearMipmapLinearFilter
+	9728: NearestFilter,
+	9729: LinearFilter,
+	9984: NearestMipmapNearestFilter,
+	9985: LinearMipmapNearestFilter,
+	9986: NearestMipmapLinearFilter,
+	9987: LinearMipmapLinearFilter
 };
 
 const WEBGL_WRAPPINGS$1 = {
-	33071: three.ClampToEdgeWrapping,
-	33648: three.MirroredRepeatWrapping,
-	10497: three.RepeatWrapping
+	33071: ClampToEdgeWrapping,
+	33648: MirroredRepeatWrapping,
+	10497: RepeatWrapping
 };
 
 const WEBGL_TYPE_SIZES$1 = {
@@ -11393,8 +11365,8 @@ const PATH_PROPERTIES$1 = {
 const INTERPOLATION$1 = {
 	CUBICSPLINE: undefined, // We use a custom interpolant (GLTFCubicSplineInterpolation) for CUBICSPLINE tracks. Each
 		                        // keyframe track will be initialized with a default interpolation type, then modified.
-	LINEAR: three.InterpolateLinear,
-	STEP: three.InterpolateDiscrete
+	LINEAR: InterpolateLinear,
+	STEP: InterpolateDiscrete
 };
 
 const ALPHA_MODES$1 = {
@@ -11410,14 +11382,14 @@ function createDefaultMaterial$1( cache ) {
 
 	if ( cache[ 'DefaultMaterial' ] === undefined ) {
 
-		cache[ 'DefaultMaterial' ] = new three.MeshStandardMaterial( {
+		cache[ 'DefaultMaterial' ] = new MeshStandardMaterial( {
 			color: 0xFFFFFF,
 			emissive: 0x000000,
 			metalness: 1,
 			roughness: 1,
 			transparent: false,
 			depthTest: true,
-			side: three.FrontSide
+			side: FrontSide
 		} );
 
 	}
@@ -11672,7 +11644,7 @@ function getImageURIMimeType$1( uri ) {
 
 }
 
-const _identityMatrix$1 = new three.Matrix4();
+const _identityMatrix$1 = new Matrix4();
 
 /* GLTF PARSER */
 
@@ -11725,18 +11697,18 @@ let GLTFParser$1 = class GLTFParser {
 
 		if ( typeof createImageBitmap === 'undefined' || isSafari || ( isFirefox && firefoxVersion < 98 ) ) {
 
-			this.textureLoader = new three.TextureLoader( this.options.manager );
+			this.textureLoader = new TextureLoader( this.options.manager );
 
 		} else {
 
-			this.textureLoader = new three.ImageBitmapLoader( this.options.manager );
+			this.textureLoader = new ImageBitmapLoader( this.options.manager );
 
 		}
 
 		this.textureLoader.setCrossOrigin( this.options.crossOrigin );
 		this.textureLoader.setRequestHeader( this.options.requestHeader );
 
-		this.fileLoader = new three.FileLoader( this.options.manager );
+		this.fileLoader = new FileLoader( this.options.manager );
 		this.fileLoader.setResponseType( 'arraybuffer' );
 
 		if ( this.options.crossOrigin === 'use-credentials' ) {
@@ -12130,7 +12102,7 @@ let GLTFParser$1 = class GLTFParser {
 
 		return new Promise( function ( resolve, reject ) {
 
-			loader.load( three.LoaderUtils.resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
+			loader.load( LoaderUtils.resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
 				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
@@ -12178,7 +12150,7 @@ let GLTFParser$1 = class GLTFParser {
 			const normalized = accessorDef.normalized === true;
 
 			const array = new TypedArray( accessorDef.count * itemSize );
-			return Promise.resolve( new three.BufferAttribute( array, itemSize, normalized ) );
+			return Promise.resolve( new BufferAttribute( array, itemSize, normalized ) );
 
 		}
 
@@ -12230,13 +12202,13 @@ let GLTFParser$1 = class GLTFParser {
 					array = new TypedArray( bufferView, ibSlice * byteStride, accessorDef.count * byteStride / elementBytes );
 
 					// Integer parameters to IB/IBA are in array elements, not bytes.
-					ib = new three.InterleavedBuffer( array, byteStride / elementBytes );
+					ib = new InterleavedBuffer( array, byteStride / elementBytes );
 
 					parser.cache.add( ibCacheKey, ib );
 
 				}
 
-				bufferAttribute = new three.InterleavedBufferAttribute( ib, itemSize, ( byteOffset % byteStride ) / elementBytes, normalized );
+				bufferAttribute = new InterleavedBufferAttribute( ib, itemSize, ( byteOffset % byteStride ) / elementBytes, normalized );
 
 			} else {
 
@@ -12250,7 +12222,7 @@ let GLTFParser$1 = class GLTFParser {
 
 				}
 
-				bufferAttribute = new three.BufferAttribute( array, itemSize, normalized );
+				bufferAttribute = new BufferAttribute( array, itemSize, normalized );
 
 			}
 
@@ -12269,7 +12241,7 @@ let GLTFParser$1 = class GLTFParser {
 				if ( bufferView !== null ) {
 
 					// Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
-					bufferAttribute = new three.BufferAttribute( bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized );
+					bufferAttribute = new BufferAttribute( bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized );
 
 				}
 
@@ -12351,10 +12323,10 @@ let GLTFParser$1 = class GLTFParser {
 			const samplers = json.samplers || {};
 			const sampler = samplers[ textureDef.sampler ] || {};
 
-			texture.magFilter = WEBGL_FILTERS$1[ sampler.magFilter ] || three.LinearFilter;
-			texture.minFilter = WEBGL_FILTERS$1[ sampler.minFilter ] || three.LinearMipmapLinearFilter;
-			texture.wrapS = WEBGL_WRAPPINGS$1[ sampler.wrapS ] || three.RepeatWrapping;
-			texture.wrapT = WEBGL_WRAPPINGS$1[ sampler.wrapT ] || three.RepeatWrapping;
+			texture.magFilter = WEBGL_FILTERS$1[ sampler.magFilter ] || LinearFilter;
+			texture.minFilter = WEBGL_FILTERS$1[ sampler.minFilter ] || LinearMipmapLinearFilter;
+			texture.wrapS = WEBGL_WRAPPINGS$1[ sampler.wrapS ] || RepeatWrapping;
+			texture.wrapT = WEBGL_WRAPPINGS$1[ sampler.wrapT ] || RepeatWrapping;
 
 			parser.associations.set( texture, { textures: textureIndex } );
 
@@ -12420,7 +12392,7 @@ let GLTFParser$1 = class GLTFParser {
 
 					onLoad = function ( imageBitmap ) {
 
-						const texture = new three.Texture( imageBitmap );
+						const texture = new Texture( imageBitmap );
 						texture.needsUpdate = true;
 
 						resolve( texture );
@@ -12429,7 +12401,7 @@ let GLTFParser$1 = class GLTFParser {
 
 				}
 
-				loader.load( three.LoaderUtils.resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
+				loader.load( LoaderUtils.resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
 
 			} );
 
@@ -12532,8 +12504,8 @@ let GLTFParser$1 = class GLTFParser {
 
 			if ( ! pointsMaterial ) {
 
-				pointsMaterial = new three.PointsMaterial();
-				three.Material.prototype.copy.call( pointsMaterial, material );
+				pointsMaterial = new PointsMaterial();
+				Material.prototype.copy.call( pointsMaterial, material );
 				pointsMaterial.color.copy( material.color );
 				pointsMaterial.map = material.map;
 				pointsMaterial.sizeAttenuation = false; // glTF spec says points should be 1px
@@ -12552,8 +12524,8 @@ let GLTFParser$1 = class GLTFParser {
 
 			if ( ! lineMaterial ) {
 
-				lineMaterial = new three.LineBasicMaterial();
-				three.Material.prototype.copy.call( lineMaterial, material );
+				lineMaterial = new LineBasicMaterial$1();
+				Material.prototype.copy.call( lineMaterial, material );
 				lineMaterial.color.copy( material.color );
 				lineMaterial.map = material.map;
 
@@ -12607,7 +12579,7 @@ let GLTFParser$1 = class GLTFParser {
 
 	getMaterialType( /* materialIndex */ ) {
 
-		return three.MeshStandardMaterial;
+		return MeshStandardMaterial;
 
 	}
 
@@ -12642,21 +12614,21 @@ let GLTFParser$1 = class GLTFParser {
 
 			const metallicRoughness = materialDef.pbrMetallicRoughness || {};
 
-			materialParams.color = new three.Color( 1.0, 1.0, 1.0 );
+			materialParams.color = new Color( 1.0, 1.0, 1.0 );
 			materialParams.opacity = 1.0;
 
 			if ( Array.isArray( metallicRoughness.baseColorFactor ) ) {
 
 				const array = metallicRoughness.baseColorFactor;
 
-				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], three.LinearSRGBColorSpace );
+				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], LinearSRGBColorSpace );
 				materialParams.opacity = array[ 3 ];
 
 			}
 
 			if ( metallicRoughness.baseColorTexture !== undefined ) {
 
-				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, three.SRGBColorSpace ) );
+				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
 
 			}
 
@@ -12686,7 +12658,7 @@ let GLTFParser$1 = class GLTFParser {
 
 		if ( materialDef.doubleSided === true ) {
 
-			materialParams.side = three.DoubleSide;
+			materialParams.side = DoubleSide;
 
 		}
 
@@ -12711,11 +12683,11 @@ let GLTFParser$1 = class GLTFParser {
 
 		}
 
-		if ( materialDef.normalTexture !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.normalTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
 			pending.push( parser.assignTexture( materialParams, 'normalMap', materialDef.normalTexture ) );
 
-			materialParams.normalScale = new three.Vector2( 1, 1 );
+			materialParams.normalScale = new Vector2( 1, 1 );
 
 			if ( materialDef.normalTexture.scale !== undefined ) {
 
@@ -12727,7 +12699,7 @@ let GLTFParser$1 = class GLTFParser {
 
 		}
 
-		if ( materialDef.occlusionTexture !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.occlusionTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
 			pending.push( parser.assignTexture( materialParams, 'aoMap', materialDef.occlusionTexture ) );
 
@@ -12739,16 +12711,16 @@ let GLTFParser$1 = class GLTFParser {
 
 		}
 
-		if ( materialDef.emissiveFactor !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.emissiveFactor !== undefined && materialType !== MeshBasicMaterial ) {
 
 			const emissiveFactor = materialDef.emissiveFactor;
-			materialParams.emissive = new three.Color().setRGB( emissiveFactor[ 0 ], emissiveFactor[ 1 ], emissiveFactor[ 2 ], three.LinearSRGBColorSpace );
+			materialParams.emissive = new Color().setRGB( emissiveFactor[ 0 ], emissiveFactor[ 1 ], emissiveFactor[ 2 ], LinearSRGBColorSpace );
 
 		}
 
-		if ( materialDef.emissiveTexture !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
-			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, three.SRGBColorSpace ) );
+			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, SRGBColorSpace ) );
 
 		}
 
@@ -12773,7 +12745,7 @@ let GLTFParser$1 = class GLTFParser {
 	/** When Object3D instances are targeted by animation, they need unique names. */
 	createUniqueName( originalName ) {
 
-		const sanitizedName = three.PropertyBinding.sanitizeNodeName( originalName || '' );
+		const sanitizedName = PropertyBinding.sanitizeNodeName( originalName || '' );
 
 		if ( sanitizedName in this.nodeNamesUsed ) {
 
@@ -12842,7 +12814,7 @@ let GLTFParser$1 = class GLTFParser {
 				} else {
 
 					// Otherwise create a new geometry
-					geometryPromise = addPrimitiveAttributes$1( new three.BufferGeometry(), primitive, parser );
+					geometryPromise = addPrimitiveAttributes$1( new BufferGeometry(), primitive, parser );
 
 				}
 
@@ -12912,8 +12884,8 @@ let GLTFParser$1 = class GLTFParser {
 
 					// .isSkinnedMesh isn't in glTF spec. See ._markDefs()
 					mesh = meshDef.isSkinnedMesh === true
-						? new three.SkinnedMesh( geometry, material )
-						: new three.Mesh( geometry, material );
+						? new SkinnedMesh( geometry, material )
+						: new Mesh( geometry, material );
 
 					if ( mesh.isSkinnedMesh === true ) {
 
@@ -12924,29 +12896,29 @@ let GLTFParser$1 = class GLTFParser {
 
 					if ( primitive.mode === WEBGL_CONSTANTS$1.TRIANGLE_STRIP ) {
 
-						mesh.geometry = toTrianglesDrawMode$1( mesh.geometry, three.TriangleStripDrawMode );
+						mesh.geometry = toTrianglesDrawMode$1( mesh.geometry, TriangleStripDrawMode );
 
 					} else if ( primitive.mode === WEBGL_CONSTANTS$1.TRIANGLE_FAN ) {
 
-						mesh.geometry = toTrianglesDrawMode$1( mesh.geometry, three.TriangleFanDrawMode );
+						mesh.geometry = toTrianglesDrawMode$1( mesh.geometry, TriangleFanDrawMode );
 
 					}
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS$1.LINES ) {
 
-					mesh = new three.LineSegments( geometry, material );
+					mesh = new LineSegments( geometry, material );
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS$1.LINE_STRIP ) {
 
-					mesh = new three.Line( geometry, material );
+					mesh = new Line( geometry, material );
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS$1.LINE_LOOP ) {
 
-					mesh = new three.LineLoop( geometry, material );
+					mesh = new LineLoop( geometry, material );
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS$1.POINTS ) {
 
-					mesh = new three.Points( geometry, material );
+					mesh = new Points( geometry, material );
 
 				} else {
 
@@ -12989,7 +12961,7 @@ let GLTFParser$1 = class GLTFParser {
 
 			}
 
-			const group = new three.Group();
+			const group = new Group$1();
 
 			if ( meshDef.extensions ) addUnknownExtensionsToUserData$1( extensions, group, meshDef );
 
@@ -13025,11 +12997,11 @@ let GLTFParser$1 = class GLTFParser {
 
 		if ( cameraDef.type === 'perspective' ) {
 
-			camera = new three.PerspectiveCamera( three.MathUtils.radToDeg( params.yfov ), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6 );
+			camera = new PerspectiveCamera( MathUtils.radToDeg( params.yfov ), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6 );
 
 		} else if ( cameraDef.type === 'orthographic' ) {
 
-			camera = new three.OrthographicCamera( - params.xmag, params.xmag, params.ymag, - params.ymag, params.znear, params.zfar );
+			camera = new OrthographicCamera( - params.xmag, params.xmag, params.ymag, - params.ymag, params.znear, params.zfar );
 
 		}
 
@@ -13087,7 +13059,7 @@ let GLTFParser$1 = class GLTFParser {
 
 					bones.push( jointNode );
 
-					const mat = new three.Matrix4();
+					const mat = new Matrix4();
 
 					if ( inverseBindMatrices !== null ) {
 
@@ -13101,7 +13073,7 @@ let GLTFParser$1 = class GLTFParser {
 
 			}
 
-			return new three.Skeleton( bones, boneInverses );
+			return new Skeleton( bones, boneInverses );
 
 		} );
 
@@ -13193,7 +13165,7 @@ let GLTFParser$1 = class GLTFParser {
 
 			}
 
-			return new three.AnimationClip( animationName, undefined, tracks );
+			return new AnimationClip( animationName, undefined, tracks );
 
 		} );
 
@@ -13360,11 +13332,11 @@ let GLTFParser$1 = class GLTFParser {
 			// .isBone isn't in glTF spec. See ._markDefs
 			if ( nodeDef.isBone === true ) {
 
-				node = new three.Bone();
+				node = new Bone();
 
 			} else if ( objects.length > 1 ) {
 
-				node = new three.Group();
+				node = new Group$1();
 
 			} else if ( objects.length === 1 ) {
 
@@ -13372,7 +13344,7 @@ let GLTFParser$1 = class GLTFParser {
 
 			} else {
 
-				node = new three.Object3D();
+				node = new Object3D();
 
 			}
 
@@ -13399,7 +13371,7 @@ let GLTFParser$1 = class GLTFParser {
 
 			if ( nodeDef.matrix !== undefined ) {
 
-				const matrix = new three.Matrix4();
+				const matrix = new Matrix4();
 				matrix.fromArray( nodeDef.matrix );
 				node.applyMatrix4( matrix );
 
@@ -13454,7 +13426,7 @@ let GLTFParser$1 = class GLTFParser {
 
 		// Loader returns Group, not Scene.
 		// See: https://github.com/mrdoob/three.js/issues/18342#issuecomment-578981172
-		const scene = new three.Group();
+		const scene = new Group$1();
 		if ( sceneDef.name ) scene.name = parser.createUniqueName( sceneDef.name );
 
 		assignExtrasToUserData$1( scene, sceneDef );
@@ -13487,7 +13459,7 @@ let GLTFParser$1 = class GLTFParser {
 
 				for ( const [ key, value ] of parser.associations ) {
 
-					if ( key instanceof three.Material || key instanceof three.Texture ) {
+					if ( key instanceof Material || key instanceof Texture ) {
 
 						reducedAssociations.set( key, value );
 
@@ -13550,18 +13522,18 @@ let GLTFParser$1 = class GLTFParser {
 
 			case PATH_PROPERTIES$1.weights:
 
-				TypedKeyframeTrack = three.NumberKeyframeTrack;
+				TypedKeyframeTrack = NumberKeyframeTrack;
 				break;
 
 			case PATH_PROPERTIES$1.rotation:
 
-				TypedKeyframeTrack = three.QuaternionKeyframeTrack;
+				TypedKeyframeTrack = QuaternionKeyframeTrack;
 				break;
 
 			case PATH_PROPERTIES$1.position:
 			case PATH_PROPERTIES$1.scale:
 
-				TypedKeyframeTrack = three.VectorKeyframeTrack;
+				TypedKeyframeTrack = VectorKeyframeTrack;
 				break;
 
 			default:
@@ -13569,12 +13541,12 @@ let GLTFParser$1 = class GLTFParser {
 				switch ( outputAccessor.itemSize ) {
 
 					case 1:
-						TypedKeyframeTrack = three.NumberKeyframeTrack;
+						TypedKeyframeTrack = NumberKeyframeTrack;
 						break;
 					case 2:
 					case 3:
 					default:
-						TypedKeyframeTrack = three.VectorKeyframeTrack;
+						TypedKeyframeTrack = VectorKeyframeTrack;
 						break;
 
 				}
@@ -13583,7 +13555,7 @@ let GLTFParser$1 = class GLTFParser {
 
 		}
 
-		const interpolation = sampler.interpolation !== undefined ? INTERPOLATION$1[ sampler.interpolation ] : three.InterpolateLinear;
+		const interpolation = sampler.interpolation !== undefined ? INTERPOLATION$1[ sampler.interpolation ] : InterpolateLinear;
 
 
 		const outputArray = this._getArrayFromAccessor( outputAccessor );
@@ -13643,7 +13615,7 @@ let GLTFParser$1 = class GLTFParser {
 			// representing inTangent, splineVertex, and outTangent. As a result, track.getValueSize()
 			// must be divided by three to get the interpolant's sampleSize argument.
 
-			const interpolantType = ( this instanceof three.QuaternionKeyframeTrack ) ? GLTFCubicSplineQuaternionInterpolant$1 : GLTFCubicSplineInterpolant$1;
+			const interpolantType = ( this instanceof QuaternionKeyframeTrack ) ? GLTFCubicSplineQuaternionInterpolant$1 : GLTFCubicSplineInterpolant$1;
 
 			return new interpolantType( this.times, this.values, this.getValueSize() / 3, result );
 
@@ -13665,7 +13637,7 @@ function computeBounds$1( geometry, primitiveDef, parser ) {
 
 	const attributes = primitiveDef.attributes;
 
-	const box = new three.Box3();
+	const box = new Box3();
 
 	if ( attributes.POSITION !== undefined ) {
 
@@ -13679,8 +13651,8 @@ function computeBounds$1( geometry, primitiveDef, parser ) {
 		if ( min !== undefined && max !== undefined ) {
 
 			box.set(
-				new three.Vector3( min[ 0 ], min[ 1 ], min[ 2 ] ),
-				new three.Vector3( max[ 0 ], max[ 1 ], max[ 2 ] )
+				new Vector3( min[ 0 ], min[ 1 ], min[ 2 ] ),
+				new Vector3( max[ 0 ], max[ 1 ], max[ 2 ] )
 			);
 
 			if ( accessor.normalized ) {
@@ -13707,8 +13679,8 @@ function computeBounds$1( geometry, primitiveDef, parser ) {
 
 	if ( targets !== undefined ) {
 
-		const maxDisplacement = new three.Vector3();
-		const vector = new three.Vector3();
+		const maxDisplacement = new Vector3();
+		const vector = new Vector3();
 
 		for ( let i = 0, il = targets.length; i < il; i ++ ) {
 
@@ -13756,7 +13728,7 @@ function computeBounds$1( geometry, primitiveDef, parser ) {
 
 	geometry.boundingBox = box;
 
-	const sphere = new three.Sphere();
+	const sphere = new Sphere();
 
 	box.getCenter( sphere.center );
 	sphere.radius = box.min.distanceTo( box.max ) / 2;
@@ -13811,7 +13783,7 @@ function addPrimitiveAttributes$1( geometry, primitiveDef, parser ) {
 
 	}
 
-	if ( three.ColorManagement.workingColorSpace !== three.LinearSRGBColorSpace && 'COLOR_0' in attributes ) ;
+	if ( ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in attributes ) ;
 
 	assignExtrasToUserData$1( geometry, primitiveDef );
 
@@ -13829,7 +13801,7 @@ function addPrimitiveAttributes$1( geometry, primitiveDef, parser ) {
 
 const _taskCache$2 = new WeakMap();
 
-let DRACOLoader$1 = class DRACOLoader extends three.Loader {
+let DRACOLoader$1 = class DRACOLoader extends Loader {
 
 	constructor( manager ) {
 
@@ -13886,7 +13858,7 @@ let DRACOLoader$1 = class DRACOLoader extends three.Loader {
 
 	load( url, onLoad, onProgress, onError ) {
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 
 		loader.setPath( this.path );
 		loader.setResponseType( 'arraybuffer' );
@@ -13904,11 +13876,11 @@ let DRACOLoader$1 = class DRACOLoader extends three.Loader {
 
 	parse( buffer, onLoad, onError = ()=>{} ) {
 
-		this.decodeDracoFile( buffer, onLoad, null, null, three.SRGBColorSpace ).catch( onError );
+		this.decodeDracoFile( buffer, onLoad, null, null, SRGBColorSpace ).catch( onError );
 
 	}
 
-	decodeDracoFile( buffer, callback, attributeIDs, attributeTypes, vertexColorSpace = three.LinearSRGBColorSpace, onError = () => {} ) {
+	decodeDracoFile( buffer, callback, attributeIDs, attributeTypes, vertexColorSpace = LinearSRGBColorSpace, onError = () => {} ) {
 
 		const taskConfig = {
 			attributeIDs: attributeIDs || this.defaultAttributeIDs,
@@ -14008,11 +13980,11 @@ let DRACOLoader$1 = class DRACOLoader extends three.Loader {
 
 	_createGeometry( geometryData ) {
 
-		const geometry = new three.BufferGeometry();
+		const geometry = new BufferGeometry();
 
 		if ( geometryData.index ) {
 
-			geometry.setIndex( new three.BufferAttribute( geometryData.index.array, 1 ) );
+			geometry.setIndex( new BufferAttribute( geometryData.index.array, 1 ) );
 
 		}
 
@@ -14023,7 +13995,7 @@ let DRACOLoader$1 = class DRACOLoader extends three.Loader {
 			const array = result.array;
 			const itemSize = result.itemSize;
 
-			const attribute = new three.BufferAttribute( array, itemSize );
+			const attribute = new BufferAttribute( array, itemSize );
 
 			if ( name === 'color' ) {
 
@@ -14048,9 +14020,9 @@ let DRACOLoader$1 = class DRACOLoader extends three.Loader {
 		// file is passed into .load() or .parse(). GLTFLoader uses internal APIs
 		// to decode geometry, and vertex colors are already Linear-sRGB in there.
 
-		if ( inputColorSpace !== three.SRGBColorSpace ) return;
+		if ( inputColorSpace !== SRGBColorSpace ) return;
 
-		const _color = new three.Color();
+		const _color = new Color();
 
 		for ( let i = 0, il = attribute.count; i < il; i ++ ) {
 
@@ -14063,7 +14035,7 @@ let DRACOLoader$1 = class DRACOLoader extends three.Loader {
 
 	_loadLibrary( url, responseType ) {
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 		loader.setPath( this.decoderPath );
 		loader.setResponseType( responseType );
 		loader.setWithCredentials( this.withCredentials );
@@ -14432,14 +14404,14 @@ const _material_use_pattern = /^usemtl /;
 const _map_use_pattern = /^usemap /;
 const _face_vertex_data_separator_pattern = /\s+/;
 
-const _vA = new three.Vector3();
-const _vB = new three.Vector3();
-const _vC = new three.Vector3();
+const _vA = new Vector3();
+const _vB = new Vector3();
+const _vC = new Vector3();
 
-const _ab = new three.Vector3();
-const _cb = new three.Vector3();
+const _ab = new Vector3();
+const _cb = new Vector3();
 
-const _color = new three.Color();
+const _color = new Color();
 
 function ParserState() {
 
@@ -14840,7 +14812,7 @@ function ParserState() {
 
 //
 
-class OBJLoader extends three.Loader {
+class OBJLoader extends Loader {
 
 	constructor( manager ) {
 
@@ -14854,7 +14826,7 @@ class OBJLoader extends three.Loader {
 
 		const scope = this;
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 		loader.setPath( this.path );
 		loader.setRequestHeader( this.requestHeader );
 		loader.setWithCredentials( this.withCredentials );
@@ -15109,7 +15081,7 @@ class OBJLoader extends three.Loader {
 
 		state.finalize();
 
-		const container = new three.Group();
+		const container = new Group$1();
 		container.materialLibraries = [].concat( state.materialLibraries );
 
 		const hasPrimitives = ! ( state.objects.length === 1 && state.objects[ 0 ].geometry.vertices.length === 0 );
@@ -15128,26 +15100,26 @@ class OBJLoader extends three.Loader {
 				// Skip o/g line declarations that did not follow with any faces
 				if ( geometry.vertices.length === 0 ) continue;
 
-				const buffergeometry = new three.BufferGeometry();
+				const buffergeometry = new BufferGeometry();
 
-				buffergeometry.setAttribute( 'position', new three.Float32BufferAttribute( geometry.vertices, 3 ) );
+				buffergeometry.setAttribute( 'position', new Float32BufferAttribute( geometry.vertices, 3 ) );
 
 				if ( geometry.normals.length > 0 ) {
 
-					buffergeometry.setAttribute( 'normal', new three.Float32BufferAttribute( geometry.normals, 3 ) );
+					buffergeometry.setAttribute( 'normal', new Float32BufferAttribute( geometry.normals, 3 ) );
 
 				}
 
 				if ( geometry.colors.length > 0 ) {
 
 					hasVertexColors = true;
-					buffergeometry.setAttribute( 'color', new three.Float32BufferAttribute( geometry.colors, 3 ) );
+					buffergeometry.setAttribute( 'color', new Float32BufferAttribute( geometry.colors, 3 ) );
 
 				}
 
 				if ( geometry.hasUVIndices === true ) {
 
-					buffergeometry.setAttribute( 'uv', new three.Float32BufferAttribute( geometry.uvs, 2 ) );
+					buffergeometry.setAttribute( 'uv', new Float32BufferAttribute( geometry.uvs, 2 ) );
 
 				}
 
@@ -15166,17 +15138,17 @@ class OBJLoader extends three.Loader {
 						material = this.materials.create( sourceMaterial.name );
 
 						// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
-						if ( isLine && material && ! ( material instanceof three.LineBasicMaterial ) ) {
+						if ( isLine && material && ! ( material instanceof LineBasicMaterial$1 ) ) {
 
-							const materialLine = new three.LineBasicMaterial();
-							three.Material.prototype.copy.call( materialLine, material );
+							const materialLine = new LineBasicMaterial$1();
+							Material.prototype.copy.call( materialLine, material );
 							materialLine.color.copy( material.color );
 							material = materialLine;
 
-						} else if ( isPoints && material && ! ( material instanceof three.PointsMaterial ) ) {
+						} else if ( isPoints && material && ! ( material instanceof PointsMaterial ) ) {
 
-							const materialPoints = new three.PointsMaterial( { size: 10, sizeAttenuation: false } );
-							three.Material.prototype.copy.call( materialPoints, material );
+							const materialPoints = new PointsMaterial( { size: 10, sizeAttenuation: false } );
+							Material.prototype.copy.call( materialPoints, material );
 							materialPoints.color.copy( material.color );
 							materialPoints.map = material.map;
 							material = materialPoints;
@@ -15189,15 +15161,15 @@ class OBJLoader extends three.Loader {
 
 						if ( isLine ) {
 
-							material = new three.LineBasicMaterial();
+							material = new LineBasicMaterial$1();
 
 						} else if ( isPoints ) {
 
-							material = new three.PointsMaterial( { size: 1, sizeAttenuation: false } );
+							material = new PointsMaterial( { size: 1, sizeAttenuation: false } );
 
 						} else {
 
-							material = new three.MeshPhongMaterial();
+							material = new MeshPhongMaterial();
 
 						}
 
@@ -15228,15 +15200,15 @@ class OBJLoader extends three.Loader {
 
 					if ( isLine ) {
 
-						mesh = new three.LineSegments( buffergeometry, createdMaterials );
+						mesh = new LineSegments( buffergeometry, createdMaterials );
 
 					} else if ( isPoints ) {
 
-						mesh = new three.Points( buffergeometry, createdMaterials );
+						mesh = new Points( buffergeometry, createdMaterials );
 
 					} else {
 
-						mesh = new three.Mesh( buffergeometry, createdMaterials );
+						mesh = new Mesh( buffergeometry, createdMaterials );
 
 					}
 
@@ -15244,15 +15216,15 @@ class OBJLoader extends three.Loader {
 
 					if ( isLine ) {
 
-						mesh = new three.LineSegments( buffergeometry, createdMaterials[ 0 ] );
+						mesh = new LineSegments( buffergeometry, createdMaterials[ 0 ] );
 
 					} else if ( isPoints ) {
 
-						mesh = new three.Points( buffergeometry, createdMaterials[ 0 ] );
+						mesh = new Points( buffergeometry, createdMaterials[ 0 ] );
 
 					} else {
 
-						mesh = new three.Mesh( buffergeometry, createdMaterials[ 0 ] );
+						mesh = new Mesh( buffergeometry, createdMaterials[ 0 ] );
 
 					}
 
@@ -15270,20 +15242,20 @@ class OBJLoader extends three.Loader {
 
 			if ( state.vertices.length > 0 ) {
 
-				const material = new three.PointsMaterial( { size: 1, sizeAttenuation: false } );
+				const material = new PointsMaterial( { size: 1, sizeAttenuation: false } );
 
-				const buffergeometry = new three.BufferGeometry();
+				const buffergeometry = new BufferGeometry();
 
-				buffergeometry.setAttribute( 'position', new three.Float32BufferAttribute( state.vertices, 3 ) );
+				buffergeometry.setAttribute( 'position', new Float32BufferAttribute( state.vertices, 3 ) );
 
 				if ( state.colors.length > 0 && state.colors[ 0 ] !== undefined ) {
 
-					buffergeometry.setAttribute( 'color', new three.Float32BufferAttribute( state.colors, 3 ) );
+					buffergeometry.setAttribute( 'color', new Float32BufferAttribute( state.colors, 3 ) );
 					material.vertexColors = true;
 
 				}
 
-				const points = new three.Points( buffergeometry, material );
+				const points = new Points( buffergeometry, material );
 				container.add( points );
 
 			}
@@ -15296,9 +15268,9 @@ class OBJLoader extends three.Loader {
 
 }
 
-const COLOR_SPACE_SVG = three.SRGBColorSpace;
+const COLOR_SPACE_SVG = SRGBColorSpace;
 
-class SVGLoader extends three.Loader {
+class SVGLoader extends Loader {
 
 	constructor( manager ) {
 
@@ -15316,7 +15288,7 @@ class SVGLoader extends three.Loader {
 
 		const scope = this;
 
-		const loader = new three.FileLoader( scope.manager );
+		const loader = new FileLoader( scope.manager );
 		loader.setPath( scope.path );
 		loader.setRequestHeader( scope.requestHeader );
 		loader.setWithCredentials( scope.withCredentials );
@@ -15482,12 +15454,12 @@ class SVGLoader extends three.Loader {
 
 		function parsePathNode( node ) {
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 
-			const point = new three.Vector2();
-			const control = new three.Vector2();
+			const point = new Vector2();
+			const control = new Vector2();
 
-			const firstPoint = new three.Vector2();
+			const firstPoint = new Vector2();
 			let isFirstPoint = true;
 			let doSetFirstPoint = false;
 
@@ -16057,7 +16029,7 @@ class SVGLoader extends three.Loader {
 			// https://spencermortensen.com/articles/bezier-circle/
 			const bci = 1 - 0.551915024494;
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 
 			// top left
 			path.moveTo( x + rx, y );
@@ -16142,7 +16114,7 @@ class SVGLoader extends three.Loader {
 
 			const regex = /([+-]?\d*\.?\d+(?:e[+-]?\d+)?)(?:,|\s)([+-]?\d*\.?\d+(?:e[+-]?\d+)?)/g;
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 
 			let index = 0;
 
@@ -16177,7 +16149,7 @@ class SVGLoader extends three.Loader {
 
 			const regex = /([+-]?\d*\.?\d+(?:e[+-]?\d+)?)(?:,|\s)([+-]?\d*\.?\d+(?:e[+-]?\d+)?)/g;
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 
 			let index = 0;
 
@@ -16195,10 +16167,10 @@ class SVGLoader extends three.Loader {
 			const y = parseFloatWithUnits( node.getAttribute( 'cy' ) || 0 );
 			const r = parseFloatWithUnits( node.getAttribute( 'r' ) || 0 );
 
-			const subpath = new three.Path();
+			const subpath = new Path();
 			subpath.absarc( x, y, r, 0, Math.PI * 2 );
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 			path.subPaths.push( subpath );
 
 			return path;
@@ -16212,10 +16184,10 @@ class SVGLoader extends three.Loader {
 			const rx = parseFloatWithUnits( node.getAttribute( 'rx' ) || 0 );
 			const ry = parseFloatWithUnits( node.getAttribute( 'ry' ) || 0 );
 
-			const subpath = new three.Path();
+			const subpath = new Path();
 			subpath.absellipse( x, y, rx, ry, 0, Math.PI * 2 );
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 			path.subPaths.push( subpath );
 
 			return path;
@@ -16229,7 +16201,7 @@ class SVGLoader extends three.Loader {
 			const x2 = parseFloatWithUnits( node.getAttribute( 'x2' ) || 0 );
 			const y2 = parseFloatWithUnits( node.getAttribute( 'y2' ) || 0 );
 
-			const path = new three.ShapePath();
+			const path = new ShapePath();
 			path.moveTo( x1, y1 );
 			path.lineTo( x2, y2 );
 			path.currentPath.autoClose = false;
@@ -16693,7 +16665,7 @@ class SVGLoader extends three.Loader {
 
 		function parseNodeTransform( node ) {
 
-			const transform = new three.Matrix3();
+			const transform = new Matrix3();
 			const currentTransform = tempTransform0;
 
 			if ( node.nodeName === 'use' && ( node.hasAttribute( 'x' ) || node.hasAttribute( 'y' ) ) ) {
@@ -16873,8 +16845,8 @@ class SVGLoader extends three.Loader {
 				const cosTheta = Math.cos( curve.aRotation );
 				const sinTheta = Math.sin( curve.aRotation );
 
-				const v1 = new three.Vector3( a * cosTheta, a * sinTheta, 0 );
-				const v2 = new three.Vector3( - b * sinTheta, b * cosTheta, 0 );
+				const v1 = new Vector3( a * cosTheta, a * sinTheta, 0 );
+				const v2 = new Vector3( - b * sinTheta, b * cosTheta, 0 );
 
 				const f1 = v1.applyMatrix3( m );
 				const f2 = v2.applyMatrix3( m );
@@ -16923,7 +16895,7 @@ class SVGLoader extends three.Loader {
 					const transformAngle = phi => {
 
 						const { x: cosR, y: sinR } =
-							new three.Vector3( Math.cos( phi ), Math.sin( phi ), 0 ).applyMatrix3( mDRF );
+							new Vector3( Math.cos( phi ), Math.sin( phi ), 0 ).applyMatrix3( mDRF );
 
 						return Math.atan2( sinR, cosR );
 
@@ -17157,14 +17129,14 @@ class SVGLoader extends three.Loader {
 
 		const transformStack = [];
 
-		const tempTransform0 = new three.Matrix3();
-		const tempTransform1 = new three.Matrix3();
-		const tempTransform2 = new three.Matrix3();
-		const tempTransform3 = new three.Matrix3();
-		const tempV2 = new three.Vector2();
-		const tempV3 = new three.Vector3();
+		const tempTransform0 = new Matrix3();
+		const tempTransform1 = new Matrix3();
+		const tempTransform2 = new Matrix3();
+		const tempTransform3 = new Matrix3();
+		const tempV2 = new Vector2();
+		const tempV3 = new Vector3();
 
-		const currentTransform = new three.Matrix3();
+		const currentTransform = new Matrix3();
 
 		const xml = new DOMParser().parseFromString( text, 'image/svg+xml' ); // application/xml
 
@@ -17370,7 +17342,7 @@ class SVGLoader extends three.Loader {
 					if ( intersection !== null && intersectionsRaw.find( i => i.t <= intersection.t + Number.EPSILON && i.t >= intersection.t - Number.EPSILON ) === undefined ) {
 
 						intersectionsRaw.push( intersection );
-						intersections.push( new three.Vector2( intersection.x, intersection.y ) );
+						intersections.push( new Vector2( intersection.x, intersection.y ) );
 
 					}
 
@@ -17384,7 +17356,7 @@ class SVGLoader extends three.Loader {
 
 		function getScanlineIntersections( scanline, boundingBox, paths ) {
 
-			const center = new three.Vector2();
+			const center = new Vector2();
 			boundingBox.getCenter( center );
 
 			const allIntersections = [];
@@ -17426,10 +17398,10 @@ class SVGLoader extends three.Loader {
 
 			}
 
-			const centerBoundingBox = new three.Vector2();
+			const centerBoundingBox = new Vector2();
 			simplePath.boundingBox.getCenter( centerBoundingBox );
 
-			const scanline = [ new three.Vector2( scanlineMinX, centerBoundingBox.y ), new three.Vector2( scanlineMaxX, centerBoundingBox.y ) ];
+			const scanline = [ new Vector2( scanlineMinX, centerBoundingBox.y ), new Vector2( scanlineMaxX, centerBoundingBox.y ) ];
 
 			const scanlineIntersections = getScanlineIntersections( scanline, simplePath.boundingBox, allPaths );
 
@@ -17581,7 +17553,7 @@ class SVGLoader extends three.Loader {
 
 			}
 
-			return { curves: p.curves, points: points, isCW: three.ShapeUtils.isClockWise( points ), identifier: - 1, boundingBox: new three.Box2( new three.Vector2( minX, minY ), new three.Vector2( maxX, maxY ) ) };
+			return { curves: p.curves, points: points, isCW: ShapeUtils.isClockWise( points ), identifier: - 1, boundingBox: new Box2( new Vector2( minX, minY ), new Vector2( maxX, maxY ) ) };
 
 		} );
 
@@ -17604,13 +17576,13 @@ class SVGLoader extends three.Loader {
 
 			if ( ! amIAHole.isHole ) {
 
-				const shape = new three.Shape();
+				const shape = new Shape();
 				shape.curves = p.curves;
 				const holes = isAHole.filter( h => h.isHole && h.for === p.identifier );
 				holes.forEach( h => {
 
 					const hole = simplePaths[ h.identifier ];
-					const path = new three.Path();
+					const path = new Path();
 					path.curves = hole.curves;
 					shape.holes.push( path );
 
@@ -17670,10 +17642,10 @@ class SVGLoader extends three.Loader {
 
 		}
 
-		const geometry = new three.BufferGeometry();
-		geometry.setAttribute( 'position', new three.Float32BufferAttribute( vertices, 3 ) );
-		geometry.setAttribute( 'normal', new three.Float32BufferAttribute( normals, 3 ) );
-		geometry.setAttribute( 'uv', new three.Float32BufferAttribute( uvs, 2 ) );
+		const geometry = new BufferGeometry();
+		geometry.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+		geometry.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+		geometry.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
 
 		return geometry;
 
@@ -17688,23 +17660,23 @@ class SVGLoader extends three.Loader {
 		// if 'vertices' parameter is undefined no triangles will be generated, but the returned vertices count will still be valid (useful to preallocate the buffers)
 		// 'normals' and 'uvs' buffers are optional
 
-		const tempV2_1 = new three.Vector2();
-		const tempV2_2 = new three.Vector2();
-		const tempV2_3 = new three.Vector2();
-		const tempV2_4 = new three.Vector2();
-		const tempV2_5 = new three.Vector2();
-		const tempV2_6 = new three.Vector2();
-		const tempV2_7 = new three.Vector2();
-		const lastPointL = new three.Vector2();
-		const lastPointR = new three.Vector2();
-		const point0L = new three.Vector2();
-		const point0R = new three.Vector2();
-		const currentPointL = new three.Vector2();
-		const currentPointR = new three.Vector2();
-		const nextPointL = new three.Vector2();
-		const nextPointR = new three.Vector2();
-		const innerPoint = new three.Vector2();
-		const outerPoint = new three.Vector2();
+		const tempV2_1 = new Vector2();
+		const tempV2_2 = new Vector2();
+		const tempV2_3 = new Vector2();
+		const tempV2_4 = new Vector2();
+		const tempV2_5 = new Vector2();
+		const tempV2_6 = new Vector2();
+		const tempV2_7 = new Vector2();
+		const lastPointL = new Vector2();
+		const lastPointR = new Vector2();
+		const point0L = new Vector2();
+		const point0R = new Vector2();
+		const currentPointL = new Vector2();
+		const currentPointR = new Vector2();
+		const nextPointL = new Vector2();
+		const nextPointR = new Vector2();
+		const innerPoint = new Vector2();
+		const outerPoint = new Vector2();
 
 		arcDivisions = arcDivisions !== undefined ? arcDivisions : 12;
 		minDistance = minDistance !== undefined ? minDistance : 0.001;
@@ -18448,7 +18420,7 @@ class Lorder{
         this.objLoader = new OBJLoader(); // obj模型
         // A loader for loading a JSON resource in the JSON Object/Scene format.
         // https://threejs.org/docs/index.html?q=obj#api/en/loaders/ObjectLoader
-        this.objectLoader = new three.ObjectLoader(); // 通过json记载
+        this.objectLoader = new ObjectLoader(); // 通过json记载
         this.svgLoader = new SVGLoader(); // svg模型
     }
 
@@ -18645,22 +18617,22 @@ class BasLayer {
  * Three.js integration by zz85 http://twitter.com/blurspline
 */
 
-class Sky extends three.Mesh {
+class Sky extends Mesh {
 
 	constructor() {
 
 		const shader = Sky.SkyShader;
 
-		const material = new three.ShaderMaterial( {
+		const material = new ShaderMaterial( {
 			name: shader.name,
-			uniforms: three.UniformsUtils.clone( shader.uniforms ),
+			uniforms: UniformsUtils.clone( shader.uniforms ),
 			vertexShader: shader.vertexShader,
 			fragmentShader: shader.fragmentShader,
-			side: three.BackSide,
+			side: BackSide,
 			depthWrite: false
 		} );
 
-		super( new three.BoxGeometry( 1, 1, 1 ), material );
+		super( new BoxGeometry( 1, 1, 1 ), material );
 
 		this.isSky = true;
 
@@ -18677,8 +18649,8 @@ Sky.SkyShader = {
 		'rayleigh': { value: 1 },
 		'mieCoefficient': { value: 0.005 },
 		'mieDirectionalG': { value: 0.8 },
-		'sunPosition': { value: new three.Vector3() },
-		'up': { value: new three.Vector3( 0, 1, 0 ) }
+		'sunPosition': { value: new Vector3() },
+		'up': { value: new Vector3( 0, 1, 0 ) }
 	},
 
 	vertexShader: /* glsl */`
@@ -18864,12 +18836,15 @@ class Layer  extends BasLayer{
     imageLayer = false; // 影像图层
     vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
     waters = []; // 水面集合
-    constructor(id, layerContainer, canvas, mapView, plane = true, camera = new three.PerspectiveCamera(80, 1, 0.1, 1e12)) {
+    constructor(id, layerContainer, canvas, mapView, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
         super();
         this.id = id;
         this.layerContainer = layerContainer;
         this.canvas = canvas;
-        this.renderer = new three.WebGLRenderer({
+        this.z_index = z_index;
+        this.opacity = opacity;
+        this.visible = visible;
+        this.renderer = new WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
             alpha: true,
@@ -18879,38 +18854,38 @@ class Layer  extends BasLayer{
         this.renderer.sortObjects = true;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setClearColor(0xFFFFFF, 0.0);
-        this.scene = new three.Scene();
+        this.scene = new Scene();
         this.mapView = mapView;
         this.camera = camera;
         if(this.mapView){
             this.scene.add(this.mapView);
             this.mapView.updateMatrixWorld(true);
         }
-        if (plane){
-            this.controls = new MapControls(this.camera, this.canvas);
-            this.controls.minDistance = 1e1;
-            this.controls.zoomSpeed = 2.0;
-        } else {
-            this.controls = new OrbitControls(this.camera, this.canvas);
-            this.controls.enablePan = false;
-            this.controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
-            this.controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
-        }
-        this._raycaster = new three.Raycaster();
+        this.controls = new MapControls(this.camera, this.canvas);
+        this.controls.minDistance = 1e1;
+        this.controls.zoomSpeed = 2.0;
+        this._raycaster = new Raycaster();
         if(Config.outLine.on){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
         }
         if (Config.layer.map.ambientLight.add){
-            this.scene.add(new three.AmbientLight(Config.layer.map.ambientLight.color, Config.layer.map.ambientLight.intensity));
+            this.scene.add(new AmbientLight(Config.layer.map.ambientLight.color, Config.layer.map.ambientLight.intensity));
         }
         if (Config.layer.map.directionalLight.add){
-            this.scene.add(new three.DirectionalLight(Config.layer.map.directionalLight.color, Config.layer.map.directionalLight.intensity));
+            this.scene.add(new DirectionalLight(Config.layer.map.directionalLight.color, Config.layer.map.directionalLight.intensity));
         }
         if (Config.layer.map.pointLight.add){
-            let pointLight = new three.PointLight(Config.layer.map.pointLight.color, Config.layer.map.pointLight.intensity, Config.layer.map.pointLight.distance);
+            let pointLight = new PointLight(Config.layer.map.pointLight.color, Config.layer.map.pointLight.intensity, Config.layer.map.pointLight.distance);
             pointLight.position.set(...Config.layer.map.pointLight.position);
             this.scene.add(pointLight);
         }
+        const geometry = new BoxGeometry( 1, 1, 1 ); 
+        const material = new MeshBasicMaterial( {color: 0x00ff00} ); 
+        const cube = new Mesh( geometry, material );
+        cube.scale.set( 10000, 10000, 10000 );
+        var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228); 
+        cube.position.set(coords.x, 8000, -coords.y);
+        this.scene.add( cube );
     }
 
     moveTo(lat, lon, height = 38472.48763833733){
@@ -18924,12 +18899,6 @@ class Layer  extends BasLayer{
         let offset = 50;
         this.camera.position.set(coords.x, coords.y+offset, coords.z);
         this.controls.target.set(coords.x, coords.y, coords.z);
-    }
-
-    moveToByLL(lat, lon, distance = 384720){
-        let dir = UnitsUtils.datumsToVector(lat, lon);
-        dir.multiplyScalar(UnitsUtils.EARTH_RADIUS + distance);
-        this.camera.position.copy(dir);
     }
 
 
@@ -18966,7 +18935,7 @@ class Layer  extends BasLayer{
          * 打开渲染水系配置
          */
         // this.renderer.setPixelRatio( window.devicePixelRatio );
-        this.renderer.toneMapping = three.ACESFilmicToneMapping;
+        this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.5;
         
         // 添加天空
@@ -18987,17 +18956,17 @@ class Layer  extends BasLayer{
         // sky.material.uniforms["up"].value = new THREE.Vector3(0, 1, 0);
         
         // 天空映射， 更新太阳位置
-        this.pmremGenerator = new three.PMREMGenerator( this.renderer );
-        this.sceneEnv = new three.Scene();
+        this.pmremGenerator = new PMREMGenerator( this.renderer );
+        this.sceneEnv = new Scene();
         this.renderTarget = null;
-        this.sun = new three.Vector3();
+        this.sun = new Vector3();
         this.updateSun(Config.SUNDEGREE, Config.SUNAZIMUTH);
     }
 
     updateSun(elevation, azimuth) {
 
-        const phi = three.MathUtils.degToRad( 90 - elevation );
-        const theta = three.MathUtils.degToRad( azimuth );
+        const phi = MathUtils.degToRad( 90 - elevation );
+        const theta = MathUtils.degToRad( azimuth );
 
         this.sun.setFromSphericalCoords( 1, phi, theta );
 
@@ -19100,8 +19069,8 @@ class Layer  extends BasLayer{
             this.effectOutline.render(); // 合成器渲染
         } else {
             this.renderer.autoClear = true;
+            this.renderer.render(this.scene, this.camera);
         }
-        this.renderer.render(this.scene, this.camera);
     }
 
     _raycast(meshes, recursive, faceExclude) {
@@ -19118,7 +19087,7 @@ class Layer  extends BasLayer{
     }
 
     _raycastFromMouse(mx, my, width, height, cam, meshes, recursive=false) {
-        const mouse = new three.Vector2( // normalized (-1 to +1)
+        const mouse = new Vector2( // normalized (-1 to +1)
             (mx / width) * 2 - 1,
             - (my / height) * 2 + 1);
         // https://threejs.org/docs/#api/core/Raycaster
@@ -19163,12 +19132,12 @@ class Layer  extends BasLayer{
  */
 function toTrianglesDrawMode( geometry, drawMode ) {
 
-	if ( drawMode === three.TrianglesDrawMode ) {
+	if ( drawMode === TrianglesDrawMode ) {
 		return geometry;
 
 	}
 
-	if ( drawMode === three.TriangleFanDrawMode || drawMode === three.TriangleStripDrawMode ) {
+	if ( drawMode === TriangleFanDrawMode || drawMode === TriangleStripDrawMode ) {
 
 		let index = geometry.getIndex();
 
@@ -19203,7 +19172,7 @@ function toTrianglesDrawMode( geometry, drawMode ) {
 		const numberOfTriangles = index.count - 2;
 		const newIndices = [];
 
-		if ( drawMode === three.TriangleFanDrawMode ) {
+		if ( drawMode === TriangleFanDrawMode ) {
 
 			// gl.TRIANGLE_FAN
 
@@ -19256,7 +19225,7 @@ function toTrianglesDrawMode( geometry, drawMode ) {
 
 }
 
-class GLTFLoader extends three.Loader {
+class GLTFLoader extends Loader {
 
 	constructor( manager ) {
 
@@ -19383,12 +19352,12 @@ class GLTFLoader extends three.Loader {
 			// resourcePath = 'https://my-cnd-server.com/assets/models/'
 			// referenced resource 'model.bin' will be loaded from 'https://my-cnd-server.com/assets/models/model.bin'
 			// referenced resource '../textures/texture.png' will be loaded from 'https://my-cnd-server.com/assets/textures/texture.png'
-			const relativeUrl = three.LoaderUtils.extractUrlBase( url );
-			resourcePath = three.LoaderUtils.resolveURL( relativeUrl, this.path );
+			const relativeUrl = LoaderUtils.extractUrlBase( url );
+			resourcePath = LoaderUtils.resolveURL( relativeUrl, this.path );
 
 		} else {
 
-			resourcePath = three.LoaderUtils.extractUrlBase( url );
+			resourcePath = LoaderUtils.extractUrlBase( url );
 
 		}
 
@@ -19410,7 +19379,7 @@ class GLTFLoader extends three.Loader {
 
 		};
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 
 		loader.setPath( this.path );
 		loader.setResponseType( 'arraybuffer' );
@@ -19743,27 +19712,27 @@ class GLTFLightsExtension {
 		const lightDef = lightDefs[ lightIndex ];
 		let lightNode;
 
-		const color = new three.Color( 0xffffff );
+		const color = new Color( 0xffffff );
 
-		if ( lightDef.color !== undefined ) color.setRGB( lightDef.color[ 0 ], lightDef.color[ 1 ], lightDef.color[ 2 ], three.LinearSRGBColorSpace );
+		if ( lightDef.color !== undefined ) color.setRGB( lightDef.color[ 0 ], lightDef.color[ 1 ], lightDef.color[ 2 ], LinearSRGBColorSpace );
 
 		const range = lightDef.range !== undefined ? lightDef.range : 0;
 
 		switch ( lightDef.type ) {
 
 			case 'directional':
-				lightNode = new three.DirectionalLight( color );
+				lightNode = new DirectionalLight( color );
 				lightNode.target.position.set( 0, 0, - 1 );
 				lightNode.add( lightNode.target );
 				break;
 
 			case 'point':
-				lightNode = new three.PointLight( color );
+				lightNode = new PointLight( color );
 				lightNode.distance = range;
 				break;
 
 			case 'spot':
-				lightNode = new three.SpotLight( color );
+				lightNode = new SpotLight( color );
 				lightNode.distance = range;
 				// Handle spotlight properties.
 				lightDef.spot = lightDef.spot || {};
@@ -19844,7 +19813,7 @@ class GLTFMaterialsUnlitExtension {
 
 	getMaterialType() {
 
-		return three.MeshBasicMaterial;
+		return MeshBasicMaterial;
 
 	}
 
@@ -19852,7 +19821,7 @@ class GLTFMaterialsUnlitExtension {
 
 		const pending = [];
 
-		materialParams.color = new three.Color( 1.0, 1.0, 1.0 );
+		materialParams.color = new Color( 1.0, 1.0, 1.0 );
 		materialParams.opacity = 1.0;
 
 		const metallicRoughness = materialDef.pbrMetallicRoughness;
@@ -19863,14 +19832,14 @@ class GLTFMaterialsUnlitExtension {
 
 				const array = metallicRoughness.baseColorFactor;
 
-				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], three.LinearSRGBColorSpace );
+				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], LinearSRGBColorSpace );
 				materialParams.opacity = array[ 3 ];
 
 			}
 
 			if ( metallicRoughness.baseColorTexture !== undefined ) {
 
-				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, three.SRGBColorSpace ) );
+				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
 
 			}
 
@@ -19942,7 +19911,7 @@ class GLTFMaterialsClearcoatExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -19993,7 +19962,7 @@ class GLTFMaterialsClearcoatExtension {
 
 				const scale = extension.clearcoatNormalTexture.scale;
 
-				materialParams.clearcoatNormalScale = new three.Vector2( scale, scale );
+				materialParams.clearcoatNormalScale = new Vector2( scale, scale );
 
 			}
 
@@ -20026,7 +19995,7 @@ class GLTFMaterialsIridescenceExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20114,7 +20083,7 @@ class GLTFMaterialsSheenExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20131,7 +20100,7 @@ class GLTFMaterialsSheenExtension {
 
 		const pending = [];
 
-		materialParams.sheenColor = new three.Color( 0, 0, 0 );
+		materialParams.sheenColor = new Color( 0, 0, 0 );
 		materialParams.sheenRoughness = 0;
 		materialParams.sheen = 1;
 
@@ -20140,7 +20109,7 @@ class GLTFMaterialsSheenExtension {
 		if ( extension.sheenColorFactor !== undefined ) {
 
 			const colorFactor = extension.sheenColorFactor;
-			materialParams.sheenColor.setRGB( colorFactor[ 0 ], colorFactor[ 1 ], colorFactor[ 2 ], three.LinearSRGBColorSpace );
+			materialParams.sheenColor.setRGB( colorFactor[ 0 ], colorFactor[ 1 ], colorFactor[ 2 ], LinearSRGBColorSpace );
 
 		}
 
@@ -20152,7 +20121,7 @@ class GLTFMaterialsSheenExtension {
 
 		if ( extension.sheenColorTexture !== undefined ) {
 
-			pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, three.SRGBColorSpace ) );
+			pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, SRGBColorSpace ) );
 
 		}
 
@@ -20190,7 +20159,7 @@ class GLTFMaterialsTransmissionExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20248,7 +20217,7 @@ class GLTFMaterialsVolumeExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20278,7 +20247,7 @@ class GLTFMaterialsVolumeExtension {
 		materialParams.attenuationDistance = extension.attenuationDistance || Infinity;
 
 		const colorArray = extension.attenuationColor || [ 1, 1, 1 ];
-		materialParams.attenuationColor = new three.Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], three.LinearSRGBColorSpace );
+		materialParams.attenuationColor = new Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], LinearSRGBColorSpace );
 
 		return Promise.all( pending );
 
@@ -20307,7 +20276,7 @@ class GLTFMaterialsIorExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20353,7 +20322,7 @@ class GLTFMaterialsSpecularExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20381,11 +20350,11 @@ class GLTFMaterialsSpecularExtension {
 		}
 
 		const colorArray = extension.specularColorFactor || [ 1, 1, 1 ];
-		materialParams.specularColor = new three.Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], three.LinearSRGBColorSpace );
+		materialParams.specularColor = new Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], LinearSRGBColorSpace );
 
 		if ( extension.specularColorTexture !== undefined ) {
 
-			pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, three.SRGBColorSpace ) );
+			pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, SRGBColorSpace ) );
 
 		}
 
@@ -20417,7 +20386,7 @@ class GLTFMaterialsBumpExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20471,7 +20440,7 @@ class GLTFMaterialsAnisotropyExtension {
 
 		if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
 
-		return three.MeshPhysicalMaterial;
+		return MeshPhysicalMaterial;
 
 	}
 
@@ -20898,12 +20867,12 @@ class GLTFMeshGpuInstancing {
 			for ( const mesh of meshes ) {
 
 				// Temporal variables
-				const m = new three.Matrix4();
-				const p = new three.Vector3();
-				const q = new three.Quaternion();
-				const s = new three.Vector3( 1, 1, 1 );
+				const m = new Matrix4();
+				const p = new Vector3();
+				const q = new Quaternion();
+				const s = new Vector3( 1, 1, 1 );
 
-				const instancedMesh = new three.InstancedMesh( mesh.geometry, mesh.material, count );
+				const instancedMesh = new InstancedMesh( mesh.geometry, mesh.material, count );
 
 				for ( let i = 0; i < count; i ++ ) {
 
@@ -20935,7 +20904,7 @@ class GLTFMeshGpuInstancing {
 					if ( attributeName === '_COLOR_0' ) {
 
 						const attr = attributes[ attributeName ];
-						instancedMesh.instanceColor = new three.InstancedBufferAttribute( attr.array, attr.itemSize, attr.normalized );
+						instancedMesh.instanceColor = new InstancedBufferAttribute( attr.array, attr.itemSize, attr.normalized );
 
 					} else if ( attributeName !== 'TRANSLATION' &&
 						 attributeName !== 'ROTATION' &&
@@ -20948,7 +20917,7 @@ class GLTFMeshGpuInstancing {
 				}
 
 				// Just in case
-				three.Object3D.prototype.copy.call( instancedMesh, mesh );
+				Object3D.prototype.copy.call( instancedMesh, mesh );
 
 				this.parser.assignFinalMaterial( instancedMesh );
 
@@ -21119,7 +21088,7 @@ class GLTFDracoMeshCompressionExtension {
 
 					resolve( geometry );
 
-				}, threeAttributeMap, attributeTypeMap, three.LinearSRGBColorSpace, reject );
+				}, threeAttributeMap, attributeTypeMap, LinearSRGBColorSpace, reject );
 
 			} );
 
@@ -21209,7 +21178,7 @@ class GLTFMeshQuantizationExtension {
 
 // Spline Interpolation
 // Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
-class GLTFCubicSplineInterpolant extends three.Interpolant {
+class GLTFCubicSplineInterpolant extends Interpolant {
 
 	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
@@ -21279,7 +21248,7 @@ class GLTFCubicSplineInterpolant extends three.Interpolant {
 
 }
 
-const _q = new three.Quaternion();
+const _q = new Quaternion();
 
 class GLTFCubicSplineQuaternionInterpolant extends GLTFCubicSplineInterpolant {
 
@@ -21334,18 +21303,18 @@ const WEBGL_COMPONENT_TYPES = {
 };
 
 const WEBGL_FILTERS = {
-	9728: three.NearestFilter,
-	9729: three.LinearFilter,
-	9984: three.NearestMipmapNearestFilter,
-	9985: three.LinearMipmapNearestFilter,
-	9986: three.NearestMipmapLinearFilter,
-	9987: three.LinearMipmapLinearFilter
+	9728: NearestFilter,
+	9729: LinearFilter,
+	9984: NearestMipmapNearestFilter,
+	9985: LinearMipmapNearestFilter,
+	9986: NearestMipmapLinearFilter,
+	9987: LinearMipmapLinearFilter
 };
 
 const WEBGL_WRAPPINGS = {
-	33071: three.ClampToEdgeWrapping,
-	33648: three.MirroredRepeatWrapping,
-	10497: three.RepeatWrapping
+	33071: ClampToEdgeWrapping,
+	33648: MirroredRepeatWrapping,
+	10497: RepeatWrapping
 };
 
 const WEBGL_TYPE_SIZES = {
@@ -21381,8 +21350,8 @@ const PATH_PROPERTIES = {
 const INTERPOLATION = {
 	CUBICSPLINE: undefined, // We use a custom interpolant (GLTFCubicSplineInterpolation) for CUBICSPLINE tracks. Each
 		                        // keyframe track will be initialized with a default interpolation type, then modified.
-	LINEAR: three.InterpolateLinear,
-	STEP: three.InterpolateDiscrete
+	LINEAR: InterpolateLinear,
+	STEP: InterpolateDiscrete
 };
 
 const ALPHA_MODES = {
@@ -21398,14 +21367,14 @@ function createDefaultMaterial( cache ) {
 
 	if ( cache[ 'DefaultMaterial' ] === undefined ) {
 
-		cache[ 'DefaultMaterial' ] = new three.MeshStandardMaterial( {
+		cache[ 'DefaultMaterial' ] = new MeshStandardMaterial( {
 			color: 0xFFFFFF,
 			emissive: 0x000000,
 			metalness: 1,
 			roughness: 1,
 			transparent: false,
 			depthTest: true,
-			side: three.FrontSide
+			side: FrontSide
 		} );
 
 	}
@@ -21660,7 +21629,7 @@ function getImageURIMimeType( uri ) {
 
 }
 
-const _identityMatrix = new three.Matrix4();
+const _identityMatrix = new Matrix4();
 
 /* GLTF PARSER */
 
@@ -21713,18 +21682,18 @@ class GLTFParser {
 
 		if ( typeof createImageBitmap === 'undefined' || isSafari || ( isFirefox && firefoxVersion < 98 ) ) {
 
-			this.textureLoader = new three.TextureLoader( this.options.manager );
+			this.textureLoader = new TextureLoader( this.options.manager );
 
 		} else {
 
-			this.textureLoader = new three.ImageBitmapLoader( this.options.manager );
+			this.textureLoader = new ImageBitmapLoader( this.options.manager );
 
 		}
 
 		this.textureLoader.setCrossOrigin( this.options.crossOrigin );
 		this.textureLoader.setRequestHeader( this.options.requestHeader );
 
-		this.fileLoader = new three.FileLoader( this.options.manager );
+		this.fileLoader = new FileLoader( this.options.manager );
 		this.fileLoader.setResponseType( 'arraybuffer' );
 
 		if ( this.options.crossOrigin === 'use-credentials' ) {
@@ -22118,7 +22087,7 @@ class GLTFParser {
 
 		return new Promise( function ( resolve, reject ) {
 
-			loader.load( three.LoaderUtils.resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
+			loader.load( LoaderUtils.resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
 				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
@@ -22166,7 +22135,7 @@ class GLTFParser {
 			const normalized = accessorDef.normalized === true;
 
 			const array = new TypedArray( accessorDef.count * itemSize );
-			return Promise.resolve( new three.BufferAttribute( array, itemSize, normalized ) );
+			return Promise.resolve( new BufferAttribute( array, itemSize, normalized ) );
 
 		}
 
@@ -22218,13 +22187,13 @@ class GLTFParser {
 					array = new TypedArray( bufferView, ibSlice * byteStride, accessorDef.count * byteStride / elementBytes );
 
 					// Integer parameters to IB/IBA are in array elements, not bytes.
-					ib = new three.InterleavedBuffer( array, byteStride / elementBytes );
+					ib = new InterleavedBuffer( array, byteStride / elementBytes );
 
 					parser.cache.add( ibCacheKey, ib );
 
 				}
 
-				bufferAttribute = new three.InterleavedBufferAttribute( ib, itemSize, ( byteOffset % byteStride ) / elementBytes, normalized );
+				bufferAttribute = new InterleavedBufferAttribute( ib, itemSize, ( byteOffset % byteStride ) / elementBytes, normalized );
 
 			} else {
 
@@ -22238,7 +22207,7 @@ class GLTFParser {
 
 				}
 
-				bufferAttribute = new three.BufferAttribute( array, itemSize, normalized );
+				bufferAttribute = new BufferAttribute( array, itemSize, normalized );
 
 			}
 
@@ -22257,7 +22226,7 @@ class GLTFParser {
 				if ( bufferView !== null ) {
 
 					// Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
-					bufferAttribute = new three.BufferAttribute( bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized );
+					bufferAttribute = new BufferAttribute( bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized );
 
 				}
 
@@ -22339,10 +22308,10 @@ class GLTFParser {
 			const samplers = json.samplers || {};
 			const sampler = samplers[ textureDef.sampler ] || {};
 
-			texture.magFilter = WEBGL_FILTERS[ sampler.magFilter ] || three.LinearFilter;
-			texture.minFilter = WEBGL_FILTERS[ sampler.minFilter ] || three.LinearMipmapLinearFilter;
-			texture.wrapS = WEBGL_WRAPPINGS[ sampler.wrapS ] || three.RepeatWrapping;
-			texture.wrapT = WEBGL_WRAPPINGS[ sampler.wrapT ] || three.RepeatWrapping;
+			texture.magFilter = WEBGL_FILTERS[ sampler.magFilter ] || LinearFilter;
+			texture.minFilter = WEBGL_FILTERS[ sampler.minFilter ] || LinearMipmapLinearFilter;
+			texture.wrapS = WEBGL_WRAPPINGS[ sampler.wrapS ] || RepeatWrapping;
+			texture.wrapT = WEBGL_WRAPPINGS[ sampler.wrapT ] || RepeatWrapping;
 
 			parser.associations.set( texture, { textures: textureIndex } );
 
@@ -22408,7 +22377,7 @@ class GLTFParser {
 
 					onLoad = function ( imageBitmap ) {
 
-						const texture = new three.Texture( imageBitmap );
+						const texture = new Texture( imageBitmap );
 						texture.needsUpdate = true;
 
 						resolve( texture );
@@ -22417,7 +22386,7 @@ class GLTFParser {
 
 				}
 
-				loader.load( three.LoaderUtils.resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
+				loader.load( LoaderUtils.resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
 
 			} );
 
@@ -22520,8 +22489,8 @@ class GLTFParser {
 
 			if ( ! pointsMaterial ) {
 
-				pointsMaterial = new three.PointsMaterial();
-				three.Material.prototype.copy.call( pointsMaterial, material );
+				pointsMaterial = new PointsMaterial();
+				Material.prototype.copy.call( pointsMaterial, material );
 				pointsMaterial.color.copy( material.color );
 				pointsMaterial.map = material.map;
 				pointsMaterial.sizeAttenuation = false; // glTF spec says points should be 1px
@@ -22540,8 +22509,8 @@ class GLTFParser {
 
 			if ( ! lineMaterial ) {
 
-				lineMaterial = new three.LineBasicMaterial();
-				three.Material.prototype.copy.call( lineMaterial, material );
+				lineMaterial = new LineBasicMaterial$1();
+				Material.prototype.copy.call( lineMaterial, material );
 				lineMaterial.color.copy( material.color );
 				lineMaterial.map = material.map;
 
@@ -22595,7 +22564,7 @@ class GLTFParser {
 
 	getMaterialType( /* materialIndex */ ) {
 
-		return three.MeshStandardMaterial;
+		return MeshStandardMaterial;
 
 	}
 
@@ -22630,21 +22599,21 @@ class GLTFParser {
 
 			const metallicRoughness = materialDef.pbrMetallicRoughness || {};
 
-			materialParams.color = new three.Color( 1.0, 1.0, 1.0 );
+			materialParams.color = new Color( 1.0, 1.0, 1.0 );
 			materialParams.opacity = 1.0;
 
 			if ( Array.isArray( metallicRoughness.baseColorFactor ) ) {
 
 				const array = metallicRoughness.baseColorFactor;
 
-				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], three.LinearSRGBColorSpace );
+				materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], LinearSRGBColorSpace );
 				materialParams.opacity = array[ 3 ];
 
 			}
 
 			if ( metallicRoughness.baseColorTexture !== undefined ) {
 
-				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, three.SRGBColorSpace ) );
+				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
 
 			}
 
@@ -22674,7 +22643,7 @@ class GLTFParser {
 
 		if ( materialDef.doubleSided === true ) {
 
-			materialParams.side = three.DoubleSide;
+			materialParams.side = DoubleSide;
 
 		}
 
@@ -22699,11 +22668,11 @@ class GLTFParser {
 
 		}
 
-		if ( materialDef.normalTexture !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.normalTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
 			pending.push( parser.assignTexture( materialParams, 'normalMap', materialDef.normalTexture ) );
 
-			materialParams.normalScale = new three.Vector2( 1, 1 );
+			materialParams.normalScale = new Vector2( 1, 1 );
 
 			if ( materialDef.normalTexture.scale !== undefined ) {
 
@@ -22715,7 +22684,7 @@ class GLTFParser {
 
 		}
 
-		if ( materialDef.occlusionTexture !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.occlusionTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
 			pending.push( parser.assignTexture( materialParams, 'aoMap', materialDef.occlusionTexture ) );
 
@@ -22727,16 +22696,16 @@ class GLTFParser {
 
 		}
 
-		if ( materialDef.emissiveFactor !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.emissiveFactor !== undefined && materialType !== MeshBasicMaterial ) {
 
 			const emissiveFactor = materialDef.emissiveFactor;
-			materialParams.emissive = new three.Color().setRGB( emissiveFactor[ 0 ], emissiveFactor[ 1 ], emissiveFactor[ 2 ], three.LinearSRGBColorSpace );
+			materialParams.emissive = new Color().setRGB( emissiveFactor[ 0 ], emissiveFactor[ 1 ], emissiveFactor[ 2 ], LinearSRGBColorSpace );
 
 		}
 
-		if ( materialDef.emissiveTexture !== undefined && materialType !== three.MeshBasicMaterial ) {
+		if ( materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
-			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, three.SRGBColorSpace ) );
+			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, SRGBColorSpace ) );
 
 		}
 
@@ -22761,7 +22730,7 @@ class GLTFParser {
 	/** When Object3D instances are targeted by animation, they need unique names. */
 	createUniqueName( originalName ) {
 
-		const sanitizedName = three.PropertyBinding.sanitizeNodeName( originalName || '' );
+		const sanitizedName = PropertyBinding.sanitizeNodeName( originalName || '' );
 
 		if ( sanitizedName in this.nodeNamesUsed ) {
 
@@ -22830,7 +22799,7 @@ class GLTFParser {
 				} else {
 
 					// Otherwise create a new geometry
-					geometryPromise = addPrimitiveAttributes( new three.BufferGeometry(), primitive, parser );
+					geometryPromise = addPrimitiveAttributes( new BufferGeometry(), primitive, parser );
 
 				}
 
@@ -22900,8 +22869,8 @@ class GLTFParser {
 
 					// .isSkinnedMesh isn't in glTF spec. See ._markDefs()
 					mesh = meshDef.isSkinnedMesh === true
-						? new three.SkinnedMesh( geometry, material )
-						: new three.Mesh( geometry, material );
+						? new SkinnedMesh( geometry, material )
+						: new Mesh( geometry, material );
 
 					if ( mesh.isSkinnedMesh === true ) {
 
@@ -22912,29 +22881,29 @@ class GLTFParser {
 
 					if ( primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP ) {
 
-						mesh.geometry = toTrianglesDrawMode( mesh.geometry, three.TriangleStripDrawMode );
+						mesh.geometry = toTrianglesDrawMode( mesh.geometry, TriangleStripDrawMode );
 
 					} else if ( primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN ) {
 
-						mesh.geometry = toTrianglesDrawMode( mesh.geometry, three.TriangleFanDrawMode );
+						mesh.geometry = toTrianglesDrawMode( mesh.geometry, TriangleFanDrawMode );
 
 					}
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS.LINES ) {
 
-					mesh = new three.LineSegments( geometry, material );
+					mesh = new LineSegments( geometry, material );
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS.LINE_STRIP ) {
 
-					mesh = new three.Line( geometry, material );
+					mesh = new Line( geometry, material );
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS.LINE_LOOP ) {
 
-					mesh = new three.LineLoop( geometry, material );
+					mesh = new LineLoop( geometry, material );
 
 				} else if ( primitive.mode === WEBGL_CONSTANTS.POINTS ) {
 
-					mesh = new three.Points( geometry, material );
+					mesh = new Points( geometry, material );
 
 				} else {
 
@@ -22977,7 +22946,7 @@ class GLTFParser {
 
 			}
 
-			const group = new three.Group();
+			const group = new Group$1();
 
 			if ( meshDef.extensions ) addUnknownExtensionsToUserData( extensions, group, meshDef );
 
@@ -23013,11 +22982,11 @@ class GLTFParser {
 
 		if ( cameraDef.type === 'perspective' ) {
 
-			camera = new three.PerspectiveCamera( three.MathUtils.radToDeg( params.yfov ), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6 );
+			camera = new PerspectiveCamera( MathUtils.radToDeg( params.yfov ), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6 );
 
 		} else if ( cameraDef.type === 'orthographic' ) {
 
-			camera = new three.OrthographicCamera( - params.xmag, params.xmag, params.ymag, - params.ymag, params.znear, params.zfar );
+			camera = new OrthographicCamera( - params.xmag, params.xmag, params.ymag, - params.ymag, params.znear, params.zfar );
 
 		}
 
@@ -23075,7 +23044,7 @@ class GLTFParser {
 
 					bones.push( jointNode );
 
-					const mat = new three.Matrix4();
+					const mat = new Matrix4();
 
 					if ( inverseBindMatrices !== null ) {
 
@@ -23089,7 +23058,7 @@ class GLTFParser {
 
 			}
 
-			return new three.Skeleton( bones, boneInverses );
+			return new Skeleton( bones, boneInverses );
 
 		} );
 
@@ -23181,7 +23150,7 @@ class GLTFParser {
 
 			}
 
-			return new three.AnimationClip( animationName, undefined, tracks );
+			return new AnimationClip( animationName, undefined, tracks );
 
 		} );
 
@@ -23348,11 +23317,11 @@ class GLTFParser {
 			// .isBone isn't in glTF spec. See ._markDefs
 			if ( nodeDef.isBone === true ) {
 
-				node = new three.Bone();
+				node = new Bone();
 
 			} else if ( objects.length > 1 ) {
 
-				node = new three.Group();
+				node = new Group$1();
 
 			} else if ( objects.length === 1 ) {
 
@@ -23360,7 +23329,7 @@ class GLTFParser {
 
 			} else {
 
-				node = new three.Object3D();
+				node = new Object3D();
 
 			}
 
@@ -23387,7 +23356,7 @@ class GLTFParser {
 
 			if ( nodeDef.matrix !== undefined ) {
 
-				const matrix = new three.Matrix4();
+				const matrix = new Matrix4();
 				matrix.fromArray( nodeDef.matrix );
 				node.applyMatrix4( matrix );
 
@@ -23442,7 +23411,7 @@ class GLTFParser {
 
 		// Loader returns Group, not Scene.
 		// See: https://github.com/mrdoob/three.js/issues/18342#issuecomment-578981172
-		const scene = new three.Group();
+		const scene = new Group$1();
 		if ( sceneDef.name ) scene.name = parser.createUniqueName( sceneDef.name );
 
 		assignExtrasToUserData( scene, sceneDef );
@@ -23475,7 +23444,7 @@ class GLTFParser {
 
 				for ( const [ key, value ] of parser.associations ) {
 
-					if ( key instanceof three.Material || key instanceof three.Texture ) {
+					if ( key instanceof Material || key instanceof Texture ) {
 
 						reducedAssociations.set( key, value );
 
@@ -23538,18 +23507,18 @@ class GLTFParser {
 
 			case PATH_PROPERTIES.weights:
 
-				TypedKeyframeTrack = three.NumberKeyframeTrack;
+				TypedKeyframeTrack = NumberKeyframeTrack;
 				break;
 
 			case PATH_PROPERTIES.rotation:
 
-				TypedKeyframeTrack = three.QuaternionKeyframeTrack;
+				TypedKeyframeTrack = QuaternionKeyframeTrack;
 				break;
 
 			case PATH_PROPERTIES.position:
 			case PATH_PROPERTIES.scale:
 
-				TypedKeyframeTrack = three.VectorKeyframeTrack;
+				TypedKeyframeTrack = VectorKeyframeTrack;
 				break;
 
 			default:
@@ -23557,12 +23526,12 @@ class GLTFParser {
 				switch ( outputAccessor.itemSize ) {
 
 					case 1:
-						TypedKeyframeTrack = three.NumberKeyframeTrack;
+						TypedKeyframeTrack = NumberKeyframeTrack;
 						break;
 					case 2:
 					case 3:
 					default:
-						TypedKeyframeTrack = three.VectorKeyframeTrack;
+						TypedKeyframeTrack = VectorKeyframeTrack;
 						break;
 
 				}
@@ -23571,7 +23540,7 @@ class GLTFParser {
 
 		}
 
-		const interpolation = sampler.interpolation !== undefined ? INTERPOLATION[ sampler.interpolation ] : three.InterpolateLinear;
+		const interpolation = sampler.interpolation !== undefined ? INTERPOLATION[ sampler.interpolation ] : InterpolateLinear;
 
 
 		const outputArray = this._getArrayFromAccessor( outputAccessor );
@@ -23631,7 +23600,7 @@ class GLTFParser {
 			// representing inTangent, splineVertex, and outTangent. As a result, track.getValueSize()
 			// must be divided by three to get the interpolant's sampleSize argument.
 
-			const interpolantType = ( this instanceof three.QuaternionKeyframeTrack ) ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
+			const interpolantType = ( this instanceof QuaternionKeyframeTrack ) ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
 
 			return new interpolantType( this.times, this.values, this.getValueSize() / 3, result );
 
@@ -23653,7 +23622,7 @@ function computeBounds( geometry, primitiveDef, parser ) {
 
 	const attributes = primitiveDef.attributes;
 
-	const box = new three.Box3();
+	const box = new Box3();
 
 	if ( attributes.POSITION !== undefined ) {
 
@@ -23667,8 +23636,8 @@ function computeBounds( geometry, primitiveDef, parser ) {
 		if ( min !== undefined && max !== undefined ) {
 
 			box.set(
-				new three.Vector3( min[ 0 ], min[ 1 ], min[ 2 ] ),
-				new three.Vector3( max[ 0 ], max[ 1 ], max[ 2 ] )
+				new Vector3( min[ 0 ], min[ 1 ], min[ 2 ] ),
+				new Vector3( max[ 0 ], max[ 1 ], max[ 2 ] )
 			);
 
 			if ( accessor.normalized ) {
@@ -23695,8 +23664,8 @@ function computeBounds( geometry, primitiveDef, parser ) {
 
 	if ( targets !== undefined ) {
 
-		const maxDisplacement = new three.Vector3();
-		const vector = new three.Vector3();
+		const maxDisplacement = new Vector3();
+		const vector = new Vector3();
 
 		for ( let i = 0, il = targets.length; i < il; i ++ ) {
 
@@ -23744,7 +23713,7 @@ function computeBounds( geometry, primitiveDef, parser ) {
 
 	geometry.boundingBox = box;
 
-	const sphere = new three.Sphere();
+	const sphere = new Sphere();
 
 	box.getCenter( sphere.center );
 	sphere.radius = box.min.distanceTo( box.max ) / 2;
@@ -23799,7 +23768,7 @@ function addPrimitiveAttributes( geometry, primitiveDef, parser ) {
 
 	}
 
-	if ( three.ColorManagement.workingColorSpace !== three.LinearSRGBColorSpace && 'COLOR_0' in attributes ) ;
+	if ( ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in attributes ) ;
 
 	assignExtrasToUserData( geometry, primitiveDef );
 
@@ -23817,7 +23786,7 @@ function addPrimitiveAttributes( geometry, primitiveDef, parser ) {
 
 const _taskCache$1 = new WeakMap();
 
-class DRACOLoader extends three.Loader {
+class DRACOLoader extends Loader {
 
 	constructor( manager ) {
 
@@ -23874,7 +23843,7 @@ class DRACOLoader extends three.Loader {
 
 	load( url, onLoad, onProgress, onError ) {
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 
 		loader.setPath( this.path );
 		loader.setResponseType( 'arraybuffer' );
@@ -23892,11 +23861,11 @@ class DRACOLoader extends three.Loader {
 
 	parse( buffer, onLoad, onError = ()=>{} ) {
 
-		this.decodeDracoFile( buffer, onLoad, null, null, three.SRGBColorSpace ).catch( onError );
+		this.decodeDracoFile( buffer, onLoad, null, null, SRGBColorSpace ).catch( onError );
 
 	}
 
-	decodeDracoFile( buffer, callback, attributeIDs, attributeTypes, vertexColorSpace = three.LinearSRGBColorSpace, onError = () => {} ) {
+	decodeDracoFile( buffer, callback, attributeIDs, attributeTypes, vertexColorSpace = LinearSRGBColorSpace, onError = () => {} ) {
 
 		const taskConfig = {
 			attributeIDs: attributeIDs || this.defaultAttributeIDs,
@@ -23996,11 +23965,11 @@ class DRACOLoader extends three.Loader {
 
 	_createGeometry( geometryData ) {
 
-		const geometry = new three.BufferGeometry();
+		const geometry = new BufferGeometry();
 
 		if ( geometryData.index ) {
 
-			geometry.setIndex( new three.BufferAttribute( geometryData.index.array, 1 ) );
+			geometry.setIndex( new BufferAttribute( geometryData.index.array, 1 ) );
 
 		}
 
@@ -24011,7 +23980,7 @@ class DRACOLoader extends three.Loader {
 			const array = result.array;
 			const itemSize = result.itemSize;
 
-			const attribute = new three.BufferAttribute( array, itemSize );
+			const attribute = new BufferAttribute( array, itemSize );
 
 			if ( name === 'color' ) {
 
@@ -24036,9 +24005,9 @@ class DRACOLoader extends three.Loader {
 		// file is passed into .load() or .parse(). GLTFLoader uses internal APIs
 		// to decode geometry, and vertex colors are already Linear-sRGB in there.
 
-		if ( inputColorSpace !== three.SRGBColorSpace ) return;
+		if ( inputColorSpace !== SRGBColorSpace ) return;
 
-		const _color = new three.Color();
+		const _color = new Color();
 
 		for ( let i = 0, il = attribute.count; i < il; i ++ ) {
 
@@ -24051,7 +24020,7 @@ class DRACOLoader extends three.Loader {
 
 	_loadLibrary( url, responseType ) {
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 		loader.setPath( this.decoderPath );
 		loader.setResponseType( responseType );
 		loader.setWithCredentials( this.withCredentials );
@@ -24534,7 +24503,7 @@ const _taskCache = new WeakMap();
 
 let _zstd;
 
-class KTX2Loader extends three.Loader {
+class KTX2Loader extends Loader {
 
 	constructor( manager ) {
 
@@ -24609,13 +24578,13 @@ class KTX2Loader extends three.Loader {
 		if ( ! this.transcoderPending ) {
 
 			// Load transcoder wrapper.
-			const jsLoader = new three.FileLoader( this.manager );
+			const jsLoader = new FileLoader( this.manager );
 			jsLoader.setPath( this.transcoderPath );
 			jsLoader.setWithCredentials( this.withCredentials );
 			const jsContent = jsLoader.loadAsync( 'basis_transcoder.js' );
 
 			// Load transcoder WASM binary.
-			const binaryLoader = new three.FileLoader( this.manager );
+			const binaryLoader = new FileLoader( this.manager );
 			binaryLoader.setPath( this.transcoderPath );
 			binaryLoader.setResponseType( 'arraybuffer' );
 			binaryLoader.setWithCredentials( this.withCredentials );
@@ -24667,7 +24636,7 @@ class KTX2Loader extends three.Loader {
 
 		}
 
-		const loader = new three.FileLoader( this.manager );
+		const loader = new FileLoader( this.manager );
 
 		loader.setResponseType( 'arraybuffer' );
 		loader.setWithCredentials( this.withCredentials );
@@ -24702,20 +24671,20 @@ class KTX2Loader extends three.Loader {
 
 		if ( container.faceCount === 6 ) {
 
-			texture = new three.CompressedCubeTexture( faces, format, three.UnsignedByteType );
+			texture = new CompressedCubeTexture( faces, format, UnsignedByteType );
 
 		} else {
 
 			const mipmaps = faces[ 0 ].mipmaps;
 
 			texture = container.layerCount > 1
-				? new three.CompressedArrayTexture( mipmaps, width, height, container.layerCount, format, three.UnsignedByteType )
-				: new three.CompressedTexture( mipmaps, width, height, format, three.UnsignedByteType );
+				? new CompressedArrayTexture( mipmaps, width, height, container.layerCount, format, UnsignedByteType )
+				: new CompressedTexture( mipmaps, width, height, format, UnsignedByteType );
 
 		}
 
-		texture.minFilter = faces[ 0 ].mipmaps.length === 1 ? three.LinearFilter : three.LinearMipmapLinearFilter;
-		texture.magFilter = three.LinearFilter;
+		texture.minFilter = faces[ 0 ].mipmaps.length === 1 ? LinearFilter : LinearMipmapLinearFilter;
+		texture.magFilter = LinearFilter;
 		texture.generateMipmaps = false;
 
 		texture.needsUpdate = true;
@@ -24796,16 +24765,16 @@ KTX2Loader.TranscoderFormat = {
 };
 
 KTX2Loader.EngineFormat = {
-	RGBAFormat: three.RGBAFormat,
-	RGBA_ASTC_4x4_Format: three.RGBA_ASTC_4x4_Format,
-	RGBA_BPTC_Format: three.RGBA_BPTC_Format,
-	RGBA_ETC2_EAC_Format: three.RGBA_ETC2_EAC_Format,
-	RGBA_PVRTC_4BPPV1_Format: three.RGBA_PVRTC_4BPPV1_Format,
-	RGBA_S3TC_DXT5_Format: three.RGBA_S3TC_DXT5_Format,
-	RGB_ETC1_Format: three.RGB_ETC1_Format,
-	RGB_ETC2_Format: three.RGB_ETC2_Format,
-	RGB_PVRTC_4BPPV1_Format: three.RGB_PVRTC_4BPPV1_Format,
-	RGB_S3TC_DXT1_Format: three.RGB_S3TC_DXT1_Format,
+	RGBAFormat: RGBAFormat,
+	RGBA_ASTC_4x4_Format: RGBA_ASTC_4x4_Format,
+	RGBA_BPTC_Format: RGBA_BPTC_Format,
+	RGBA_ETC2_EAC_Format: RGBA_ETC2_EAC_Format,
+	RGBA_PVRTC_4BPPV1_Format: RGBA_PVRTC_4BPPV1_Format,
+	RGBA_S3TC_DXT5_Format: RGBA_S3TC_DXT5_Format,
+	RGB_ETC1_Format: RGB_ETC1_Format,
+	RGB_ETC2_Format: RGB_ETC2_Format,
+	RGB_PVRTC_4BPPV1_Format: RGB_PVRTC_4BPPV1_Format,
+	RGB_S3TC_DXT1_Format: RGB_S3TC_DXT1_Format,
 };
 
 
@@ -25131,49 +25100,49 @@ KTX2Loader.BasisWorker = function () {
 // Parsing for non-Basis textures. These textures are may have supercompression
 // like Zstd, but they do not require transcoding.
 
-const UNCOMPRESSED_FORMATS = new Set( [ three.RGBAFormat, three.RGFormat, three.RedFormat ] );
+const UNCOMPRESSED_FORMATS = new Set( [ RGBAFormat, RGFormat, RedFormat ] );
 
 const FORMAT_MAP = {
 
-	[ Ae$1 ]: three.RGBAFormat,
-	[ pe$1 ]: three.RGBAFormat,
-	[ Ot$1 ]: three.RGBAFormat,
-	[ Ft$1 ]: three.RGBAFormat,
+	[ Ae$1 ]: RGBAFormat,
+	[ pe$1 ]: RGBAFormat,
+	[ Ot$1 ]: RGBAFormat,
+	[ Ft$1 ]: RGBAFormat,
 
-	[ de$1 ]: three.RGFormat,
-	[ se$1 ]: three.RGFormat,
-	[ yt$1 ]: three.RGFormat,
-	[ dt$1 ]: three.RGFormat,
+	[ de$1 ]: RGFormat,
+	[ se$1 ]: RGFormat,
+	[ yt$1 ]: RGFormat,
+	[ dt$1 ]: RGFormat,
 
-	[ xe$1 ]: three.RedFormat,
-	[ $t$1 ]: three.RedFormat,
-	[ gt$1 ]: three.RedFormat,
-	[ ct ]: three.RedFormat,
+	[ xe$1 ]: RedFormat,
+	[ $t$1 ]: RedFormat,
+	[ gt$1 ]: RedFormat,
+	[ ct ]: RedFormat,
 
-	[ In$1 ]: three.RGBA_ASTC_6x6_Format,
-	[ Sn ]: three.RGBA_ASTC_6x6_Format,
+	[ In$1 ]: RGBA_ASTC_6x6_Format,
+	[ Sn ]: RGBA_ASTC_6x6_Format,
 
 };
 
 const TYPE_MAP = {
 
-	[ Ae$1 ]: three.FloatType,
-	[ pe$1 ]: three.HalfFloatType,
-	[ Ot$1 ]: three.UnsignedByteType,
-	[ Ft$1 ]: three.UnsignedByteType,
+	[ Ae$1 ]: FloatType,
+	[ pe$1 ]: HalfFloatType,
+	[ Ot$1 ]: UnsignedByteType,
+	[ Ft$1 ]: UnsignedByteType,
 
-	[ de$1 ]: three.FloatType,
-	[ se$1 ]: three.HalfFloatType,
-	[ yt$1 ]: three.UnsignedByteType,
-	[ dt$1 ]: three.UnsignedByteType,
+	[ de$1 ]: FloatType,
+	[ se$1 ]: HalfFloatType,
+	[ yt$1 ]: UnsignedByteType,
+	[ dt$1 ]: UnsignedByteType,
 
-	[ xe$1 ]: three.FloatType,
-	[ $t$1 ]: three.HalfFloatType,
-	[ gt$1 ]: three.UnsignedByteType,
-	[ ct ]: three.UnsignedByteType,
+	[ xe$1 ]: FloatType,
+	[ $t$1 ]: HalfFloatType,
+	[ gt$1 ]: UnsignedByteType,
+	[ ct ]: UnsignedByteType,
 
-	[ In$1 ]: three.UnsignedByteType,
-	[ Sn ]: three.UnsignedByteType,
+	[ In$1 ]: UnsignedByteType,
+	[ Sn ]: UnsignedByteType,
 
 };
 
@@ -25240,7 +25209,7 @@ async function createRawTexture( container ) {
 
 		let data;
 
-		if ( TYPE_MAP[ vkFormat ] === three.FloatType ) {
+		if ( TYPE_MAP[ vkFormat ] === FloatType ) {
 
 			data = new Float32Array(
 
@@ -25250,7 +25219,7 @@ async function createRawTexture( container ) {
 
 			);
 
-		} else if ( TYPE_MAP[ vkFormat ] === three.HalfFloatType ) {
+		} else if ( TYPE_MAP[ vkFormat ] === HalfFloatType ) {
 
 			data = new Uint16Array(
 
@@ -25282,14 +25251,14 @@ async function createRawTexture( container ) {
 	if ( UNCOMPRESSED_FORMATS.has( FORMAT_MAP[ vkFormat ] ) ) {
 
 		texture = container.pixelDepth === 0
-		? new three.DataTexture( mipmaps[ 0 ].data, container.pixelWidth, container.pixelHeight )
-		: new three.Data3DTexture( mipmaps[ 0 ].data, container.pixelWidth, container.pixelHeight, container.pixelDepth );
+		? new DataTexture( mipmaps[ 0 ].data, container.pixelWidth, container.pixelHeight )
+		: new Data3DTexture( mipmaps[ 0 ].data, container.pixelWidth, container.pixelHeight, container.pixelDepth );
 
 	} else {
 
 		if ( container.pixelDepth > 0 ) throw new Error( 'THREE.KTX2Loader: Unsupported pixelDepth.' );
 
-		texture = new three.CompressedTexture( mipmaps, container.pixelWidth, container.pixelHeight );
+		texture = new CompressedTexture( mipmaps, container.pixelWidth, container.pixelHeight );
 
 	}
 
@@ -25312,18 +25281,18 @@ function parseColorSpace( container ) {
 
 	if ( dfd.colorPrimaries === F ) {
 
-		return dfd.transferFunction === x$1 ? three.SRGBColorSpace : three.LinearSRGBColorSpace;
+		return dfd.transferFunction === x$1 ? SRGBColorSpace : LinearSRGBColorSpace;
 
 	} else if ( dfd.colorPrimaries === X ) {
 
-		return dfd.transferFunction === x$1 ? three.DisplayP3ColorSpace : three.LinearDisplayP3ColorSpace;
+		return dfd.transferFunction === x$1 ? DisplayP3ColorSpace : LinearDisplayP3ColorSpace;
 
 	} else if ( dfd.colorPrimaries === E ) {
 
-		return three.NoColorSpace;
+		return NoColorSpace;
 
 	} else {
-		return three.NoColorSpace;
+		return NoColorSpace;
 
 	}
 
@@ -37689,32 +37658,32 @@ function Dc(e) {
     r.addColorStop(a[0], "#" + a[1].getHexString());
   }
   s.fillStyle = r, s.fill();
-  const i = new three.CanvasTexture(n);
-  return i.needsUpdate = !0, i.minFilter = three.LinearFilter, i.wrapS = three.RepeatWrapping, i.wrapT = three.RepeatWrapping, i.repeat.set(2, 2), i;
+  const i = new CanvasTexture(n);
+  return i.needsUpdate = !0, i.minFilter = LinearFilter, i.wrapS = RepeatWrapping, i.wrapT = RepeatWrapping, i.repeat.set(2, 2), i;
 }
 function No(e) {
   e.updateMatrix(), e.updateMatrixWorld(), e.matrixWorldInverse.copy(e.matrixWorld).invert();
-  const t = new three.Frustum();
-  return t.setFromProjectionMatrix(new three.Matrix4().multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse)), t;
+  const t = new Frustum();
+  return t.setFromProjectionMatrix(new Matrix4().multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse)), t;
 }
 function wB(e) {
-  const t = new three.Group(), n = new three.PlaneGeometry(10, 5), s = new three.Vector3(...e.projectPointOntoPlane([0, 0, 0])), r = new three.Vector3(e.normal.x, e.normal.y, e.normal.z), i = new three.Vector3().copy(s).add(r);
+  const t = new Group$1(), n = new PlaneGeometry(10, 5), s = new Vector3(...e.projectPointOntoPlane([0, 0, 0])), r = new Vector3(e.normal.x, e.normal.y, e.normal.z), i = new Vector3().copy(s).add(r);
   n.lookAt(i), n.translate(s.x, s.y, s.z);
-  const o = new three.MeshBasicMaterial({ color: 65535, side: three.DoubleSide }), a = new three.Mesh(n, o), c = new three.ArrowHelper(r, s, 5, 16776960);
+  const o = new MeshBasicMaterial({ color: 65535, side: DoubleSide }), a = new Mesh(n, o), c = new ArrowHelper(r, s, 5, 16776960);
   return t.add(c), t.add(a), t;
 }
 function Uo(e) {
   const { boundingVolume: t } = e;
   let n = 0;
   e.content && (n = Math.min(e.content.byteLength / 5e5, 1));
-  const s = new three.Color(n, 1, 0), r = new three.BoxGeometry(1, 1, 1), i = new three.Matrix4();
+  const s = new Color(n, 1, 0), r = new BoxGeometry(1, 1, 1), i = new Matrix4();
   t.halfAxes ? i.copy(Lc(t.halfAxes)) : t.radius && r.scale(t.radius * 2, t.radius * 2, t.radius * 2), r.applyMatrix4(i);
-  const o = new three.EdgesGeometry(r), a = new three.LineSegments(o, new three.LineBasicMaterial({ color: s }));
-  return a.position.copy(new three.Vector3(...t.center)), a;
+  const o = new EdgesGeometry(r), a = new LineSegments(o, new LineBasicMaterial$1({ color: s }));
+  return a.position.copy(new Vector3(...t.center)), a;
 }
 function Lc(e) {
   const t = e;
-  return new three.Matrix4().fromArray([
+  return new Matrix4().fromArray([
     t[0] * 2,
     t[1] * 2,
     t[2] * 2,
@@ -37736,7 +37705,7 @@ function Lc(e) {
 function RB(e, t) {
   const r = 2 * Math.PI * 6378137 / 2, i = t * r / 180;
   let o = Math.log(Math.tan((90 + e) * Math.PI / 360)) / (Math.PI / 180);
-  return o = o * r / 180, new three.Vector2(i, o);
+  return o = o * r / 180, new Vector2(i, o);
 }
 function MB(e) {
   let t = 0;
@@ -37763,12 +37732,12 @@ const Ho = {
   samples: 4,
   sampleStep: 4,
   opacity: 0.5,
-  blendingType: three.NormalBlending
+  blendingType: NormalBlending
 };
 function SB(e, t, n, s = Ho) {
   ht && ht.dispose(), Mt || (Mt = n);
   const r = { ...Ho, ...s };
-  ht = new three.WebGLRenderTarget(e.width * e.devicePixelRatio, e.height * e.devicePixelRatio), ht.texture.minFilter = three.NearestFilter, ht.texture.magFilter = three.NearestFilter, ht.stencilBuffer = !1, ht.texture.format = three.RGBAFormat, ht.texture.type = three.FloatType, Mt.setPixelRatio(devicePixelRatio), Mt.setSize(e.width, e.height), Mt.setRenderTarget(ht), Jn = new three.Scene(), Jn.overrideMaterial = vB, Mn = t, kt.uniforms.tPosition.value = ht.texture, kt.uniforms.minHeight.value = r.minHeight, kt.uniforms.maxHeight.value = r.maxHeight, kt.uniforms.samples.value = r.samples, kt.uniforms.sampleStep.value = r.sampleStep, kt.uniforms.opacity.value = r.opacity, kt.blending = r.blendingType;
+  ht = new WebGLRenderTarget(e.width * e.devicePixelRatio, e.height * e.devicePixelRatio), ht.texture.minFilter = NearestFilter, ht.texture.magFilter = NearestFilter, ht.stencilBuffer = !1, ht.texture.format = RGBAFormat, ht.texture.type = FloatType, Mt.setPixelRatio(devicePixelRatio), Mt.setSize(e.width, e.height), Mt.setRenderTarget(ht), Jn = new Scene(), Jn.overrideMaterial = vB, Mn = t, kt.uniforms.tPosition.value = ht.texture, kt.uniforms.minHeight.value = r.minHeight, kt.uniforms.maxHeight.value = r.maxHeight, kt.uniforms.samples.value = r.samples, kt.uniforms.sampleStep.value = r.sampleStep, kt.uniforms.opacity.value = r.opacity, kt.blending = r.blendingType;
 }
 function IB(e) {
   ht.setSize(e.width * e.devicePixelRatio, e.height * e.devicePixelRatio), Mt.setPixelRatio(devicePixelRatio), Mt.setSize(e.width, e.height);
@@ -37779,7 +37748,7 @@ function xB(e) {
     Jn.add(Mn), Mt.setRenderTarget(ht), Mt.render(Jn, e), t && t.add(Mn), Mt.setRenderTarget(null);
   }
 }
-const Vn = (e) => e.toString(), vB = new three.ShaderMaterial({
+const Vn = (e) => e.toString(), vB = new ShaderMaterial({
   vertexShader: Vn`
         varying vec3 vPosition;
         void main() {
@@ -37793,7 +37762,7 @@ const Vn = (e) => e.toString(), vB = new three.ShaderMaterial({
             gl_FragColor = vec4(vPosition, 1.0);
         }
     `,
-  side: three.DoubleSide
+  side: DoubleSide
 }), OB = Vn`
     #include <packing>
 
@@ -37874,7 +37843,7 @@ const Vn = (e) => e.toString(), vB = new three.ShaderMaterial({
     void main() {
         gl_FragColor = vec4(vColor, opacity);
     }
-`, kt = new three.ShaderMaterial({
+`, kt = new ShaderMaterial({
   vertexShader: OB,
   fragmentShader: FB,
   uniforms: {
@@ -37888,113 +37857,113 @@ const Vn = (e) => e.toString(), vB = new three.ShaderMaterial({
   vertexColors: !0,
   transparent: !0,
   depthTest: !1,
-  blending: three.NormalBlending
+  blending: NormalBlending
 }), Gc = {
   // From chroma spectral http://gka.github.io/chroma.js/
   SPECTRAL: [
-    [0, new three.Color(0.3686, 0.3098, 0.6353)],
-    [0.1, new three.Color(0.1961, 0.5333, 0.7412)],
-    [0.2, new three.Color(0.4, 0.7608, 0.6471)],
-    [0.3, new three.Color(0.6706, 0.8667, 0.6431)],
-    [0.4, new three.Color(0.902, 0.9608, 0.5961)],
-    [0.5, new three.Color(1, 1, 0.749)],
-    [0.6, new three.Color(0.9961, 0.8784, 0.5451)],
-    [0.7, new three.Color(0.9922, 0.6824, 0.3804)],
-    [0.8, new three.Color(0.9569, 0.4275, 0.2627)],
-    [0.9, new three.Color(0.8353, 0.2431, 0.3098)],
-    [1, new three.Color(0.6196, 39e-4, 0.2588)]
+    [0, new Color(0.3686, 0.3098, 0.6353)],
+    [0.1, new Color(0.1961, 0.5333, 0.7412)],
+    [0.2, new Color(0.4, 0.7608, 0.6471)],
+    [0.3, new Color(0.6706, 0.8667, 0.6431)],
+    [0.4, new Color(0.902, 0.9608, 0.5961)],
+    [0.5, new Color(1, 1, 0.749)],
+    [0.6, new Color(0.9961, 0.8784, 0.5451)],
+    [0.7, new Color(0.9922, 0.6824, 0.3804)],
+    [0.8, new Color(0.9569, 0.4275, 0.2627)],
+    [0.9, new Color(0.8353, 0.2431, 0.3098)],
+    [1, new Color(0.6196, 39e-4, 0.2588)]
   ],
   PLASMA: [
-    [0, new three.Color(0.241, 0.015, 0.61)],
-    [0.1, new three.Color(0.387, 1e-3, 0.654)],
-    [0.2, new three.Color(0.524, 0.025, 0.653)],
-    [0.3, new three.Color(0.651, 0.125, 0.596)],
-    [0.4, new three.Color(0.752, 0.227, 0.513)],
-    [0.5, new three.Color(0.837, 0.329, 0.431)],
-    [0.6, new three.Color(0.907, 0.435, 0.353)],
-    [0.7, new three.Color(0.963, 0.554, 0.272)],
-    [0.8, new three.Color(0.992, 0.681, 0.195)],
-    [0.9, new three.Color(0.987, 0.822, 0.144)],
-    [1, new three.Color(0.94, 0.975, 0.131)]
+    [0, new Color(0.241, 0.015, 0.61)],
+    [0.1, new Color(0.387, 1e-3, 0.654)],
+    [0.2, new Color(0.524, 0.025, 0.653)],
+    [0.3, new Color(0.651, 0.125, 0.596)],
+    [0.4, new Color(0.752, 0.227, 0.513)],
+    [0.5, new Color(0.837, 0.329, 0.431)],
+    [0.6, new Color(0.907, 0.435, 0.353)],
+    [0.7, new Color(0.963, 0.554, 0.272)],
+    [0.8, new Color(0.992, 0.681, 0.195)],
+    [0.9, new Color(0.987, 0.822, 0.144)],
+    [1, new Color(0.94, 0.975, 0.131)]
   ],
   YELLOW_GREEN: [
-    [0, new three.Color(0.1647, 0.2824, 0.3451)],
-    [0.1, new three.Color(0.1338, 0.3555, 0.4227)],
-    [0.2, new three.Color(0.061, 0.4319, 0.4864)],
-    [0.3, new three.Color(0, 0.5099, 0.5319)],
-    [0.4, new three.Color(0, 0.5881, 0.5569)],
-    [0.5, new three.Color(0.137, 0.665, 0.5614)],
-    [0.6, new three.Color(0.2906, 0.7395, 0.5477)],
-    [0.7, new three.Color(0.4453, 0.8099, 0.5201)],
-    [0.8, new three.Color(0.6102, 0.8748, 0.485)],
-    [0.9, new three.Color(0.7883, 0.9323, 0.4514)],
-    [1, new three.Color(0.9804, 0.9804, 0.4314)]
+    [0, new Color(0.1647, 0.2824, 0.3451)],
+    [0.1, new Color(0.1338, 0.3555, 0.4227)],
+    [0.2, new Color(0.061, 0.4319, 0.4864)],
+    [0.3, new Color(0, 0.5099, 0.5319)],
+    [0.4, new Color(0, 0.5881, 0.5569)],
+    [0.5, new Color(0.137, 0.665, 0.5614)],
+    [0.6, new Color(0.2906, 0.7395, 0.5477)],
+    [0.7, new Color(0.4453, 0.8099, 0.5201)],
+    [0.8, new Color(0.6102, 0.8748, 0.485)],
+    [0.9, new Color(0.7883, 0.9323, 0.4514)],
+    [1, new Color(0.9804, 0.9804, 0.4314)]
   ],
   VIRIDIS: [
-    [0, new three.Color(0.267, 5e-3, 0.329)],
-    [0.1, new three.Color(0.283, 0.141, 0.458)],
-    [0.2, new three.Color(0.254, 0.265, 0.53)],
-    [0.3, new three.Color(0.207, 0.372, 0.553)],
-    [0.4, new three.Color(0.164, 0.471, 0.558)],
-    [0.5, new three.Color(0.128, 0.567, 0.551)],
-    [0.6, new three.Color(0.135, 0.659, 0.518)],
-    [0.7, new three.Color(0.267, 0.749, 0.441)],
-    [0.8, new three.Color(0.478, 0.821, 0.318)],
-    [0.9, new three.Color(0.741, 0.873, 0.15)],
-    [1, new three.Color(0.993, 0.906, 0.144)]
+    [0, new Color(0.267, 5e-3, 0.329)],
+    [0.1, new Color(0.283, 0.141, 0.458)],
+    [0.2, new Color(0.254, 0.265, 0.53)],
+    [0.3, new Color(0.207, 0.372, 0.553)],
+    [0.4, new Color(0.164, 0.471, 0.558)],
+    [0.5, new Color(0.128, 0.567, 0.551)],
+    [0.6, new Color(0.135, 0.659, 0.518)],
+    [0.7, new Color(0.267, 0.749, 0.441)],
+    [0.8, new Color(0.478, 0.821, 0.318)],
+    [0.9, new Color(0.741, 0.873, 0.15)],
+    [1, new Color(0.993, 0.906, 0.144)]
   ],
   INFERNO: [
-    [0, new three.Color(0.077, 0.042, 0.206)],
-    [0.1, new three.Color(0.225, 0.036, 0.388)],
-    [0.2, new three.Color(0.373, 0.074, 0.432)],
-    [0.3, new three.Color(0.522, 0.128, 0.42)],
-    [0.4, new three.Color(0.665, 0.182, 0.37)],
-    [0.5, new three.Color(0.797, 0.255, 0.287)],
-    [0.6, new three.Color(0.902, 0.364, 0.184)],
-    [0.7, new three.Color(0.969, 0.516, 0.063)],
-    [0.8, new three.Color(0.988, 0.683, 0.072)],
-    [0.9, new three.Color(0.961, 0.859, 0.298)],
-    [1, new three.Color(0.988, 0.998, 0.645)]
+    [0, new Color(0.077, 0.042, 0.206)],
+    [0.1, new Color(0.225, 0.036, 0.388)],
+    [0.2, new Color(0.373, 0.074, 0.432)],
+    [0.3, new Color(0.522, 0.128, 0.42)],
+    [0.4, new Color(0.665, 0.182, 0.37)],
+    [0.5, new Color(0.797, 0.255, 0.287)],
+    [0.6, new Color(0.902, 0.364, 0.184)],
+    [0.7, new Color(0.969, 0.516, 0.063)],
+    [0.8, new Color(0.988, 0.683, 0.072)],
+    [0.9, new Color(0.961, 0.859, 0.298)],
+    [1, new Color(0.988, 0.998, 0.645)]
   ],
   GRAYSCALE: [
-    [0, new three.Color(0, 0, 0)],
-    [1, new three.Color(1, 1, 1)]
+    [0, new Color(0, 0, 0)],
+    [1, new Color(1, 1, 1)]
   ],
   // 16 samples of the TURBU color scheme
   // values taken from: https://gist.github.com/mikhailov-work/ee72ba4191942acecc03fe6da94fc73f
   // original file licensed under Apache-2.0
   TURBO: [
-    [0, new three.Color(0.18995, 0.07176, 0.23217)],
-    [0.07, new three.Color(0.25107, 0.25237, 0.63374)],
-    [0.13, new three.Color(0.27628, 0.42118, 0.89123)],
-    [0.2, new three.Color(0.25862, 0.57958, 0.99876)],
-    [0.27, new three.Color(0.15844, 0.73551, 0.92305)],
-    [0.33, new three.Color(0.09267, 0.86554, 0.7623)],
-    [0.4, new three.Color(0.19659, 0.94901, 0.59466)],
-    [0.47, new three.Color(0.42778, 0.99419, 0.38575)],
-    [0.53, new three.Color(0.64362, 0.98999, 0.23356)],
-    [0.6, new three.Color(0.80473, 0.92452, 0.20459)],
-    [0.67, new three.Color(0.93301, 0.81236, 0.22667)],
-    [0.73, new three.Color(0.99314, 0.67408, 0.20348)],
-    [0.8, new three.Color(0.9836, 0.49291, 0.12849)],
-    [0.87, new three.Color(0.92105, 0.31489, 0.05475)],
-    [0.93, new three.Color(0.81608, 0.18462, 0.01809)],
-    [1, new three.Color(0.66449, 0.08436, 424e-5)]
+    [0, new Color(0.18995, 0.07176, 0.23217)],
+    [0.07, new Color(0.25107, 0.25237, 0.63374)],
+    [0.13, new Color(0.27628, 0.42118, 0.89123)],
+    [0.2, new Color(0.25862, 0.57958, 0.99876)],
+    [0.27, new Color(0.15844, 0.73551, 0.92305)],
+    [0.33, new Color(0.09267, 0.86554, 0.7623)],
+    [0.4, new Color(0.19659, 0.94901, 0.59466)],
+    [0.47, new Color(0.42778, 0.99419, 0.38575)],
+    [0.53, new Color(0.64362, 0.98999, 0.23356)],
+    [0.6, new Color(0.80473, 0.92452, 0.20459)],
+    [0.67, new Color(0.93301, 0.81236, 0.22667)],
+    [0.73, new Color(0.99314, 0.67408, 0.20348)],
+    [0.8, new Color(0.9836, 0.49291, 0.12849)],
+    [0.87, new Color(0.92105, 0.31489, 0.05475)],
+    [0.93, new Color(0.81608, 0.18462, 0.01809)],
+    [1, new Color(0.66449, 0.08436, 424e-5)]
   ],
   RAINBOW: [
-    [0, new three.Color(0.278, 0, 0.714)],
-    [1 / 6, new three.Color(0, 0, 1)],
-    [2 / 6, new three.Color(0, 1, 1)],
-    [3 / 6, new three.Color(0, 1, 0)],
-    [4 / 6, new three.Color(1, 1, 0)],
-    [5 / 6, new three.Color(1, 0.64, 0)],
-    [1, new three.Color(1, 0, 0)]
+    [0, new Color(0.278, 0, 0.714)],
+    [1 / 6, new Color(0, 0, 1)],
+    [2 / 6, new Color(0, 1, 1)],
+    [3 / 6, new Color(0, 1, 0)],
+    [4 / 6, new Color(1, 1, 0)],
+    [5 / 6, new Color(1, 0.64, 0)],
+    [1, new Color(1, 0, 0)]
   ],
   CONTOUR: [
-    [0, new three.Color(0, 0, 0)],
-    [0.03, new three.Color(0, 0, 0)],
-    [0.04, new three.Color(1, 1, 1)],
-    [1, new three.Color(1, 1, 1)]
+    [0, new Color(0, 0, 0)],
+    [0.03, new Color(0, 0, 0)],
+    [0.04, new Color(1, 1, 1)],
+    [1, new Color(1, 1, 1)]
   ]
 }, DB = `
   varying vec3 vColor;
@@ -38135,21 +38104,21 @@ class qB {
     n.googleApiKey && (c.fetch = { headers: { "X-GOOG-API-KEY": n.googleApiKey } }, t.options.hasOwnProperty("collectAttributions") || (n.collectAttributions = !0)), t.loadingManager && t.loadingManager.itemStart(s);
     const u = await Ae(s, Le, {
       ...c
-    }), l = {}, h = {}, f = [], d = new three.Group(), m = new three.Group();
+    }), l = {}, h = {}, f = [], d = new Group$1(), m = new Group$1();
     n.debug || (m.visible = !1);
     const g = {
       pointSize: { type: "f", value: n.pointSize },
       gradient: { type: "t", value: GB },
       grayscale: { type: "t", value: UB },
-      rootCenter: { type: "vec3", value: new three.Vector3() },
-      rootNormal: { type: "vec3", value: new three.Vector3() },
+      rootCenter: { type: "vec3", value: new Vector3() },
+      rootNormal: { type: "vec3", value: new Vector3() },
       coloring: { type: "i", value: n.pointCloudColoring },
       hideGround: { type: "b", value: !0 },
-      elevationRange: { type: "vec2", value: new three.Vector2(0, 400) },
+      elevationRange: { type: "vec2", value: new Vector2(0, 400) },
       maxIntensity: { type: "f", value: 1 },
       intensityContrast: { type: "f", value: 1 },
       alpha: { type: "f", value: 1 }
-    }, y = new three.ShaderMaterial({
+    }, y = new ShaderMaterial({
       uniforms: g,
       vertexShader: LB,
       fragmentShader: DB,
@@ -38157,8 +38126,8 @@ class qB {
       vertexColors: !0
     });
     let E, R, B;
-    n.gltfLoader ? E = n.gltfLoader : (E = new GLTFLoader(), n.basisTranscoderPath && (R = new KTX2Loader(), R.detectSupport(i ?? new three.WebGLRenderer()), R.setTranscoderPath(n.basisTranscoderPath + "/"), R.setWorkerLimit(1), E.setKTX2Loader(R)), n.dracoDecoderPath && (B = new DRACOLoader(), B.setDecoderPath(n.dracoDecoderPath + "/"), B.setWorkerLimit(n.maxConcurrency), E.setDRACOLoader(B)));
-    const C = new three.MeshBasicMaterial({ transparent: n.transparent }), M = {
+    n.gltfLoader ? E = n.gltfLoader : (E = new GLTFLoader(), n.basisTranscoderPath && (R = new KTX2Loader(), R.detectSupport(i ?? new WebGLRenderer()), R.setTranscoderPath(n.basisTranscoderPath + "/"), R.setWorkerLimit(1), E.setKTX2Loader(R)), n.dracoDecoderPath && (B = new DRACOLoader(), B.setDecoderPath(n.dracoDecoderPath + "/"), B.setWorkerLimit(n.maxConcurrency), E.setDRACOLoader(B)));
+    const C = new MeshBasicMaterial({ transparent: n.transparent }), M = {
       maximumMemoryUsage: n.maximumMemoryUsage,
       maximumScreenSpaceError: n.maximumScreenSpaceError,
       memoryAdjustedScreenSpaceError: n.memoryAdjustedScreenSpaceError,
@@ -38210,7 +38179,7 @@ class qB {
           loadGLTF: !1
         }
       }
-    }), O = new three.Matrix4(), F = new three.Matrix4(), v = new three.Vector3();
+    }), O = new Matrix4(), F = new Matrix4(), v = new Vector3();
     let L = !1, k = "";
     if (b.root.boundingVolume ? (b.root.header.boundingVolume.region && (void 0), F.setPosition(
       b.root.boundingVolume.center[0],
@@ -38221,20 +38190,20 @@ class qB {
       m.add(T), h[b.root.id] = T;
     }
     let X = !1, Q = !1;
-    g.rootCenter.value.copy(v), g.rootNormal.value.copy(new three.Vector3(0, 0, 1).normalize()), b.stats.get("Loader concurrency").count = n.maxConcurrency, b.stats.get("Maximum mem usage").count = n.maximumMemoryUsage;
+    g.rootCenter.value.copy(v), g.rootNormal.value.copy(new Vector3(0, 0, 1).normalize()), b.stats.get("Loader concurrency").count = n.maxConcurrency, b.stats.get("Maximum mem usage").count = n.maximumMemoryUsage;
     let P = 0, at = null, Wt = !0, oe = null;
-    const Be = new three.Vector3(1 / 0, 1 / 0, 1 / 0);
+    const Be = new Vector3(1 / 0, 1 / 0, 1 / 0);
     let Lt = null;
     d.updateMatrixWorld(!0);
-    const et = new three.Matrix4().copy(d.matrixWorld), Pt = new three.Matrix4().copy(et).invert();
+    const et = new Matrix4().copy(d.matrixWorld), Pt = new Matrix4().copy(et).invert();
     n.resetTransform && Xt(b.root), n.debug && (h[b.root.id].applyMatrix4(O), m.matrixWorld.copy(d.matrixWorld));
     function Xt(T) {
       if (!T.boundingVolume.halfAxes)
         return;
-      const D = T.boundingVolume.halfAxes, nt = new three.Matrix4().extractRotation(Lc(D)).premultiply(new three.Matrix4().extractRotation(Pt));
-      if (!new three.Euler().setFromRotationMatrix(nt).equals(new three.Euler())) {
+      const D = T.boundingVolume.halfAxes, nt = new Matrix4().extractRotation(Lc(D)).premultiply(new Matrix4().extractRotation(Pt));
+      if (!new Euler().setFromRotationMatrix(nt).equals(new Euler())) {
         L = !0;
-        const _t = new three.Vector3(
+        const _t = new Vector3(
           F.elements[12],
           F.elements[13],
           F.elements[14]
@@ -38244,7 +38213,7 @@ class qB {
       Ce();
     }
     function Ce() {
-      O.copy(et), n.resetTransform && O.multiply(new three.Matrix4().copy(F).invert()), b.modelMatrix = new V(O.toArray());
+      O.copy(et), n.resetTransform && O.multiply(new Matrix4().copy(F).invert()), b.modelMatrix = new V(O.toArray());
     }
     function $e(T, D, nt, ct) {
       if (X || !ct)
@@ -38281,7 +38250,7 @@ class qB {
       ), t.loadingManager && !Q && Vr == 0 && (n.preloadTilesCount == null || ss >= n.preloadTilesCount) && (Q = !0, t.loadingManager.itemEnd(t.url)), Jr;
     }
     function es(T) {
-      const D = new three.Vector3(), nt = new three.Quaternion(), ct = new three.Vector3();
+      const D = new Vector3(), nt = new Quaternion(), ct = new Vector3();
       T.decompose(D, nt, ct), d.position.copy(D), d.quaternion.copy(nt), d.scale.copy(ct), d.updateMatrix(), d.updateMatrixWorld(!0), et.copy(d.matrixWorld), Pt.copy(et).invert(), Ce();
     }
     return {
@@ -38295,7 +38264,7 @@ class qB {
         },
         setWireframe: (T) => {
           n.wireframe = T, d.traverse((D) => {
-            D instanceof three.Mesh && (D.material.wireframe = T);
+            D instanceof Mesh && (D.material.wireframe = T);
           });
         },
         setDebug: (T) => {
@@ -38331,7 +38300,7 @@ class qB {
         },
         getLatLongHeightFromPosition: (T) => {
           const D = b.ellipsoid.cartesianToCartographic(
-            new three.Vector3().copy(T).applyMatrix4(new three.Matrix4().copy(O).invert()).toArray()
+            new Vector3().copy(T).applyMatrix4(new Matrix4().copy(O).invert()).toArray()
           );
           return {
             lat: D[1],
@@ -38345,17 +38314,17 @@ class qB {
             T.lat,
             T.height
           ]);
-          return new three.Vector3(...D).applyMatrix4(O);
+          return new Vector3(...D).applyMatrix4(O);
         },
         orientToGeocoord: (T) => {
-          const D = [T.long, T.lat, T.height], nt = b.ellipsoid.cartographicToCartesian(D), ct = new three.Matrix4().fromArray(b.ellipsoid.eastNorthUpToFixedFrame(nt)), _t = new three.Matrix4().makeRotationFromEuler(
-            new three.Euler(Math.PI / 2, Math.PI / 2, 0)
-          ), ns = new three.Matrix4().copy(ct).multiply(_t).invert();
+          const D = [T.long, T.lat, T.height], nt = b.ellipsoid.cartographicToCartesian(D), ct = new Matrix4().fromArray(b.ellipsoid.eastNorthUpToFixedFrame(nt)), _t = new Matrix4().makeRotationFromEuler(
+            new Euler(Math.PI / 2, Math.PI / 2, 0)
+          ), ns = new Matrix4().copy(ct).multiply(_t).invert();
           es(ns);
         },
         getWebMercatorCoord: (T) => RB(T.lat, T.long),
         getCameraFrustum: (T) => {
-          const nt = No(T).planes.map((_t) => new tt(_t.normal.toArray(), _t.constant)).map((_t) => wB(_t)), ct = new three.Group();
+          const nt = No(T).planes.map((_t) => new tt(_t.normal.toArray(), _t.constant)).map((_t) => wB(_t)), ct = new Group$1();
           for (const _t of nt)
             ct.add(_t);
           return ct;
@@ -38375,10 +38344,10 @@ class qB {
           if (oe = D, P += T, ht && xB(D), b && P >= o) {
             if (!et.equals(d.matrixWorld)) {
               P = 0, et.copy(d.matrixWorld), n.updateTransforms && Ce();
-              const nt = new three.Vector3().setFromMatrixPosition(et);
-              g.rootCenter.value.copy(nt), g.rootNormal.value.copy(new three.Vector3(0, 0, 1).applyMatrix4(et).normalize()), Pt.copy(et).invert(), n.debug && (h[b.root.id].matrixWorld.copy(O), h[b.root.id].applyMatrix4(et));
+              const nt = new Vector3().setFromMatrixPosition(et);
+              g.rootCenter.value.copy(nt), g.rootNormal.value.copy(new Vector3(0, 0, 1).applyMatrix4(et).normalize()), Pt.copy(et).invert(), n.debug && (h[b.root.id].matrixWorld.copy(O), h[b.root.id].applyMatrix4(et));
             }
-            at == null ? at = new three.Matrix4().copy(D.matrixWorld) : (Wt || jB(D, at)) && (P = 0, Wt = !1, b._frameNumber++, D.getWorldPosition(Be), at.copy(D.matrixWorld), $e(b, l, r, D));
+            at == null ? at = new Matrix4().copy(D.matrixWorld) : (Wt || jB(D, at)) && (P = 0, Wt = !1, b._frameNumber++, D.getWorldPosition(Be), at.copy(D.matrixWorld), $e(b, l, r, D));
           }
         },
         dispose: function() {
@@ -38406,14 +38375,14 @@ class qB {
   static async loadGeoJSON(t) {
     const { url: n, height: s, featureToColor: r } = t;
     return Ae(n, ke, { worker: !1, gis: { format: "binary" } }).then((i) => {
-      const o = i, a = new three.BufferGeometry(), c = o.polygons.positions.value.reduce((h, f, d, m) => {
+      const o = i, a = new BufferGeometry(), c = o.polygons.positions.value.reduce((h, f, d, m) => {
         if (d % 2 == 0) {
           const g = [f, m[d + 1], s ?? 0], y = J.WGS84.cartographicToCartesian(g);
           h.push(...y);
         }
         return h;
       }, []);
-      if (a.setAttribute("position", new three.Float32BufferAttribute(
+      if (a.setAttribute("position", new Float32BufferAttribute(
         c,
         3
       )), r) {
@@ -38421,27 +38390,27 @@ class qB {
           const y = r.colorMap(d);
           return f[m * 3] = y.r, f[m * 3 + 1] = y.g, f[m * 3 + 2] = y.b, f;
         }, []);
-        a.setAttribute("color", new three.Float32BufferAttribute(
+        a.setAttribute("color", new Float32BufferAttribute(
           h,
           3
         ));
       }
       a.setIndex(
-        new three.BufferAttribute(o.polygons.triangles.value, 1)
+        new BufferAttribute(o.polygons.triangles.value, 1)
       );
-      const u = new three.MeshBasicMaterial({
+      const u = new MeshBasicMaterial({
         transparent: !0,
         vertexColors: !0,
         opacity: 0.5,
-        blending: three.NormalBlending
+        blending: NormalBlending
       });
-      return new three.Mesh(a, u);
+      return new Mesh(a, u);
     });
   }
 }
 async function JB(e, t, n, s, r) {
   return new Promise((i, o) => {
-    const a = new three.Matrix4().makeRotationAxis(new three.Vector3(1, 0, 0), Math.PI / 2), c = t.content.gltfUpAxis !== "Z", u = new three.Matrix4().fromArray(t.computedTransform).premultiply(r);
+    const a = new Matrix4().makeRotationAxis(new Vector3(1, 0, 0), Math.PI / 2), c = t.content.gltfUpAxis !== "Z", u = new Matrix4().fromArray(t.computedTransform).premultiply(r);
     c && u.multiply(a), t.content.byteLength || (t.content.byteLength = t.content.gltfArrayBuffer.byteLength), e.parse(
       t.content.gltfArrayBuffer,
       t.contentUrl ? t.contentUrl.substr(0, t.contentUrl.lastIndexOf("/") + 1) : null,
@@ -38478,18 +38447,18 @@ function VB(e, t, n, s) {
     rgba: null
   }, { colors: i } = e.content.attributes;
   i && i.size === 3 && (r.rgb = i.value), i && i.size === 4 && (r.rgba = i.value);
-  const o = new three.BufferGeometry();
-  o.setAttribute("position", new three.Float32BufferAttribute(r.points, 3));
-  const a = new three.Matrix4().fromArray(e.computedTransform).premultiply(s);
-  r.rgba ? o.setAttribute("color", new three.Float32BufferAttribute(r.rgba, 4)) : r.rgb && o.setAttribute("color", new three.Uint8BufferAttribute(r.rgb, 3, !0)), r.intensities && o.setAttribute(
+  const o = new BufferGeometry();
+  o.setAttribute("position", new Float32BufferAttribute(r.points, 3));
+  const a = new Matrix4().fromArray(e.computedTransform).premultiply(s);
+  r.rgba ? o.setAttribute("color", new Float32BufferAttribute(r.rgba, 4)) : r.rgb && o.setAttribute("color", new Uint8BufferAttribute(r.rgb, 3, !0)), r.intensities && o.setAttribute(
     "intensity",
     // Handles both 16bit or 8bit intensity values
-    new three.BufferAttribute(r.intensities, 1, !0)
-  ), r.classifications && o.setAttribute("classification", new three.Uint8BufferAttribute(r.classifications, 1, !1)), e.content.geometriesByteLength = Pc(o), e.content.gpuMemoryUsageInBytes = e.content.geometriesByteLength;
-  const c = new three.Points(o, n.material || t);
+    new BufferAttribute(r.intensities, 1, !0)
+  ), r.classifications && o.setAttribute("classification", new Uint8BufferAttribute(r.classifications, 1, !1)), e.content.geometriesByteLength = Pc(o), e.content.gpuMemoryUsageInBytes = e.content.geometriesByteLength;
+  const c = new Points(o, n.material || t);
   if (r.rtc_center) {
     const u = r.rtc_center;
-    a.multiply(new three.Matrix4().makeTranslation(u[0], u[1], u[2]));
+    a.multiply(new Matrix4().makeTranslation(u[0], u[1], u[2]));
   }
   return c.applyMatrix4(a), n.contentPostProcess && n.contentPostProcess(c), c;
 }
@@ -38558,23 +38527,23 @@ class D3TilesLayer {
      * @param {*} opacity 透明度
      * @param {*} visible 可见性
      */
-    constructor(id, layerContainer, canvas, option = {jsonPath: '', callback: () => {}}, camera = new three.PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
+    constructor(id, layerContainer, canvas, option = {jsonPath: '', callback: () => {}}, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
         this.id = id;
         this.layerContainer = layerContainer;
         this.canvas = canvas;
         this.z_index = z_index;
         this.opacity = opacity;
         this.visible = visible;
-        this.renderer = new three.WebGLRenderer({
+        this.renderer = new WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
             alpha: true,
         });
         this.renderer.setClearColor(0xFFFFFF, 0.0);
-        this.scene = new three.Scene();
+        this.scene = new Scene();
         // https://github.com/nytimes/three-loader-3dtiles
 
-        this.clock = new three.Clock();
+        this.clock = new Clock();
         this.loadTiles(option);
         this.camera = camera;
         // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
@@ -38583,7 +38552,7 @@ class D3TilesLayer {
         this.controls.zoomSpeed = 2.0;
         // this.camera.position.set(coords.x, 38472.48763833733, -coords.y);
         // this.controls.target.set(this.camera.position.x, 0, this.camera.position.z);
-        this._raycaster = new three.Raycaster();
+        this._raycaster = new Raycaster();
         if(Config.outLineMode){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
         }
@@ -38731,7 +38700,7 @@ class D3TilesLayer {
     }
 
     _raycastFromMouse(mx, my, width, height, cam, meshes, recursive=false) {
-        const mouse = new three.Vector2( // normalized (-1 to +1)
+        const mouse = new Vector2( // normalized (-1 to +1)
             (mx / width) * 2 - 1,
             - (my / height) * 2 + 1);
         // https://threejs.org/docs/#api/core/Raycaster
@@ -38960,10 +38929,10 @@ class RaycasterUtils{
     static LINE;
 
     constructor(){
-        let geometry = new three.BufferGeometry();
-        geometry.setAttribute('position', new three.BufferAttribute(new Float32Array(4*3),3));
-        let material = new three.LineBasicMaterial({color: 0x00FFFF}); // 天青色
-        RaycasterUtils.LINE = new three.Line(geometry, material);
+        let geometry = new BufferGeometry();
+        geometry.setAttribute('position', new BufferAttribute(new Float32Array(4*3),3));
+        let material = new LineBasicMaterial$1({color: 0x00FFFF}); // 天青色
+        RaycasterUtils.LINE = new Line(geometry, material);
         
     }
     /**
@@ -39021,7 +38990,7 @@ class RaycasterUtils{
 class Shapes {
     
     getCircle(radius=400){
-        const arcShape = new three.Shape()
+        const arcShape = new Shape()
 					.moveTo( 10+radius, 10 )
 					.absarc( 10, 10, radius, 0, Math.PI * 2, false );
         return arcShape;
@@ -39029,7 +38998,7 @@ class Shapes {
 
     getCircleRadius(radius){
         const circleRadius = radius;
-        const circleShape = new three.Shape()
+        const circleShape = new Shape()
             .moveTo( 0, circleRadius )
             .quadraticCurveTo( circleRadius, circleRadius, circleRadius, 0 )
             .quadraticCurveTo( circleRadius, - circleRadius, 0, - circleRadius )
@@ -39040,7 +39009,7 @@ class Shapes {
     getTrack( ){
         // Track
 
-        const trackShape = new three.Shape()
+        const trackShape = new Shape()
         .moveTo( 40, 40 )
         .lineTo( 40, 160 )
         .absarc( 60, 160, 20, Math.PI, 0, true )
@@ -39050,7 +39019,7 @@ class Shapes {
     }
 
     getRounedRect( ){
-        const roundedRectShape = new three.Shape();
+        const roundedRectShape = new Shape();
 
         ( function roundedRect( ctx, x, y, width, height, radius ) {
 
@@ -39071,7 +39040,7 @@ class Shapes {
     getSquare( ){
         const sqLength = 80;
 
-        const squareShape = new three.Shape()
+        const squareShape = new Shape()
             .moveTo( 0, 0 )
             .lineTo( 0, sqLength )
             .lineTo( sqLength, sqLength )
@@ -39083,7 +39052,7 @@ class Shapes {
     getTriangle( ){
         // Triangle
 
-        const triangleShape = new three.Shape()
+        const triangleShape = new Shape()
         .moveTo( 80, 20 )
         .lineTo( 40, 80 )
         .lineTo( 120, 80 )
@@ -39092,7 +39061,7 @@ class Shapes {
     }
 
     getCoustomShape(shapePonit){
-        let shape = new three.Shape(shapePonit);
+        let shape = new Shape(shapePonit);
         return shape;
     }
 }
@@ -39584,9 +39553,9 @@ class GeoLorder{
         // flat shape with texture
         // note: default UVs generated by THREE.ShapeGeometry are simply the x- and y-coordinates of the vertices
 
-        let geometry = new three.ShapeGeometry( shape );
+        let geometry = new ShapeGeometry( shape );
 
-        let mesh = new three.Mesh( geometry, new three.MeshPhongMaterial( { side: three.DoubleSide, map: texture } ) );
+        let mesh = new Mesh( geometry, new MeshPhongMaterial( { side: DoubleSide, map: texture } ) );
         if ( position ) {
             mesh.position.copy( position );
         }
@@ -39609,9 +39578,9 @@ class GeoLorder{
     addShapeFlat( shape, color = 0xffffff, position, rotation, scale) {
         // flat shape
 
-        let geometry = new three.ShapeGeometry( shape );
+        let geometry = new ShapeGeometry( shape );
 
-        let mesh = new three.Mesh( geometry, new three.MeshPhongMaterial( { color: color, side: three.DoubleSide } ) );
+        let mesh = new Mesh( geometry, new MeshPhongMaterial( { color: color, side: DoubleSide } ) );
         if ( position ) {
             mesh.position.copy( position );
         }
@@ -39638,9 +39607,9 @@ class GeoLorder{
         
         // extruded shape
 
-        let geometry = new three.ExtrudeGeometry( shape, extrudeSettings );
+        let geometry = new ExtrudeGeometry( shape, extrudeSettings );
 
-        let mesh = new three.Mesh( geometry, new three.MeshPhongMaterial( { color: color } ) );
+        let mesh = new Mesh( geometry, new MeshPhongMaterial( { color: color } ) );
         if ( position ) {
             mesh.position.copy( position );
         }
@@ -39657,8 +39626,8 @@ class GeoLorder{
     addSolidLineReal( shape, color = 0xffffff, position, rotation, scale ) {
         shape.autoClose = true;
         const points = shape.getPoints();
-        const geometryPoints = new three.BufferGeometry().setFromPoints( points );
-        let line = new three.Line( geometryPoints, new three.LineBasicMaterial( { color: color } ) );
+        const geometryPoints = new BufferGeometry().setFromPoints( points );
+        let line = new Line( geometryPoints, new LineBasicMaterial$1( { color: color } ) );
         if ( position ) {
             line.position.copy( position );
         }
@@ -39674,8 +39643,8 @@ class GeoLorder{
     addSolidLineSampled( shape, color = 0xffffff, position, rotation, scale ) {
         shape.autoClose = true;
         const spacedPoints = shape.getSpacedPoints( 50 );
-        const geometrySpacedPoints = new three.BufferGeometry().setFromPoints( spacedPoints );
-        let line = new three.Line( geometrySpacedPoints, new three.MeshPhongMaterial( { color: color } ) );
+        const geometrySpacedPoints = new BufferGeometry().setFromPoints( spacedPoints );
+        let line = new Line( geometrySpacedPoints, new MeshPhongMaterial( { color: color } ) );
         if ( position ) {
             line.position.copy( position );
         }
@@ -39692,8 +39661,8 @@ class GeoLorder{
         shape.autoClose = true;
 
         const points = shape.getPoints();
-        const geometryPoints = new three.BufferGeometry().setFromPoints( points );
-        let particles = new three.Points( geometryPoints, new three.PointsMaterial( { color: color, size: 400 } ) );
+        const geometryPoints = new BufferGeometry().setFromPoints( points );
+        let particles = new Points( geometryPoints, new PointsMaterial( { color: color, size: 400 } ) );
         if ( position ) {
             particles.position.copy( position );
         }
@@ -39710,8 +39679,8 @@ class GeoLorder{
         shape.autoClose = true;
 
         const spacedPoints = shape.getSpacedPoints( 50 );
-        const geometrySpacedPoints = new three.BufferGeometry().setFromPoints( spacedPoints );
-        particles = new three.Points( geometrySpacedPoints, new three.PointsMaterial( { color: color, size: 400 } ) );
+        const geometrySpacedPoints = new BufferGeometry().setFromPoints( spacedPoints );
+        particles = new Points( geometrySpacedPoints, new PointsMaterial( { color: color, size: 400 } ) );
         if ( position ) {
             particles.position.copy( position );
         }
@@ -39737,7 +39706,7 @@ class GeoLorder{
      *      https://www.cnblogs.com/vadim-web/p/13282658.html  该网页最后
      */
     addShapePath( shape, ponits, color = 0xffffff) {
-        const spline = new three.CatmullRomCurve3( ponits );
+        const spline = new CatmullRomCurve3( ponits );
         spline.curveType = 'catmullrom';
         spline.closed = true;
         // 参考于： https://threejs.org/docs/index.html?q=shape#api/en/geometries/ExtrudeGeometry
@@ -39751,18 +39720,18 @@ class GeoLorder{
             bevelOffset: 0,
             bevelSegments: 5
         };
-        const geometry = new three.ExtrudeGeometry( shape, extrudeSettings );
+        const geometry = new ExtrudeGeometry( shape, extrudeSettings );
 
-        const material = new three.MeshPhongMaterial( { color: color, wireframe: false } );
+        const material = new MeshPhongMaterial( { color: color, wireframe: false } );
 
-        const mesh = new three.Mesh( geometry, material );
+        const mesh = new Mesh( geometry, material );
         return mesh;
     }
     
     // 加载行政区划json
     // 也可以适配加载常规的geojson, 后续再进行调试
     async loadRegionJson(path, color, mode = GeoLorder.LineReal, options = {}, position, rorate, scale){
-        let group = new three.Group();
+        let group = new Group$1();
         await fetch(path).then(res=>res.json()).then(data=>{
             let features = data.features;
             features.forEach(feature=>{
@@ -39778,13 +39747,13 @@ class GeoLorder{
                         for(let point of polygon){
                             // Todo 经纬度转笛卡尔坐标系
                             let coord = UnitsUtils.datumsToSpherical(point[1], point[0]); // 经纬度转笛卡尔坐标系, point 中的经纬度是反的【lon,lat】
-                            shapePonit.push(new three.Vector2(coord.x, -coord.y));
+                            shapePonit.push(new Vector2(coord.x, -coord.y));
                         }
                         properties.center; // 转成笛卡尔坐标系,行政中心
                         let centroid = properties.centroid; // 转成笛卡尔坐标系，形心
                         UnitsUtils.datumsToSpherical(centroid[1], centroid[0]);
                         // position = new Vector3(centerCoord.x, -centerCoord.y, 0 );
-                        let shape = new three.Shape(shapePonit);
+                        let shape = new Shape(shapePonit);
                         let mesh = this.produce(mode, shape, color, position, rorate, scale);
                         mesh.name = properties.name;
                         mesh.transparent = true;
@@ -39827,7 +39796,7 @@ class GeoLorder{
                 shape.getPoints();
                 let points = [];
                 for(let point of shape.getPoints()){
-                    points.push(new three.Vector3(point.x, point.y, 0));
+                    points.push(new Vector3(point.x, point.y, 0));
                 }
                 mesh = this.addShapePath(shapes.getCircle(), points, color, position, rorate, scale);
                 break;
@@ -39876,7 +39845,7 @@ class GeoLorder{
  * http://29a.ch/ && http://29a.ch/slides/2012/webglwater/ : Water shader explanations in WebGL
  */
 
-let Water$1 = class Water extends three.Mesh {
+let Water$1 = class Water extends Mesh {
 
 	constructor( geometry, options = {} ) {
 
@@ -39893,41 +39862,41 @@ let Water$1 = class Water extends three.Mesh {
 		const alpha = options.alpha !== undefined ? options.alpha : 1.0;
 		const time = options.time !== undefined ? options.time : 0.0;
 		const normalSampler = options.waterNormals !== undefined ? options.waterNormals : null;
-		const sunDirection = options.sunDirection !== undefined ? options.sunDirection : new three.Vector3( 0.70707, 0.70707, 0.0 );
-		const sunColor = new three.Color( options.sunColor !== undefined ? options.sunColor : 0xffffff );
-		const waterColor = new three.Color( options.waterColor !== undefined ? options.waterColor : 0x7F7F7F );
-		const eye = options.eye !== undefined ? options.eye : new three.Vector3( 0, 0, 0 );
+		const sunDirection = options.sunDirection !== undefined ? options.sunDirection : new Vector3( 0.70707, 0.70707, 0.0 );
+		const sunColor = new Color( options.sunColor !== undefined ? options.sunColor : 0xffffff );
+		const waterColor = new Color( options.waterColor !== undefined ? options.waterColor : 0x7F7F7F );
+		const eye = options.eye !== undefined ? options.eye : new Vector3( 0, 0, 0 );
 		const distortionScale = options.distortionScale !== undefined ? options.distortionScale : 20.0;
-		const side = options.side !== undefined ? options.side : three.FrontSide;
+		const side = options.side !== undefined ? options.side : FrontSide;
 		const fog = options.fog !== undefined ? options.fog : false;
 
 		//
 
-		const mirrorPlane = new three.Plane();
-		const normal = new three.Vector3();
-		const mirrorWorldPosition = new three.Vector3();
-		const cameraWorldPosition = new three.Vector3();
-		const rotationMatrix = new three.Matrix4();
-		const lookAtPosition = new three.Vector3( 0, 0, - 1 );
-		const clipPlane = new three.Vector4();
+		const mirrorPlane = new Plane();
+		const normal = new Vector3();
+		const mirrorWorldPosition = new Vector3();
+		const cameraWorldPosition = new Vector3();
+		const rotationMatrix = new Matrix4();
+		const lookAtPosition = new Vector3( 0, 0, - 1 );
+		const clipPlane = new Vector4();
 
-		const view = new three.Vector3();
-		const target = new three.Vector3();
-		const q = new three.Vector4();
+		const view = new Vector3();
+		const target = new Vector3();
+		const q = new Vector4();
 
-		const textureMatrix = new three.Matrix4();
+		const textureMatrix = new Matrix4();
 
-		const mirrorCamera = new three.PerspectiveCamera();
+		const mirrorCamera = new PerspectiveCamera();
 
-		const renderTarget = new three.WebGLRenderTarget( textureWidth, textureHeight );
+		const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight );
 
 		const mirrorShader = {
 
 			name: 'MirrorShader',
 
-			uniforms: three.UniformsUtils.merge( [
-				three.UniformsLib[ 'fog' ],
-				three.UniformsLib[ 'lights' ],
+			uniforms: UniformsUtils.merge( [
+				UniformsLib[ 'fog' ],
+				UniformsLib[ 'lights' ],
 				{
 					'normalSampler': { value: null },
 					'mirrorSampler': { value: null },
@@ -39935,11 +39904,11 @@ let Water$1 = class Water extends three.Mesh {
 					'time': { value: 0.0 },
 					'size': { value: 1.0 },
 					'distortionScale': { value: 20.0 },
-					'textureMatrix': { value: new three.Matrix4() },
-					'sunColor': { value: new three.Color( 0x7F7F7F ) },
-					'sunDirection': { value: new three.Vector3( 0.70707, 0.70707, 0 ) },
-					'eye': { value: new three.Vector3() },
-					'waterColor': { value: new three.Color( 0x555555 ) }
+					'textureMatrix': { value: new Matrix4() },
+					'sunColor': { value: new Color( 0x7F7F7F ) },
+					'sunDirection': { value: new Vector3( 0.70707, 0.70707, 0 ) },
+					'eye': { value: new Vector3() },
+					'waterColor': { value: new Color( 0x555555 ) }
 				}
 			] ),
 
@@ -40045,9 +40014,9 @@ let Water$1 = class Water extends three.Mesh {
 
 		};
 
-		const material = new three.ShaderMaterial( {
+		const material = new ShaderMaterial( {
 			name: mirrorShader.name,
-			uniforms: three.UniformsUtils.clone( mirrorShader.uniforms ),
+			uniforms: UniformsUtils.clone( mirrorShader.uniforms ),
 			vertexShader: mirrorShader.vertexShader,
 			fragmentShader: mirrorShader.fragmentShader,
 			lights: true,
@@ -40195,17 +40164,17 @@ class Water1 {
             {
                 textureWidth: textureSize,
                 textureHeight: textureSize,
-                waterNormals: new three.TextureLoader().load( textureUrl, function ( texture ) {
+                waterNormals: new TextureLoader().load( textureUrl, function ( texture ) {
 
-                    texture.wrapS = texture.wrapT = three.RepeatWrapping;
+                    texture.wrapS = texture.wrapT = RepeatWrapping;
 
                 } ),
-                sunDirection: new three.Vector3(1, 100, -0.5),
+                sunDirection: new Vector3(1, 100, -0.5),
                 sunColor: sunColor,
                 waterColor: waterColor,
                 distortionScale: 3.7,
                 fog: false, // 是否开启雾化效果
-                side: three.FrontSide, // 默认是前面，但是在实际渲染中，需要设置为后面，否则水面会和地图的面相反，导致显示错误
+                side: FrontSide, // 默认是前面，但是在实际渲染中，需要设置为后面，否则水面会和地图的面相反，导致显示错误
                 alpha: 1.0,
             }
         );
@@ -40236,7 +40205,7 @@ class Water1 {
  * 2、水体的跨高程流动。
  */
 
-class Reflector extends three.Mesh {
+class Reflector extends Mesh {
 
 	constructor( geometry, options = {} ) {
 
@@ -40245,11 +40214,11 @@ class Reflector extends three.Mesh {
 		this.isReflector = true;
 
 		this.type = 'Reflector';
-		this.camera = new three.PerspectiveCamera();
+		this.camera = new PerspectiveCamera();
 
 		const scope = this;
 
-		const color = ( options.color !== undefined ) ? new three.Color( options.color ) : new three.Color( 0x7F7F7F );
+		const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0x7F7F7F );
 		const textureWidth = options.textureWidth || 512;
 		const textureHeight = options.textureHeight || 512;
 		const clipBias = options.clipBias || 0;
@@ -40258,26 +40227,26 @@ class Reflector extends three.Mesh {
 
 		//
 
-		const reflectorPlane = new three.Plane();
-		const normal = new three.Vector3();
-		const reflectorWorldPosition = new three.Vector3();
-		const cameraWorldPosition = new three.Vector3();
-		const rotationMatrix = new three.Matrix4();
-		const lookAtPosition = new three.Vector3( 0, 0, - 1 );
-		const clipPlane = new three.Vector4();
+		const reflectorPlane = new Plane();
+		const normal = new Vector3();
+		const reflectorWorldPosition = new Vector3();
+		const cameraWorldPosition = new Vector3();
+		const rotationMatrix = new Matrix4();
+		const lookAtPosition = new Vector3( 0, 0, - 1 );
+		const clipPlane = new Vector4();
 
-		const view = new three.Vector3();
-		const target = new three.Vector3();
-		const q = new three.Vector4();
+		const view = new Vector3();
+		const target = new Vector3();
+		const q = new Vector4();
 
-		const textureMatrix = new three.Matrix4();
+		const textureMatrix = new Matrix4();
 		const virtualCamera = this.camera;
 
-		const renderTarget = new three.WebGLRenderTarget( textureWidth, textureHeight, { samples: multisample, type: three.HalfFloatType } );
+		const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight, { samples: multisample, type: HalfFloatType } );
 
-		const material = new three.ShaderMaterial( {
+		const material = new ShaderMaterial( {
 			name: ( shader.name !== undefined ) ? shader.name : 'unspecified',
-			uniforms: three.UniformsUtils.clone( shader.uniforms ),
+			uniforms: UniformsUtils.clone( shader.uniforms ),
 			fragmentShader: shader.fragmentShader,
 			vertexShader: shader.vertexShader
 		} );
@@ -40485,7 +40454,7 @@ Reflector.ReflectorShader = {
 		}`
 };
 
-class Refractor extends three.Mesh {
+class Refractor extends Mesh {
 
 	constructor( geometry, options = {} ) {
 
@@ -40494,11 +40463,11 @@ class Refractor extends three.Mesh {
 		this.isRefractor = true;
 
 		this.type = 'Refractor';
-		this.camera = new three.PerspectiveCamera();
+		this.camera = new PerspectiveCamera();
 
 		const scope = this;
 
-		const color = ( options.color !== undefined ) ? new three.Color( options.color ) : new three.Color( 0x7F7F7F );
+		const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0x7F7F7F );
 		const textureWidth = options.textureWidth || 512;
 		const textureHeight = options.textureHeight || 512;
 		const clipBias = options.clipBias || 0;
@@ -40513,18 +40482,18 @@ class Refractor extends three.Mesh {
 
 		//
 
-		const refractorPlane = new three.Plane();
-		const textureMatrix = new three.Matrix4();
+		const refractorPlane = new Plane();
+		const textureMatrix = new Matrix4();
 
 		// render target
 
-		const renderTarget = new three.WebGLRenderTarget( textureWidth, textureHeight, { samples: multisample, type: three.HalfFloatType } );
+		const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight, { samples: multisample, type: HalfFloatType } );
 
 		// material
 
-		this.material = new three.ShaderMaterial( {
+		this.material = new ShaderMaterial( {
 			name: ( shader.name !== undefined ) ? shader.name : 'unspecified',
-			uniforms: three.UniformsUtils.clone( shader.uniforms ),
+			uniforms: UniformsUtils.clone( shader.uniforms ),
 			vertexShader: shader.vertexShader,
 			fragmentShader: shader.fragmentShader,
 			transparent: true // ensures, refractors are drawn from farthest to closest
@@ -40538,12 +40507,12 @@ class Refractor extends three.Mesh {
 
 		const visible = ( function () {
 
-			const refractorWorldPosition = new three.Vector3();
-			const cameraWorldPosition = new three.Vector3();
-			const rotationMatrix = new three.Matrix4();
+			const refractorWorldPosition = new Vector3();
+			const cameraWorldPosition = new Vector3();
+			const rotationMatrix = new Matrix4();
 
-			const view = new three.Vector3();
-			const normal = new three.Vector3();
+			const view = new Vector3();
+			const normal = new Vector3();
 
 			return function visible( camera ) {
 
@@ -40565,10 +40534,10 @@ class Refractor extends three.Mesh {
 
 		const updateRefractorPlane = ( function () {
 
-			const normal = new three.Vector3();
-			const position = new three.Vector3();
-			const quaternion = new three.Quaternion();
-			const scale = new three.Vector3();
+			const normal = new Vector3();
+			const position = new Vector3();
+			const quaternion = new Quaternion();
+			const scale = new Vector3();
 
 			return function updateRefractorPlane() {
 
@@ -40587,9 +40556,9 @@ class Refractor extends three.Mesh {
 
 		const updateVirtualCamera = ( function () {
 
-			const clipPlane = new three.Plane();
-			const clipVector = new three.Vector4();
-			const q = new three.Vector4();
+			const clipPlane = new Plane();
+			const clipVector = new Vector4();
+			const q = new Vector4();
 
 			return function updateVirtualCamera( camera ) {
 
@@ -40803,7 +40772,7 @@ Refractor.RefractorShader = {
  *
  */
 
-class Water extends three.Mesh {
+class Water extends Mesh {
 
 	constructor( geometry, options = {} ) {
 
@@ -40815,17 +40784,17 @@ class Water extends three.Mesh {
 
 		const scope = this;
 
-		const color = ( options.color !== undefined ) ? new three.Color( options.color ) : new three.Color( 0xFFFFFF );
+		const color = ( options.color !== undefined ) ? new Color( options.color ) : new Color( 0xFFFFFF );
 		const textureWidth = options.textureWidth || 512;
 		const textureHeight = options.textureHeight || 512;
 		const clipBias = options.clipBias || 0;
-		const flowDirection = options.flowDirection || new three.Vector2( 1, 0 );
+		const flowDirection = options.flowDirection || new Vector2( 1, 0 );
 		const flowSpeed = options.flowSpeed || 0.03;
 		const reflectivity = options.reflectivity || 0.02;
 		const scale = options.scale || 1;
 		const shader = options.shader || Water.WaterShader;
 
-		const textureLoader = new three.TextureLoader();
+		const textureLoader = new TextureLoader();
 
 		const flowMap = options.flowMap || undefined;
 		const normalMap0 = options.normalMap0 || textureLoader.load( 'textures/water/Water_1_M_Normal.jpg' );
@@ -40833,8 +40802,8 @@ class Water extends three.Mesh {
 
 		const cycle = 0.15; // a cycle of a flow map phase
 		const halfCycle = cycle * 0.5;
-		const textureMatrix = new three.Matrix4();
-		const clock = new three.Clock();
+		const textureMatrix = new Matrix4();
+		const clock = new Clock();
 
 		// internal components
 
@@ -40865,10 +40834,10 @@ class Water extends three.Mesh {
 
 		// material
 
-		this.material = new three.ShaderMaterial( {
+		this.material = new ShaderMaterial( {
 			name: shader.name,
-			uniforms: three.UniformsUtils.merge( [
-				three.UniformsLib[ 'fog' ],
+			uniforms: UniformsUtils.merge( [
+				UniformsLib[ 'fog' ],
 				shader.uniforms
 			] ),
 			vertexShader: shader.vertexShader,
@@ -40896,8 +40865,8 @@ class Water extends three.Mesh {
 
 		// maps
 
-		normalMap0.wrapS = normalMap0.wrapT = three.RepeatWrapping;
-		normalMap1.wrapS = normalMap1.wrapT = three.RepeatWrapping;
+		normalMap0.wrapS = normalMap0.wrapT = RepeatWrapping;
+		normalMap1.wrapS = normalMap1.wrapT = RepeatWrapping;
 
 		this.material.uniforms[ 'tReflectionMap' ].value = reflector.getRenderTarget().texture;
 		this.material.uniforms[ 'tRefractionMap' ].value = refractor.getRenderTarget().texture;
@@ -41025,7 +40994,7 @@ Water.WaterShader = {
 
 		'config': {
 			type: 'v4',
-			value: new three.Vector4()
+			value: new Vector4()
 		}
 
 	},
@@ -41147,11 +41116,11 @@ class Water2 {
         let water = new Water( waterGeometry, {
             color: params.color,
             scale: params.scale,
-            flowDirection: new three.Vector2( params.flowX, params.flowY ),
+            flowDirection: new Vector2( params.flowX, params.flowY ),
             textureWidth: 512,
             textureHeight: 512,
-            normalMap0: new three.TextureLoader().load( 'png/Water_1_M_Normal.jpg' ),
-            normalMap1: new three.TextureLoader().load( 'png/Water_2_M_Normal.jpg' ),
+            normalMap0: new TextureLoader().load( 'png/Water_1_M_Normal.jpg' ),
+            normalMap1: new TextureLoader().load( 'png/Water_2_M_Normal.jpg' ),
         } );
         return water;
     }
@@ -41174,7 +41143,7 @@ class WaterLorder {
      */
     getFlatGeometry( shape) {
         // flat shape
-        let geometry = new three.ShapeGeometry( shape );
+        let geometry = new ShapeGeometry( shape );
         return geometry;
     }
 
@@ -41199,7 +41168,7 @@ class WaterLorder {
                 bevelSegments: 5
             };
         }
-        let geometry = new three.ExtrudeGeometry( shape, extrudeSettings );
+        let geometry = new ExtrudeGeometry( shape, extrudeSettings );
         return geometry;
     }
 
@@ -41210,7 +41179,7 @@ class WaterLorder {
      * @returns 
      */
     getShapePathGeometry( shape, ponits) {
-        const spline = new three.CatmullRomCurve3( ponits );
+        const spline = new CatmullRomCurve3( ponits );
         spline.curveType = 'catmullrom';
         spline.closed = true;
         // 参考于： https://threejs.org/docs/index.html?q=shape#api/en/geometries/ExtrudeGeometry
@@ -41224,7 +41193,7 @@ class WaterLorder {
             bevelOffset: 0,
             bevelSegments: 5
         };
-        const geometry = new three.ExtrudeGeometry( shape, extrudeSettings );
+        const geometry = new ExtrudeGeometry( shape, extrudeSettings );
 
         return geometry;
     }
@@ -41233,8 +41202,8 @@ class WaterLorder {
     addSolidLineReal( shape, color = 0xffffff) {
         shape.autoClose = true;
         const points = shape.getPoints();
-        const geometryPoints = new three.BufferGeometry().setFromPoints( points );
-        let line = new three.Line( geometryPoints, new LineBasicMaterial( { color: color } ) );
+        const geometryPoints = new BufferGeometry().setFromPoints( points );
+        let line = new Line( geometryPoints, new LineBasicMaterial( { color: color } ) );
         return line;
     }
 
@@ -41251,7 +41220,7 @@ class WaterLorder {
 
     // 获取水面,获得的水面对象都放在了group（Threejs）对象里面
     async getWater(path, mode = WaterLorder.FLAT, options = {}){
-        let group = new three.Group();
+        let group = new Group$1();
         await fetch(path).then(res=>res.json()).then(data=>{
             // data = this.example(); // 测试数据, 先覆盖掉原来的数据
             let features = data.features;
@@ -41268,9 +41237,9 @@ class WaterLorder {
                         for(let point of polygon){
                             // Todo 经纬度转笛卡尔坐标系
                             let coord = UnitsUtils.datumsToSpherical(point[1], point[0]); // 经纬度转笛卡尔坐标系, point 中的经纬度是反的【lon,lat】
-                            shapePonit.push(new three.Vector2(coord.x, coord.y)); // 这里为什么不是负Y呢？，由于水面只有一面，在实际测试中，需要设置为正Y
+                            shapePonit.push(new Vector2(coord.x, coord.y)); // 这里为什么不是负Y呢？，由于水面只有一面，在实际测试中，需要设置为正Y
                         }
-                        let shape = new three.Shape(shapePonit);
+                        let shape = new Shape(shapePonit);
                         let geometry = this.produce(shape, mode);
                         let water = this.initWater(geometry);
                         water.rotation.set(-Math.PI/2, 0, 0);
@@ -41294,7 +41263,7 @@ class WaterLorder {
                 let shapes = new Shapes();
                 let points = [];
                 for(let point of shape.getPoints()){
-                    points.push(new three.Vector3(point.x, point.y, 0));
+                    points.push(new Vector3(point.x, point.y, 0));
                 }
                 return this.getShapePathGeometry(shapes.getCircle(), points);
             default:
@@ -41369,38 +41338,24 @@ class WegeoMap {
     // Array.from(myMap)   [...myMap]
     layers = new Map(); // Map 可以和array相互转换
     gui;
-    plane = false;
-    sphere = false;
     constructor(){
         Element.initBaseMapContainer();
         Element.createLayers();
         // this.camera =  new PerspectiveCamera(80, 1, 0.1, 1e12);
         
     }
-    /**
-     * 参数提供两个，一个是providers，一个是heightProvider
-     * providers为一个数组，可以传输多个provider
-     * heightProvider为null或者一个provider,当创建具有高程的地图时，需要提供高程数据
-     * @param {*} option {providers: [], heightProvider: null}
-     */
-    addBaseMap(option = {providers : [], heightProvider: null}){
-        this.plane = true;
+
+    addBaseMap(){
         this.initGui();
         let container  = document.getElementById("map");
         let canvas = document.getElementById("base");
-        let map = null;
-        if(!option.providers || option.providers.length == 0){
-            throw("providers is null or empty, please give a provider");
-        }
-        if(option.heightProvider && option.heightProvider!=null){
-            map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
-        } else {
-            map = new MapView(MapView.PLANAR , option.providers);
-        }
+        let provider = new BingMapsProvider();
+        let map = new MapView(MapView.PLANAR , provider);
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, this.camera);
         this.baseMap.moveTo(44.266119,90.139228);
+        this.baseMap.add();
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
@@ -41411,72 +41366,24 @@ class WegeoMap {
         this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
         this.selectModel(RaycasterUtils.casterMesh);
     }
-    /**
-     * 参数提供两个，一个是providers，一个是heightProvider
-     * providers为一个数组，可以传输多个provider
-     * heightProvider为null或者一个provider,当创建具有高程的地图时，需要提供高程数据，
-     * 但是由于时间原因暂时未实现带有高程的圆形地球。2024年7月13日20:59:04
-     * @param {*} option {providers: [], heightProvider: null}
-     */
-    addBaseSphereMap(option = {}){
-        this.sphere = true;
+
+    addBaseSphereMap(){
         this.initGui();
         let container  = document.getElementById("map");
         let canvas = document.getElementById("base");
-        if(!option.providers || option.providers.length == 0){
-            throw("providers is null or empty, please give a provider");
-        }
-        let map = new MapView(MapView.SPHERICAL , option.providers);
-        map.lod = new LODSphere();
-        // map.updateMatrixWorld(true);
-        this.baseMap = new Layer(1, container, canvas, map, false);
-        // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);
-        
-        // this.baseMap.moveToByLL(44.266119,90.139228);// 移动到指定位置。
+        let provider = new RoadImageProvider();
+        let map = new MapView(MapView.SPHERICAL , provider);
+        this.baseMap = new Layer(1, container, canvas, map);
+        this.baseMap.moveTo(44.266119,90.139228); // 移动到指定位置。
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
                 layer.camera.position.copy( this.baseMap.camera.position );
                 layer.camera.rotation.copy( this.baseMap.camera.rotation );
             }
-            let distance = this.baseMap.camera.position.distanceTo(new three.Vector3(0,0,0));
-            // console.log(distance);
-            if(distance > UnitsUtils.EARTH_RADIUS *2.5){
-                distance = UnitsUtils.EARTH_RADIUS *2.5;
-            }
-            let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
-            this.baseMap.controls.zoomSpeed = thirdPow;
-            this.baseMap.controls.rotateSpeed = thirdPow * 0.2;
-            this.baseMap.controls.panSpeed = thirdPow;
         });
-        this.baseMap.controls.mouseButtons = {
-            LEFT: three.MOUSE.ROTATE,
-            MIDDLE: three.MOUSE.DOLLY,
-            RIGHT: three.MOUSE.PAN
-        };
-        this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
         this.listener = new Listener(this.baseMap.canvas);
         this.selectModel(RaycasterUtils.casterMesh);
-        let sky = new Skybox().loadBox();
-        this.baseMap.scene.background = sky;
-    }
-
-    /**
-     * 
-     * @param {Provider} provider 地图数据提供器，不可为空
-     */
-    addView(provider){
-        if (this.plane){
-            var mapView = new MapView(MapView.PLANAR , provider);
-            mapView.position.set(0,10,0);
-            this.baseMap.add(mapView);
-        } else {
-            var mapView = new MapView(MapView.SPHERICAL , provider, null, 5);
-            mapView.updateMatrixWorld(true);
-            mapView.lod = new LODSphere();
-            mapView.transparent = true;
-            this.baseMap.add(mapView);
-        }
     }
 
 
@@ -41526,13 +41433,6 @@ class WegeoMap {
         }
         this.baseMap.moveToByCoords(coords);
     }
-
-    moveToByLL(lat, lon){
-        if(!this.baseMap){
-            return;
-        }
-        this.baseMap.moveToByLL(lat, lon);
-    }
     
     // 鼠标点击获取模型
     getModel(mx,my){
@@ -41579,9 +41479,9 @@ class WegeoMap {
         this.layers.set(id, layer);
         layer.imageLayer = true;
         // this.layers[id] = layer;
-        layer.ambientLight = new three.AmbientLight(0x404040);
+        layer.ambientLight = new AmbientLight(0x404040);
         layer.add(layer.ambientLight);
-        layer.directionalLight = new three.DirectionalLight(0xFFFFFF);
+        layer.directionalLight = new DirectionalLight(0xFFFFFF);
         // light.target = map2;
         layer.add(layer.directionalLight);
         return layer;
@@ -41594,9 +41494,9 @@ class WegeoMap {
         this.layers.set(id, layer);
         layer.vectorLayer = true;
         // this.layers[id] = layer;
-        layer.ambientLight = new three.AmbientLight(0x404040);
+        layer.ambientLight = new AmbientLight(0x404040);
         layer.add(layer.ambientLight);
-        layer.directionalLight = new three.DirectionalLight(0xFFFFFF);
+        layer.directionalLight = new DirectionalLight(0xFFFFFF);
         // light.target = map2;
         layer.add(layer.directionalLight);
         return layer;
@@ -41621,9 +41521,9 @@ class WegeoMap {
         this.layers.set(id, layer);
         layer.modelLayer = true;
         // this.layers[id] = layer;
-        layer.ambientLight = new three.AmbientLight(0x404040);
+        layer.ambientLight = new AmbientLight(0x404040);
         layer.add(layer.ambientLight);
-        layer.directionalLight = new three.DirectionalLight(0xFFFFFF);
+        layer.directionalLight = new DirectionalLight(0xFFFFFF);
         // light.target = map2;
         layer.add(layer.directionalLight);
         return layer;
@@ -41636,9 +41536,9 @@ class WegeoMap {
         let layer = new Layer(id, container, canvas, null);
         this.layers.set(id, layer);
         layer.regionLayer = true;
-        layer.ambientLight = new three.AmbientLight(0x404040);
+        layer.ambientLight = new AmbientLight(0x404040);
         layer.add(layer.ambientLight);
-        layer.directionalLight = new three.DirectionalLight(0xFFFFFF);
+        layer.directionalLight = new DirectionalLight(0xFFFFFF);
         // light.target = map2;
         layer.add(layer.directionalLight);
         await this.addRegion(layer, mode);
@@ -41657,9 +41557,9 @@ class WegeoMap {
         let layer = new Layer(id, container, canvas, null);
         this.layers.set(id, layer);
         layer.waterLayer = true;
-        layer.ambientLight = new three.AmbientLight(0x404040);
+        layer.ambientLight = new AmbientLight(0x404040);
         layer.add(layer.ambientLight);
-        layer.directionalLight = new three.DirectionalLight(0xFFFFFF);
+        layer.directionalLight = new DirectionalLight(0xFFFFFF);
         // light.target = map2;
         layer.add(layer.directionalLight);
         await this.addWater(layer, mode);
@@ -41894,7 +41794,7 @@ class Animate {
 class Skybox {
 
     loadSkyBox(scale) {
-		var aCubeMap = new three.CubeTextureLoader().load([
+		var aCubeMap = new CubeTextureLoader().load([
 		  'png/sky/px.jpg',
 		  'png/sky/nx.jpg',
 		  'png/sky/py.jpg',
@@ -41902,27 +41802,27 @@ class Skybox {
 		  'png/sky/pz.jpg',
 		  'png/sky/nz.jpg'
 		]);
-		aCubeMap.format = three.RGBAFormat;
+		aCubeMap.format = RGBAFormat;
 
-		var aShader = three.ShaderLib['cube'];
+		var aShader = ShaderLib['cube'];
 		aShader.uniforms['tCube'].value = aCubeMap;
 
-		var aSkyBoxMaterial = new three.ShaderMaterial({
+		var aSkyBoxMaterial = new ShaderMaterial({
 		  fragmentShader: aShader.fragmentShader,
 		  vertexShader: aShader.vertexShader,
 		  uniforms: aShader.uniforms,
 		  depthWrite: false,
-		  side: three.BackSide
+		  side: BackSide
 		});
 
-		var aSkybox = new three.Mesh(
-		  new three.BoxGeometry(scale, scale, scale),
+		var aSkybox = new Mesh(
+		  new BoxGeometry(scale, scale, scale),
 		  aSkyBoxMaterial
 		);
 		return aSkybox;
 	}
 	loadBox(){
-		var cube = new three.CubeTextureLoader().load([
+		var cube = new CubeTextureLoader().load([
 		  'png/sky/px.jpg',
 		  'png/sky/nx.jpg',
 		  'png/sky/py.jpg',
@@ -41934,46 +41834,4 @@ class Skybox {
 	}
 }
 
-exports.Animate = Animate;
-exports.BingMapsProvider = BingMapsProvider;
-exports.CancelablePromise = CancelablePromise;
-exports.CanvasUtils = CanvasUtils;
-exports.Config = Config;
-exports.DebugProvider = DebugProvider;
-exports.Element = Element;
-exports.Geolocation = Geolocation;
-exports.GeolocationUtils = GeolocationUtils;
-exports.GeoserverWMSProvider = GeoserverWMSProvider;
-exports.GeoserverWMTSProvider = GeoserverWMTSProvider;
-exports.GoogleMapsProvider = GoogleMapsProvider;
-exports.HeightDebugProvider = HeightDebugProvider;
-exports.HereMapsProvider = HereMapsProvider;
-exports.LODControl = LODControl;
-exports.LODFrustum = LODFrustum;
-exports.LODRadial = LODRadial;
-exports.LODRaycast = LODRaycast;
-exports.LODSphere = LODSphere;
-exports.Layer = Layer;
-exports.MapBoxProvider = MapBoxProvider;
-exports.MapHeightNode = MapHeightNode;
-exports.MapHeightNodeShader = MapHeightNodeShader;
-exports.MapNode = MapNode;
-exports.MapNodeGeometry = MapNodeGeometry;
-exports.MapNodeHeightGeometry = MapNodeHeightGeometry;
-exports.MapPlaneNode = MapPlaneNode;
-exports.MapProvider = MapProvider;
-exports.MapSphereNode = MapSphereNode;
-exports.MapSphereNodeGeometry = MapSphereNodeGeometry;
-exports.MapTilerProvider = MapTilerProvider;
-exports.MapView = MapView;
-exports.OpenMapTilesProvider = OpenMapTilesProvider;
-exports.OpenStreetMapsProvider = OpenStreetMapsProvider;
-exports.QuadTreePosition = QuadTreePosition;
-exports.RoadImageProvider = RoadImageProvider;
-exports.Skybox = Skybox;
-exports.TextureUtils = TextureUtils;
-exports.TianDiTuHeightProvider = TianDiTuHeightProvider;
-exports.TianDiTuProvider = TianDiTuProvider;
-exports.UnitsUtils = UnitsUtils;
-exports.WegeoMap = WegeoMap;
-exports.XHRUtils = XHRUtils;
+export { Animate, BingMapsProvider, CancelablePromise, CanvasUtils, Config, DebugProvider, Element, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxProvider, MapHeightNode, MapHeightNodeShader, MapNode, MapNodeGeometry, MapNodeHeightGeometry, MapPlaneNode, MapProvider, MapSphereNode, MapSphereNodeGeometry, MapTilerProvider, MapView, OpenMapTilesProvider, OpenStreetMapsProvider, QuadTreePosition, RoadImageProvider, Skybox, TextureUtils, TianDiTuHeightProvider, TianDiTuProvider, UnitsUtils, WegeoMap, XHRUtils };

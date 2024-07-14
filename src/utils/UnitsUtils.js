@@ -48,7 +48,7 @@ export class UnitsUtils
 
 	/**
 	 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
-	 *
+	 *	经纬度转为世界坐标（x,y） 
 	 * @param latitude - Latitude value in degrees. 纬度
 	 * @param longitude - Longitude value in degrees. 经度
 	 */
@@ -64,7 +64,7 @@ export class UnitsUtils
 
 	/**
 	 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-	 * 计算世界坐标到经纬度
+	 * 计算世界坐标(x,y)到经纬度(lat,lon)
 	 * @param x - X coordinate.
 	 * @param y - Y coordinate.
 	 */
@@ -101,7 +101,7 @@ export class UnitsUtils
 	 * Direction vector to WGS84 coordinates.
 	 * 
 	 * Can be used to transform surface points of world sphere to coordinates.
-	 * 
+	 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
 	 * @param dir - Direction vector.
 	 * @returns WGS84 coordinates.
 	 */
@@ -120,7 +120,7 @@ export class UnitsUtils
 	 * Get a direction vector from WGS84 coordinates.
 	 * 
 	 * The vector obtained will be normalized.
-	 * 
+	 * 经纬度到空间内（x,y,z）的转换。
 	 * @param latitude - Latitude value in degrees.
 	 * @param longitude - Longitude value in degrees.
 	 * @returns Direction vector normalized.

@@ -256,7 +256,7 @@ class UnitsUtils
 
 	/**
 	 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
-	 *
+	 *	经纬度转为世界坐标（x,y） 
 	 * @param latitude - Latitude value in degrees. 纬度
 	 * @param longitude - Longitude value in degrees. 经度
 	 */
@@ -272,7 +272,7 @@ class UnitsUtils
 
 	/**
 	 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-	 * 计算世界坐标到经纬度
+	 * 计算世界坐标(x,y)到经纬度(lat,lon)
 	 * @param x - X coordinate.
 	 * @param y - Y coordinate.
 	 */
@@ -309,7 +309,7 @@ class UnitsUtils
 	 * Direction vector to WGS84 coordinates.
 	 * 
 	 * Can be used to transform surface points of world sphere to coordinates.
-	 * 
+	 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
 	 * @param dir - Direction vector.
 	 * @returns WGS84 coordinates.
 	 */
@@ -328,7 +328,7 @@ class UnitsUtils
 	 * Get a direction vector from WGS84 coordinates.
 	 * 
 	 * The vector obtained will be normalized.
-	 * 
+	 * 经纬度到空间内（x,y,z）的转换。
 	 * @param latitude - Latitude value in degrees.
 	 * @param longitude - Longitude value in degrees.
 	 * @returns Direction vector normalized.
@@ -801,7 +801,7 @@ class MapNode extends Mesh
 	 */
 	async loadData()
 	{
-		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
 		{
 
 			// @ts-ignore
@@ -813,49 +813,59 @@ class MapNode extends Mesh
 			// this.material.opacity = 0;
 			return;
 		}
-
-		try 
-		{
-			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
-			
-			if (this.disposed) 
+		let materials = [];
+		for (let provider of this.mapView.providers){
+			let material = this.material.clone();
+			try 
 			{
-				return;
+				let image = await provider.fetchTile(this.level, this.x, this.y, this.bbox);
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				const texture = new Texture(image);
+				texture.generateMipmaps = false;
+				texture.format = RGBAFormat;
+				texture.magFilter = LinearFilter;
+				texture.minFilter = LinearFilter;
+				texture.needsUpdate = true;
+				// texture.wrapS = RepeatWrapping;
+				// texture.wrapT = RepeatWrapping;
+				
+				// @ts-ignore
+				material.map = texture;
+				
+				// this.material.transparent = true;
+				material.alphaTest = 0.01;
+				// this.material.opacity = this.opacity;
 			}
-			
-			const texture = new Texture(image);
-			texture.generateMipmaps = false;
-			texture.format = RGBAFormat;
-			texture.magFilter = LinearFilter;
-			texture.minFilter = LinearFilter;
-			texture.needsUpdate = true;
-			// texture.wrapS = RepeatWrapping;
-            // texture.wrapT = RepeatWrapping;
-			
-			// @ts-ignore
-			this.material.map = texture;
-			
-			// this.material.transparent = true;
-			this.material.alphaTest = 0.01;
-			// this.material.opacity = this.opacity;
-		}
-		catch (e) 
-		{
-			if (this.disposed) 
+			catch (e) 
 			{
-				return;
-			}
+				if (this.disposed) 
+				{
+					return;
+				}
 
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-			this.material.transparent = true;
-			// this.material.alphaTest = 0.01;
-			this.material.opacity = 0;
-		}
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
 
 		// @ts-ignore
-		this.material.needsUpdate = true;
+			material.needsUpdate = true;
+			materials.push(material);
+		}
+
+		
+		this.material = materials;
+		this.geometry.clearGroups();
+		for (let i = 0; i < materials.length; i++) {
+			this.geometry.addGroup(0, Infinity, i);
+		}
 	}
 
 
@@ -1854,11 +1864,12 @@ class MapSphereNode extends MapNode
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}
-
+	/**
 	async loadData()
 	{
 		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
 		{
+			console.warn('Geo-Three: Loading tile outside of provider range.', this);
 
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
@@ -1876,22 +1887,14 @@ class MapSphereNode extends MapNode
 				return;
 			}
 						
-			// const textureLoader = new TextureLoader();
-			// const texture = textureLoader.load(image.src, function() {});
-			
 			const texture = new Texture(image);
 			texture.generateMipmaps = false;
 			texture.format = RGBAFormat;
 			texture.magFilter = LinearFilter;
 			texture.minFilter = LinearFilter;
 			texture.needsUpdate = true;
-			// texture.wrapS = RepeatWrapping;
-            // texture.wrapT = RepeatWrapping;
-			
 			// @ts-ignore
 			this.material.map = texture;
-			// this.material.uniforms.uTexture.value = texture;
-			// this.material.uniforms.uTexture.needsUpdate = true;
 		}
 		catch (e) 
 		{
@@ -1899,6 +1902,8 @@ class MapSphereNode extends MapNode
 			{
 				return;
 			}
+			
+			console.warn('Geo-Three: Failed to load node tile data.', this);
 
 			// @ts-ignore
 			this.material.map = MapNode.defaultTexture;
@@ -1911,6 +1916,7 @@ class MapSphereNode extends MapNode
 		// @ts-ignore
 		this.material.needsUpdate = true;
 	}
+	 */
 	
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
@@ -1963,6 +1969,10 @@ class MapSphereNode extends MapNode
 			fragmentShader: fragmentShader
 		});
 		return material;
+	}
+	static getGeometry(scale = 0){
+		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+		return geometry;
 	}
 }
 
@@ -3167,7 +3177,7 @@ class MapView extends Mesh
 	/**
 	 * Map tile color layer provider.
 	 */
-	provider = null;
+	providers = null;
 
 	/**
 	 * Map height (terrain elevation) layer provider.
@@ -3198,10 +3208,10 @@ class MapView extends Mesh
 	 * Constructor for the map view objects.
 	 *
 	 * @param root - Map view node modes can be SPHERICAL, HEIGHT or PLANAR. PLANAR is used by default. Can also be a custom MapNode instance.
-	 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
+	 * @param providers - Map color tile provider by default a OSM maps provider is used if none specified.
 	 * @param heightProvider - Map height tile provider, by default no height provider is used.
 	 */
-	constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+	constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
 	{
 		super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
@@ -3209,7 +3219,7 @@ class MapView extends Mesh
 		// this.lod = new LODRadial();
 		// this.lod = new LODFrustum();
 
-		this.provider = provider;
+		this.providers = providers;
 		this.heightProvider = heightProvider;
 		// 设置根节点，准备开始分裂
 		this.setRoot(root, scale);
@@ -3261,15 +3271,14 @@ class MapView extends Mesh
 		if (this.root !== null) 
 		{
 			// @ts-ignore
-			this.geometry = this.root.constructor.baseGeometry;
+			
 			// @ts-ignore
 			if (scale === null)
-				this.scale.copy(this.root.constructor.baseScale);
+				this.geometry = this.root.constructor.baseGeometry;
 			else
-				this.scale.copy(scale);
-
+				this.geometry = this.root.constructor.getGeometry(scale);
+			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
-			this.root.bbox = MapNode.baseBbox;
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
 		}
@@ -3303,7 +3312,7 @@ class MapView extends Mesh
 			}
 		}
 
-		const minZoom = Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 		if (minZoom > 0) 
 		{
 			subdivide(this.root, minZoom);
@@ -3312,16 +3321,33 @@ class MapView extends Mesh
 
 	/**
 	 * Change the map provider of this map view.
-	 *
+	 * 
 	 * Will discard all the tiles already loaded using the old provider.
+	 * @deprecated
 	 */
-	setProvider(provider)
+	setProvider(providers)
 	{
-		if (provider !== this.provider) 
+		if (providers !== this.providers) 
 		{
-			this.provider = provider;
+			this.providers = providers;
 			this.clear();
 		}
+	}
+	
+	/**
+	 * 添加一个数据提供器
+	 */
+	addProvider(provider){
+		this.providers.push(provider);
+	}
+
+	/**
+	 * 删除一个数据提供器
+	 * @param {*} index 数组索引
+	 */ 
+	removeProvider(index){
+	    // 删除index索引处的 provider
+		this.providers.splice(index, 1);
 	}
 
 	/**
@@ -3372,7 +3398,7 @@ class MapView extends Mesh
 	 */
 	minZoom() 
 	{
-		return Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		return Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 	}
 
 	/**
@@ -3382,7 +3408,7 @@ class MapView extends Mesh
 	 */
 	maxZoom() 
 	{
-		return Math.min(this.provider.maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
 	}
 
 	/**
@@ -3390,7 +3416,7 @@ class MapView extends Mesh
 	 */
 	getMetaData()
 	{
-		this.provider.getMetaData();
+		this.providers[0].getMetaData();
 	}
 
 	raycast(raycaster, intersects)
@@ -3451,7 +3477,7 @@ class LODSphere extends LODControl
 			const node = intersects[i].object;
 			let distance = intersects[i].distance;
 
-			distance /= Math.pow(2, view.provider.maxZoom - node.level);
+			distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
 
 			if (distance < this.subdivideDistance) 
 			{
@@ -18836,14 +18862,11 @@ class Layer  extends BasLayer{
     imageLayer = false; // 影像图层
     vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
     waters = []; // 水面集合
-    constructor(id, layerContainer, canvas, mapView, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
+    constructor(id, layerContainer, canvas, mapView, plane = true, camera = new PerspectiveCamera(80, 1, 0.1, 1e12)) {
         super();
         this.id = id;
         this.layerContainer = layerContainer;
         this.canvas = canvas;
-        this.z_index = z_index;
-        this.opacity = opacity;
-        this.visible = visible;
         this.renderer = new WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
@@ -18861,9 +18884,16 @@ class Layer  extends BasLayer{
             this.scene.add(this.mapView);
             this.mapView.updateMatrixWorld(true);
         }
-        this.controls = new MapControls(this.camera, this.canvas);
-        this.controls.minDistance = 1e1;
-        this.controls.zoomSpeed = 2.0;
+        if (plane){
+            this.controls = new MapControls(this.camera, this.canvas);
+            this.controls.minDistance = 1e1;
+            this.controls.zoomSpeed = 2.0;
+        } else {
+            this.controls = new OrbitControls(this.camera, this.canvas);
+            this.controls.enablePan = false;
+            this.controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
+            this.controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
+        }
         this._raycaster = new Raycaster();
         if(Config.outLine.on){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
@@ -18879,13 +18909,6 @@ class Layer  extends BasLayer{
             pointLight.position.set(...Config.layer.map.pointLight.position);
             this.scene.add(pointLight);
         }
-        const geometry = new BoxGeometry( 1, 1, 1 ); 
-        const material = new MeshBasicMaterial( {color: 0x00ff00} ); 
-        const cube = new Mesh( geometry, material );
-        cube.scale.set( 10000, 10000, 10000 );
-        var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228); 
-        cube.position.set(coords.x, 8000, -coords.y);
-        this.scene.add( cube );
     }
 
     moveTo(lat, lon, height = 38472.48763833733){
@@ -18899,6 +18922,12 @@ class Layer  extends BasLayer{
         let offset = 50;
         this.camera.position.set(coords.x, coords.y+offset, coords.z);
         this.controls.target.set(coords.x, coords.y, coords.z);
+    }
+
+    moveToByLL(lat, lon, distance = 384720){
+        let dir = UnitsUtils.datumsToVector(lat, lon);
+        dir.multiplyScalar(UnitsUtils.EARTH_RADIUS + distance);
+        this.camera.position.copy(dir);
     }
 
 
@@ -19069,8 +19098,8 @@ class Layer  extends BasLayer{
             this.effectOutline.render(); // 合成器渲染
         } else {
             this.renderer.autoClear = true;
-            this.renderer.render(this.scene, this.camera);
         }
+        this.renderer.render(this.scene, this.camera);
     }
 
     _raycast(meshes, recursive, faceExclude) {
@@ -41338,24 +41367,38 @@ class WegeoMap {
     // Array.from(myMap)   [...myMap]
     layers = new Map(); // Map 可以和array相互转换
     gui;
+    plane = false;
+    sphere = false;
     constructor(){
         Element.initBaseMapContainer();
         Element.createLayers();
         // this.camera =  new PerspectiveCamera(80, 1, 0.1, 1e12);
         
     }
-
-    addBaseMap(){
+    /**
+     * 参数提供两个，一个是providers，一个是heightProvider
+     * providers为一个数组，可以传输多个provider
+     * heightProvider为null或者一个provider,当创建具有高程的地图时，需要提供高程数据
+     * @param {*} option {providers: [], heightProvider: null}
+     */
+    addBaseMap(option = {providers : [], heightProvider: null}){
+        this.plane = true;
         this.initGui();
         let container  = document.getElementById("map");
         let canvas = document.getElementById("base");
-        let provider = new BingMapsProvider();
-        let map = new MapView(MapView.PLANAR , provider);
+        let map = null;
+        if(!option.providers || option.providers.length == 0){
+            throw("providers is null or empty, please give a provider");
+        }
+        if(option.heightProvider && option.heightProvider!=null){
+            map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
+        } else {
+            map = new MapView(MapView.PLANAR , option.providers);
+        }
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, this.camera);
         this.baseMap.moveTo(44.266119,90.139228);
-        this.baseMap.add();
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
@@ -41366,24 +41409,72 @@ class WegeoMap {
         this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
         this.selectModel(RaycasterUtils.casterMesh);
     }
-
-    addBaseSphereMap(){
+    /**
+     * 参数提供两个，一个是providers，一个是heightProvider
+     * providers为一个数组，可以传输多个provider
+     * heightProvider为null或者一个provider,当创建具有高程的地图时，需要提供高程数据，
+     * 但是由于时间原因暂时未实现带有高程的圆形地球。2024年7月13日20:59:04
+     * @param {*} option {providers: [], heightProvider: null}
+     */
+    addBaseSphereMap(option = {}){
+        this.sphere = true;
         this.initGui();
         let container  = document.getElementById("map");
         let canvas = document.getElementById("base");
-        let provider = new RoadImageProvider();
-        let map = new MapView(MapView.SPHERICAL , provider);
-        this.baseMap = new Layer(1, container, canvas, map);
-        this.baseMap.moveTo(44.266119,90.139228); // 移动到指定位置。
+        if(!option.providers || option.providers.length == 0){
+            throw("providers is null or empty, please give a provider");
+        }
+        let map = new MapView(MapView.SPHERICAL , option.providers);
+        map.lod = new LODSphere();
+        // map.updateMatrixWorld(true);
+        this.baseMap = new Layer(1, container, canvas, map, false);
+        // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);
+        
+        // this.baseMap.moveToByLL(44.266119,90.139228);// 移动到指定位置。
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
                 layer.camera.position.copy( this.baseMap.camera.position );
                 layer.camera.rotation.copy( this.baseMap.camera.rotation );
             }
+            let distance = this.baseMap.camera.position.distanceTo(new Vector3(0,0,0));
+            // console.log(distance);
+            if(distance > UnitsUtils.EARTH_RADIUS *2.5){
+                distance = UnitsUtils.EARTH_RADIUS *2.5;
+            }
+            let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
+            this.baseMap.controls.zoomSpeed = thirdPow;
+            this.baseMap.controls.rotateSpeed = thirdPow * 0.2;
+            this.baseMap.controls.panSpeed = thirdPow;
         });
+        this.baseMap.controls.mouseButtons = {
+            LEFT: MOUSE.ROTATE,
+            MIDDLE: MOUSE.DOLLY,
+            RIGHT: MOUSE.PAN
+        };
+        this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
         this.listener = new Listener(this.baseMap.canvas);
         this.selectModel(RaycasterUtils.casterMesh);
+        let sky = new Skybox().loadBox();
+        this.baseMap.scene.background = sky;
+    }
+
+    /**
+     * 
+     * @param {Provider} provider 地图数据提供器，不可为空
+     */
+    addView(provider){
+        if (this.plane){
+            var mapView = new MapView(MapView.PLANAR , provider);
+            mapView.position.set(0,10,0);
+            this.baseMap.add(mapView);
+        } else {
+            var mapView = new MapView(MapView.SPHERICAL , provider, null, 5);
+            mapView.updateMatrixWorld(true);
+            mapView.lod = new LODSphere();
+            mapView.transparent = true;
+            this.baseMap.add(mapView);
+        }
     }
 
 
@@ -41432,6 +41523,13 @@ class WegeoMap {
             return;
         }
         this.baseMap.moveToByCoords(coords);
+    }
+
+    moveToByLL(lat, lon){
+        if(!this.baseMap){
+            return;
+        }
+        this.baseMap.moveToByLL(lat, lon);
     }
     
     // 鼠标点击获取模型

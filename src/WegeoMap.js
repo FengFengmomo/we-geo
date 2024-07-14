@@ -1,10 +1,11 @@
-import { AmbientLight, DirectionalLight, PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh} from 'three';
+import { AmbientLight, DirectionalLight, MOUSE, Vector3, PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh} from 'three';
 import {RoadImageProvider} from './providers/RoadImageProvider';
 import {MapView} from './MapView';
 import { Layer } from './layers/Layer';
 import {D3TilesLayer} from './layers/3DTilesLayer';
 import { Element } from './utils/Element';
 import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js'
+import { OrbitControls } from './jsm/controls/OrbitControls';
 import {BingMapsProvider} from './providers/BingMapsProvider';
 import { Listener } from './listener/listener';
 import { RaycasterUtils } from './raycaster/utils';
@@ -12,6 +13,10 @@ import { Config } from './environment/config';
 import { GeoLorder } from './loader/GeoLorder';
 import { Colors } from './utils/Colors';
 import { WaterLorder } from './loader/WaterLorder';
+import { UnitsUtils } from './utils/UnitsUtils';
+import { LODSphere } from './lod/LODSphere';
+import { Skybox } from './main';
+
 
 export class WegeoMap {
     baseMap;
@@ -21,24 +26,38 @@ export class WegeoMap {
     // Array.from(myMap)   [...myMap]
     layers = new Map(); // Map 可以和array相互转换
     gui;
+    plane = false;
+    sphere = false;
     constructor(){
         Element.initBaseMapContainer();
         Element.createLayers();
         // this.camera =  new PerspectiveCamera(80, 1, 0.1, 1e12);
         
     }
-
-    addBaseMap(){
+    /**
+     * 参数提供两个，一个是providers，一个是heightProvider
+     * providers为一个数组，可以传输多个provider
+     * heightProvider为null或者一个provider,当创建具有高程的地图时，需要提供高程数据
+     * @param {*} option {providers: [], heightProvider: null}
+     */
+    addBaseMap(option = {providers : [], heightProvider: null}){
+        this.plane = true;
         this.initGui();
         let container  = document.getElementById("map");
         let canvas = document.getElementById("base");
-        let provider = new BingMapsProvider();
-        let map = new MapView(MapView.PLANAR , provider);
+        let map = null;
+        if(!option.providers || option.providers.length == 0){
+            throw("providers is null or empty, please give a provider");
+        }
+        if(option.heightProvider && option.heightProvider!=null){
+            map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
+        } else{
+            map = new MapView(MapView.PLANAR , option.providers);
+        }
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, this.camera);
         this.baseMap.moveTo(44.266119,90.139228);
-        this.baseMap.add()
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
@@ -49,24 +68,72 @@ export class WegeoMap {
         this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
         this.selectModel(RaycasterUtils.casterMesh);
     }
-
-    addBaseSphereMap(){
+    /**
+     * 参数提供两个，一个是providers，一个是heightProvider
+     * providers为一个数组，可以传输多个provider
+     * heightProvider为null或者一个provider,当创建具有高程的地图时，需要提供高程数据，
+     * 但是由于时间原因暂时未实现带有高程的圆形地球。2024年7月13日20:59:04
+     * @param {*} option {providers: [], heightProvider: null}
+     */
+    addBaseSphereMap(option = {}){
+        this.sphere = true;
         this.initGui();
         let container  = document.getElementById("map");
         let canvas = document.getElementById("base");
-        let provider = new RoadImageProvider();
-        let map = new MapView(MapView.SPHERICAL , provider);
-        this.baseMap = new Layer(1, container, canvas, map);
-        this.baseMap.moveTo(44.266119,90.139228); // 移动到指定位置。
+        if(!option.providers || option.providers.length == 0){
+            throw("providers is null or empty, please give a provider");
+        }
+        let map = new MapView(MapView.SPHERICAL , option.providers);
+        map.lod = new LODSphere();
+        // map.updateMatrixWorld(true);
+        this.baseMap = new Layer(1, container, canvas, map, false);
+        // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);
+        
+        // this.baseMap.moveToByLL(44.266119,90.139228);// 移动到指定位置。
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
             for(let layer of this.layers.values()){
                 layer.camera.position.copy( this.baseMap.camera.position );
                 layer.camera.rotation.copy( this.baseMap.camera.rotation );
             }
+            let distance = this.baseMap.camera.position.distanceTo(new Vector3(0,0,0));
+            // console.log(distance);
+            if(distance > UnitsUtils.EARTH_RADIUS *2.5){
+                distance = UnitsUtils.EARTH_RADIUS *2.5;
+            }
+            let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
+            this.baseMap.controls.zoomSpeed = thirdPow;
+            this.baseMap.controls.rotateSpeed = thirdPow * 0.2;
+            this.baseMap.controls.panSpeed = thirdPow;
         });
+        this.baseMap.controls.mouseButtons = {
+            LEFT: MOUSE.ROTATE,
+            MIDDLE: MOUSE.DOLLY,
+            RIGHT: MOUSE.PAN
+        };
+        this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
         this.listener = new Listener(this.baseMap.canvas);
         this.selectModel(RaycasterUtils.casterMesh);
+        let sky = new Skybox().loadBox();
+        this.baseMap.scene.background = sky;
+    }
+
+    /**
+     * 
+     * @param {Provider} provider 地图数据提供器，不可为空
+     */
+    addView(provider){
+        if (this.plane){
+            var mapView = new MapView(MapView.PLANAR , provider);
+            mapView.position.set(0,10,0);
+            this.baseMap.add(mapView);
+        } else {
+            var mapView = new MapView(MapView.SPHERICAL , provider, null, 5);
+            mapView.updateMatrixWorld(true)
+            mapView.lod = new LODSphere();
+            mapView.transparent = true;
+            this.baseMap.add(mapView);
+        }
     }
 
 
@@ -115,6 +182,13 @@ export class WegeoMap {
             return;
         }
         this.baseMap.moveToByCoords(coords);
+    }
+
+    moveToByLL(lat, lon){
+        if(!this.baseMap){
+            return;
+        }
+        this.baseMap.moveToByLL(lat, lon);
     }
     
     // 鼠标点击获取模型

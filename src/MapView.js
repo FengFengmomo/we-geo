@@ -64,7 +64,7 @@ export class MapView extends Mesh
 	/**
 	 * Map tile color layer provider.
 	 */
-	provider = null;
+	providers = null;
 
 	/**
 	 * Map height (terrain elevation) layer provider.
@@ -95,10 +95,10 @@ export class MapView extends Mesh
 	 * Constructor for the map view objects.
 	 *
 	 * @param root - Map view node modes can be SPHERICAL, HEIGHT or PLANAR. PLANAR is used by default. Can also be a custom MapNode instance.
-	 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
+	 * @param providers - Map color tile provider by default a OSM maps provider is used if none specified.
 	 * @param heightProvider - Map height tile provider, by default no height provider is used.
 	 */
-	constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+	constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
 	{
 		super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
@@ -106,7 +106,7 @@ export class MapView extends Mesh
 		// this.lod = new LODRadial();
 		// this.lod = new LODFrustum();
 
-		this.provider = provider;
+		this.providers = providers;
 		this.heightProvider = heightProvider;
 		// 设置根节点，准备开始分裂
 		this.setRoot(root, scale);
@@ -158,15 +158,14 @@ export class MapView extends Mesh
 		if (this.root !== null) 
 		{
 			// @ts-ignore
-			this.geometry = this.root.constructor.baseGeometry;
+			
 			// @ts-ignore
 			if (scale === null)
-				this.scale.copy(this.root.constructor.baseScale);
+				this.geometry = this.root.constructor.baseGeometry;
 			else
-				this.scale.copy(scale);
-
+				this.geometry = this.root.constructor.getGeometry(scale);
+			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
-			this.root.bbox = MapNode.baseBbox;
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
 		}
@@ -200,7 +199,7 @@ export class MapView extends Mesh
 			}
 		}
 
-		const minZoom = Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 		if (minZoom > 0) 
 		{
 			subdivide(this.root, minZoom);
@@ -209,16 +208,33 @@ export class MapView extends Mesh
 
 	/**
 	 * Change the map provider of this map view.
-	 *
+	 * 
 	 * Will discard all the tiles already loaded using the old provider.
+	 * @deprecated
 	 */
-	setProvider(provider)
+	setProvider(providers)
 	{
-		if (provider !== this.provider) 
+		if (providers !== this.providers) 
 		{
-			this.provider = provider;
+			this.providers = providers;
 			this.clear();
 		}
+	}
+	
+	/**
+	 * 添加一个数据提供器
+	 */
+	addProvider(provider){
+		this.providers.push(provider);
+	}
+
+	/**
+	 * 删除一个数据提供器
+	 * @param {*} index 数组索引
+	 */ 
+	removeProvider(index){
+	    // 删除index索引处的 provider
+		this.providers.splice(index, 1);
 	}
 
 	/**
@@ -269,7 +285,7 @@ export class MapView extends Mesh
 	 */
 	minZoom() 
 	{
-		return Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		return Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 	}
 
 	/**
@@ -279,7 +295,7 @@ export class MapView extends Mesh
 	 */
 	maxZoom() 
 	{
-		return Math.min(this.provider.maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
 	}
 
 	/**
@@ -287,7 +303,7 @@ export class MapView extends Mesh
 	 */
 	getMetaData()
 	{
-		this.provider.getMetaData();
+		this.providers[0].getMetaData();
 	}
 
 	raycast(raycaster, intersects)

@@ -58,7 +58,8 @@ var provider = new TianDiTuProvider({
     token: '588e61bc464868465169f209fe694dd0'
 })
 var mapView = new MapView(MapView.PLANAR , provider);
-map.addImageLayer(mapView);
+mapView.position.set(0,10,0);
+map.baseMap.add(mapView)
 
 
 // 国家境界服务
@@ -66,8 +67,8 @@ provider = new TianDiTuProvider({
     service:'ibo_w',
     token: '588e61bc464868465169f209fe694dd0'
 })
-mapView = new MapView(MapView.PLANAR , provider);
-map.addImageLayer(mapView);
+mapView.position.set(0,10,0);
+map.baseMap.add(mapView)
 
 
 

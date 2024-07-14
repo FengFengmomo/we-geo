@@ -54,7 +54,7 @@ export class LODSphere extends LODControl
 			const node = intersects[i].object;
 			let distance = intersects[i].distance;
 
-			distance /= Math.pow(2, view.provider.maxZoom - node.level);
+			distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
 
 			if (distance < this.subdivideDistance) 
 			{

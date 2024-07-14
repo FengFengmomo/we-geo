@@ -6,7 +6,7 @@ import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {UnitsUtils, BingMapsProvider, MapView, 
 	LODFrustum, LODRadial, LODSphere, Animate,
-	TianDiTuProvider} from '../main';
+	TianDiTuProvider, Skybox} from '../main';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 
 var canvas = document.getElementById('canvas');
@@ -44,16 +44,13 @@ controls.enablePan = false;
 
 controls.addEventListener('change', function(event){
     let distance = camera.position.distanceTo(new Vector3(0,0,0));
-	// console.log(distance);
 	if(distance > UnitsUtils.EARTH_RADIUS *2.5){
 		distance = UnitsUtils.EARTH_RADIUS *2.5;
 	}
-	let ratio = 1 - 1/(distance / UnitsUtils.EARTH_RADIUS-1);
 	let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
 	controls.zoomSpeed = thirdPow;
 	controls.rotateSpeed = thirdPow * 0.2;
 	controls.panSpeed = thirdPow;
-	// console.log("ratio:",ratio, " distance:", distance, " thirdPow:", thirdPow);
 });
 controls.mouseButtons = {
 	LEFT: MOUSE.ROTATE,
@@ -78,26 +75,6 @@ camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
 
 scene.add(new AmbientLight(0x777777, LinearSRGBColorSpace));
 
-
-const geometry = new SphereGeometry(UnitsUtils.EARTH_ORIGIN+2000, 160, 160);
-            const material = new MeshBasicMaterial({
-              color: 0x000088,
-              transparent: true,
-              opacity: 0.2
-            }); 
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
-
-
-
-const geometry = new SphereGeometry(UnitsUtils.EARTH_ORIGIN+2000, 160, 160);
-            const material = new MeshBasicMaterial({
-              color: 0x000088,
-              transparent: true,
-              opacity: 0.2
-            }); 
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
 
 
 let sky = new Skybox().loadBox();

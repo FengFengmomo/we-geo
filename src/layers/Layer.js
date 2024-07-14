@@ -1,10 +1,11 @@
 // 多个canvas并没有id，只有父节点
 import { Element } from "../utils/Element";
 import {MapControls} from '../jsm/controls/MapControls.js';
+import { OrbitControls } from '../jsm/controls/OrbitControls';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, 
     Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
-    PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight } from 'three';
+    PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight, MOUSE } from 'three';
 import * as TWEEN from '../jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
@@ -33,14 +34,11 @@ export class Layer  extends BasLayer{
     imageLayer = false; // 影像图层
     vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
     waters = []; // 水面集合
-    constructor(id, layerContainer, canvas, mapView, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
+    constructor(id, layerContainer, canvas, mapView, plane = true, camera = new PerspectiveCamera(80, 1, 0.1, 1e12)) {
         super();
         this.id = id;
         this.layerContainer = layerContainer;
         this.canvas = canvas;
-        this.z_index = z_index;
-        this.opacity = opacity;
-        this.visible = visible;
         this.renderer = new WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
@@ -58,9 +56,16 @@ export class Layer  extends BasLayer{
             this.scene.add(this.mapView);
             this.mapView.updateMatrixWorld(true);
         }
-        this.controls = new MapControls(this.camera, this.canvas);
-        this.controls.minDistance = 1e1;
-        this.controls.zoomSpeed = 2.0;
+        if (plane){
+            this.controls = new MapControls(this.camera, this.canvas);
+            this.controls.minDistance = 1e1;
+            this.controls.zoomSpeed = 2.0;
+        } else {
+            this.controls = new OrbitControls(this.camera, this.canvas);
+            this.controls.enablePan = false;
+            this.controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
+            this.controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
+        }
         this._raycaster = new Raycaster();
         if(Config.outLine.on){
             this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
@@ -76,13 +81,6 @@ export class Layer  extends BasLayer{
             pointLight.position.set(...Config.layer.map.pointLight.position);
             this.scene.add(pointLight);
         }
-        const geometry = new BoxGeometry( 1, 1, 1 ); 
-        const material = new MeshBasicMaterial( {color: 0x00ff00} ); 
-        const cube = new Mesh( geometry, material );
-        cube.scale.set( 10000, 10000, 10000 );
-        var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228); 
-        cube.position.set(coords.x, 8000, -coords.y);
-        this.scene.add( cube );
     }
 
     moveTo(lat, lon, height = 38472.48763833733){
@@ -96,6 +94,12 @@ export class Layer  extends BasLayer{
         let offset = 50;
         this.camera.position.set(coords.x, coords.y+offset, coords.z);
         this.controls.target.set(coords.x, coords.y, coords.z);
+    }
+
+    moveToByLL(lat, lon, distance = 384720){
+        let dir = UnitsUtils.datumsToVector(lat, lon);
+        dir.multiplyScalar(UnitsUtils.EARTH_RADIUS + distance);
+        this.camera.position.copy(dir);
     }
 
 
@@ -266,8 +270,8 @@ export class Layer  extends BasLayer{
             this.effectOutline.render(); // 合成器渲染
         } else {
             this.renderer.autoClear = true;
-            this.renderer.render(this.scene, this.camera);
         }
+        this.renderer.render(this.scene, this.camera);
     }
 
     _raycast(meshes, recursive, faceExclude) {

@@ -252,7 +252,7 @@ export class MapNode extends Mesh
 	 */
 	async loadData()
 	{
-		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
 		{
 			console.warn('Geo-Three: Loading tile outside of provider range.', this);
 
@@ -265,51 +265,61 @@ export class MapNode extends Mesh
 			// this.material.opacity = 0;
 			return;
 		}
-
-		try 
-		{
-			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
-			
-			if (this.disposed) 
+		let materials = [];
+		for (let provider of this.mapView.providers){
+			let material = this.material.clone();
+			try 
 			{
-				return;
+				let image = await provider.fetchTile(this.level, this.x, this.y, this.bbox);
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				const texture = new Texture(image);
+				texture.generateMipmaps = false;
+				texture.format = RGBAFormat;
+				texture.magFilter = LinearFilter;
+				texture.minFilter = LinearFilter;
+				texture.needsUpdate = true;
+				// texture.wrapS = RepeatWrapping;
+				// texture.wrapT = RepeatWrapping;
+				
+				// @ts-ignore
+				material.map = texture;
+				
+				// this.material.transparent = true;
+				material.alphaTest = 0.01;
+				// this.material.opacity = this.opacity;
 			}
-			
-			const texture = new Texture(image);
-			texture.generateMipmaps = false;
-			texture.format = RGBAFormat;
-			texture.magFilter = LinearFilter;
-			texture.minFilter = LinearFilter;
-			texture.needsUpdate = true;
-			// texture.wrapS = RepeatWrapping;
-            // texture.wrapT = RepeatWrapping;
-			
-			// @ts-ignore
-			this.material.map = texture;
-			
-			// this.material.transparent = true;
-			this.material.alphaTest = 0.01;
-			// this.material.opacity = this.opacity;
-		}
-		catch (e) 
-		{
-			if (this.disposed) 
+			catch (e) 
 			{
-				return;
-			}
-			
-			console.warn('Geo-Three: Failed to load node tile data.', this);
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.warn('Geo-Three: Failed to load node tile data.', this);
 
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-			this.material.transparent = true;
-			// this.material.alphaTest = 0.01;
-			this.material.opacity = 0;
-		}
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
 
 		// @ts-ignore
-		this.material.needsUpdate = true;
+			material.needsUpdate = true;
+			materials.push(material);
+		}
+
+		
+		this.material = materials;
+		this.geometry.clearGroups();
+		for (let i = 0; i < materials.length; i++) {
+			this.geometry.addGroup(0, Infinity, i);
+		}
 	}
 
 
