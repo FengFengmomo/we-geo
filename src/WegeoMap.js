@@ -5,7 +5,7 @@ import { Layer } from './layers/Layer';
 import {D3TilesLayer} from './layers/3DTilesLayer';
 import { Element } from './utils/Element';
 import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js'
-import { OrbitControls } from './jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import {BingMapsProvider} from './providers/BingMapsProvider';
 import { Listener } from './listener/listener';
 import { RaycasterUtils } from './raycaster/utils';
@@ -184,11 +184,17 @@ export class WegeoMap {
         this.baseMap.moveToByCoords(coords);
     }
 
-    moveToByLL(lat, lon){
+    /**
+     * 跳转到指定位置，用于球形地图
+     * @param {*} lat 
+     * @param {*} lon 
+     * @returns 
+     */
+    moveToByLL(lat, lon, distance = 384720){
         if(!this.baseMap){
             return;
         }
-        this.baseMap.moveToByLL(lat, lon);
+        this.baseMap.moveToByLL(lat, lon, distance);
     }
     
     // 鼠标点击获取模型

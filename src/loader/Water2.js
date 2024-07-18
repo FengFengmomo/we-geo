@@ -1,5 +1,5 @@
 
-import {Water} from '../jsm/objects/Water2';
+import {Water} from 'three/examples/jsm/objects/Water2';
 import { Colors } from '../utils/Colors';
 import { Vector2, TextureLoader } from 'three';
 

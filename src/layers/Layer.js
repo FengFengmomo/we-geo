@@ -1,16 +1,16 @@
 // 多个canvas并没有id，只有父节点
 import { Element } from "../utils/Element";
-import {MapControls} from '../jsm/controls/MapControls.js';
-import { OrbitControls } from '../jsm/controls/OrbitControls';
+import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, 
     Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
     PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight, MOUSE } from 'three';
-import * as TWEEN from '../jsm/libs/tween.module.js';
+import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
 import BasLayer from "./basLayer";
-import { Sky } from '../jsm/objects/Sky.js';
+import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 
 export class Layer  extends BasLayer{

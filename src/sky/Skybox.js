@@ -4,12 +4,12 @@ export class Skybox {
 
     loadSkyBox(scale) {
 		var aCubeMap = new CubeTextureLoader().load([
-		  'png/sky/px.jpg',
-		  'png/sky/nx.jpg',
-		  'png/sky/py.jpg',
-		  'png/sky/ny.jpg',
-		  'png/sky/pz.jpg',
-		  'png/sky/nz.jpg'
+		  '/examples/png/sky/px.jpg',
+		  '/examples/png/sky/nx.jpg',
+		  '/examples/png/sky/py.jpg',
+		  '/examples/png/sky/ny.jpg',
+		  '/examples/png/sky/pz.jpg',
+		  '/examples/png/sky/nz.jpg'
 		]);
 		aCubeMap.format = RGBAFormat;
 
@@ -33,12 +33,12 @@ export class Skybox {
 	}
 	loadBox(){
 		var cube = new CubeTextureLoader().load([
-		  'png/sky/px.jpg',
-		  'png/sky/nx.jpg',
-		  'png/sky/py.jpg',
-		  'png/sky/ny.jpg',
-		  'png/sky/pz.jpg',	
-		  'png/sky/nz.jpg'	
+		  '/examples/png/sky/px.jpg',
+		  '/examples/png/sky/nx.jpg',
+		  '/examples/png/sky/py.jpg',
+		  '/examples/png/sky/ny.jpg',
+		  '/examples/png/sky/pz.jpg',	
+		  '/examples/png/sky/nz.jpg'	
 		]);
 		return cube;
 	}

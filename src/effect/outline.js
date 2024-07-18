@@ -1,9 +1,9 @@
-import { EffectComposer } from '../jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from '../jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from '../jsm/postprocessing/ShaderPass.js';
-import { OutlinePass } from '../jsm/postprocessing/OutlinePass.js';
-import { OutputPass } from '../jsm/postprocessing/OutputPass.js';
-import { FXAAShader } from '../jsm/shaders/FXAAShader.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { Vector2 } from 'three';
 import { Config} from '../environment/config.js';
 // 上述几个包是做outline效果必须的几个包

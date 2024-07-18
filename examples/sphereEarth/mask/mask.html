@@ -5,6 +5,16 @@
 	<style></style>
 </head>
 <body>
+	<div style="float: left; position: absolute; top: 0px; left: 0px; z-index: 2;">
+		掩膜的设计主要是参考了<a href="https://github.com/hofk/THREEi.js">https://github.com/hofk/THREEi.js</a>这个代码，我将代码改成es module的形式了。
+		<p>其他在几何体添加孔洞的方法：</p>
+		<p>https://github.com/manthrax/THREE-CSGMesh 用于物体求交、减、加。</p>
+		<p>https://threejs.org/examples/#webgl_geometry_convex 和这个示例。</p>
+		<p>思路：通过境界经纬度构造ConvexGeometry几何体，然后再使用csg对球体和ConvexGeometry求减。</p>
+		<p>cesium也有相应的构造掩膜的方法，但我不知道他们怎么做的，哎！汗颜~~~！</p>
+		<p>如果有其他优雅的方式欢迎各位大佬讨论交流，或者提交pr。</p>
+		<p>境界服务的数据来自阿里的datav，如果境界有误请及时联系我进行修改删除，谢谢！</p>
+	</div>
 	<div id="mapContainer">
 
 	</div>
@@ -31,10 +41,10 @@
 	<script type="importmap">
 		{
 			"imports": {
-				"three": "../build/three.module.js",
-				"three/addons/": "../build/jsm/",
-				"Geo": "../build/wegeo.module.js",
-				"THREEi":"./js/createhole.js"
+				"three": "../../../build/three.module.js",
+				"three/addons/": "../../../build/jsm/",
+				"Geo": "../../../build/wegeo.module.js",
+				"THREEi":"../../js/createhole.js"
 			}
 		}
 	</script>
@@ -61,13 +71,14 @@
 		map.addBaseSphereMap({
 			providers: [provider]
 		});
+		map.moveToByLL(44.266119,90.139228, 6371008);
 		window.onresize = () => { map.resize(); }
 		map.resize();
 		map.animate();
 		// 解析geojson
 		// const geojson = await fetch('./examples/data/xinjiang.json').then( res => res.json() );
 		let points = [];
-		await fetch('./data/xinjiang.json').then(res => res.json())
+		await fetch('/examples/data/xinjiang.json').then(res => res.json())
 		.then(data => {
 			let features = data.features;
 			
