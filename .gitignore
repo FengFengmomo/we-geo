@@ -13,3 +13,4 @@ yarn.lock
 jspm_packages/
 deps/
 readme/
+build/jsm/*
