@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title></title>
+	<style></style>
+</head>
+<body>
+	<div style="float: left; position: absolute; top: 0px; left: 0px; z-index: 2;">
+		<p>境界服务的数据来自阿里的datav，如果境界有误请及时联系我进行修改删除，谢谢！</p>
+		<p>另一种思路，可以从掩膜的方法里面，进行反向选取点，那么是否可以得到一个球形多边形呢？</p>
+	</div>
+	<div id="mapContainer">
+
+	</div>
+	<!-- GUI -->
+	<!-- <div id="mapContainer">
+		<div id="map">
+			<canvas id="canvas" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+		</div>
+		<div id="layers">
+			<div>
+				<canvas id="canvas1" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+			</div>
+			<div>
+				<canvas id="canvas2" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+			</div>
+		</div>
+	</div> -->
+	
+	<!-- Code -->
+	<!-- <script  src="./js/wegeo.js"></script> -->
+	<!-- "three": "../build/three.module.js", -->
+	<!-- "three/addons/": "../build/jsm/", -->
+	 <!-- <script src="./js/THREEi_ONLY_SphereWithSomeHoles.js"></script> -->
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "../../../build/three.module.js",
+				"three/addons/": "../../../build/jsm/",
+				"Geo": "../../../build/wegeo.module.js",
+				"THREEi":"../../js/createhole.js"
+			}
+		}
+	</script>
+
+	<script type="module">
+		// 需要全量构建geo，目前不能把threejs排除在外
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils, UnitsUtils} from 'Geo';
+		import { Line2 } from 'three/addons/lines/Line2.js';
+		import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+		import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+		import * as THREE from 'three';
+		import * as THREEi from 'THREEi';
+		let provider = new BingMapsProvider();
+		// 地名服务
+		// let nameprovider = new TianDiTuProvider({
+		// 	service:'cva_w',
+		// 	token: '588e61bc464868465169f209fe694dd0'
+		// });
+
+		// // map.addView(provider);
+		// let edgeprovider = new TianDiTuProvider({
+		// 	service:'ibo_w',
+		// 	token: '588e61bc464868465169f209fe694dd0'
+		// });
+		// Config.outLine.on = true;
+		const map = new WegeoMap(); 
+		map.addBaseSphereMap({
+			providers: [provider]
+		});
+		map.moveToByLL(44.266119,90.139228, 6371008);
+		window.onresize = () => { map.resize(); }
+		map.resize();
+		map.animate();
+		// 解析geojson
+		// const geojson = await fetch('./examples/data/xinjiang.json').then( res => res.json() );
+		let points = [];
+        let vertices = [];
+		await fetch('/examples/data/xinjiang.json').then(res => res.json())
+		.then(data => {
+			let features = data.features;
+			let feature = features[0];
+			
+			
+			let properties = feature.properties;
+			let geometry = feature.geometry;
+			let type = feature.type;
+			let coordinates = geometry.coordinates;
+			let typeGeometry = geometry.type;
+			if (typeGeometry === "MultiPolygon") { // 目前暂时仅仅支持行政区划方向的数据进行解析
+				for(let multiPolygon of coordinates){
+					let polygon = multiPolygon[0]; // 每次取第一个图形，geojson里面是这样设置的
+					for(let point of polygon){
+						
+						// 先维度后经度
+						// let phi = AngleUtils.degToRad(point[0]+90);
+						// let theta = AngleUtils.degToRad(90-point[1]);
+						// let ponit = new THREE.Vector3().setFromSpherical(new THREE.Spherical(6371008, theta, phi));
+						let local = UnitsUtils.datumsToVector(point[1], point[0]).multiplyScalar(UnitsUtils.EARTH_RADIUS);
+						// let ponit = UnitsUtils.datumsToVector(point[1], point[0]);
+						vertices.push(local);
+                        local = UnitsUtils.datumsToSpherical(point[1], point[0]);
+                        points.push(point);
+						
+					}
+				}
+			}
+			
+		});
+        let shape = new THREE.Shape();
+        points.forEach((i, index) => {
+            if (index) {
+            shape.lineTo(i[0], i[1])
+            } else {
+            shape.moveTo(i[0], i[1])
+            }
+        });
+        const threeDgeo = new THREE.ShapeGeometry(shape,1000);
+        console.log(threeDgeo.attributes.position.count);
+        for (let i = 0; i < threeDgeo.attributes.position.count; i++) {
+            let lon = threeDgeo.attributes.position.array[i * 3], lat = threeDgeo.attributes.position.array[i * 3 + 1];
+            let ponit = UnitsUtils.datumsToVector(lat, lon).multiplyScalar(UnitsUtils.EARTH_RADIUS);
+            threeDgeo.attributes.position.array[i * 3] = ponit.x
+            threeDgeo.attributes.position.array[i * 3 + 1] = ponit.y
+            threeDgeo.attributes.position.array[i * 3 + 2] = ponit.z
+        }
+        let geo = new THREE.BufferGeometry().setFromPoints(vertices);
+        const material = new THREE.LineBasicMaterial( { side: THREE.DoubleSide, color: 0x450089, linewidth: 100} );
+		const mesh = new THREE.Line( geo, material );
+        map.baseMap.add(mesh);
+
+        const flat = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, color: 0x450089, wireframe: false} );
+        const flatMesh = new THREE.Mesh(threeDgeo, flat);
+        let scale =1.004;
+        flatMesh.scale.set( scale,scale,scale );
+        map.baseMap.add(flatMesh);
+		// let lineGeo = new LineGeometry();
+		// lineGeo.setPositions(points);
+		// lineGeo.boundingSphere.radius = UnitsUtils.EARTH_RADIUS;
+		// const lineMaterial = new LineMaterial({
+		// 	color: 0xff0000, // 线条颜色
+		// 	linewidth: 20,
+		// 	dashed:false
+		// });
+		
+		// let line = new Line2(lineGeo, lineMaterial);
+		// line.computeLineDistances();
+		// map.baseMap.add(line);
+
+		// const g = new THREE.BufferGeometry().setFromPoints(points);	
+		
+		// const material = new THREE.LineBasicMaterial( { side: THREE.DoubleSide, color: 0x450089, linewidth: 100} );
+		// const mesh = new THREE.Line( g, material );
+		// map.baseMap.add( mesh );
+		// let scale =1.000001;
+		// // let scale =0.9939;
+		// // let scale =0.99385;
+		// mesh.scale.set( scale,scale,scale );
+		
+		
+// map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
+	</script>
+</body>
+</html>

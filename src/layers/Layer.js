@@ -3,7 +3,7 @@ import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
-import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, 
+import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Clock,
     Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
     PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight, MOUSE } from 'three';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
@@ -11,6 +11,8 @@ import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
 import BasLayer from "./basLayer";
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
+import { Loader3DTiles } from 'three-loader-3dtiles';
+
 
 
 export class Layer  extends BasLayer{
@@ -34,6 +36,8 @@ export class Layer  extends BasLayer{
     imageLayer = false; // 影像图层
     vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
     waters = []; // 水面集合
+    tilesRuntimeS = []; // 3dtiles 集合，每个元素都是一个3dtiles的对象（指针）。
+    clock = new Clock()
     constructor(id, layerContainer, canvas, mapView, plane = true, camera = new PerspectiveCamera(80, 1, 0.1, 1e12)) {
         super();
         this.id = id;
@@ -63,8 +67,8 @@ export class Layer  extends BasLayer{
         } else {
             this.controls = new OrbitControls(this.camera, this.canvas);
             this.controls.enablePan = false;
-            this.controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
-            this.controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
+            this.controls.minDistance = UnitsUtils.EARTH_RADIUS_A + 2;
+            this.controls.maxDistance = UnitsUtils.EARTH_RADIUS_A * 1e1;
         }
         this._raycaster = new Raycaster();
         if(Config.outLine.on){
@@ -97,9 +101,17 @@ export class Layer  extends BasLayer{
     }
 
     moveToByLL(lat, lon, distance = 384720){
-        let dir = UnitsUtils.datumsToVector(lat, lon);
-        dir.multiplyScalar(UnitsUtils.EARTH_RADIUS + distance);
-        this.camera.position.copy(dir);
+        let dir = UnitsUtils.datumsToVector2(lat, lon);
+        let dir_c = dir.clone();
+        let surface = dir.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+        let height = dir_c.multiplyScalar(distance);
+        let result = surface.add(height);
+        this.camera.position.copy(result);
+    }
+
+    fromDegrees(lat, lon, height){
+        let position = UnitsUtils.fromDegrees(lat, lon, height);
+        this.camera.position.copy(position);
     }
 
 
@@ -210,6 +222,64 @@ export class Layer  extends BasLayer{
         }
     }
 
+
+    // 支持3dtiles，点云，geojson
+    async loadTiles(option){
+        const result = await Loader3DTiles.load({
+            url: option.jsonPath,
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio
+            },
+            renderer: this.renderer,
+            options: {
+                dracoDecoderPath: option.draco?option.draco:'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco',
+                basisTranscoderPath: option.basis?option.basis:'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis',
+                resetTransform: true
+              },
+        });
+        const {model, runtime} = result;
+        // model.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
+        // runtime.orientToGeocoord({
+        //     long: runtime.getTileset().cartographicCenter[0],
+        //     lat: runtime.getTileset().cartographicCenter[1],
+        //     height: runtime.getTileset().cartographicCenter[2]
+        // });
+
+        // 模型销毁只需要执行model.dispose();
+        // 还未打包进行调试
+        let lat = runtime.getTileset().cartographicCenter[1]+0.04, lon = runtime.getTileset().cartographicCenter[0]+0.10085;
+        let height =runtime.getTileset().cartographicCenter[2];
+        // 由于设计时z轴在世界经度的90度上，所以需要先逆向旋转90度。
+        // model.rotation.set(0, MathUtils.degToRad(-90), 0);
+        model.position.set(0,0,0);
+        // model.rotation.set(MathUtils.degToRad(lat+90)-Math.PI/2,  MathUtils.degToRad(lon) +Math.PI/2,0);
+        model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
+        let direction = UnitsUtils.datumsToVector( lat, lon);
+        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+10);
+        model.position.copy(location);
+        this.scene.add(model);
+        this.tilesRuntimeS.push(runtime);
+        return result;
+    }
+
+    remove3dTiles(model){
+        if(model == null || model === undefined){
+            return;
+        }
+        this.scene.remove(model);
+        let index = this.tilesRuntimeS.indexOf(model);
+        if (index > -1) {
+            this.tilesRuntimeS.splice(index, 1);
+        }
+
+    }
+
+
+
+
+
     setVisible(visible) {
         this.visible = this.visible;
         this.layerContainer.style.display = visible ? 'block' : 'none';
@@ -265,6 +335,10 @@ export class Layer  extends BasLayer{
         }
         for(let water of this.waters){
             water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+        }
+        for(let runtime of this.tilesRuntimeS){
+            const dt = this.clock.getDelta();
+            runtime.update(dt, this.camera);
         }
         if (Config.outLine.on){
             this.effectOutline.render(); // 合成器渲染

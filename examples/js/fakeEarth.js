@@ -63,8 +63,6 @@
 	const ACESFilmicToneMapping = 4;
 	const CustomToneMapping = 5;
 	const AgXToneMapping = 6;
-	const AttachedBindMode = 'attached';
-	const DetachedBindMode = 'detached';
 
 	const UVMapping = 300;
 	const CubeReflectionMapping = 301;
@@ -136,16 +134,6 @@
 	const SIGNED_RED_RGTC1_Format = 36284;
 	const RED_GREEN_RGTC2_Format = 36285;
 	const SIGNED_RED_GREEN_RGTC2_Format = 36286;
-	const InterpolateDiscrete = 2300;
-	const InterpolateLinear = 2301;
-	const InterpolateSmooth = 2302;
-	const ZeroCurvatureEnding = 2400;
-	const ZeroSlopeEnding = 2401;
-	const WrapAroundEnding = 2402;
-	const NormalAnimationBlendMode = 2500;
-	const TrianglesDrawMode = 0;
-	const TriangleStripDrawMode = 1;
-	const TriangleFanDrawMode = 2;
 	/** @deprecated Use LinearSRGBColorSpace or NoColorSpace in three.js r152+. */
 	const LinearEncoding = 3000;
 	/** @deprecated Use SRGBColorSpace in three.js r152+. */
@@ -8674,9 +8662,9 @@
 
 		getHex( colorSpace = SRGBColorSpace ) {
 
-			ColorManagement.fromWorkingColorSpace( _color$1.copy( this ), colorSpace );
+			ColorManagement.fromWorkingColorSpace( _color.copy( this ), colorSpace );
 
-			return Math.round( clamp( _color$1.r * 255, 0, 255 ) ) * 65536 + Math.round( clamp( _color$1.g * 255, 0, 255 ) ) * 256 + Math.round( clamp( _color$1.b * 255, 0, 255 ) );
+			return Math.round( clamp( _color.r * 255, 0, 255 ) ) * 65536 + Math.round( clamp( _color.g * 255, 0, 255 ) ) * 256 + Math.round( clamp( _color.b * 255, 0, 255 ) );
 
 		}
 
@@ -8690,9 +8678,9 @@
 
 			// h,s,l ranges are in 0.0 - 1.0
 
-			ColorManagement.fromWorkingColorSpace( _color$1.copy( this ), colorSpace );
+			ColorManagement.fromWorkingColorSpace( _color.copy( this ), colorSpace );
 
-			const r = _color$1.r, g = _color$1.g, b = _color$1.b;
+			const r = _color.r, g = _color.g, b = _color.b;
 
 			const max = Math.max( r, g, b );
 			const min = Math.min( r, g, b );
@@ -8733,11 +8721,11 @@
 
 		getRGB( target, colorSpace = ColorManagement.workingColorSpace ) {
 
-			ColorManagement.fromWorkingColorSpace( _color$1.copy( this ), colorSpace );
+			ColorManagement.fromWorkingColorSpace( _color.copy( this ), colorSpace );
 
-			target.r = _color$1.r;
-			target.g = _color$1.g;
-			target.b = _color$1.b;
+			target.r = _color.r;
+			target.g = _color.g;
+			target.b = _color.b;
 
 			return target;
 
@@ -8745,9 +8733,9 @@
 
 		getStyle( colorSpace = SRGBColorSpace ) {
 
-			ColorManagement.fromWorkingColorSpace( _color$1.copy( this ), colorSpace );
+			ColorManagement.fromWorkingColorSpace( _color.copy( this ), colorSpace );
 
-			const r = _color$1.r, g = _color$1.g, b = _color$1.b;
+			const r = _color.r, g = _color.g, b = _color.b;
 
 			if ( colorSpace !== SRGBColorSpace ) {
 
@@ -8938,7 +8926,7 @@
 
 	}
 
-	const _color$1 = /*@__PURE__*/ new Color();
+	const _color = /*@__PURE__*/ new Color();
 
 	Color.NAMES = _colorKeywords;
 
@@ -25837,7 +25825,7 @@
 
 	}
 
-	let Group$2 = class Group extends Object3D {
+	let Group$1 = class Group extends Object3D {
 
 		constructor() {
 
@@ -25867,7 +25855,7 @@
 
 			if ( this._hand === null ) {
 
-				this._hand = new Group$2();
+				this._hand = new Group$1();
 				this._hand.matrixAutoUpdate = false;
 				this._hand.visible = false;
 
@@ -25884,7 +25872,7 @@
 
 			if ( this._targetRay === null ) {
 
-				this._targetRay = new Group$2();
+				this._targetRay = new Group$1();
 				this._targetRay.matrixAutoUpdate = false;
 				this._targetRay.visible = false;
 				this._targetRay.hasLinearVelocity = false;
@@ -25902,7 +25890,7 @@
 
 			if ( this._grip === null ) {
 
-				this._grip = new Group$2();
+				this._grip = new Group$1();
 				this._grip.matrixAutoUpdate = false;
 				this._grip.visible = false;
 				this._grip.hasLinearVelocity = false;
@@ -26174,7 +26162,7 @@
 
 			if ( hand.joints[ inputjoint.jointName ] === undefined ) {
 
-				const joint = new Group$2();
+				const joint = new Group$1();
 				joint.matrixAutoUpdate = false;
 				joint.visible = false;
 				hand.joints[ inputjoint.jointName ] = joint;
@@ -30509,1813 +30497,6 @@
 
 	}
 
-	class InterleavedBuffer {
-
-		constructor( array, stride ) {
-
-			this.isInterleavedBuffer = true;
-
-			this.array = array;
-			this.stride = stride;
-			this.count = array !== undefined ? array.length / stride : 0;
-
-			this.usage = StaticDrawUsage;
-			this._updateRange = { offset: 0, count: - 1 };
-			this.updateRanges = [];
-
-			this.version = 0;
-
-			this.uuid = generateUUID();
-
-		}
-
-		onUploadCallback() {}
-
-		set needsUpdate( value ) {
-
-			if ( value === true ) this.version ++;
-
-		}
-
-		get updateRange() {
-
-			console.warn( 'THREE.InterleavedBuffer: updateRange() is deprecated and will be removed in r169. Use addUpdateRange() instead.' ); // @deprecated, r159
-			return this._updateRange;
-
-		}
-
-		setUsage( value ) {
-
-			this.usage = value;
-
-			return this;
-
-		}
-
-		addUpdateRange( start, count ) {
-
-			this.updateRanges.push( { start, count } );
-
-		}
-
-		clearUpdateRanges() {
-
-			this.updateRanges.length = 0;
-
-		}
-
-		copy( source ) {
-
-			this.array = new source.array.constructor( source.array );
-			this.count = source.count;
-			this.stride = source.stride;
-			this.usage = source.usage;
-
-			return this;
-
-		}
-
-		copyAt( index1, attribute, index2 ) {
-
-			index1 *= this.stride;
-			index2 *= attribute.stride;
-
-			for ( let i = 0, l = this.stride; i < l; i ++ ) {
-
-				this.array[ index1 + i ] = attribute.array[ index2 + i ];
-
-			}
-
-			return this;
-
-		}
-
-		set( value, offset = 0 ) {
-
-			this.array.set( value, offset );
-
-			return this;
-
-		}
-
-		clone( data ) {
-
-			if ( data.arrayBuffers === undefined ) {
-
-				data.arrayBuffers = {};
-
-			}
-
-			if ( this.array.buffer._uuid === undefined ) {
-
-				this.array.buffer._uuid = generateUUID();
-
-			}
-
-			if ( data.arrayBuffers[ this.array.buffer._uuid ] === undefined ) {
-
-				data.arrayBuffers[ this.array.buffer._uuid ] = this.array.slice( 0 ).buffer;
-
-			}
-
-			const array = new this.array.constructor( data.arrayBuffers[ this.array.buffer._uuid ] );
-
-			const ib = new this.constructor( array, this.stride );
-			ib.setUsage( this.usage );
-
-			return ib;
-
-		}
-
-		onUpload( callback ) {
-
-			this.onUploadCallback = callback;
-
-			return this;
-
-		}
-
-		toJSON( data ) {
-
-			if ( data.arrayBuffers === undefined ) {
-
-				data.arrayBuffers = {};
-
-			}
-
-			// generate UUID for array buffer if necessary
-
-			if ( this.array.buffer._uuid === undefined ) {
-
-				this.array.buffer._uuid = generateUUID();
-
-			}
-
-			if ( data.arrayBuffers[ this.array.buffer._uuid ] === undefined ) {
-
-				data.arrayBuffers[ this.array.buffer._uuid ] = Array.from( new Uint32Array( this.array.buffer ) );
-
-			}
-
-			//
-
-			return {
-				uuid: this.uuid,
-				buffer: this.array.buffer._uuid,
-				type: this.array.constructor.name,
-				stride: this.stride
-			};
-
-		}
-
-	}
-
-	const _vector$6 = /*@__PURE__*/ new Vector3();
-
-	class InterleavedBufferAttribute {
-
-		constructor( interleavedBuffer, itemSize, offset, normalized = false ) {
-
-			this.isInterleavedBufferAttribute = true;
-
-			this.name = '';
-
-			this.data = interleavedBuffer;
-			this.itemSize = itemSize;
-			this.offset = offset;
-
-			this.normalized = normalized;
-
-		}
-
-		get count() {
-
-			return this.data.count;
-
-		}
-
-		get array() {
-
-			return this.data.array;
-
-		}
-
-		set needsUpdate( value ) {
-
-			this.data.needsUpdate = value;
-
-		}
-
-		applyMatrix4( m ) {
-
-			for ( let i = 0, l = this.data.count; i < l; i ++ ) {
-
-				_vector$6.fromBufferAttribute( this, i );
-
-				_vector$6.applyMatrix4( m );
-
-				this.setXYZ( i, _vector$6.x, _vector$6.y, _vector$6.z );
-
-			}
-
-			return this;
-
-		}
-
-		applyNormalMatrix( m ) {
-
-			for ( let i = 0, l = this.count; i < l; i ++ ) {
-
-				_vector$6.fromBufferAttribute( this, i );
-
-				_vector$6.applyNormalMatrix( m );
-
-				this.setXYZ( i, _vector$6.x, _vector$6.y, _vector$6.z );
-
-			}
-
-			return this;
-
-		}
-
-		transformDirection( m ) {
-
-			for ( let i = 0, l = this.count; i < l; i ++ ) {
-
-				_vector$6.fromBufferAttribute( this, i );
-
-				_vector$6.transformDirection( m );
-
-				this.setXYZ( i, _vector$6.x, _vector$6.y, _vector$6.z );
-
-			}
-
-			return this;
-
-		}
-
-		setX( index, x ) {
-
-			if ( this.normalized ) x = normalize( x, this.array );
-
-			this.data.array[ index * this.data.stride + this.offset ] = x;
-
-			return this;
-
-		}
-
-		setY( index, y ) {
-
-			if ( this.normalized ) y = normalize( y, this.array );
-
-			this.data.array[ index * this.data.stride + this.offset + 1 ] = y;
-
-			return this;
-
-		}
-
-		setZ( index, z ) {
-
-			if ( this.normalized ) z = normalize( z, this.array );
-
-			this.data.array[ index * this.data.stride + this.offset + 2 ] = z;
-
-			return this;
-
-		}
-
-		setW( index, w ) {
-
-			if ( this.normalized ) w = normalize( w, this.array );
-
-			this.data.array[ index * this.data.stride + this.offset + 3 ] = w;
-
-			return this;
-
-		}
-
-		getX( index ) {
-
-			let x = this.data.array[ index * this.data.stride + this.offset ];
-
-			if ( this.normalized ) x = denormalize( x, this.array );
-
-			return x;
-
-		}
-
-		getY( index ) {
-
-			let y = this.data.array[ index * this.data.stride + this.offset + 1 ];
-
-			if ( this.normalized ) y = denormalize( y, this.array );
-
-			return y;
-
-		}
-
-		getZ( index ) {
-
-			let z = this.data.array[ index * this.data.stride + this.offset + 2 ];
-
-			if ( this.normalized ) z = denormalize( z, this.array );
-
-			return z;
-
-		}
-
-		getW( index ) {
-
-			let w = this.data.array[ index * this.data.stride + this.offset + 3 ];
-
-			if ( this.normalized ) w = denormalize( w, this.array );
-
-			return w;
-
-		}
-
-		setXY( index, x, y ) {
-
-			index = index * this.data.stride + this.offset;
-
-			if ( this.normalized ) {
-
-				x = normalize( x, this.array );
-				y = normalize( y, this.array );
-
-			}
-
-			this.data.array[ index + 0 ] = x;
-			this.data.array[ index + 1 ] = y;
-
-			return this;
-
-		}
-
-		setXYZ( index, x, y, z ) {
-
-			index = index * this.data.stride + this.offset;
-
-			if ( this.normalized ) {
-
-				x = normalize( x, this.array );
-				y = normalize( y, this.array );
-				z = normalize( z, this.array );
-
-			}
-
-			this.data.array[ index + 0 ] = x;
-			this.data.array[ index + 1 ] = y;
-			this.data.array[ index + 2 ] = z;
-
-			return this;
-
-		}
-
-		setXYZW( index, x, y, z, w ) {
-
-			index = index * this.data.stride + this.offset;
-
-			if ( this.normalized ) {
-
-				x = normalize( x, this.array );
-				y = normalize( y, this.array );
-				z = normalize( z, this.array );
-				w = normalize( w, this.array );
-
-			}
-
-			this.data.array[ index + 0 ] = x;
-			this.data.array[ index + 1 ] = y;
-			this.data.array[ index + 2 ] = z;
-			this.data.array[ index + 3 ] = w;
-
-			return this;
-
-		}
-
-		clone( data ) {
-
-			if ( data === undefined ) {
-
-				console.log( 'THREE.InterleavedBufferAttribute.clone(): Cloning an interleaved buffer attribute will de-interleave buffer data.' );
-
-				const array = [];
-
-				for ( let i = 0; i < this.count; i ++ ) {
-
-					const index = i * this.data.stride + this.offset;
-
-					for ( let j = 0; j < this.itemSize; j ++ ) {
-
-						array.push( this.data.array[ index + j ] );
-
-					}
-
-				}
-
-				return new BufferAttribute( new this.array.constructor( array ), this.itemSize, this.normalized );
-
-			} else {
-
-				if ( data.interleavedBuffers === undefined ) {
-
-					data.interleavedBuffers = {};
-
-				}
-
-				if ( data.interleavedBuffers[ this.data.uuid ] === undefined ) {
-
-					data.interleavedBuffers[ this.data.uuid ] = this.data.clone( data );
-
-				}
-
-				return new InterleavedBufferAttribute( data.interleavedBuffers[ this.data.uuid ], this.itemSize, this.offset, this.normalized );
-
-			}
-
-		}
-
-		toJSON( data ) {
-
-			if ( data === undefined ) {
-
-				console.log( 'THREE.InterleavedBufferAttribute.toJSON(): Serializing an interleaved buffer attribute will de-interleave buffer data.' );
-
-				const array = [];
-
-				for ( let i = 0; i < this.count; i ++ ) {
-
-					const index = i * this.data.stride + this.offset;
-
-					for ( let j = 0; j < this.itemSize; j ++ ) {
-
-						array.push( this.data.array[ index + j ] );
-
-					}
-
-				}
-
-				// de-interleave data and save it as an ordinary buffer attribute for now
-
-				return {
-					itemSize: this.itemSize,
-					type: this.array.constructor.name,
-					array: array,
-					normalized: this.normalized
-				};
-
-			} else {
-
-				// save as true interleaved attribute
-
-				if ( data.interleavedBuffers === undefined ) {
-
-					data.interleavedBuffers = {};
-
-				}
-
-				if ( data.interleavedBuffers[ this.data.uuid ] === undefined ) {
-
-					data.interleavedBuffers[ this.data.uuid ] = this.data.toJSON( data );
-
-				}
-
-				return {
-					isInterleavedBufferAttribute: true,
-					itemSize: this.itemSize,
-					data: this.data.uuid,
-					offset: this.offset,
-					normalized: this.normalized
-				};
-
-			}
-
-		}
-
-	}
-
-	const _basePosition = /*@__PURE__*/ new Vector3();
-
-	const _skinIndex = /*@__PURE__*/ new Vector4();
-	const _skinWeight = /*@__PURE__*/ new Vector4();
-
-	const _vector3 = /*@__PURE__*/ new Vector3();
-	const _matrix4 = /*@__PURE__*/ new Matrix4();
-	const _vertex = /*@__PURE__*/ new Vector3();
-
-	const _sphere$4 = /*@__PURE__*/ new Sphere();
-	const _inverseMatrix$2 = /*@__PURE__*/ new Matrix4();
-	const _ray$2 = /*@__PURE__*/ new Ray();
-
-	class SkinnedMesh extends Mesh {
-
-		constructor( geometry, material ) {
-
-			super( geometry, material );
-
-			this.isSkinnedMesh = true;
-
-			this.type = 'SkinnedMesh';
-
-			this.bindMode = AttachedBindMode;
-			this.bindMatrix = new Matrix4();
-			this.bindMatrixInverse = new Matrix4();
-
-			this.boundingBox = null;
-			this.boundingSphere = null;
-
-		}
-
-		computeBoundingBox() {
-
-			const geometry = this.geometry;
-
-			if ( this.boundingBox === null ) {
-
-				this.boundingBox = new Box3();
-
-			}
-
-			this.boundingBox.makeEmpty();
-
-			const positionAttribute = geometry.getAttribute( 'position' );
-
-			for ( let i = 0; i < positionAttribute.count; i ++ ) {
-
-				this.getVertexPosition( i, _vertex );
-				this.boundingBox.expandByPoint( _vertex );
-
-			}
-
-		}
-
-		computeBoundingSphere() {
-
-			const geometry = this.geometry;
-
-			if ( this.boundingSphere === null ) {
-
-				this.boundingSphere = new Sphere();
-
-			}
-
-			this.boundingSphere.makeEmpty();
-
-			const positionAttribute = geometry.getAttribute( 'position' );
-
-			for ( let i = 0; i < positionAttribute.count; i ++ ) {
-
-				this.getVertexPosition( i, _vertex );
-				this.boundingSphere.expandByPoint( _vertex );
-
-			}
-
-		}
-
-		copy( source, recursive ) {
-
-			super.copy( source, recursive );
-
-			this.bindMode = source.bindMode;
-			this.bindMatrix.copy( source.bindMatrix );
-			this.bindMatrixInverse.copy( source.bindMatrixInverse );
-
-			this.skeleton = source.skeleton;
-
-			if ( source.boundingBox !== null ) this.boundingBox = source.boundingBox.clone();
-			if ( source.boundingSphere !== null ) this.boundingSphere = source.boundingSphere.clone();
-
-			return this;
-
-		}
-
-		raycast( raycaster, intersects ) {
-
-			const material = this.material;
-			const matrixWorld = this.matrixWorld;
-
-			if ( material === undefined ) return;
-
-			// test with bounding sphere in world space
-
-			if ( this.boundingSphere === null ) this.computeBoundingSphere();
-
-			_sphere$4.copy( this.boundingSphere );
-			_sphere$4.applyMatrix4( matrixWorld );
-
-			if ( raycaster.ray.intersectsSphere( _sphere$4 ) === false ) return;
-
-			// convert ray to local space of skinned mesh
-
-			_inverseMatrix$2.copy( matrixWorld ).invert();
-			_ray$2.copy( raycaster.ray ).applyMatrix4( _inverseMatrix$2 );
-
-			// test with bounding box in local space
-
-			if ( this.boundingBox !== null ) {
-
-				if ( _ray$2.intersectsBox( this.boundingBox ) === false ) return;
-
-			}
-
-			// test for intersections with geometry
-
-			this._computeIntersections( raycaster, intersects, _ray$2 );
-
-		}
-
-		getVertexPosition( index, target ) {
-
-			super.getVertexPosition( index, target );
-
-			this.applyBoneTransform( index, target );
-
-			return target;
-
-		}
-
-		bind( skeleton, bindMatrix ) {
-
-			this.skeleton = skeleton;
-
-			if ( bindMatrix === undefined ) {
-
-				this.updateMatrixWorld( true );
-
-				this.skeleton.calculateInverses();
-
-				bindMatrix = this.matrixWorld;
-
-			}
-
-			this.bindMatrix.copy( bindMatrix );
-			this.bindMatrixInverse.copy( bindMatrix ).invert();
-
-		}
-
-		pose() {
-
-			this.skeleton.pose();
-
-		}
-
-		normalizeSkinWeights() {
-
-			const vector = new Vector4();
-
-			const skinWeight = this.geometry.attributes.skinWeight;
-
-			for ( let i = 0, l = skinWeight.count; i < l; i ++ ) {
-
-				vector.fromBufferAttribute( skinWeight, i );
-
-				const scale = 1.0 / vector.manhattanLength();
-
-				if ( scale !== Infinity ) {
-
-					vector.multiplyScalar( scale );
-
-				} else {
-
-					vector.set( 1, 0, 0, 0 ); // do something reasonable
-
-				}
-
-				skinWeight.setXYZW( i, vector.x, vector.y, vector.z, vector.w );
-
-			}
-
-		}
-
-		updateMatrixWorld( force ) {
-
-			super.updateMatrixWorld( force );
-
-			if ( this.bindMode === AttachedBindMode ) {
-
-				this.bindMatrixInverse.copy( this.matrixWorld ).invert();
-
-			} else if ( this.bindMode === DetachedBindMode ) {
-
-				this.bindMatrixInverse.copy( this.bindMatrix ).invert();
-
-			} else {
-
-				console.warn( 'THREE.SkinnedMesh: Unrecognized bindMode: ' + this.bindMode );
-
-			}
-
-		}
-
-		applyBoneTransform( index, vector ) {
-
-			const skeleton = this.skeleton;
-			const geometry = this.geometry;
-
-			_skinIndex.fromBufferAttribute( geometry.attributes.skinIndex, index );
-			_skinWeight.fromBufferAttribute( geometry.attributes.skinWeight, index );
-
-			_basePosition.copy( vector ).applyMatrix4( this.bindMatrix );
-
-			vector.set( 0, 0, 0 );
-
-			for ( let i = 0; i < 4; i ++ ) {
-
-				const weight = _skinWeight.getComponent( i );
-
-				if ( weight !== 0 ) {
-
-					const boneIndex = _skinIndex.getComponent( i );
-
-					_matrix4.multiplyMatrices( skeleton.bones[ boneIndex ].matrixWorld, skeleton.boneInverses[ boneIndex ] );
-
-					vector.addScaledVector( _vector3.copy( _basePosition ).applyMatrix4( _matrix4 ), weight );
-
-				}
-
-			}
-
-			return vector.applyMatrix4( this.bindMatrixInverse );
-
-		}
-
-		boneTransform( index, vector ) { // @deprecated, r151
-
-			console.warn( 'THREE.SkinnedMesh: .boneTransform() was renamed to .applyBoneTransform() in r151.' );
-			return this.applyBoneTransform( index, vector );
-
-		}
-
-
-	}
-
-	class Bone extends Object3D {
-
-		constructor() {
-
-			super();
-
-			this.isBone = true;
-
-			this.type = 'Bone';
-
-		}
-
-	}
-
-	class DataTexture extends Texture {
-
-		constructor( data = null, width = 1, height = 1, format, type, mapping, wrapS, wrapT, magFilter = NearestFilter, minFilter = NearestFilter, anisotropy, colorSpace ) {
-
-			super( null, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy, colorSpace );
-
-			this.isDataTexture = true;
-
-			this.image = { data: data, width: width, height: height };
-
-			this.generateMipmaps = false;
-			this.flipY = false;
-			this.unpackAlignment = 1;
-
-		}
-
-	}
-
-	const _offsetMatrix = /*@__PURE__*/ new Matrix4();
-	const _identityMatrix$1 = /*@__PURE__*/ new Matrix4();
-
-	class Skeleton {
-
-		constructor( bones = [], boneInverses = [] ) {
-
-			this.uuid = generateUUID();
-
-			this.bones = bones.slice( 0 );
-			this.boneInverses = boneInverses;
-			this.boneMatrices = null;
-
-			this.boneTexture = null;
-
-			this.init();
-
-		}
-
-		init() {
-
-			const bones = this.bones;
-			const boneInverses = this.boneInverses;
-
-			this.boneMatrices = new Float32Array( bones.length * 16 );
-
-			// calculate inverse bone matrices if necessary
-
-			if ( boneInverses.length === 0 ) {
-
-				this.calculateInverses();
-
-			} else {
-
-				// handle special case
-
-				if ( bones.length !== boneInverses.length ) {
-
-					console.warn( 'THREE.Skeleton: Number of inverse bone matrices does not match amount of bones.' );
-
-					this.boneInverses = [];
-
-					for ( let i = 0, il = this.bones.length; i < il; i ++ ) {
-
-						this.boneInverses.push( new Matrix4() );
-
-					}
-
-				}
-
-			}
-
-		}
-
-		calculateInverses() {
-
-			this.boneInverses.length = 0;
-
-			for ( let i = 0, il = this.bones.length; i < il; i ++ ) {
-
-				const inverse = new Matrix4();
-
-				if ( this.bones[ i ] ) {
-
-					inverse.copy( this.bones[ i ].matrixWorld ).invert();
-
-				}
-
-				this.boneInverses.push( inverse );
-
-			}
-
-		}
-
-		pose() {
-
-			// recover the bind-time world matrices
-
-			for ( let i = 0, il = this.bones.length; i < il; i ++ ) {
-
-				const bone = this.bones[ i ];
-
-				if ( bone ) {
-
-					bone.matrixWorld.copy( this.boneInverses[ i ] ).invert();
-
-				}
-
-			}
-
-			// compute the local matrices, positions, rotations and scales
-
-			for ( let i = 0, il = this.bones.length; i < il; i ++ ) {
-
-				const bone = this.bones[ i ];
-
-				if ( bone ) {
-
-					if ( bone.parent && bone.parent.isBone ) {
-
-						bone.matrix.copy( bone.parent.matrixWorld ).invert();
-						bone.matrix.multiply( bone.matrixWorld );
-
-					} else {
-
-						bone.matrix.copy( bone.matrixWorld );
-
-					}
-
-					bone.matrix.decompose( bone.position, bone.quaternion, bone.scale );
-
-				}
-
-			}
-
-		}
-
-		update() {
-
-			const bones = this.bones;
-			const boneInverses = this.boneInverses;
-			const boneMatrices = this.boneMatrices;
-			const boneTexture = this.boneTexture;
-
-			// flatten bone matrices to array
-
-			for ( let i = 0, il = bones.length; i < il; i ++ ) {
-
-				// compute the offset between the current and the original transform
-
-				const matrix = bones[ i ] ? bones[ i ].matrixWorld : _identityMatrix$1;
-
-				_offsetMatrix.multiplyMatrices( matrix, boneInverses[ i ] );
-				_offsetMatrix.toArray( boneMatrices, i * 16 );
-
-			}
-
-			if ( boneTexture !== null ) {
-
-				boneTexture.needsUpdate = true;
-
-			}
-
-		}
-
-		clone() {
-
-			return new Skeleton( this.bones, this.boneInverses );
-
-		}
-
-		computeBoneTexture() {
-
-			// layout (1 matrix = 4 pixels)
-			//      RGBA RGBA RGBA RGBA (=> column1, column2, column3, column4)
-			//  with  8x8  pixel texture max   16 bones * 4 pixels =  (8 * 8)
-			//       16x16 pixel texture max   64 bones * 4 pixels = (16 * 16)
-			//       32x32 pixel texture max  256 bones * 4 pixels = (32 * 32)
-			//       64x64 pixel texture max 1024 bones * 4 pixels = (64 * 64)
-
-			let size = Math.sqrt( this.bones.length * 4 ); // 4 pixels needed for 1 matrix
-			size = Math.ceil( size / 4 ) * 4;
-			size = Math.max( size, 4 );
-
-			const boneMatrices = new Float32Array( size * size * 4 ); // 4 floats per RGBA pixel
-			boneMatrices.set( this.boneMatrices ); // copy current values
-
-			const boneTexture = new DataTexture( boneMatrices, size, size, RGBAFormat, FloatType );
-			boneTexture.needsUpdate = true;
-
-			this.boneMatrices = boneMatrices;
-			this.boneTexture = boneTexture;
-
-			return this;
-
-		}
-
-		getBoneByName( name ) {
-
-			for ( let i = 0, il = this.bones.length; i < il; i ++ ) {
-
-				const bone = this.bones[ i ];
-
-				if ( bone.name === name ) {
-
-					return bone;
-
-				}
-
-			}
-
-			return undefined;
-
-		}
-
-		dispose( ) {
-
-			if ( this.boneTexture !== null ) {
-
-				this.boneTexture.dispose();
-
-				this.boneTexture = null;
-
-			}
-
-		}
-
-		fromJSON( json, bones ) {
-
-			this.uuid = json.uuid;
-
-			for ( let i = 0, l = json.bones.length; i < l; i ++ ) {
-
-				const uuid = json.bones[ i ];
-				let bone = bones[ uuid ];
-
-				if ( bone === undefined ) {
-
-					console.warn( 'THREE.Skeleton: No bone found with UUID:', uuid );
-					bone = new Bone();
-
-				}
-
-				this.bones.push( bone );
-				this.boneInverses.push( new Matrix4().fromArray( json.boneInverses[ i ] ) );
-
-			}
-
-			this.init();
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = {
-				metadata: {
-					version: 4.6,
-					type: 'Skeleton',
-					generator: 'Skeleton.toJSON'
-				},
-				bones: [],
-				boneInverses: []
-			};
-
-			data.uuid = this.uuid;
-
-			const bones = this.bones;
-			const boneInverses = this.boneInverses;
-
-			for ( let i = 0, l = bones.length; i < l; i ++ ) {
-
-				const bone = bones[ i ];
-				data.bones.push( bone.uuid );
-
-				const boneInverse = boneInverses[ i ];
-				data.boneInverses.push( boneInverse.toArray() );
-
-			}
-
-			return data;
-
-		}
-
-	}
-
-	class InstancedBufferAttribute extends BufferAttribute {
-
-		constructor( array, itemSize, normalized, meshPerAttribute = 1 ) {
-
-			super( array, itemSize, normalized );
-
-			this.isInstancedBufferAttribute = true;
-
-			this.meshPerAttribute = meshPerAttribute;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.meshPerAttribute = source.meshPerAttribute;
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.meshPerAttribute = this.meshPerAttribute;
-
-			data.isInstancedBufferAttribute = true;
-
-			return data;
-
-		}
-
-	}
-
-	const _instanceLocalMatrix = /*@__PURE__*/ new Matrix4();
-	const _instanceWorldMatrix = /*@__PURE__*/ new Matrix4();
-
-	const _instanceIntersects = [];
-
-	const _box3 = /*@__PURE__*/ new Box3();
-	const _identity = /*@__PURE__*/ new Matrix4();
-	const _mesh$1 = /*@__PURE__*/ new Mesh();
-	const _sphere$3 = /*@__PURE__*/ new Sphere();
-
-	class InstancedMesh extends Mesh {
-
-		constructor( geometry, material, count ) {
-
-			super( geometry, material );
-
-			this.isInstancedMesh = true;
-
-			this.instanceMatrix = new InstancedBufferAttribute( new Float32Array( count * 16 ), 16 );
-			this.instanceColor = null;
-
-			this.count = count;
-
-			this.boundingBox = null;
-			this.boundingSphere = null;
-
-			for ( let i = 0; i < count; i ++ ) {
-
-				this.setMatrixAt( i, _identity );
-
-			}
-
-		}
-
-		computeBoundingBox() {
-
-			const geometry = this.geometry;
-			const count = this.count;
-
-			if ( this.boundingBox === null ) {
-
-				this.boundingBox = new Box3();
-
-			}
-
-			if ( geometry.boundingBox === null ) {
-
-				geometry.computeBoundingBox();
-
-			}
-
-			this.boundingBox.makeEmpty();
-
-			for ( let i = 0; i < count; i ++ ) {
-
-				this.getMatrixAt( i, _instanceLocalMatrix );
-
-				_box3.copy( geometry.boundingBox ).applyMatrix4( _instanceLocalMatrix );
-
-				this.boundingBox.union( _box3 );
-
-			}
-
-		}
-
-		computeBoundingSphere() {
-
-			const geometry = this.geometry;
-			const count = this.count;
-
-			if ( this.boundingSphere === null ) {
-
-				this.boundingSphere = new Sphere();
-
-			}
-
-			if ( geometry.boundingSphere === null ) {
-
-				geometry.computeBoundingSphere();
-
-			}
-
-			this.boundingSphere.makeEmpty();
-
-			for ( let i = 0; i < count; i ++ ) {
-
-				this.getMatrixAt( i, _instanceLocalMatrix );
-
-				_sphere$3.copy( geometry.boundingSphere ).applyMatrix4( _instanceLocalMatrix );
-
-				this.boundingSphere.union( _sphere$3 );
-
-			}
-
-		}
-
-		copy( source, recursive ) {
-
-			super.copy( source, recursive );
-
-			this.instanceMatrix.copy( source.instanceMatrix );
-
-			if ( source.instanceColor !== null ) this.instanceColor = source.instanceColor.clone();
-
-			this.count = source.count;
-
-			if ( source.boundingBox !== null ) this.boundingBox = source.boundingBox.clone();
-			if ( source.boundingSphere !== null ) this.boundingSphere = source.boundingSphere.clone();
-
-			return this;
-
-		}
-
-		getColorAt( index, color ) {
-
-			color.fromArray( this.instanceColor.array, index * 3 );
-
-		}
-
-		getMatrixAt( index, matrix ) {
-
-			matrix.fromArray( this.instanceMatrix.array, index * 16 );
-
-		}
-
-		raycast( raycaster, intersects ) {
-
-			const matrixWorld = this.matrixWorld;
-			const raycastTimes = this.count;
-
-			_mesh$1.geometry = this.geometry;
-			_mesh$1.material = this.material;
-
-			if ( _mesh$1.material === undefined ) return;
-
-			// test with bounding sphere first
-
-			if ( this.boundingSphere === null ) this.computeBoundingSphere();
-
-			_sphere$3.copy( this.boundingSphere );
-			_sphere$3.applyMatrix4( matrixWorld );
-
-			if ( raycaster.ray.intersectsSphere( _sphere$3 ) === false ) return;
-
-			// now test each instance
-
-			for ( let instanceId = 0; instanceId < raycastTimes; instanceId ++ ) {
-
-				// calculate the world matrix for each instance
-
-				this.getMatrixAt( instanceId, _instanceLocalMatrix );
-
-				_instanceWorldMatrix.multiplyMatrices( matrixWorld, _instanceLocalMatrix );
-
-				// the mesh represents this single instance
-
-				_mesh$1.matrixWorld = _instanceWorldMatrix;
-
-				_mesh$1.raycast( raycaster, _instanceIntersects );
-
-				// process the result of raycast
-
-				for ( let i = 0, l = _instanceIntersects.length; i < l; i ++ ) {
-
-					const intersect = _instanceIntersects[ i ];
-					intersect.instanceId = instanceId;
-					intersect.object = this;
-					intersects.push( intersect );
-
-				}
-
-				_instanceIntersects.length = 0;
-
-			}
-
-		}
-
-		setColorAt( index, color ) {
-
-			if ( this.instanceColor === null ) {
-
-				this.instanceColor = new InstancedBufferAttribute( new Float32Array( this.instanceMatrix.count * 3 ), 3 );
-
-			}
-
-			color.toArray( this.instanceColor.array, index * 3 );
-
-		}
-
-		setMatrixAt( index, matrix ) {
-
-			matrix.toArray( this.instanceMatrix.array, index * 16 );
-
-		}
-
-		updateMorphTargets() {
-
-		}
-
-		dispose() {
-
-			this.dispatchEvent( { type: 'dispose' } );
-
-		}
-
-	}
-
-	class LineBasicMaterial extends Material {
-
-		constructor( parameters ) {
-
-			super();
-
-			this.isLineBasicMaterial = true;
-
-			this.type = 'LineBasicMaterial';
-
-			this.color = new Color( 0xffffff );
-
-			this.map = null;
-
-			this.linewidth = 1;
-			this.linecap = 'round';
-			this.linejoin = 'round';
-
-			this.fog = true;
-
-			this.setValues( parameters );
-
-		}
-
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.color.copy( source.color );
-
-			this.map = source.map;
-
-			this.linewidth = source.linewidth;
-			this.linecap = source.linecap;
-			this.linejoin = source.linejoin;
-
-			this.fog = source.fog;
-
-			return this;
-
-		}
-
-	}
-
-	const _start$1 = /*@__PURE__*/ new Vector3();
-	const _end$1 = /*@__PURE__*/ new Vector3();
-	const _inverseMatrix$1 = /*@__PURE__*/ new Matrix4();
-	const _ray$1$1 = /*@__PURE__*/ new Ray();
-	const _sphere$1 = /*@__PURE__*/ new Sphere();
-
-	class Line extends Object3D {
-
-		constructor( geometry = new BufferGeometry(), material = new LineBasicMaterial() ) {
-
-			super();
-
-			this.isLine = true;
-
-			this.type = 'Line';
-
-			this.geometry = geometry;
-			this.material = material;
-
-			this.updateMorphTargets();
-
-		}
-
-		copy( source, recursive ) {
-
-			super.copy( source, recursive );
-
-			this.material = Array.isArray( source.material ) ? source.material.slice() : source.material;
-			this.geometry = source.geometry;
-
-			return this;
-
-		}
-
-		computeLineDistances() {
-
-			const geometry = this.geometry;
-
-			// we assume non-indexed geometry
-
-			if ( geometry.index === null ) {
-
-				const positionAttribute = geometry.attributes.position;
-				const lineDistances = [ 0 ];
-
-				for ( let i = 1, l = positionAttribute.count; i < l; i ++ ) {
-
-					_start$1.fromBufferAttribute( positionAttribute, i - 1 );
-					_end$1.fromBufferAttribute( positionAttribute, i );
-
-					lineDistances[ i ] = lineDistances[ i - 1 ];
-					lineDistances[ i ] += _start$1.distanceTo( _end$1 );
-
-				}
-
-				geometry.setAttribute( 'lineDistance', new Float32BufferAttribute( lineDistances, 1 ) );
-
-			} else {
-
-				console.warn( 'THREE.Line.computeLineDistances(): Computation only possible with non-indexed BufferGeometry.' );
-
-			}
-
-			return this;
-
-		}
-
-		raycast( raycaster, intersects ) {
-
-			const geometry = this.geometry;
-			const matrixWorld = this.matrixWorld;
-			const threshold = raycaster.params.Line.threshold;
-			const drawRange = geometry.drawRange;
-
-			// Checking boundingSphere distance to ray
-
-			if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
-
-			_sphere$1.copy( geometry.boundingSphere );
-			_sphere$1.applyMatrix4( matrixWorld );
-			_sphere$1.radius += threshold;
-
-			if ( raycaster.ray.intersectsSphere( _sphere$1 ) === false ) return;
-
-			//
-
-			_inverseMatrix$1.copy( matrixWorld ).invert();
-			_ray$1$1.copy( raycaster.ray ).applyMatrix4( _inverseMatrix$1 );
-
-			const localThreshold = threshold / ( ( this.scale.x + this.scale.y + this.scale.z ) / 3 );
-			const localThresholdSq = localThreshold * localThreshold;
-
-			const vStart = new Vector3();
-			const vEnd = new Vector3();
-			const interSegment = new Vector3();
-			const interRay = new Vector3();
-			const step = this.isLineSegments ? 2 : 1;
-
-			const index = geometry.index;
-			const attributes = geometry.attributes;
-			const positionAttribute = attributes.position;
-
-			if ( index !== null ) {
-
-				const start = Math.max( 0, drawRange.start );
-				const end = Math.min( index.count, ( drawRange.start + drawRange.count ) );
-
-				for ( let i = start, l = end - 1; i < l; i += step ) {
-
-					const a = index.getX( i );
-					const b = index.getX( i + 1 );
-
-					vStart.fromBufferAttribute( positionAttribute, a );
-					vEnd.fromBufferAttribute( positionAttribute, b );
-
-					const distSq = _ray$1$1.distanceSqToSegment( vStart, vEnd, interRay, interSegment );
-
-					if ( distSq > localThresholdSq ) continue;
-
-					interRay.applyMatrix4( this.matrixWorld ); //Move back to world space for distance calculation
-
-					const distance = raycaster.ray.origin.distanceTo( interRay );
-
-					if ( distance < raycaster.near || distance > raycaster.far ) continue;
-
-					intersects.push( {
-
-						distance: distance,
-						// What do we want? intersection point on the ray or on the segment??
-						// point: raycaster.ray.at( distance ),
-						point: interSegment.clone().applyMatrix4( this.matrixWorld ),
-						index: i,
-						face: null,
-						faceIndex: null,
-						object: this
-
-					} );
-
-				}
-
-			} else {
-
-				const start = Math.max( 0, drawRange.start );
-				const end = Math.min( positionAttribute.count, ( drawRange.start + drawRange.count ) );
-
-				for ( let i = start, l = end - 1; i < l; i += step ) {
-
-					vStart.fromBufferAttribute( positionAttribute, i );
-					vEnd.fromBufferAttribute( positionAttribute, i + 1 );
-
-					const distSq = _ray$1$1.distanceSqToSegment( vStart, vEnd, interRay, interSegment );
-
-					if ( distSq > localThresholdSq ) continue;
-
-					interRay.applyMatrix4( this.matrixWorld ); //Move back to world space for distance calculation
-
-					const distance = raycaster.ray.origin.distanceTo( interRay );
-
-					if ( distance < raycaster.near || distance > raycaster.far ) continue;
-
-					intersects.push( {
-
-						distance: distance,
-						// What do we want? intersection point on the ray or on the segment??
-						// point: raycaster.ray.at( distance ),
-						point: interSegment.clone().applyMatrix4( this.matrixWorld ),
-						index: i,
-						face: null,
-						faceIndex: null,
-						object: this
-
-					} );
-
-				}
-
-			}
-
-		}
-
-		updateMorphTargets() {
-
-			const geometry = this.geometry;
-
-			const morphAttributes = geometry.morphAttributes;
-			const keys = Object.keys( morphAttributes );
-
-			if ( keys.length > 0 ) {
-
-				const morphAttribute = morphAttributes[ keys[ 0 ] ];
-
-				if ( morphAttribute !== undefined ) {
-
-					this.morphTargetInfluences = [];
-					this.morphTargetDictionary = {};
-
-					for ( let m = 0, ml = morphAttribute.length; m < ml; m ++ ) {
-
-						const name = morphAttribute[ m ].name || String( m );
-
-						this.morphTargetInfluences.push( 0 );
-						this.morphTargetDictionary[ name ] = m;
-
-					}
-
-				}
-
-			}
-
-		}
-
-	}
-
-	const _start = /*@__PURE__*/ new Vector3();
-	const _end = /*@__PURE__*/ new Vector3();
-
-	class LineSegments extends Line {
-
-		constructor( geometry, material ) {
-
-			super( geometry, material );
-
-			this.isLineSegments = true;
-
-			this.type = 'LineSegments';
-
-		}
-
-		computeLineDistances() {
-
-			const geometry = this.geometry;
-
-			// we assume non-indexed geometry
-
-			if ( geometry.index === null ) {
-
-				const positionAttribute = geometry.attributes.position;
-				const lineDistances = [];
-
-				for ( let i = 0, l = positionAttribute.count; i < l; i += 2 ) {
-
-					_start.fromBufferAttribute( positionAttribute, i );
-					_end.fromBufferAttribute( positionAttribute, i + 1 );
-
-					lineDistances[ i ] = ( i === 0 ) ? 0 : lineDistances[ i - 1 ];
-					lineDistances[ i + 1 ] = lineDistances[ i ] + _start.distanceTo( _end );
-
-				}
-
-				geometry.setAttribute( 'lineDistance', new Float32BufferAttribute( lineDistances, 1 ) );
-
-			} else {
-
-				console.warn( 'THREE.LineSegments.computeLineDistances(): Computation only possible with non-indexed BufferGeometry.' );
-
-			}
-
-			return this;
-
-		}
-
-	}
-
-	class LineLoop extends Line {
-
-		constructor( geometry, material ) {
-
-			super( geometry, material );
-
-			this.isLineLoop = true;
-
-			this.type = 'LineLoop';
-
-		}
-
-	}
-
-	class PointsMaterial extends Material {
-
-		constructor( parameters ) {
-
-			super();
-
-			this.isPointsMaterial = true;
-
-			this.type = 'PointsMaterial';
-
-			this.color = new Color( 0xffffff );
-
-			this.map = null;
-
-			this.alphaMap = null;
-
-			this.size = 1;
-			this.sizeAttenuation = true;
-
-			this.fog = true;
-
-			this.setValues( parameters );
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.color.copy( source.color );
-
-			this.map = source.map;
-
-			this.alphaMap = source.alphaMap;
-
-			this.size = source.size;
-			this.sizeAttenuation = source.sizeAttenuation;
-
-			this.fog = source.fog;
-
-			return this;
-
-		}
-
-	}
-
-	const _inverseMatrix = /*@__PURE__*/ new Matrix4();
-	const _ray$4 = /*@__PURE__*/ new Ray();
-	const _sphere = /*@__PURE__*/ new Sphere();
-	const _position$2 = /*@__PURE__*/ new Vector3();
-
-	class Points extends Object3D {
-
-		constructor( geometry = new BufferGeometry(), material = new PointsMaterial() ) {
-
-			super();
-
-			this.isPoints = true;
-
-			this.type = 'Points';
-
-			this.geometry = geometry;
-			this.material = material;
-
-			this.updateMorphTargets();
-
-		}
-
-		copy( source, recursive ) {
-
-			super.copy( source, recursive );
-
-			this.material = Array.isArray( source.material ) ? source.material.slice() : source.material;
-			this.geometry = source.geometry;
-
-			return this;
-
-		}
-
-		raycast( raycaster, intersects ) {
-
-			const geometry = this.geometry;
-			const matrixWorld = this.matrixWorld;
-			const threshold = raycaster.params.Points.threshold;
-			const drawRange = geometry.drawRange;
-
-			// Checking boundingSphere distance to ray
-
-			if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
-
-			_sphere.copy( geometry.boundingSphere );
-			_sphere.applyMatrix4( matrixWorld );
-			_sphere.radius += threshold;
-
-			if ( raycaster.ray.intersectsSphere( _sphere ) === false ) return;
-
-			//
-
-			_inverseMatrix.copy( matrixWorld ).invert();
-			_ray$4.copy( raycaster.ray ).applyMatrix4( _inverseMatrix );
-
-			const localThreshold = threshold / ( ( this.scale.x + this.scale.y + this.scale.z ) / 3 );
-			const localThresholdSq = localThreshold * localThreshold;
-
-			const index = geometry.index;
-			const attributes = geometry.attributes;
-			const positionAttribute = attributes.position;
-
-			if ( index !== null ) {
-
-				const start = Math.max( 0, drawRange.start );
-				const end = Math.min( index.count, ( drawRange.start + drawRange.count ) );
-
-				for ( let i = start, il = end; i < il; i ++ ) {
-
-					const a = index.getX( i );
-
-					_position$2.fromBufferAttribute( positionAttribute, a );
-
-					testPoint( _position$2, a, localThresholdSq, matrixWorld, raycaster, intersects, this );
-
-				}
-
-			} else {
-
-				const start = Math.max( 0, drawRange.start );
-				const end = Math.min( positionAttribute.count, ( drawRange.start + drawRange.count ) );
-
-				for ( let i = start, l = end; i < l; i ++ ) {
-
-					_position$2.fromBufferAttribute( positionAttribute, i );
-
-					testPoint( _position$2, i, localThresholdSq, matrixWorld, raycaster, intersects, this );
-
-				}
-
-			}
-
-		}
-
-		updateMorphTargets() {
-
-			const geometry = this.geometry;
-
-			const morphAttributes = geometry.morphAttributes;
-			const keys = Object.keys( morphAttributes );
-
-			if ( keys.length > 0 ) {
-
-				const morphAttribute = morphAttributes[ keys[ 0 ] ];
-
-				if ( morphAttribute !== undefined ) {
-
-					this.morphTargetInfluences = [];
-					this.morphTargetDictionary = {};
-
-					for ( let m = 0, ml = morphAttribute.length; m < ml; m ++ ) {
-
-						const name = morphAttribute[ m ].name || String( m );
-
-						this.morphTargetInfluences.push( 0 );
-						this.morphTargetDictionary[ name ] = m;
-
-					}
-
-				}
-
-			}
-
-		}
-
-	}
-
-	function testPoint( point, index, localThresholdSq, matrixWorld, raycaster, intersects, object ) {
-
-		const rayPointDistanceSq = _ray$4.distanceSqToPoint( point );
-
-		if ( rayPointDistanceSq < localThresholdSq ) {
-
-			const intersectPoint = new Vector3();
-
-			_ray$4.closestPointToPoint( point, intersectPoint );
-			intersectPoint.applyMatrix4( matrixWorld );
-
-			const distance = raycaster.ray.origin.distanceTo( intersectPoint );
-
-			if ( distance < raycaster.near || distance > raycaster.far ) return;
-
-			intersects.push( {
-
-				distance: distance,
-				distanceToRay: Math.sqrt( rayPointDistanceSq ),
-				point: intersectPoint,
-				index: index,
-				face: null,
-				object: object
-
-			} );
-
-		}
-
-	}
-
 	class CanvasTexture extends Texture {
 
 		constructor( canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
@@ -32325,3224 +30506,6 @@
 			this.isCanvasTexture = true;
 
 			this.needsUpdate = true;
-
-		}
-
-	}
-
-	/**
-	 * Extensible curve object.
-	 *
-	 * Some common of curve methods:
-	 * .getPoint( t, optionalTarget ), .getTangent( t, optionalTarget )
-	 * .getPointAt( u, optionalTarget ), .getTangentAt( u, optionalTarget )
-	 * .getPoints(), .getSpacedPoints()
-	 * .getLength()
-	 * .updateArcLengths()
-	 *
-	 * This following curves inherit from THREE.Curve:
-	 *
-	 * -- 2D curves --
-	 * THREE.ArcCurve
-	 * THREE.CubicBezierCurve
-	 * THREE.EllipseCurve
-	 * THREE.LineCurve
-	 * THREE.QuadraticBezierCurve
-	 * THREE.SplineCurve
-	 *
-	 * -- 3D curves --
-	 * THREE.CatmullRomCurve3
-	 * THREE.CubicBezierCurve3
-	 * THREE.LineCurve3
-	 * THREE.QuadraticBezierCurve3
-	 *
-	 * A series of curves can be represented as a THREE.CurvePath.
-	 *
-	 **/
-
-	class Curve {
-
-		constructor() {
-
-			this.type = 'Curve';
-
-			this.arcLengthDivisions = 200;
-
-		}
-
-		// Virtual base class method to overwrite and implement in subclasses
-		//	- t [0 .. 1]
-
-		getPoint( /* t, optionalTarget */ ) {
-
-			console.warn( 'THREE.Curve: .getPoint() not implemented.' );
-			return null;
-
-		}
-
-		// Get point at relative position in curve according to arc length
-		// - u [0 .. 1]
-
-		getPointAt( u, optionalTarget ) {
-
-			const t = this.getUtoTmapping( u );
-			return this.getPoint( t, optionalTarget );
-
-		}
-
-		// Get sequence of points using getPoint( t )
-
-		getPoints( divisions = 5 ) {
-
-			const points = [];
-
-			for ( let d = 0; d <= divisions; d ++ ) {
-
-				points.push( this.getPoint( d / divisions ) );
-
-			}
-
-			return points;
-
-		}
-
-		// Get sequence of points using getPointAt( u )
-
-		getSpacedPoints( divisions = 5 ) {
-
-			const points = [];
-
-			for ( let d = 0; d <= divisions; d ++ ) {
-
-				points.push( this.getPointAt( d / divisions ) );
-
-			}
-
-			return points;
-
-		}
-
-		// Get total curve arc length
-
-		getLength() {
-
-			const lengths = this.getLengths();
-			return lengths[ lengths.length - 1 ];
-
-		}
-
-		// Get list of cumulative segment lengths
-
-		getLengths( divisions = this.arcLengthDivisions ) {
-
-			if ( this.cacheArcLengths &&
-				( this.cacheArcLengths.length === divisions + 1 ) &&
-				! this.needsUpdate ) {
-
-				return this.cacheArcLengths;
-
-			}
-
-			this.needsUpdate = false;
-
-			const cache = [];
-			let current, last = this.getPoint( 0 );
-			let sum = 0;
-
-			cache.push( 0 );
-
-			for ( let p = 1; p <= divisions; p ++ ) {
-
-				current = this.getPoint( p / divisions );
-				sum += current.distanceTo( last );
-				cache.push( sum );
-				last = current;
-
-			}
-
-			this.cacheArcLengths = cache;
-
-			return cache; // { sums: cache, sum: sum }; Sum is in the last element.
-
-		}
-
-		updateArcLengths() {
-
-			this.needsUpdate = true;
-			this.getLengths();
-
-		}
-
-		// Given u ( 0 .. 1 ), get a t to find p. This gives you points which are equidistant
-
-		getUtoTmapping( u, distance ) {
-
-			const arcLengths = this.getLengths();
-
-			let i = 0;
-			const il = arcLengths.length;
-
-			let targetArcLength; // The targeted u distance value to get
-
-			if ( distance ) {
-
-				targetArcLength = distance;
-
-			} else {
-
-				targetArcLength = u * arcLengths[ il - 1 ];
-
-			}
-
-			// binary search for the index with largest value smaller than target u distance
-
-			let low = 0, high = il - 1, comparison;
-
-			while ( low <= high ) {
-
-				i = Math.floor( low + ( high - low ) / 2 ); // less likely to overflow, though probably not issue here, JS doesn't really have integers, all numbers are floats
-
-				comparison = arcLengths[ i ] - targetArcLength;
-
-				if ( comparison < 0 ) {
-
-					low = i + 1;
-
-				} else if ( comparison > 0 ) {
-
-					high = i - 1;
-
-				} else {
-
-					high = i;
-					break;
-
-					// DONE
-
-				}
-
-			}
-
-			i = high;
-
-			if ( arcLengths[ i ] === targetArcLength ) {
-
-				return i / ( il - 1 );
-
-			}
-
-			// we could get finer grain at lengths, or use simple interpolation between two points
-
-			const lengthBefore = arcLengths[ i ];
-			const lengthAfter = arcLengths[ i + 1 ];
-
-			const segmentLength = lengthAfter - lengthBefore;
-
-			// determine where we are between the 'before' and 'after' points
-
-			const segmentFraction = ( targetArcLength - lengthBefore ) / segmentLength;
-
-			// add that fractional amount to t
-
-			const t = ( i + segmentFraction ) / ( il - 1 );
-
-			return t;
-
-		}
-
-		// Returns a unit vector tangent at t
-		// In case any sub curve does not implement its tangent derivation,
-		// 2 points a small delta apart will be used to find its gradient
-		// which seems to give a reasonable approximation
-
-		getTangent( t, optionalTarget ) {
-
-			const delta = 0.0001;
-			let t1 = t - delta;
-			let t2 = t + delta;
-
-			// Capping in case of danger
-
-			if ( t1 < 0 ) t1 = 0;
-			if ( t2 > 1 ) t2 = 1;
-
-			const pt1 = this.getPoint( t1 );
-			const pt2 = this.getPoint( t2 );
-
-			const tangent = optionalTarget || ( ( pt1.isVector2 ) ? new Vector2() : new Vector3() );
-
-			tangent.copy( pt2 ).sub( pt1 ).normalize();
-
-			return tangent;
-
-		}
-
-		getTangentAt( u, optionalTarget ) {
-
-			const t = this.getUtoTmapping( u );
-			return this.getTangent( t, optionalTarget );
-
-		}
-
-		computeFrenetFrames( segments, closed ) {
-
-			// see http://www.cs.indiana.edu/pub/techreports/TR425.pdf
-
-			const normal = new Vector3();
-
-			const tangents = [];
-			const normals = [];
-			const binormals = [];
-
-			const vec = new Vector3();
-			const mat = new Matrix4();
-
-			// compute the tangent vectors for each segment on the curve
-
-			for ( let i = 0; i <= segments; i ++ ) {
-
-				const u = i / segments;
-
-				tangents[ i ] = this.getTangentAt( u, new Vector3() );
-
-			}
-
-			// select an initial normal vector perpendicular to the first tangent vector,
-			// and in the direction of the minimum tangent xyz component
-
-			normals[ 0 ] = new Vector3();
-			binormals[ 0 ] = new Vector3();
-			let min = Number.MAX_VALUE;
-			const tx = Math.abs( tangents[ 0 ].x );
-			const ty = Math.abs( tangents[ 0 ].y );
-			const tz = Math.abs( tangents[ 0 ].z );
-
-			if ( tx <= min ) {
-
-				min = tx;
-				normal.set( 1, 0, 0 );
-
-			}
-
-			if ( ty <= min ) {
-
-				min = ty;
-				normal.set( 0, 1, 0 );
-
-			}
-
-			if ( tz <= min ) {
-
-				normal.set( 0, 0, 1 );
-
-			}
-
-			vec.crossVectors( tangents[ 0 ], normal ).normalize();
-
-			normals[ 0 ].crossVectors( tangents[ 0 ], vec );
-			binormals[ 0 ].crossVectors( tangents[ 0 ], normals[ 0 ] );
-
-
-			// compute the slowly-varying normal and binormal vectors for each segment on the curve
-
-			for ( let i = 1; i <= segments; i ++ ) {
-
-				normals[ i ] = normals[ i - 1 ].clone();
-
-				binormals[ i ] = binormals[ i - 1 ].clone();
-
-				vec.crossVectors( tangents[ i - 1 ], tangents[ i ] );
-
-				if ( vec.length() > Number.EPSILON ) {
-
-					vec.normalize();
-
-					const theta = Math.acos( clamp( tangents[ i - 1 ].dot( tangents[ i ] ), - 1, 1 ) ); // clamp for floating pt errors
-
-					normals[ i ].applyMatrix4( mat.makeRotationAxis( vec, theta ) );
-
-				}
-
-				binormals[ i ].crossVectors( tangents[ i ], normals[ i ] );
-
-			}
-
-			// if the curve is closed, postprocess the vectors so the first and last normal vectors are the same
-
-			if ( closed === true ) {
-
-				let theta = Math.acos( clamp( normals[ 0 ].dot( normals[ segments ] ), - 1, 1 ) );
-				theta /= segments;
-
-				if ( tangents[ 0 ].dot( vec.crossVectors( normals[ 0 ], normals[ segments ] ) ) > 0 ) {
-
-					theta = - theta;
-
-				}
-
-				for ( let i = 1; i <= segments; i ++ ) {
-
-					// twist a little...
-					normals[ i ].applyMatrix4( mat.makeRotationAxis( tangents[ i ], theta * i ) );
-					binormals[ i ].crossVectors( tangents[ i ], normals[ i ] );
-
-				}
-
-			}
-
-			return {
-				tangents: tangents,
-				normals: normals,
-				binormals: binormals
-			};
-
-		}
-
-		clone() {
-
-			return new this.constructor().copy( this );
-
-		}
-
-		copy( source ) {
-
-			this.arcLengthDivisions = source.arcLengthDivisions;
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = {
-				metadata: {
-					version: 4.6,
-					type: 'Curve',
-					generator: 'Curve.toJSON'
-				}
-			};
-
-			data.arcLengthDivisions = this.arcLengthDivisions;
-			data.type = this.type;
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			this.arcLengthDivisions = json.arcLengthDivisions;
-
-			return this;
-
-		}
-
-	}
-
-	class EllipseCurve extends Curve {
-
-		constructor( aX = 0, aY = 0, xRadius = 1, yRadius = 1, aStartAngle = 0, aEndAngle = Math.PI * 2, aClockwise = false, aRotation = 0 ) {
-
-			super();
-
-			this.isEllipseCurve = true;
-
-			this.type = 'EllipseCurve';
-
-			this.aX = aX;
-			this.aY = aY;
-
-			this.xRadius = xRadius;
-			this.yRadius = yRadius;
-
-			this.aStartAngle = aStartAngle;
-			this.aEndAngle = aEndAngle;
-
-			this.aClockwise = aClockwise;
-
-			this.aRotation = aRotation;
-
-		}
-
-		getPoint( t, optionalTarget ) {
-
-			const point = optionalTarget || new Vector2();
-
-			const twoPi = Math.PI * 2;
-			let deltaAngle = this.aEndAngle - this.aStartAngle;
-			const samePoints = Math.abs( deltaAngle ) < Number.EPSILON;
-
-			// ensures that deltaAngle is 0 .. 2 PI
-			while ( deltaAngle < 0 ) deltaAngle += twoPi;
-			while ( deltaAngle > twoPi ) deltaAngle -= twoPi;
-
-			if ( deltaAngle < Number.EPSILON ) {
-
-				if ( samePoints ) {
-
-					deltaAngle = 0;
-
-				} else {
-
-					deltaAngle = twoPi;
-
-				}
-
-			}
-
-			if ( this.aClockwise === true && ! samePoints ) {
-
-				if ( deltaAngle === twoPi ) {
-
-					deltaAngle = - twoPi;
-
-				} else {
-
-					deltaAngle = deltaAngle - twoPi;
-
-				}
-
-			}
-
-			const angle = this.aStartAngle + t * deltaAngle;
-			let x = this.aX + this.xRadius * Math.cos( angle );
-			let y = this.aY + this.yRadius * Math.sin( angle );
-
-			if ( this.aRotation !== 0 ) {
-
-				const cos = Math.cos( this.aRotation );
-				const sin = Math.sin( this.aRotation );
-
-				const tx = x - this.aX;
-				const ty = y - this.aY;
-
-				// Rotate the point about the center of the ellipse.
-				x = tx * cos - ty * sin + this.aX;
-				y = tx * sin + ty * cos + this.aY;
-
-			}
-
-			return point.set( x, y );
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.aX = source.aX;
-			this.aY = source.aY;
-
-			this.xRadius = source.xRadius;
-			this.yRadius = source.yRadius;
-
-			this.aStartAngle = source.aStartAngle;
-			this.aEndAngle = source.aEndAngle;
-
-			this.aClockwise = source.aClockwise;
-
-			this.aRotation = source.aRotation;
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.aX = this.aX;
-			data.aY = this.aY;
-
-			data.xRadius = this.xRadius;
-			data.yRadius = this.yRadius;
-
-			data.aStartAngle = this.aStartAngle;
-			data.aEndAngle = this.aEndAngle;
-
-			data.aClockwise = this.aClockwise;
-
-			data.aRotation = this.aRotation;
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.aX = json.aX;
-			this.aY = json.aY;
-
-			this.xRadius = json.xRadius;
-			this.yRadius = json.yRadius;
-
-			this.aStartAngle = json.aStartAngle;
-			this.aEndAngle = json.aEndAngle;
-
-			this.aClockwise = json.aClockwise;
-
-			this.aRotation = json.aRotation;
-
-			return this;
-
-		}
-
-	}
-
-	class ArcCurve extends EllipseCurve {
-
-		constructor( aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise ) {
-
-			super( aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise );
-
-			this.isArcCurve = true;
-
-			this.type = 'ArcCurve';
-
-		}
-
-	}
-
-	/**
-	 * Centripetal CatmullRom Curve - which is useful for avoiding
-	 * cusps and self-intersections in non-uniform catmull rom curves.
-	 * http://www.cemyuksel.com/research/catmullrom_param/catmullrom.pdf
-	 *
-	 * curve.type accepts centripetal(default), chordal and catmullrom
-	 * curve.tension is used for catmullrom which defaults to 0.5
-	 */
-
-
-	/*
-	Based on an optimized c++ solution in
-	 - http://stackoverflow.com/questions/9489736/catmull-rom-curve-with-no-cusps-and-no-self-intersections/
-	 - http://ideone.com/NoEbVM
-
-	This CubicPoly class could be used for reusing some variables and calculations,
-	but for three.js curve use, it could be possible inlined and flatten into a single function call
-	which can be placed in CurveUtils.
-	*/
-
-	function CubicPoly() {
-
-		let c0 = 0, c1 = 0, c2 = 0, c3 = 0;
-
-		/*
-		 * Compute coefficients for a cubic polynomial
-		 *   p(s) = c0 + c1*s + c2*s^2 + c3*s^3
-		 * such that
-		 *   p(0) = x0, p(1) = x1
-		 *  and
-		 *   p'(0) = t0, p'(1) = t1.
-		 */
-		function init( x0, x1, t0, t1 ) {
-
-			c0 = x0;
-			c1 = t0;
-			c2 = - 3 * x0 + 3 * x1 - 2 * t0 - t1;
-			c3 = 2 * x0 - 2 * x1 + t0 + t1;
-
-		}
-
-		return {
-
-			initCatmullRom: function ( x0, x1, x2, x3, tension ) {
-
-				init( x1, x2, tension * ( x2 - x0 ), tension * ( x3 - x1 ) );
-
-			},
-
-			initNonuniformCatmullRom: function ( x0, x1, x2, x3, dt0, dt1, dt2 ) {
-
-				// compute tangents when parameterized in [t1,t2]
-				let t1 = ( x1 - x0 ) / dt0 - ( x2 - x0 ) / ( dt0 + dt1 ) + ( x2 - x1 ) / dt1;
-				let t2 = ( x2 - x1 ) / dt1 - ( x3 - x1 ) / ( dt1 + dt2 ) + ( x3 - x2 ) / dt2;
-
-				// rescale tangents for parametrization in [0,1]
-				t1 *= dt1;
-				t2 *= dt1;
-
-				init( x1, x2, t1, t2 );
-
-			},
-
-			calc: function ( t ) {
-
-				const t2 = t * t;
-				const t3 = t2 * t;
-				return c0 + c1 * t + c2 * t2 + c3 * t3;
-
-			}
-
-		};
-
-	}
-
-	//
-
-	const tmp = /*@__PURE__*/ new Vector3();
-	const px = /*@__PURE__*/ new CubicPoly();
-	const py = /*@__PURE__*/ new CubicPoly();
-	const pz = /*@__PURE__*/ new CubicPoly();
-
-	class CatmullRomCurve3 extends Curve {
-
-		constructor( points = [], closed = false, curveType = 'centripetal', tension = 0.5 ) {
-
-			super();
-
-			this.isCatmullRomCurve3 = true;
-
-			this.type = 'CatmullRomCurve3';
-
-			this.points = points;
-			this.closed = closed;
-			this.curveType = curveType;
-			this.tension = tension;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector3() ) {
-
-			const point = optionalTarget;
-
-			const points = this.points;
-			const l = points.length;
-
-			const p = ( l - ( this.closed ? 0 : 1 ) ) * t;
-			let intPoint = Math.floor( p );
-			let weight = p - intPoint;
-
-			if ( this.closed ) {
-
-				intPoint += intPoint > 0 ? 0 : ( Math.floor( Math.abs( intPoint ) / l ) + 1 ) * l;
-
-			} else if ( weight === 0 && intPoint === l - 1 ) {
-
-				intPoint = l - 2;
-				weight = 1;
-
-			}
-
-			let p0, p3; // 4 points (p1 & p2 defined below)
-
-			if ( this.closed || intPoint > 0 ) {
-
-				p0 = points[ ( intPoint - 1 ) % l ];
-
-			} else {
-
-				// extrapolate first point
-				tmp.subVectors( points[ 0 ], points[ 1 ] ).add( points[ 0 ] );
-				p0 = tmp;
-
-			}
-
-			const p1 = points[ intPoint % l ];
-			const p2 = points[ ( intPoint + 1 ) % l ];
-
-			if ( this.closed || intPoint + 2 < l ) {
-
-				p3 = points[ ( intPoint + 2 ) % l ];
-
-			} else {
-
-				// extrapolate last point
-				tmp.subVectors( points[ l - 1 ], points[ l - 2 ] ).add( points[ l - 1 ] );
-				p3 = tmp;
-
-			}
-
-			if ( this.curveType === 'centripetal' || this.curveType === 'chordal' ) {
-
-				// init Centripetal / Chordal Catmull-Rom
-				const pow = this.curveType === 'chordal' ? 0.5 : 0.25;
-				let dt0 = Math.pow( p0.distanceToSquared( p1 ), pow );
-				let dt1 = Math.pow( p1.distanceToSquared( p2 ), pow );
-				let dt2 = Math.pow( p2.distanceToSquared( p3 ), pow );
-
-				// safety check for repeated points
-				if ( dt1 < 1e-4 ) dt1 = 1.0;
-				if ( dt0 < 1e-4 ) dt0 = dt1;
-				if ( dt2 < 1e-4 ) dt2 = dt1;
-
-				px.initNonuniformCatmullRom( p0.x, p1.x, p2.x, p3.x, dt0, dt1, dt2 );
-				py.initNonuniformCatmullRom( p0.y, p1.y, p2.y, p3.y, dt0, dt1, dt2 );
-				pz.initNonuniformCatmullRom( p0.z, p1.z, p2.z, p3.z, dt0, dt1, dt2 );
-
-			} else if ( this.curveType === 'catmullrom' ) {
-
-				px.initCatmullRom( p0.x, p1.x, p2.x, p3.x, this.tension );
-				py.initCatmullRom( p0.y, p1.y, p2.y, p3.y, this.tension );
-				pz.initCatmullRom( p0.z, p1.z, p2.z, p3.z, this.tension );
-
-			}
-
-			point.set(
-				px.calc( weight ),
-				py.calc( weight ),
-				pz.calc( weight )
-			);
-
-			return point;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.points = [];
-
-			for ( let i = 0, l = source.points.length; i < l; i ++ ) {
-
-				const point = source.points[ i ];
-
-				this.points.push( point.clone() );
-
-			}
-
-			this.closed = source.closed;
-			this.curveType = source.curveType;
-			this.tension = source.tension;
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.points = [];
-
-			for ( let i = 0, l = this.points.length; i < l; i ++ ) {
-
-				const point = this.points[ i ];
-				data.points.push( point.toArray() );
-
-			}
-
-			data.closed = this.closed;
-			data.curveType = this.curveType;
-			data.tension = this.tension;
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.points = [];
-
-			for ( let i = 0, l = json.points.length; i < l; i ++ ) {
-
-				const point = json.points[ i ];
-				this.points.push( new Vector3().fromArray( point ) );
-
-			}
-
-			this.closed = json.closed;
-			this.curveType = json.curveType;
-			this.tension = json.tension;
-
-			return this;
-
-		}
-
-	}
-
-	/**
-	 * Bezier Curves formulas obtained from
-	 * https://en.wikipedia.org/wiki/B%C3%A9zier_curve
-	 */
-
-	function CatmullRom( t, p0, p1, p2, p3 ) {
-
-		const v0 = ( p2 - p0 ) * 0.5;
-		const v1 = ( p3 - p1 ) * 0.5;
-		const t2 = t * t;
-		const t3 = t * t2;
-		return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
-
-	}
-
-	//
-
-	function QuadraticBezierP0( t, p ) {
-
-		const k = 1 - t;
-		return k * k * p;
-
-	}
-
-	function QuadraticBezierP1( t, p ) {
-
-		return 2 * ( 1 - t ) * t * p;
-
-	}
-
-	function QuadraticBezierP2( t, p ) {
-
-		return t * t * p;
-
-	}
-
-	function QuadraticBezier( t, p0, p1, p2 ) {
-
-		return QuadraticBezierP0( t, p0 ) + QuadraticBezierP1( t, p1 ) +
-			QuadraticBezierP2( t, p2 );
-
-	}
-
-	//
-
-	function CubicBezierP0( t, p ) {
-
-		const k = 1 - t;
-		return k * k * k * p;
-
-	}
-
-	function CubicBezierP1( t, p ) {
-
-		const k = 1 - t;
-		return 3 * k * k * t * p;
-
-	}
-
-	function CubicBezierP2( t, p ) {
-
-		return 3 * ( 1 - t ) * t * t * p;
-
-	}
-
-	function CubicBezierP3( t, p ) {
-
-		return t * t * t * p;
-
-	}
-
-	function CubicBezier( t, p0, p1, p2, p3 ) {
-
-		return CubicBezierP0( t, p0 ) + CubicBezierP1( t, p1 ) + CubicBezierP2( t, p2 ) +
-			CubicBezierP3( t, p3 );
-
-	}
-
-	class CubicBezierCurve extends Curve {
-
-		constructor( v0 = new Vector2(), v1 = new Vector2(), v2 = new Vector2(), v3 = new Vector2() ) {
-
-			super();
-
-			this.isCubicBezierCurve = true;
-
-			this.type = 'CubicBezierCurve';
-
-			this.v0 = v0;
-			this.v1 = v1;
-			this.v2 = v2;
-			this.v3 = v3;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector2() ) {
-
-			const point = optionalTarget;
-
-			const v0 = this.v0, v1 = this.v1, v2 = this.v2, v3 = this.v3;
-
-			point.set(
-				CubicBezier( t, v0.x, v1.x, v2.x, v3.x ),
-				CubicBezier( t, v0.y, v1.y, v2.y, v3.y )
-			);
-
-			return point;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.v0.copy( source.v0 );
-			this.v1.copy( source.v1 );
-			this.v2.copy( source.v2 );
-			this.v3.copy( source.v3 );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.v0 = this.v0.toArray();
-			data.v1 = this.v1.toArray();
-			data.v2 = this.v2.toArray();
-			data.v3 = this.v3.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.v0.fromArray( json.v0 );
-			this.v1.fromArray( json.v1 );
-			this.v2.fromArray( json.v2 );
-			this.v3.fromArray( json.v3 );
-
-			return this;
-
-		}
-
-	}
-
-	class CubicBezierCurve3 extends Curve {
-
-		constructor( v0 = new Vector3(), v1 = new Vector3(), v2 = new Vector3(), v3 = new Vector3() ) {
-
-			super();
-
-			this.isCubicBezierCurve3 = true;
-
-			this.type = 'CubicBezierCurve3';
-
-			this.v0 = v0;
-			this.v1 = v1;
-			this.v2 = v2;
-			this.v3 = v3;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector3() ) {
-
-			const point = optionalTarget;
-
-			const v0 = this.v0, v1 = this.v1, v2 = this.v2, v3 = this.v3;
-
-			point.set(
-				CubicBezier( t, v0.x, v1.x, v2.x, v3.x ),
-				CubicBezier( t, v0.y, v1.y, v2.y, v3.y ),
-				CubicBezier( t, v0.z, v1.z, v2.z, v3.z )
-			);
-
-			return point;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.v0.copy( source.v0 );
-			this.v1.copy( source.v1 );
-			this.v2.copy( source.v2 );
-			this.v3.copy( source.v3 );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.v0 = this.v0.toArray();
-			data.v1 = this.v1.toArray();
-			data.v2 = this.v2.toArray();
-			data.v3 = this.v3.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.v0.fromArray( json.v0 );
-			this.v1.fromArray( json.v1 );
-			this.v2.fromArray( json.v2 );
-			this.v3.fromArray( json.v3 );
-
-			return this;
-
-		}
-
-	}
-
-	class LineCurve extends Curve {
-
-		constructor( v1 = new Vector2(), v2 = new Vector2() ) {
-
-			super();
-
-			this.isLineCurve = true;
-
-			this.type = 'LineCurve';
-
-			this.v1 = v1;
-			this.v2 = v2;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector2() ) {
-
-			const point = optionalTarget;
-
-			if ( t === 1 ) {
-
-				point.copy( this.v2 );
-
-			} else {
-
-				point.copy( this.v2 ).sub( this.v1 );
-				point.multiplyScalar( t ).add( this.v1 );
-
-			}
-
-			return point;
-
-		}
-
-		// Line curve is linear, so we can overwrite default getPointAt
-		getPointAt( u, optionalTarget ) {
-
-			return this.getPoint( u, optionalTarget );
-
-		}
-
-		getTangent( t, optionalTarget = new Vector2() ) {
-
-			return optionalTarget.subVectors( this.v2, this.v1 ).normalize();
-
-		}
-
-		getTangentAt( u, optionalTarget ) {
-
-			return this.getTangent( u, optionalTarget );
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.v1.copy( source.v1 );
-			this.v2.copy( source.v2 );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.v1 = this.v1.toArray();
-			data.v2 = this.v2.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.v1.fromArray( json.v1 );
-			this.v2.fromArray( json.v2 );
-
-			return this;
-
-		}
-
-	}
-
-	class LineCurve3 extends Curve {
-
-		constructor( v1 = new Vector3(), v2 = new Vector3() ) {
-
-			super();
-
-			this.isLineCurve3 = true;
-
-			this.type = 'LineCurve3';
-
-			this.v1 = v1;
-			this.v2 = v2;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector3() ) {
-
-			const point = optionalTarget;
-
-			if ( t === 1 ) {
-
-				point.copy( this.v2 );
-
-			} else {
-
-				point.copy( this.v2 ).sub( this.v1 );
-				point.multiplyScalar( t ).add( this.v1 );
-
-			}
-
-			return point;
-
-		}
-
-		// Line curve is linear, so we can overwrite default getPointAt
-		getPointAt( u, optionalTarget ) {
-
-			return this.getPoint( u, optionalTarget );
-
-		}
-
-		getTangent( t, optionalTarget = new Vector3() ) {
-
-			return optionalTarget.subVectors( this.v2, this.v1 ).normalize();
-
-		}
-
-		getTangentAt( u, optionalTarget ) {
-
-			return this.getTangent( u, optionalTarget );
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.v1.copy( source.v1 );
-			this.v2.copy( source.v2 );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.v1 = this.v1.toArray();
-			data.v2 = this.v2.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.v1.fromArray( json.v1 );
-			this.v2.fromArray( json.v2 );
-
-			return this;
-
-		}
-
-	}
-
-	class QuadraticBezierCurve extends Curve {
-
-		constructor( v0 = new Vector2(), v1 = new Vector2(), v2 = new Vector2() ) {
-
-			super();
-
-			this.isQuadraticBezierCurve = true;
-
-			this.type = 'QuadraticBezierCurve';
-
-			this.v0 = v0;
-			this.v1 = v1;
-			this.v2 = v2;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector2() ) {
-
-			const point = optionalTarget;
-
-			const v0 = this.v0, v1 = this.v1, v2 = this.v2;
-
-			point.set(
-				QuadraticBezier( t, v0.x, v1.x, v2.x ),
-				QuadraticBezier( t, v0.y, v1.y, v2.y )
-			);
-
-			return point;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.v0.copy( source.v0 );
-			this.v1.copy( source.v1 );
-			this.v2.copy( source.v2 );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.v0 = this.v0.toArray();
-			data.v1 = this.v1.toArray();
-			data.v2 = this.v2.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.v0.fromArray( json.v0 );
-			this.v1.fromArray( json.v1 );
-			this.v2.fromArray( json.v2 );
-
-			return this;
-
-		}
-
-	}
-
-	class QuadraticBezierCurve3 extends Curve {
-
-		constructor( v0 = new Vector3(), v1 = new Vector3(), v2 = new Vector3() ) {
-
-			super();
-
-			this.isQuadraticBezierCurve3 = true;
-
-			this.type = 'QuadraticBezierCurve3';
-
-			this.v0 = v0;
-			this.v1 = v1;
-			this.v2 = v2;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector3() ) {
-
-			const point = optionalTarget;
-
-			const v0 = this.v0, v1 = this.v1, v2 = this.v2;
-
-			point.set(
-				QuadraticBezier( t, v0.x, v1.x, v2.x ),
-				QuadraticBezier( t, v0.y, v1.y, v2.y ),
-				QuadraticBezier( t, v0.z, v1.z, v2.z )
-			);
-
-			return point;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.v0.copy( source.v0 );
-			this.v1.copy( source.v1 );
-			this.v2.copy( source.v2 );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.v0 = this.v0.toArray();
-			data.v1 = this.v1.toArray();
-			data.v2 = this.v2.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.v0.fromArray( json.v0 );
-			this.v1.fromArray( json.v1 );
-			this.v2.fromArray( json.v2 );
-
-			return this;
-
-		}
-
-	}
-
-	class SplineCurve extends Curve {
-
-		constructor( points = [] ) {
-
-			super();
-
-			this.isSplineCurve = true;
-
-			this.type = 'SplineCurve';
-
-			this.points = points;
-
-		}
-
-		getPoint( t, optionalTarget = new Vector2() ) {
-
-			const point = optionalTarget;
-
-			const points = this.points;
-			const p = ( points.length - 1 ) * t;
-
-			const intPoint = Math.floor( p );
-			const weight = p - intPoint;
-
-			const p0 = points[ intPoint === 0 ? intPoint : intPoint - 1 ];
-			const p1 = points[ intPoint ];
-			const p2 = points[ intPoint > points.length - 2 ? points.length - 1 : intPoint + 1 ];
-			const p3 = points[ intPoint > points.length - 3 ? points.length - 1 : intPoint + 2 ];
-
-			point.set(
-				CatmullRom( weight, p0.x, p1.x, p2.x, p3.x ),
-				CatmullRom( weight, p0.y, p1.y, p2.y, p3.y )
-			);
-
-			return point;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.points = [];
-
-			for ( let i = 0, l = source.points.length; i < l; i ++ ) {
-
-				const point = source.points[ i ];
-
-				this.points.push( point.clone() );
-
-			}
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.points = [];
-
-			for ( let i = 0, l = this.points.length; i < l; i ++ ) {
-
-				const point = this.points[ i ];
-				data.points.push( point.toArray() );
-
-			}
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.points = [];
-
-			for ( let i = 0, l = json.points.length; i < l; i ++ ) {
-
-				const point = json.points[ i ];
-				this.points.push( new Vector2().fromArray( point ) );
-
-			}
-
-			return this;
-
-		}
-
-	}
-
-	var Curves = /*#__PURE__*/Object.freeze({
-		__proto__: null,
-		ArcCurve: ArcCurve,
-		CatmullRomCurve3: CatmullRomCurve3,
-		CubicBezierCurve: CubicBezierCurve,
-		CubicBezierCurve3: CubicBezierCurve3,
-		EllipseCurve: EllipseCurve,
-		LineCurve: LineCurve,
-		LineCurve3: LineCurve3,
-		QuadraticBezierCurve: QuadraticBezierCurve,
-		QuadraticBezierCurve3: QuadraticBezierCurve3,
-		SplineCurve: SplineCurve
-	});
-
-	/**************************************************************
-	 *	Curved Path - a curve path is simply a array of connected
-	 *  curves, but retains the api of a curve
-	 **************************************************************/
-
-	class CurvePath extends Curve {
-
-		constructor() {
-
-			super();
-
-			this.type = 'CurvePath';
-
-			this.curves = [];
-			this.autoClose = false; // Automatically closes the path
-
-		}
-
-		add( curve ) {
-
-			this.curves.push( curve );
-
-		}
-
-		closePath() {
-
-			// Add a line curve if start and end of lines are not connected
-			const startPoint = this.curves[ 0 ].getPoint( 0 );
-			const endPoint = this.curves[ this.curves.length - 1 ].getPoint( 1 );
-
-			if ( ! startPoint.equals( endPoint ) ) {
-
-				const lineType = ( startPoint.isVector2 === true ) ? 'LineCurve' : 'LineCurve3';
-				this.curves.push( new Curves[ lineType ]( endPoint, startPoint ) );
-
-			}
-
-			return this;
-
-		}
-
-		// To get accurate point with reference to
-		// entire path distance at time t,
-		// following has to be done:
-
-		// 1. Length of each sub path have to be known
-		// 2. Locate and identify type of curve
-		// 3. Get t for the curve
-		// 4. Return curve.getPointAt(t')
-
-		getPoint( t, optionalTarget ) {
-
-			const d = t * this.getLength();
-			const curveLengths = this.getCurveLengths();
-			let i = 0;
-
-			// To think about boundaries points.
-
-			while ( i < curveLengths.length ) {
-
-				if ( curveLengths[ i ] >= d ) {
-
-					const diff = curveLengths[ i ] - d;
-					const curve = this.curves[ i ];
-
-					const segmentLength = curve.getLength();
-					const u = segmentLength === 0 ? 0 : 1 - diff / segmentLength;
-
-					return curve.getPointAt( u, optionalTarget );
-
-				}
-
-				i ++;
-
-			}
-
-			return null;
-
-			// loop where sum != 0, sum > d , sum+1 <d
-
-		}
-
-		// We cannot use the default THREE.Curve getPoint() with getLength() because in
-		// THREE.Curve, getLength() depends on getPoint() but in THREE.CurvePath
-		// getPoint() depends on getLength
-
-		getLength() {
-
-			const lens = this.getCurveLengths();
-			return lens[ lens.length - 1 ];
-
-		}
-
-		// cacheLengths must be recalculated.
-		updateArcLengths() {
-
-			this.needsUpdate = true;
-			this.cacheLengths = null;
-			this.getCurveLengths();
-
-		}
-
-		// Compute lengths and cache them
-		// We cannot overwrite getLengths() because UtoT mapping uses it.
-
-		getCurveLengths() {
-
-			// We use cache values if curves and cache array are same length
-
-			if ( this.cacheLengths && this.cacheLengths.length === this.curves.length ) {
-
-				return this.cacheLengths;
-
-			}
-
-			// Get length of sub-curve
-			// Push sums into cached array
-
-			const lengths = [];
-			let sums = 0;
-
-			for ( let i = 0, l = this.curves.length; i < l; i ++ ) {
-
-				sums += this.curves[ i ].getLength();
-				lengths.push( sums );
-
-			}
-
-			this.cacheLengths = lengths;
-
-			return lengths;
-
-		}
-
-		getSpacedPoints( divisions = 40 ) {
-
-			const points = [];
-
-			for ( let i = 0; i <= divisions; i ++ ) {
-
-				points.push( this.getPoint( i / divisions ) );
-
-			}
-
-			if ( this.autoClose ) {
-
-				points.push( points[ 0 ] );
-
-			}
-
-			return points;
-
-		}
-
-		getPoints( divisions = 12 ) {
-
-			const points = [];
-			let last;
-
-			for ( let i = 0, curves = this.curves; i < curves.length; i ++ ) {
-
-				const curve = curves[ i ];
-				const resolution = curve.isEllipseCurve ? divisions * 2
-					: ( curve.isLineCurve || curve.isLineCurve3 ) ? 1
-						: curve.isSplineCurve ? divisions * curve.points.length
-							: divisions;
-
-				const pts = curve.getPoints( resolution );
-
-				for ( let j = 0; j < pts.length; j ++ ) {
-
-					const point = pts[ j ];
-
-					if ( last && last.equals( point ) ) continue; // ensures no consecutive points are duplicates
-
-					points.push( point );
-					last = point;
-
-				}
-
-			}
-
-			if ( this.autoClose && points.length > 1 && ! points[ points.length - 1 ].equals( points[ 0 ] ) ) {
-
-				points.push( points[ 0 ] );
-
-			}
-
-			return points;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.curves = [];
-
-			for ( let i = 0, l = source.curves.length; i < l; i ++ ) {
-
-				const curve = source.curves[ i ];
-
-				this.curves.push( curve.clone() );
-
-			}
-
-			this.autoClose = source.autoClose;
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.autoClose = this.autoClose;
-			data.curves = [];
-
-			for ( let i = 0, l = this.curves.length; i < l; i ++ ) {
-
-				const curve = this.curves[ i ];
-				data.curves.push( curve.toJSON() );
-
-			}
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.autoClose = json.autoClose;
-			this.curves = [];
-
-			for ( let i = 0, l = json.curves.length; i < l; i ++ ) {
-
-				const curve = json.curves[ i ];
-				this.curves.push( new Curves[ curve.type ]().fromJSON( curve ) );
-
-			}
-
-			return this;
-
-		}
-
-	}
-
-	class Path extends CurvePath {
-
-		constructor( points ) {
-
-			super();
-
-			this.type = 'Path';
-
-			this.currentPoint = new Vector2();
-
-			if ( points ) {
-
-				this.setFromPoints( points );
-
-			}
-
-		}
-
-		setFromPoints( points ) {
-
-			this.moveTo( points[ 0 ].x, points[ 0 ].y );
-
-			for ( let i = 1, l = points.length; i < l; i ++ ) {
-
-				this.lineTo( points[ i ].x, points[ i ].y );
-
-			}
-
-			return this;
-
-		}
-
-		moveTo( x, y ) {
-
-			this.currentPoint.set( x, y ); // TODO consider referencing vectors instead of copying?
-
-			return this;
-
-		}
-
-		lineTo( x, y ) {
-
-			const curve = new LineCurve( this.currentPoint.clone(), new Vector2( x, y ) );
-			this.curves.push( curve );
-
-			this.currentPoint.set( x, y );
-
-			return this;
-
-		}
-
-		quadraticCurveTo( aCPx, aCPy, aX, aY ) {
-
-			const curve = new QuadraticBezierCurve(
-				this.currentPoint.clone(),
-				new Vector2( aCPx, aCPy ),
-				new Vector2( aX, aY )
-			);
-
-			this.curves.push( curve );
-
-			this.currentPoint.set( aX, aY );
-
-			return this;
-
-		}
-
-		bezierCurveTo( aCP1x, aCP1y, aCP2x, aCP2y, aX, aY ) {
-
-			const curve = new CubicBezierCurve(
-				this.currentPoint.clone(),
-				new Vector2( aCP1x, aCP1y ),
-				new Vector2( aCP2x, aCP2y ),
-				new Vector2( aX, aY )
-			);
-
-			this.curves.push( curve );
-
-			this.currentPoint.set( aX, aY );
-
-			return this;
-
-		}
-
-		splineThru( pts /*Array of Vector*/ ) {
-
-			const npts = [ this.currentPoint.clone() ].concat( pts );
-
-			const curve = new SplineCurve( npts );
-			this.curves.push( curve );
-
-			this.currentPoint.copy( pts[ pts.length - 1 ] );
-
-			return this;
-
-		}
-
-		arc( aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise ) {
-
-			const x0 = this.currentPoint.x;
-			const y0 = this.currentPoint.y;
-
-			this.absarc( aX + x0, aY + y0, aRadius,
-				aStartAngle, aEndAngle, aClockwise );
-
-			return this;
-
-		}
-
-		absarc( aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise ) {
-
-			this.absellipse( aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise );
-
-			return this;
-
-		}
-
-		ellipse( aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation ) {
-
-			const x0 = this.currentPoint.x;
-			const y0 = this.currentPoint.y;
-
-			this.absellipse( aX + x0, aY + y0, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation );
-
-			return this;
-
-		}
-
-		absellipse( aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation ) {
-
-			const curve = new EllipseCurve( aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation );
-
-			if ( this.curves.length > 0 ) {
-
-				// if a previous curve is present, attempt to join
-				const firstPoint = curve.getPoint( 0 );
-
-				if ( ! firstPoint.equals( this.currentPoint ) ) {
-
-					this.lineTo( firstPoint.x, firstPoint.y );
-
-				}
-
-			}
-
-			this.curves.push( curve );
-
-			const lastPoint = curve.getPoint( 1 );
-			this.currentPoint.copy( lastPoint );
-
-			return this;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.currentPoint.copy( source.currentPoint );
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.currentPoint = this.currentPoint.toArray();
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.currentPoint.fromArray( json.currentPoint );
-
-			return this;
-
-		}
-
-	}
-
-	class Shape extends Path {
-
-		constructor( points ) {
-
-			super( points );
-
-			this.uuid = generateUUID();
-
-			this.type = 'Shape';
-
-			this.holes = [];
-
-		}
-
-		getPointsHoles( divisions ) {
-
-			const holesPts = [];
-
-			for ( let i = 0, l = this.holes.length; i < l; i ++ ) {
-
-				holesPts[ i ] = this.holes[ i ].getPoints( divisions );
-
-			}
-
-			return holesPts;
-
-		}
-
-		// get points of shape and holes (keypoints based on segments parameter)
-
-		extractPoints( divisions ) {
-
-			return {
-
-				shape: this.getPoints( divisions ),
-				holes: this.getPointsHoles( divisions )
-
-			};
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.holes = [];
-
-			for ( let i = 0, l = source.holes.length; i < l; i ++ ) {
-
-				const hole = source.holes[ i ];
-
-				this.holes.push( hole.clone() );
-
-			}
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			const data = super.toJSON();
-
-			data.uuid = this.uuid;
-			data.holes = [];
-
-			for ( let i = 0, l = this.holes.length; i < l; i ++ ) {
-
-				const hole = this.holes[ i ];
-				data.holes.push( hole.toJSON() );
-
-			}
-
-			return data;
-
-		}
-
-		fromJSON( json ) {
-
-			super.fromJSON( json );
-
-			this.uuid = json.uuid;
-			this.holes = [];
-
-			for ( let i = 0, l = json.holes.length; i < l; i ++ ) {
-
-				const hole = json.holes[ i ];
-				this.holes.push( new Path().fromJSON( hole ) );
-
-			}
-
-			return this;
-
-		}
-
-	}
-
-	/**
-	 * Port from https://github.com/mapbox/earcut (v2.2.4)
-	 */
-
-	const Earcut = {
-
-		triangulate: function ( data, holeIndices, dim = 2 ) {
-
-			const hasHoles = holeIndices && holeIndices.length;
-			const outerLen = hasHoles ? holeIndices[ 0 ] * dim : data.length;
-			let outerNode = linkedList( data, 0, outerLen, dim, true );
-			const triangles = [];
-
-			if ( ! outerNode || outerNode.next === outerNode.prev ) return triangles;
-
-			let minX, minY, maxX, maxY, x, y, invSize;
-
-			if ( hasHoles ) outerNode = eliminateHoles( data, holeIndices, outerNode, dim );
-
-			// if the shape is not too simple, we'll use z-order curve hash later; calculate polygon bbox
-			if ( data.length > 80 * dim ) {
-
-				minX = maxX = data[ 0 ];
-				minY = maxY = data[ 1 ];
-
-				for ( let i = dim; i < outerLen; i += dim ) {
-
-					x = data[ i ];
-					y = data[ i + 1 ];
-					if ( x < minX ) minX = x;
-					if ( y < minY ) minY = y;
-					if ( x > maxX ) maxX = x;
-					if ( y > maxY ) maxY = y;
-
-				}
-
-				// minX, minY and invSize are later used to transform coords into integers for z-order calculation
-				invSize = Math.max( maxX - minX, maxY - minY );
-				invSize = invSize !== 0 ? 32767 / invSize : 0;
-
-			}
-
-			earcutLinked( outerNode, triangles, dim, minX, minY, invSize, 0 );
-
-			return triangles;
-
-		}
-
-	};
-
-	// create a circular doubly linked list from polygon points in the specified winding order
-	function linkedList( data, start, end, dim, clockwise ) {
-
-		let i, last;
-
-		if ( clockwise === ( signedArea( data, start, end, dim ) > 0 ) ) {
-
-			for ( i = start; i < end; i += dim ) last = insertNode( i, data[ i ], data[ i + 1 ], last );
-
-		} else {
-
-			for ( i = end - dim; i >= start; i -= dim ) last = insertNode( i, data[ i ], data[ i + 1 ], last );
-
-		}
-
-		if ( last && equals( last, last.next ) ) {
-
-			removeNode( last );
-			last = last.next;
-
-		}
-
-		return last;
-
-	}
-
-	// eliminate colinear or duplicate points
-	function filterPoints( start, end ) {
-
-		if ( ! start ) return start;
-		if ( ! end ) end = start;
-
-		let p = start,
-			again;
-		do {
-
-			again = false;
-
-			if ( ! p.steiner && ( equals( p, p.next ) || area( p.prev, p, p.next ) === 0 ) ) {
-
-				removeNode( p );
-				p = end = p.prev;
-				if ( p === p.next ) break;
-				again = true;
-
-			} else {
-
-				p = p.next;
-
-			}
-
-		} while ( again || p !== end );
-
-		return end;
-
-	}
-
-	// main ear slicing loop which triangulates a polygon (given as a linked list)
-	function earcutLinked( ear, triangles, dim, minX, minY, invSize, pass ) {
-
-		if ( ! ear ) return;
-
-		// interlink polygon nodes in z-order
-		if ( ! pass && invSize ) indexCurve( ear, minX, minY, invSize );
-
-		let stop = ear,
-			prev, next;
-
-		// iterate through ears, slicing them one by one
-		while ( ear.prev !== ear.next ) {
-
-			prev = ear.prev;
-			next = ear.next;
-
-			if ( invSize ? isEarHashed( ear, minX, minY, invSize ) : isEar( ear ) ) {
-
-				// cut off the triangle
-				triangles.push( prev.i / dim | 0 );
-				triangles.push( ear.i / dim | 0 );
-				triangles.push( next.i / dim | 0 );
-
-				removeNode( ear );
-
-				// skipping the next vertex leads to less sliver triangles
-				ear = next.next;
-				stop = next.next;
-
-				continue;
-
-			}
-
-			ear = next;
-
-			// if we looped through the whole remaining polygon and can't find any more ears
-			if ( ear === stop ) {
-
-				// try filtering points and slicing again
-				if ( ! pass ) {
-
-					earcutLinked( filterPoints( ear ), triangles, dim, minX, minY, invSize, 1 );
-
-					// if this didn't work, try curing all small self-intersections locally
-
-				} else if ( pass === 1 ) {
-
-					ear = cureLocalIntersections( filterPoints( ear ), triangles, dim );
-					earcutLinked( ear, triangles, dim, minX, minY, invSize, 2 );
-
-					// as a last resort, try splitting the remaining polygon into two
-
-				} else if ( pass === 2 ) {
-
-					splitEarcut( ear, triangles, dim, minX, minY, invSize );
-
-				}
-
-				break;
-
-			}
-
-		}
-
-	}
-
-	// check whether a polygon node forms a valid ear with adjacent nodes
-	function isEar( ear ) {
-
-		const a = ear.prev,
-			b = ear,
-			c = ear.next;
-
-		if ( area( a, b, c ) >= 0 ) return false; // reflex, can't be an ear
-
-		// now make sure we don't have other points inside the potential ear
-		const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
-
-		// triangle bbox; min & max are calculated like this for speed
-		const x0 = ax < bx ? ( ax < cx ? ax : cx ) : ( bx < cx ? bx : cx ),
-			y0 = ay < by ? ( ay < cy ? ay : cy ) : ( by < cy ? by : cy ),
-			x1 = ax > bx ? ( ax > cx ? ax : cx ) : ( bx > cx ? bx : cx ),
-			y1 = ay > by ? ( ay > cy ? ay : cy ) : ( by > cy ? by : cy );
-
-		let p = c.next;
-		while ( p !== a ) {
-
-			if ( p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 &&
-				pointInTriangle( ax, ay, bx, by, cx, cy, p.x, p.y ) &&
-				area( p.prev, p, p.next ) >= 0 ) return false;
-			p = p.next;
-
-		}
-
-		return true;
-
-	}
-
-	function isEarHashed( ear, minX, minY, invSize ) {
-
-		const a = ear.prev,
-			b = ear,
-			c = ear.next;
-
-		if ( area( a, b, c ) >= 0 ) return false; // reflex, can't be an ear
-
-		const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
-
-		// triangle bbox; min & max are calculated like this for speed
-		const x0 = ax < bx ? ( ax < cx ? ax : cx ) : ( bx < cx ? bx : cx ),
-			y0 = ay < by ? ( ay < cy ? ay : cy ) : ( by < cy ? by : cy ),
-			x1 = ax > bx ? ( ax > cx ? ax : cx ) : ( bx > cx ? bx : cx ),
-			y1 = ay > by ? ( ay > cy ? ay : cy ) : ( by > cy ? by : cy );
-
-		// z-order range for the current triangle bbox;
-		const minZ = zOrder( x0, y0, minX, minY, invSize ),
-			maxZ = zOrder( x1, y1, minX, minY, invSize );
-
-		let p = ear.prevZ,
-			n = ear.nextZ;
-
-		// look for points inside the triangle in both directions
-		while ( p && p.z >= minZ && n && n.z <= maxZ ) {
-
-			if ( p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a && p !== c &&
-				pointInTriangle( ax, ay, bx, by, cx, cy, p.x, p.y ) && area( p.prev, p, p.next ) >= 0 ) return false;
-			p = p.prevZ;
-
-			if ( n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a && n !== c &&
-				pointInTriangle( ax, ay, bx, by, cx, cy, n.x, n.y ) && area( n.prev, n, n.next ) >= 0 ) return false;
-			n = n.nextZ;
-
-		}
-
-		// look for remaining points in decreasing z-order
-		while ( p && p.z >= minZ ) {
-
-			if ( p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a && p !== c &&
-				pointInTriangle( ax, ay, bx, by, cx, cy, p.x, p.y ) && area( p.prev, p, p.next ) >= 0 ) return false;
-			p = p.prevZ;
-
-		}
-
-		// look for remaining points in increasing z-order
-		while ( n && n.z <= maxZ ) {
-
-			if ( n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a && n !== c &&
-				pointInTriangle( ax, ay, bx, by, cx, cy, n.x, n.y ) && area( n.prev, n, n.next ) >= 0 ) return false;
-			n = n.nextZ;
-
-		}
-
-		return true;
-
-	}
-
-	// go through all polygon nodes and cure small local self-intersections
-	function cureLocalIntersections( start, triangles, dim ) {
-
-		let p = start;
-		do {
-
-			const a = p.prev,
-				b = p.next.next;
-
-			if ( ! equals( a, b ) && intersects( a, p, p.next, b ) && locallyInside( a, b ) && locallyInside( b, a ) ) {
-
-				triangles.push( a.i / dim | 0 );
-				triangles.push( p.i / dim | 0 );
-				triangles.push( b.i / dim | 0 );
-
-				// remove two nodes involved
-				removeNode( p );
-				removeNode( p.next );
-
-				p = start = b;
-
-			}
-
-			p = p.next;
-
-		} while ( p !== start );
-
-		return filterPoints( p );
-
-	}
-
-	// try splitting polygon into two and triangulate them independently
-	function splitEarcut( start, triangles, dim, minX, minY, invSize ) {
-
-		// look for a valid diagonal that divides the polygon into two
-		let a = start;
-		do {
-
-			let b = a.next.next;
-			while ( b !== a.prev ) {
-
-				if ( a.i !== b.i && isValidDiagonal( a, b ) ) {
-
-					// split the polygon in two by the diagonal
-					let c = splitPolygon( a, b );
-
-					// filter colinear points around the cuts
-					a = filterPoints( a, a.next );
-					c = filterPoints( c, c.next );
-
-					// run earcut on each half
-					earcutLinked( a, triangles, dim, minX, minY, invSize, 0 );
-					earcutLinked( c, triangles, dim, minX, minY, invSize, 0 );
-					return;
-
-				}
-
-				b = b.next;
-
-			}
-
-			a = a.next;
-
-		} while ( a !== start );
-
-	}
-
-	// link every hole into the outer loop, producing a single-ring polygon without holes
-	function eliminateHoles( data, holeIndices, outerNode, dim ) {
-
-		const queue = [];
-		let i, len, start, end, list;
-
-		for ( i = 0, len = holeIndices.length; i < len; i ++ ) {
-
-			start = holeIndices[ i ] * dim;
-			end = i < len - 1 ? holeIndices[ i + 1 ] * dim : data.length;
-			list = linkedList( data, start, end, dim, false );
-			if ( list === list.next ) list.steiner = true;
-			queue.push( getLeftmost( list ) );
-
-		}
-
-		queue.sort( compareX );
-
-		// process holes from left to right
-		for ( i = 0; i < queue.length; i ++ ) {
-
-			outerNode = eliminateHole( queue[ i ], outerNode );
-
-		}
-
-		return outerNode;
-
-	}
-
-	function compareX( a, b ) {
-
-		return a.x - b.x;
-
-	}
-
-	// find a bridge between vertices that connects hole with an outer ring and link it
-	function eliminateHole( hole, outerNode ) {
-
-		const bridge = findHoleBridge( hole, outerNode );
-		if ( ! bridge ) {
-
-			return outerNode;
-
-		}
-
-		const bridgeReverse = splitPolygon( bridge, hole );
-
-		// filter collinear points around the cuts
-		filterPoints( bridgeReverse, bridgeReverse.next );
-		return filterPoints( bridge, bridge.next );
-
-	}
-
-	// David Eberly's algorithm for finding a bridge between hole and outer polygon
-	function findHoleBridge( hole, outerNode ) {
-
-		let p = outerNode,
-			qx = - Infinity,
-			m;
-
-		const hx = hole.x, hy = hole.y;
-
-		// find a segment intersected by a ray from the hole's leftmost point to the left;
-		// segment's endpoint with lesser x will be potential connection point
-		do {
-
-			if ( hy <= p.y && hy >= p.next.y && p.next.y !== p.y ) {
-
-				const x = p.x + ( hy - p.y ) * ( p.next.x - p.x ) / ( p.next.y - p.y );
-				if ( x <= hx && x > qx ) {
-
-					qx = x;
-					m = p.x < p.next.x ? p : p.next;
-					if ( x === hx ) return m; // hole touches outer segment; pick leftmost endpoint
-
-				}
-
-			}
-
-			p = p.next;
-
-		} while ( p !== outerNode );
-
-		if ( ! m ) return null;
-
-		// look for points inside the triangle of hole point, segment intersection and endpoint;
-		// if there are no points found, we have a valid connection;
-		// otherwise choose the point of the minimum angle with the ray as connection point
-
-		const stop = m,
-			mx = m.x,
-			my = m.y;
-		let tanMin = Infinity, tan;
-
-		p = m;
-
-		do {
-
-			if ( hx >= p.x && p.x >= mx && hx !== p.x &&
-					pointInTriangle( hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y ) ) {
-
-				tan = Math.abs( hy - p.y ) / ( hx - p.x ); // tangential
-
-				if ( locallyInside( p, hole ) && ( tan < tanMin || ( tan === tanMin && ( p.x > m.x || ( p.x === m.x && sectorContainsSector( m, p ) ) ) ) ) ) {
-
-					m = p;
-					tanMin = tan;
-
-				}
-
-			}
-
-			p = p.next;
-
-		} while ( p !== stop );
-
-		return m;
-
-	}
-
-	// whether sector in vertex m contains sector in vertex p in the same coordinates
-	function sectorContainsSector( m, p ) {
-
-		return area( m.prev, m, p.prev ) < 0 && area( p.next, m, m.next ) < 0;
-
-	}
-
-	// interlink polygon nodes in z-order
-	function indexCurve( start, minX, minY, invSize ) {
-
-		let p = start;
-		do {
-
-			if ( p.z === 0 ) p.z = zOrder( p.x, p.y, minX, minY, invSize );
-			p.prevZ = p.prev;
-			p.nextZ = p.next;
-			p = p.next;
-
-		} while ( p !== start );
-
-		p.prevZ.nextZ = null;
-		p.prevZ = null;
-
-		sortLinked( p );
-
-	}
-
-	// Simon Tatham's linked list merge sort algorithm
-	// http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-	function sortLinked( list ) {
-
-		let i, p, q, e, tail, numMerges, pSize, qSize,
-			inSize = 1;
-
-		do {
-
-			p = list;
-			list = null;
-			tail = null;
-			numMerges = 0;
-
-			while ( p ) {
-
-				numMerges ++;
-				q = p;
-				pSize = 0;
-				for ( i = 0; i < inSize; i ++ ) {
-
-					pSize ++;
-					q = q.nextZ;
-					if ( ! q ) break;
-
-				}
-
-				qSize = inSize;
-
-				while ( pSize > 0 || ( qSize > 0 && q ) ) {
-
-					if ( pSize !== 0 && ( qSize === 0 || ! q || p.z <= q.z ) ) {
-
-						e = p;
-						p = p.nextZ;
-						pSize --;
-
-					} else {
-
-						e = q;
-						q = q.nextZ;
-						qSize --;
-
-					}
-
-					if ( tail ) tail.nextZ = e;
-					else list = e;
-
-					e.prevZ = tail;
-					tail = e;
-
-				}
-
-				p = q;
-
-			}
-
-			tail.nextZ = null;
-			inSize *= 2;
-
-		} while ( numMerges > 1 );
-
-		return list;
-
-	}
-
-	// z-order of a point given coords and inverse of the longer side of data bbox
-	function zOrder( x, y, minX, minY, invSize ) {
-
-		// coords are transformed into non-negative 15-bit integer range
-		x = ( x - minX ) * invSize | 0;
-		y = ( y - minY ) * invSize | 0;
-
-		x = ( x | ( x << 8 ) ) & 0x00FF00FF;
-		x = ( x | ( x << 4 ) ) & 0x0F0F0F0F;
-		x = ( x | ( x << 2 ) ) & 0x33333333;
-		x = ( x | ( x << 1 ) ) & 0x55555555;
-
-		y = ( y | ( y << 8 ) ) & 0x00FF00FF;
-		y = ( y | ( y << 4 ) ) & 0x0F0F0F0F;
-		y = ( y | ( y << 2 ) ) & 0x33333333;
-		y = ( y | ( y << 1 ) ) & 0x55555555;
-
-		return x | ( y << 1 );
-
-	}
-
-	// find the leftmost node of a polygon ring
-	function getLeftmost( start ) {
-
-		let p = start,
-			leftmost = start;
-		do {
-
-			if ( p.x < leftmost.x || ( p.x === leftmost.x && p.y < leftmost.y ) ) leftmost = p;
-			p = p.next;
-
-		} while ( p !== start );
-
-		return leftmost;
-
-	}
-
-	// check if a point lies within a convex triangle
-	function pointInTriangle( ax, ay, bx, by, cx, cy, px, py ) {
-
-		return ( cx - px ) * ( ay - py ) >= ( ax - px ) * ( cy - py ) &&
-	           ( ax - px ) * ( by - py ) >= ( bx - px ) * ( ay - py ) &&
-	           ( bx - px ) * ( cy - py ) >= ( cx - px ) * ( by - py );
-
-	}
-
-	// check if a diagonal between two polygon nodes is valid (lies in polygon interior)
-	function isValidDiagonal( a, b ) {
-
-		return a.next.i !== b.i && a.prev.i !== b.i && ! intersectsPolygon( a, b ) && // dones't intersect other edges
-	           ( locallyInside( a, b ) && locallyInside( b, a ) && middleInside( a, b ) && // locally visible
-	            ( area( a.prev, a, b.prev ) || area( a, b.prev, b ) ) || // does not create opposite-facing sectors
-	            equals( a, b ) && area( a.prev, a, a.next ) > 0 && area( b.prev, b, b.next ) > 0 ); // special zero-length case
-
-	}
-
-	// signed area of a triangle
-	function area( p, q, r ) {
-
-		return ( q.y - p.y ) * ( r.x - q.x ) - ( q.x - p.x ) * ( r.y - q.y );
-
-	}
-
-	// check if two points are equal
-	function equals( p1, p2 ) {
-
-		return p1.x === p2.x && p1.y === p2.y;
-
-	}
-
-	// check if two segments intersect
-	function intersects( p1, q1, p2, q2 ) {
-
-		const o1 = sign( area( p1, q1, p2 ) );
-		const o2 = sign( area( p1, q1, q2 ) );
-		const o3 = sign( area( p2, q2, p1 ) );
-		const o4 = sign( area( p2, q2, q1 ) );
-
-		if ( o1 !== o2 && o3 !== o4 ) return true; // general case
-
-		if ( o1 === 0 && onSegment( p1, p2, q1 ) ) return true; // p1, q1 and p2 are collinear and p2 lies on p1q1
-		if ( o2 === 0 && onSegment( p1, q2, q1 ) ) return true; // p1, q1 and q2 are collinear and q2 lies on p1q1
-		if ( o3 === 0 && onSegment( p2, p1, q2 ) ) return true; // p2, q2 and p1 are collinear and p1 lies on p2q2
-		if ( o4 === 0 && onSegment( p2, q1, q2 ) ) return true; // p2, q2 and q1 are collinear and q1 lies on p2q2
-
-		return false;
-
-	}
-
-	// for collinear points p, q, r, check if point q lies on segment pr
-	function onSegment( p, q, r ) {
-
-		return q.x <= Math.max( p.x, r.x ) && q.x >= Math.min( p.x, r.x ) && q.y <= Math.max( p.y, r.y ) && q.y >= Math.min( p.y, r.y );
-
-	}
-
-	function sign( num ) {
-
-		return num > 0 ? 1 : num < 0 ? - 1 : 0;
-
-	}
-
-	// check if a polygon diagonal intersects any polygon segments
-	function intersectsPolygon( a, b ) {
-
-		let p = a;
-		do {
-
-			if ( p.i !== a.i && p.next.i !== a.i && p.i !== b.i && p.next.i !== b.i &&
-				intersects( p, p.next, a, b ) ) return true;
-			p = p.next;
-
-		} while ( p !== a );
-
-		return false;
-
-	}
-
-	// check if a polygon diagonal is locally inside the polygon
-	function locallyInside( a, b ) {
-
-		return area( a.prev, a, a.next ) < 0 ?
-			area( a, b, a.next ) >= 0 && area( a, a.prev, b ) >= 0 :
-			area( a, b, a.prev ) < 0 || area( a, a.next, b ) < 0;
-
-	}
-
-	// check if the middle point of a polygon diagonal is inside the polygon
-	function middleInside( a, b ) {
-
-		let p = a,
-			inside = false;
-		const px = ( a.x + b.x ) / 2,
-			py = ( a.y + b.y ) / 2;
-		do {
-
-			if ( ( ( p.y > py ) !== ( p.next.y > py ) ) && p.next.y !== p.y &&
-				( px < ( p.next.x - p.x ) * ( py - p.y ) / ( p.next.y - p.y ) + p.x ) )
-				inside = ! inside;
-			p = p.next;
-
-		} while ( p !== a );
-
-		return inside;
-
-	}
-
-	// link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
-	// if one belongs to the outer ring and another to a hole, it merges it into a single ring
-	function splitPolygon( a, b ) {
-
-		const a2 = new Node( a.i, a.x, a.y ),
-			b2 = new Node( b.i, b.x, b.y ),
-			an = a.next,
-			bp = b.prev;
-
-		a.next = b;
-		b.prev = a;
-
-		a2.next = an;
-		an.prev = a2;
-
-		b2.next = a2;
-		a2.prev = b2;
-
-		bp.next = b2;
-		b2.prev = bp;
-
-		return b2;
-
-	}
-
-	// create a node and optionally link it with previous one (in a circular doubly linked list)
-	function insertNode( i, x, y, last ) {
-
-		const p = new Node( i, x, y );
-
-		if ( ! last ) {
-
-			p.prev = p;
-			p.next = p;
-
-		} else {
-
-			p.next = last.next;
-			p.prev = last;
-			last.next.prev = p;
-			last.next = p;
-
-		}
-
-		return p;
-
-	}
-
-	function removeNode( p ) {
-
-		p.next.prev = p.prev;
-		p.prev.next = p.next;
-
-		if ( p.prevZ ) p.prevZ.nextZ = p.nextZ;
-		if ( p.nextZ ) p.nextZ.prevZ = p.prevZ;
-
-	}
-
-	function Node( i, x, y ) {
-
-		// vertex index in coordinates array
-		this.i = i;
-
-		// vertex coordinates
-		this.x = x;
-		this.y = y;
-
-		// previous and next vertex nodes in a polygon ring
-		this.prev = null;
-		this.next = null;
-
-		// z-order curve value
-		this.z = 0;
-
-		// previous and next nodes in z-order
-		this.prevZ = null;
-		this.nextZ = null;
-
-		// indicates whether this is a steiner point
-		this.steiner = false;
-
-	}
-
-	function signedArea( data, start, end, dim ) {
-
-		let sum = 0;
-		for ( let i = start, j = end - dim; i < end; i += dim ) {
-
-			sum += ( data[ j ] - data[ i ] ) * ( data[ i + 1 ] + data[ j + 1 ] );
-			j = i;
-
-		}
-
-		return sum;
-
-	}
-
-	class ShapeUtils {
-
-		// calculate area of the contour polygon
-
-		static area( contour ) {
-
-			const n = contour.length;
-			let a = 0.0;
-
-			for ( let p = n - 1, q = 0; q < n; p = q ++ ) {
-
-				a += contour[ p ].x * contour[ q ].y - contour[ q ].x * contour[ p ].y;
-
-			}
-
-			return a * 0.5;
-
-		}
-
-		static isClockWise( pts ) {
-
-			return ShapeUtils.area( pts ) < 0;
-
-		}
-
-		static triangulateShape( contour, holes ) {
-
-			const vertices = []; // flat array of vertices like [ x0,y0, x1,y1, x2,y2, ... ]
-			const holeIndices = []; // array of hole indices
-			const faces = []; // final array of vertex indices like [ [ a,b,d ], [ b,c,d ] ]
-
-			removeDupEndPts( contour );
-			addContour( vertices, contour );
-
-			//
-
-			let holeIndex = contour.length;
-
-			holes.forEach( removeDupEndPts );
-
-			for ( let i = 0; i < holes.length; i ++ ) {
-
-				holeIndices.push( holeIndex );
-				holeIndex += holes[ i ].length;
-				addContour( vertices, holes[ i ] );
-
-			}
-
-			//
-
-			const triangles = Earcut.triangulate( vertices, holeIndices );
-
-			//
-
-			for ( let i = 0; i < triangles.length; i += 3 ) {
-
-				faces.push( triangles.slice( i, i + 3 ) );
-
-			}
-
-			return faces;
-
-		}
-
-	}
-
-	function removeDupEndPts( points ) {
-
-		const l = points.length;
-
-		if ( l > 2 && points[ l - 1 ].equals( points[ 0 ] ) ) {
-
-			points.pop();
-
-		}
-
-	}
-
-	function addContour( vertices, contour ) {
-
-		for ( let i = 0; i < contour.length; i ++ ) {
-
-			vertices.push( contour[ i ].x );
-			vertices.push( contour[ i ].y );
-
-		}
-
-	}
-
-	class MeshStandardMaterial extends Material {
-
-		constructor( parameters ) {
-
-			super();
-
-			this.isMeshStandardMaterial = true;
-
-			this.defines = { 'STANDARD': '' };
-
-			this.type = 'MeshStandardMaterial';
-
-			this.color = new Color( 0xffffff ); // diffuse
-			this.roughness = 1.0;
-			this.metalness = 0.0;
-
-			this.map = null;
-
-			this.lightMap = null;
-			this.lightMapIntensity = 1.0;
-
-			this.aoMap = null;
-			this.aoMapIntensity = 1.0;
-
-			this.emissive = new Color( 0x000000 );
-			this.emissiveIntensity = 1.0;
-			this.emissiveMap = null;
-
-			this.bumpMap = null;
-			this.bumpScale = 1;
-
-			this.normalMap = null;
-			this.normalMapType = TangentSpaceNormalMap;
-			this.normalScale = new Vector2( 1, 1 );
-
-			this.displacementMap = null;
-			this.displacementScale = 1;
-			this.displacementBias = 0;
-
-			this.roughnessMap = null;
-
-			this.metalnessMap = null;
-
-			this.alphaMap = null;
-
-			this.envMap = null;
-			this.envMapIntensity = 1.0;
-
-			this.wireframe = false;
-			this.wireframeLinewidth = 1;
-			this.wireframeLinecap = 'round';
-			this.wireframeLinejoin = 'round';
-
-			this.flatShading = false;
-
-			this.fog = true;
-
-			this.setValues( parameters );
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.defines = { 'STANDARD': '' };
-
-			this.color.copy( source.color );
-			this.roughness = source.roughness;
-			this.metalness = source.metalness;
-
-			this.map = source.map;
-
-			this.lightMap = source.lightMap;
-			this.lightMapIntensity = source.lightMapIntensity;
-
-			this.aoMap = source.aoMap;
-			this.aoMapIntensity = source.aoMapIntensity;
-
-			this.emissive.copy( source.emissive );
-			this.emissiveMap = source.emissiveMap;
-			this.emissiveIntensity = source.emissiveIntensity;
-
-			this.bumpMap = source.bumpMap;
-			this.bumpScale = source.bumpScale;
-
-			this.normalMap = source.normalMap;
-			this.normalMapType = source.normalMapType;
-			this.normalScale.copy( source.normalScale );
-
-			this.displacementMap = source.displacementMap;
-			this.displacementScale = source.displacementScale;
-			this.displacementBias = source.displacementBias;
-
-			this.roughnessMap = source.roughnessMap;
-
-			this.metalnessMap = source.metalnessMap;
-
-			this.alphaMap = source.alphaMap;
-
-			this.envMap = source.envMap;
-			this.envMapIntensity = source.envMapIntensity;
-
-			this.wireframe = source.wireframe;
-			this.wireframeLinewidth = source.wireframeLinewidth;
-			this.wireframeLinecap = source.wireframeLinecap;
-			this.wireframeLinejoin = source.wireframeLinejoin;
-
-			this.flatShading = source.flatShading;
-
-			this.fog = source.fog;
-
-			return this;
-
-		}
-
-	}
-
-	class MeshPhysicalMaterial extends MeshStandardMaterial {
-
-		constructor( parameters ) {
-
-			super();
-
-			this.isMeshPhysicalMaterial = true;
-
-			this.defines = {
-
-				'STANDARD': '',
-				'PHYSICAL': ''
-
-			};
-
-			this.type = 'MeshPhysicalMaterial';
-
-			this.anisotropyRotation = 0;
-			this.anisotropyMap = null;
-
-			this.clearcoatMap = null;
-			this.clearcoatRoughness = 0.0;
-			this.clearcoatRoughnessMap = null;
-			this.clearcoatNormalScale = new Vector2( 1, 1 );
-			this.clearcoatNormalMap = null;
-
-			this.ior = 1.5;
-
-			Object.defineProperty( this, 'reflectivity', {
-				get: function () {
-
-					return ( clamp( 2.5 * ( this.ior - 1 ) / ( this.ior + 1 ), 0, 1 ) );
-
-				},
-				set: function ( reflectivity ) {
-
-					this.ior = ( 1 + 0.4 * reflectivity ) / ( 1 - 0.4 * reflectivity );
-
-				}
-			} );
-
-			this.iridescenceMap = null;
-			this.iridescenceIOR = 1.3;
-			this.iridescenceThicknessRange = [ 100, 400 ];
-			this.iridescenceThicknessMap = null;
-
-			this.sheenColor = new Color( 0x000000 );
-			this.sheenColorMap = null;
-			this.sheenRoughness = 1.0;
-			this.sheenRoughnessMap = null;
-
-			this.transmissionMap = null;
-
-			this.thickness = 0;
-			this.thicknessMap = null;
-			this.attenuationDistance = Infinity;
-			this.attenuationColor = new Color( 1, 1, 1 );
-
-			this.specularIntensity = 1.0;
-			this.specularIntensityMap = null;
-			this.specularColor = new Color( 1, 1, 1 );
-			this.specularColorMap = null;
-
-			this._anisotropy = 0;
-			this._clearcoat = 0;
-			this._iridescence = 0;
-			this._sheen = 0.0;
-			this._transmission = 0;
-
-			this.setValues( parameters );
-
-		}
-
-		get anisotropy() {
-
-			return this._anisotropy;
-
-		}
-
-		set anisotropy( value ) {
-
-			if ( this._anisotropy > 0 !== value > 0 ) {
-
-				this.version ++;
-
-			}
-
-			this._anisotropy = value;
-
-		}
-
-		get clearcoat() {
-
-			return this._clearcoat;
-
-		}
-
-		set clearcoat( value ) {
-
-			if ( this._clearcoat > 0 !== value > 0 ) {
-
-				this.version ++;
-
-			}
-
-			this._clearcoat = value;
-
-		}
-
-		get iridescence() {
-
-			return this._iridescence;
-
-		}
-
-		set iridescence( value ) {
-
-			if ( this._iridescence > 0 !== value > 0 ) {
-
-				this.version ++;
-
-			}
-
-			this._iridescence = value;
-
-		}
-
-		get sheen() {
-
-			return this._sheen;
-
-		}
-
-		set sheen( value ) {
-
-			if ( this._sheen > 0 !== value > 0 ) {
-
-				this.version ++;
-
-			}
-
-			this._sheen = value;
-
-		}
-
-		get transmission() {
-
-			return this._transmission;
-
-		}
-
-		set transmission( value ) {
-
-			if ( this._transmission > 0 !== value > 0 ) {
-
-				this.version ++;
-
-			}
-
-			this._transmission = value;
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.defines = {
-
-				'STANDARD': '',
-				'PHYSICAL': ''
-
-			};
-
-			this.anisotropy = source.anisotropy;
-			this.anisotropyRotation = source.anisotropyRotation;
-			this.anisotropyMap = source.anisotropyMap;
-
-			this.clearcoat = source.clearcoat;
-			this.clearcoatMap = source.clearcoatMap;
-			this.clearcoatRoughness = source.clearcoatRoughness;
-			this.clearcoatRoughnessMap = source.clearcoatRoughnessMap;
-			this.clearcoatNormalMap = source.clearcoatNormalMap;
-			this.clearcoatNormalScale.copy( source.clearcoatNormalScale );
-
-			this.ior = source.ior;
-
-			this.iridescence = source.iridescence;
-			this.iridescenceMap = source.iridescenceMap;
-			this.iridescenceIOR = source.iridescenceIOR;
-			this.iridescenceThicknessRange = [ ...source.iridescenceThicknessRange ];
-			this.iridescenceThicknessMap = source.iridescenceThicknessMap;
-
-			this.sheen = source.sheen;
-			this.sheenColor.copy( source.sheenColor );
-			this.sheenColorMap = source.sheenColorMap;
-			this.sheenRoughness = source.sheenRoughness;
-			this.sheenRoughnessMap = source.sheenRoughnessMap;
-
-			this.transmission = source.transmission;
-			this.transmissionMap = source.transmissionMap;
-
-			this.thickness = source.thickness;
-			this.thicknessMap = source.thicknessMap;
-			this.attenuationDistance = source.attenuationDistance;
-			this.attenuationColor.copy( source.attenuationColor );
-
-			this.specularIntensity = source.specularIntensity;
-			this.specularIntensityMap = source.specularIntensityMap;
-			this.specularColor.copy( source.specularColor );
-			this.specularColorMap = source.specularColorMap;
-
-			return this;
 
 		}
 
@@ -35657,1594 +30620,6 @@
 			this.fog = source.fog;
 
 			return this;
-
-		}
-
-	}
-
-	// converts an array to a specific type
-	function convertArray( array, type, forceClone ) {
-
-		if ( ! array || // let 'undefined' and 'null' pass
-			! forceClone && array.constructor === type ) return array;
-
-		if ( typeof type.BYTES_PER_ELEMENT === 'number' ) {
-
-			return new type( array ); // create typed array
-
-		}
-
-		return Array.prototype.slice.call( array ); // create Array
-
-	}
-
-	function isTypedArray( object ) {
-
-		return ArrayBuffer.isView( object ) &&
-			! ( object instanceof DataView );
-
-	}
-
-	// returns an array by which times and values can be sorted
-	function getKeyframeOrder( times ) {
-
-		function compareTime( i, j ) {
-
-			return times[ i ] - times[ j ];
-
-		}
-
-		const n = times.length;
-		const result = new Array( n );
-		for ( let i = 0; i !== n; ++ i ) result[ i ] = i;
-
-		result.sort( compareTime );
-
-		return result;
-
-	}
-
-	// uses the array previously returned by 'getKeyframeOrder' to sort data
-	function sortedArray( values, stride, order ) {
-
-		const nValues = values.length;
-		const result = new values.constructor( nValues );
-
-		for ( let i = 0, dstOffset = 0; dstOffset !== nValues; ++ i ) {
-
-			const srcOffset = order[ i ] * stride;
-
-			for ( let j = 0; j !== stride; ++ j ) {
-
-				result[ dstOffset ++ ] = values[ srcOffset + j ];
-
-			}
-
-		}
-
-		return result;
-
-	}
-
-	// function for parsing AOS keyframe formats
-	function flattenJSON( jsonKeys, times, values, valuePropertyName ) {
-
-		let i = 1, key = jsonKeys[ 0 ];
-
-		while ( key !== undefined && key[ valuePropertyName ] === undefined ) {
-
-			key = jsonKeys[ i ++ ];
-
-		}
-
-		if ( key === undefined ) return; // no data
-
-		let value = key[ valuePropertyName ];
-		if ( value === undefined ) return; // no data
-
-		if ( Array.isArray( value ) ) {
-
-			do {
-
-				value = key[ valuePropertyName ];
-
-				if ( value !== undefined ) {
-
-					times.push( key.time );
-					values.push.apply( values, value ); // push all elements
-
-				}
-
-				key = jsonKeys[ i ++ ];
-
-			} while ( key !== undefined );
-
-		} else if ( value.toArray !== undefined ) {
-
-			// ...assume THREE.Math-ish
-
-			do {
-
-				value = key[ valuePropertyName ];
-
-				if ( value !== undefined ) {
-
-					times.push( key.time );
-					value.toArray( values, values.length );
-
-				}
-
-				key = jsonKeys[ i ++ ];
-
-			} while ( key !== undefined );
-
-		} else {
-
-			// otherwise push as-is
-
-			do {
-
-				value = key[ valuePropertyName ];
-
-				if ( value !== undefined ) {
-
-					times.push( key.time );
-					values.push( value );
-
-				}
-
-				key = jsonKeys[ i ++ ];
-
-			} while ( key !== undefined );
-
-		}
-
-	}
-
-	/**
-	 * Abstract base class of interpolants over parametric samples.
-	 *
-	 * The parameter domain is one dimensional, typically the time or a path
-	 * along a curve defined by the data.
-	 *
-	 * The sample values can have any dimensionality and derived classes may
-	 * apply special interpretations to the data.
-	 *
-	 * This class provides the interval seek in a Template Method, deferring
-	 * the actual interpolation to derived classes.
-	 *
-	 * Time complexity is O(1) for linear access crossing at most two points
-	 * and O(log N) for random access, where N is the number of positions.
-	 *
-	 * References:
-	 *
-	 * 		http://www.oodesign.com/template-method-pattern.html
-	 *
-	 */
-
-	class Interpolant {
-
-		constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
-
-			this.parameterPositions = parameterPositions;
-			this._cachedIndex = 0;
-
-			this.resultBuffer = resultBuffer !== undefined ?
-				resultBuffer : new sampleValues.constructor( sampleSize );
-			this.sampleValues = sampleValues;
-			this.valueSize = sampleSize;
-
-			this.settings = null;
-			this.DefaultSettings_ = {};
-
-		}
-
-		evaluate( t ) {
-
-			const pp = this.parameterPositions;
-			let i1 = this._cachedIndex,
-				t1 = pp[ i1 ],
-				t0 = pp[ i1 - 1 ];
-
-			validate_interval: {
-
-				seek: {
-
-					let right;
-
-					linear_scan: {
-
-						//- See http://jsperf.com/comparison-to-undefined/3
-						//- slower code:
-						//-
-						//- 				if ( t >= t1 || t1 === undefined ) {
-						forward_scan: if ( ! ( t < t1 ) ) {
-
-							for ( let giveUpAt = i1 + 2; ; ) {
-
-								if ( t1 === undefined ) {
-
-									if ( t < t0 ) break forward_scan;
-
-									// after end
-
-									i1 = pp.length;
-									this._cachedIndex = i1;
-									return this.copySampleValue_( i1 - 1 );
-
-								}
-
-								if ( i1 === giveUpAt ) break; // this loop
-
-								t0 = t1;
-								t1 = pp[ ++ i1 ];
-
-								if ( t < t1 ) {
-
-									// we have arrived at the sought interval
-									break seek;
-
-								}
-
-							}
-
-							// prepare binary search on the right side of the index
-							right = pp.length;
-							break linear_scan;
-
-						}
-
-						//- slower code:
-						//-					if ( t < t0 || t0 === undefined ) {
-						if ( ! ( t >= t0 ) ) {
-
-							// looping?
-
-							const t1global = pp[ 1 ];
-
-							if ( t < t1global ) {
-
-								i1 = 2; // + 1, using the scan for the details
-								t0 = t1global;
-
-							}
-
-							// linear reverse scan
-
-							for ( let giveUpAt = i1 - 2; ; ) {
-
-								if ( t0 === undefined ) {
-
-									// before start
-
-									this._cachedIndex = 0;
-									return this.copySampleValue_( 0 );
-
-								}
-
-								if ( i1 === giveUpAt ) break; // this loop
-
-								t1 = t0;
-								t0 = pp[ -- i1 - 1 ];
-
-								if ( t >= t0 ) {
-
-									// we have arrived at the sought interval
-									break seek;
-
-								}
-
-							}
-
-							// prepare binary search on the left side of the index
-							right = i1;
-							i1 = 0;
-							break linear_scan;
-
-						}
-
-						// the interval is valid
-
-						break validate_interval;
-
-					} // linear scan
-
-					// binary search
-
-					while ( i1 < right ) {
-
-						const mid = ( i1 + right ) >>> 1;
-
-						if ( t < pp[ mid ] ) {
-
-							right = mid;
-
-						} else {
-
-							i1 = mid + 1;
-
-						}
-
-					}
-
-					t1 = pp[ i1 ];
-					t0 = pp[ i1 - 1 ];
-
-					// check boundary cases, again
-
-					if ( t0 === undefined ) {
-
-						this._cachedIndex = 0;
-						return this.copySampleValue_( 0 );
-
-					}
-
-					if ( t1 === undefined ) {
-
-						i1 = pp.length;
-						this._cachedIndex = i1;
-						return this.copySampleValue_( i1 - 1 );
-
-					}
-
-				} // seek
-
-				this._cachedIndex = i1;
-
-				this.intervalChanged_( i1, t0, t1 );
-
-			} // validate_interval
-
-			return this.interpolate_( i1, t0, t, t1 );
-
-		}
-
-		getSettings_() {
-
-			return this.settings || this.DefaultSettings_;
-
-		}
-
-		copySampleValue_( index ) {
-
-			// copies a sample value to the result buffer
-
-			const result = this.resultBuffer,
-				values = this.sampleValues,
-				stride = this.valueSize,
-				offset = index * stride;
-
-			for ( let i = 0; i !== stride; ++ i ) {
-
-				result[ i ] = values[ offset + i ];
-
-			}
-
-			return result;
-
-		}
-
-		// Template methods for derived classes:
-
-		interpolate_( /* i1, t0, t, t1 */ ) {
-
-			throw new Error( 'call to abstract method' );
-			// implementations shall return this.resultBuffer
-
-		}
-
-		intervalChanged_( /* i1, t0, t1 */ ) {
-
-			// empty
-
-		}
-
-	}
-
-	/**
-	 * Fast and simple cubic spline interpolant.
-	 *
-	 * It was derived from a Hermitian construction setting the first derivative
-	 * at each sample position to the linear slope between neighboring positions
-	 * over their parameter interval.
-	 */
-
-	class CubicInterpolant extends Interpolant {
-
-		constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
-
-			super( parameterPositions, sampleValues, sampleSize, resultBuffer );
-
-			this._weightPrev = - 0;
-			this._offsetPrev = - 0;
-			this._weightNext = - 0;
-			this._offsetNext = - 0;
-
-			this.DefaultSettings_ = {
-
-				endingStart: ZeroCurvatureEnding,
-				endingEnd: ZeroCurvatureEnding
-
-			};
-
-		}
-
-		intervalChanged_( i1, t0, t1 ) {
-
-			const pp = this.parameterPositions;
-			let iPrev = i1 - 2,
-				iNext = i1 + 1,
-
-				tPrev = pp[ iPrev ],
-				tNext = pp[ iNext ];
-
-			if ( tPrev === undefined ) {
-
-				switch ( this.getSettings_().endingStart ) {
-
-					case ZeroSlopeEnding:
-
-						// f'(t0) = 0
-						iPrev = i1;
-						tPrev = 2 * t0 - t1;
-
-						break;
-
-					case WrapAroundEnding:
-
-						// use the other end of the curve
-						iPrev = pp.length - 2;
-						tPrev = t0 + pp[ iPrev ] - pp[ iPrev + 1 ];
-
-						break;
-
-					default: // ZeroCurvatureEnding
-
-						// f''(t0) = 0 a.k.a. Natural Spline
-						iPrev = i1;
-						tPrev = t1;
-
-				}
-
-			}
-
-			if ( tNext === undefined ) {
-
-				switch ( this.getSettings_().endingEnd ) {
-
-					case ZeroSlopeEnding:
-
-						// f'(tN) = 0
-						iNext = i1;
-						tNext = 2 * t1 - t0;
-
-						break;
-
-					case WrapAroundEnding:
-
-						// use the other end of the curve
-						iNext = 1;
-						tNext = t1 + pp[ 1 ] - pp[ 0 ];
-
-						break;
-
-					default: // ZeroCurvatureEnding
-
-						// f''(tN) = 0, a.k.a. Natural Spline
-						iNext = i1 - 1;
-						tNext = t0;
-
-				}
-
-			}
-
-			const halfDt = ( t1 - t0 ) * 0.5,
-				stride = this.valueSize;
-
-			this._weightPrev = halfDt / ( t0 - tPrev );
-			this._weightNext = halfDt / ( tNext - t1 );
-			this._offsetPrev = iPrev * stride;
-			this._offsetNext = iNext * stride;
-
-		}
-
-		interpolate_( i1, t0, t, t1 ) {
-
-			const result = this.resultBuffer,
-				values = this.sampleValues,
-				stride = this.valueSize,
-
-				o1 = i1 * stride,		o0 = o1 - stride,
-				oP = this._offsetPrev, 	oN = this._offsetNext,
-				wP = this._weightPrev,	wN = this._weightNext,
-
-				p = ( t - t0 ) / ( t1 - t0 ),
-				pp = p * p,
-				ppp = pp * p;
-
-			// evaluate polynomials
-
-			const sP = - wP * ppp + 2 * wP * pp - wP * p;
-			const s0 = ( 1 + wP ) * ppp + ( - 1.5 - 2 * wP ) * pp + ( - 0.5 + wP ) * p + 1;
-			const s1 = ( - 1 - wN ) * ppp + ( 1.5 + wN ) * pp + 0.5 * p;
-			const sN = wN * ppp - wN * pp;
-
-			// combine data linearly
-
-			for ( let i = 0; i !== stride; ++ i ) {
-
-				result[ i ] =
-						sP * values[ oP + i ] +
-						s0 * values[ o0 + i ] +
-						s1 * values[ o1 + i ] +
-						sN * values[ oN + i ];
-
-			}
-
-			return result;
-
-		}
-
-	}
-
-	class LinearInterpolant extends Interpolant {
-
-		constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
-
-			super( parameterPositions, sampleValues, sampleSize, resultBuffer );
-
-		}
-
-		interpolate_( i1, t0, t, t1 ) {
-
-			const result = this.resultBuffer,
-				values = this.sampleValues,
-				stride = this.valueSize,
-
-				offset1 = i1 * stride,
-				offset0 = offset1 - stride,
-
-				weight1 = ( t - t0 ) / ( t1 - t0 ),
-				weight0 = 1 - weight1;
-
-			for ( let i = 0; i !== stride; ++ i ) {
-
-				result[ i ] =
-						values[ offset0 + i ] * weight0 +
-						values[ offset1 + i ] * weight1;
-
-			}
-
-			return result;
-
-		}
-
-	}
-
-	/**
-	 *
-	 * Interpolant that evaluates to the sample value at the position preceding
-	 * the parameter.
-	 */
-
-	class DiscreteInterpolant extends Interpolant {
-
-		constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
-
-			super( parameterPositions, sampleValues, sampleSize, resultBuffer );
-
-		}
-
-		interpolate_( i1 /*, t0, t, t1 */ ) {
-
-			return this.copySampleValue_( i1 - 1 );
-
-		}
-
-	}
-
-	class KeyframeTrack {
-
-		constructor( name, times, values, interpolation ) {
-
-			if ( name === undefined ) throw new Error( 'THREE.KeyframeTrack: track name is undefined' );
-			if ( times === undefined || times.length === 0 ) throw new Error( 'THREE.KeyframeTrack: no keyframes in track named ' + name );
-
-			this.name = name;
-
-			this.times = convertArray( times, this.TimeBufferType );
-			this.values = convertArray( values, this.ValueBufferType );
-
-			this.setInterpolation( interpolation || this.DefaultInterpolation );
-
-		}
-
-		// Serialization (in static context, because of constructor invocation
-		// and automatic invocation of .toJSON):
-
-		static toJSON( track ) {
-
-			const trackType = track.constructor;
-
-			let json;
-
-			// derived classes can define a static toJSON method
-			if ( trackType.toJSON !== this.toJSON ) {
-
-				json = trackType.toJSON( track );
-
-			} else {
-
-				// by default, we assume the data can be serialized as-is
-				json = {
-
-					'name': track.name,
-					'times': convertArray( track.times, Array ),
-					'values': convertArray( track.values, Array )
-
-				};
-
-				const interpolation = track.getInterpolation();
-
-				if ( interpolation !== track.DefaultInterpolation ) {
-
-					json.interpolation = interpolation;
-
-				}
-
-			}
-
-			json.type = track.ValueTypeName; // mandatory
-
-			return json;
-
-		}
-
-		InterpolantFactoryMethodDiscrete( result ) {
-
-			return new DiscreteInterpolant( this.times, this.values, this.getValueSize(), result );
-
-		}
-
-		InterpolantFactoryMethodLinear( result ) {
-
-			return new LinearInterpolant( this.times, this.values, this.getValueSize(), result );
-
-		}
-
-		InterpolantFactoryMethodSmooth( result ) {
-
-			return new CubicInterpolant( this.times, this.values, this.getValueSize(), result );
-
-		}
-
-		setInterpolation( interpolation ) {
-
-			let factoryMethod;
-
-			switch ( interpolation ) {
-
-				case InterpolateDiscrete:
-
-					factoryMethod = this.InterpolantFactoryMethodDiscrete;
-
-					break;
-
-				case InterpolateLinear:
-
-					factoryMethod = this.InterpolantFactoryMethodLinear;
-
-					break;
-
-				case InterpolateSmooth:
-
-					factoryMethod = this.InterpolantFactoryMethodSmooth;
-
-					break;
-
-			}
-
-			if ( factoryMethod === undefined ) {
-
-				const message = 'unsupported interpolation for ' +
-					this.ValueTypeName + ' keyframe track named ' + this.name;
-
-				if ( this.createInterpolant === undefined ) {
-
-					// fall back to default, unless the default itself is messed up
-					if ( interpolation !== this.DefaultInterpolation ) {
-
-						this.setInterpolation( this.DefaultInterpolation );
-
-					} else {
-
-						throw new Error( message ); // fatal, in this case
-
-					}
-
-				}
-
-				console.warn( 'THREE.KeyframeTrack:', message );
-				return this;
-
-			}
-
-			this.createInterpolant = factoryMethod;
-
-			return this;
-
-		}
-
-		getInterpolation() {
-
-			switch ( this.createInterpolant ) {
-
-				case this.InterpolantFactoryMethodDiscrete:
-
-					return InterpolateDiscrete;
-
-				case this.InterpolantFactoryMethodLinear:
-
-					return InterpolateLinear;
-
-				case this.InterpolantFactoryMethodSmooth:
-
-					return InterpolateSmooth;
-
-			}
-
-		}
-
-		getValueSize() {
-
-			return this.values.length / this.times.length;
-
-		}
-
-		// move all keyframes either forwards or backwards in time
-		shift( timeOffset ) {
-
-			if ( timeOffset !== 0.0 ) {
-
-				const times = this.times;
-
-				for ( let i = 0, n = times.length; i !== n; ++ i ) {
-
-					times[ i ] += timeOffset;
-
-				}
-
-			}
-
-			return this;
-
-		}
-
-		// scale all keyframe times by a factor (useful for frame <-> seconds conversions)
-		scale( timeScale ) {
-
-			if ( timeScale !== 1.0 ) {
-
-				const times = this.times;
-
-				for ( let i = 0, n = times.length; i !== n; ++ i ) {
-
-					times[ i ] *= timeScale;
-
-				}
-
-			}
-
-			return this;
-
-		}
-
-		// removes keyframes before and after animation without changing any values within the range [startTime, endTime].
-		// IMPORTANT: We do not shift around keys to the start of the track time, because for interpolated keys this will change their values
-		trim( startTime, endTime ) {
-
-			const times = this.times,
-				nKeys = times.length;
-
-			let from = 0,
-				to = nKeys - 1;
-
-			while ( from !== nKeys && times[ from ] < startTime ) {
-
-				++ from;
-
-			}
-
-			while ( to !== - 1 && times[ to ] > endTime ) {
-
-				-- to;
-
-			}
-
-			++ to; // inclusive -> exclusive bound
-
-			if ( from !== 0 || to !== nKeys ) {
-
-				// empty tracks are forbidden, so keep at least one keyframe
-				if ( from >= to ) {
-
-					to = Math.max( to, 1 );
-					from = to - 1;
-
-				}
-
-				const stride = this.getValueSize();
-				this.times = times.slice( from, to );
-				this.values = this.values.slice( from * stride, to * stride );
-
-			}
-
-			return this;
-
-		}
-
-		// ensure we do not get a GarbageInGarbageOut situation, make sure tracks are at least minimally viable
-		validate() {
-
-			let valid = true;
-
-			const valueSize = this.getValueSize();
-			if ( valueSize - Math.floor( valueSize ) !== 0 ) {
-
-				console.error( 'THREE.KeyframeTrack: Invalid value size in track.', this );
-				valid = false;
-
-			}
-
-			const times = this.times,
-				values = this.values,
-
-				nKeys = times.length;
-
-			if ( nKeys === 0 ) {
-
-				console.error( 'THREE.KeyframeTrack: Track is empty.', this );
-				valid = false;
-
-			}
-
-			let prevTime = null;
-
-			for ( let i = 0; i !== nKeys; i ++ ) {
-
-				const currTime = times[ i ];
-
-				if ( typeof currTime === 'number' && isNaN( currTime ) ) {
-
-					console.error( 'THREE.KeyframeTrack: Time is not a valid number.', this, i, currTime );
-					valid = false;
-					break;
-
-				}
-
-				if ( prevTime !== null && prevTime > currTime ) {
-
-					console.error( 'THREE.KeyframeTrack: Out of order keys.', this, i, currTime, prevTime );
-					valid = false;
-					break;
-
-				}
-
-				prevTime = currTime;
-
-			}
-
-			if ( values !== undefined ) {
-
-				if ( isTypedArray( values ) ) {
-
-					for ( let i = 0, n = values.length; i !== n; ++ i ) {
-
-						const value = values[ i ];
-
-						if ( isNaN( value ) ) {
-
-							console.error( 'THREE.KeyframeTrack: Value is not a valid number.', this, i, value );
-							valid = false;
-							break;
-
-						}
-
-					}
-
-				}
-
-			}
-
-			return valid;
-
-		}
-
-		// removes equivalent sequential keys as common in morph target sequences
-		// (0,0,0,0,1,1,1,0,0,0,0,0,0,0) --> (0,0,1,1,0,0)
-		optimize() {
-
-			// times or values may be shared with other tracks, so overwriting is unsafe
-			const times = this.times.slice(),
-				values = this.values.slice(),
-				stride = this.getValueSize(),
-
-				smoothInterpolation = this.getInterpolation() === InterpolateSmooth,
-
-				lastIndex = times.length - 1;
-
-			let writeIndex = 1;
-
-			for ( let i = 1; i < lastIndex; ++ i ) {
-
-				let keep = false;
-
-				const time = times[ i ];
-				const timeNext = times[ i + 1 ];
-
-				// remove adjacent keyframes scheduled at the same time
-
-				if ( time !== timeNext && ( i !== 1 || time !== times[ 0 ] ) ) {
-
-					if ( ! smoothInterpolation ) {
-
-						// remove unnecessary keyframes same as their neighbors
-
-						const offset = i * stride,
-							offsetP = offset - stride,
-							offsetN = offset + stride;
-
-						for ( let j = 0; j !== stride; ++ j ) {
-
-							const value = values[ offset + j ];
-
-							if ( value !== values[ offsetP + j ] ||
-								value !== values[ offsetN + j ] ) {
-
-								keep = true;
-								break;
-
-							}
-
-						}
-
-					} else {
-
-						keep = true;
-
-					}
-
-				}
-
-				// in-place compaction
-
-				if ( keep ) {
-
-					if ( i !== writeIndex ) {
-
-						times[ writeIndex ] = times[ i ];
-
-						const readOffset = i * stride,
-							writeOffset = writeIndex * stride;
-
-						for ( let j = 0; j !== stride; ++ j ) {
-
-							values[ writeOffset + j ] = values[ readOffset + j ];
-
-						}
-
-					}
-
-					++ writeIndex;
-
-				}
-
-			}
-
-			// flush last keyframe (compaction looks ahead)
-
-			if ( lastIndex > 0 ) {
-
-				times[ writeIndex ] = times[ lastIndex ];
-
-				for ( let readOffset = lastIndex * stride, writeOffset = writeIndex * stride, j = 0; j !== stride; ++ j ) {
-
-					values[ writeOffset + j ] = values[ readOffset + j ];
-
-				}
-
-				++ writeIndex;
-
-			}
-
-			if ( writeIndex !== times.length ) {
-
-				this.times = times.slice( 0, writeIndex );
-				this.values = values.slice( 0, writeIndex * stride );
-
-			} else {
-
-				this.times = times;
-				this.values = values;
-
-			}
-
-			return this;
-
-		}
-
-		clone() {
-
-			const times = this.times.slice();
-			const values = this.values.slice();
-
-			const TypedKeyframeTrack = this.constructor;
-			const track = new TypedKeyframeTrack( this.name, times, values );
-
-			// Interpolant argument to constructor is not saved, so copy the factory method directly.
-			track.createInterpolant = this.createInterpolant;
-
-			return track;
-
-		}
-
-	}
-
-	KeyframeTrack.prototype.TimeBufferType = Float32Array;
-	KeyframeTrack.prototype.ValueBufferType = Float32Array;
-	KeyframeTrack.prototype.DefaultInterpolation = InterpolateLinear;
-
-	/**
-	 * A Track of Boolean keyframe values.
-	 */
-	class BooleanKeyframeTrack extends KeyframeTrack {}
-
-	BooleanKeyframeTrack.prototype.ValueTypeName = 'bool';
-	BooleanKeyframeTrack.prototype.ValueBufferType = Array;
-	BooleanKeyframeTrack.prototype.DefaultInterpolation = InterpolateDiscrete;
-	BooleanKeyframeTrack.prototype.InterpolantFactoryMethodLinear = undefined;
-	BooleanKeyframeTrack.prototype.InterpolantFactoryMethodSmooth = undefined;
-
-	/**
-	 * A Track of keyframe values that represent color.
-	 */
-	class ColorKeyframeTrack extends KeyframeTrack {}
-
-	ColorKeyframeTrack.prototype.ValueTypeName = 'color';
-
-	/**
-	 * A Track of numeric keyframe values.
-	 */
-	class NumberKeyframeTrack extends KeyframeTrack {}
-
-	NumberKeyframeTrack.prototype.ValueTypeName = 'number';
-
-	/**
-	 * Spherical linear unit quaternion interpolant.
-	 */
-
-	class QuaternionLinearInterpolant extends Interpolant {
-
-		constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
-
-			super( parameterPositions, sampleValues, sampleSize, resultBuffer );
-
-		}
-
-		interpolate_( i1, t0, t, t1 ) {
-
-			const result = this.resultBuffer,
-				values = this.sampleValues,
-				stride = this.valueSize,
-
-				alpha = ( t - t0 ) / ( t1 - t0 );
-
-			let offset = i1 * stride;
-
-			for ( let end = offset + stride; offset !== end; offset += 4 ) {
-
-				Quaternion.slerpFlat( result, 0, values, offset - stride, values, offset, alpha );
-
-			}
-
-			return result;
-
-		}
-
-	}
-
-	/**
-	 * A Track of quaternion keyframe values.
-	 */
-	class QuaternionKeyframeTrack extends KeyframeTrack {
-
-		InterpolantFactoryMethodLinear( result ) {
-
-			return new QuaternionLinearInterpolant( this.times, this.values, this.getValueSize(), result );
-
-		}
-
-	}
-
-	QuaternionKeyframeTrack.prototype.ValueTypeName = 'quaternion';
-	// ValueBufferType is inherited
-	QuaternionKeyframeTrack.prototype.DefaultInterpolation = InterpolateLinear;
-	QuaternionKeyframeTrack.prototype.InterpolantFactoryMethodSmooth = undefined;
-
-	/**
-	 * A Track that interpolates Strings
-	 */
-	class StringKeyframeTrack extends KeyframeTrack {}
-
-	StringKeyframeTrack.prototype.ValueTypeName = 'string';
-	StringKeyframeTrack.prototype.ValueBufferType = Array;
-	StringKeyframeTrack.prototype.DefaultInterpolation = InterpolateDiscrete;
-	StringKeyframeTrack.prototype.InterpolantFactoryMethodLinear = undefined;
-	StringKeyframeTrack.prototype.InterpolantFactoryMethodSmooth = undefined;
-
-	/**
-	 * A Track of vectored keyframe values.
-	 */
-	class VectorKeyframeTrack extends KeyframeTrack {}
-
-	VectorKeyframeTrack.prototype.ValueTypeName = 'vector';
-
-	class AnimationClip {
-
-		constructor( name, duration = - 1, tracks, blendMode = NormalAnimationBlendMode ) {
-
-			this.name = name;
-			this.tracks = tracks;
-			this.duration = duration;
-			this.blendMode = blendMode;
-
-			this.uuid = generateUUID();
-
-			// this means it should figure out its duration by scanning the tracks
-			if ( this.duration < 0 ) {
-
-				this.resetDuration();
-
-			}
-
-		}
-
-
-		static parse( json ) {
-
-			const tracks = [],
-				jsonTracks = json.tracks,
-				frameTime = 1.0 / ( json.fps || 1.0 );
-
-			for ( let i = 0, n = jsonTracks.length; i !== n; ++ i ) {
-
-				tracks.push( parseKeyframeTrack( jsonTracks[ i ] ).scale( frameTime ) );
-
-			}
-
-			const clip = new this( json.name, json.duration, tracks, json.blendMode );
-			clip.uuid = json.uuid;
-
-			return clip;
-
-		}
-
-		static toJSON( clip ) {
-
-			const tracks = [],
-				clipTracks = clip.tracks;
-
-			const json = {
-
-				'name': clip.name,
-				'duration': clip.duration,
-				'tracks': tracks,
-				'uuid': clip.uuid,
-				'blendMode': clip.blendMode
-
-			};
-
-			for ( let i = 0, n = clipTracks.length; i !== n; ++ i ) {
-
-				tracks.push( KeyframeTrack.toJSON( clipTracks[ i ] ) );
-
-			}
-
-			return json;
-
-		}
-
-		static CreateFromMorphTargetSequence( name, morphTargetSequence, fps, noLoop ) {
-
-			const numMorphTargets = morphTargetSequence.length;
-			const tracks = [];
-
-			for ( let i = 0; i < numMorphTargets; i ++ ) {
-
-				let times = [];
-				let values = [];
-
-				times.push(
-					( i + numMorphTargets - 1 ) % numMorphTargets,
-					i,
-					( i + 1 ) % numMorphTargets );
-
-				values.push( 0, 1, 0 );
-
-				const order = getKeyframeOrder( times );
-				times = sortedArray( times, 1, order );
-				values = sortedArray( values, 1, order );
-
-				// if there is a key at the first frame, duplicate it as the
-				// last frame as well for perfect loop.
-				if ( ! noLoop && times[ 0 ] === 0 ) {
-
-					times.push( numMorphTargets );
-					values.push( values[ 0 ] );
-
-				}
-
-				tracks.push(
-					new NumberKeyframeTrack(
-						'.morphTargetInfluences[' + morphTargetSequence[ i ].name + ']',
-						times, values
-					).scale( 1.0 / fps ) );
-
-			}
-
-			return new this( name, - 1, tracks );
-
-		}
-
-		static findByName( objectOrClipArray, name ) {
-
-			let clipArray = objectOrClipArray;
-
-			if ( ! Array.isArray( objectOrClipArray ) ) {
-
-				const o = objectOrClipArray;
-				clipArray = o.geometry && o.geometry.animations || o.animations;
-
-			}
-
-			for ( let i = 0; i < clipArray.length; i ++ ) {
-
-				if ( clipArray[ i ].name === name ) {
-
-					return clipArray[ i ];
-
-				}
-
-			}
-
-			return null;
-
-		}
-
-		static CreateClipsFromMorphTargetSequences( morphTargets, fps, noLoop ) {
-
-			const animationToMorphTargets = {};
-
-			// tested with https://regex101.com/ on trick sequences
-			// such flamingo_flyA_003, flamingo_run1_003, crdeath0059
-			const pattern = /^([\w-]*?)([\d]+)$/;
-
-			// sort morph target names into animation groups based
-			// patterns like Walk_001, Walk_002, Run_001, Run_002
-			for ( let i = 0, il = morphTargets.length; i < il; i ++ ) {
-
-				const morphTarget = morphTargets[ i ];
-				const parts = morphTarget.name.match( pattern );
-
-				if ( parts && parts.length > 1 ) {
-
-					const name = parts[ 1 ];
-
-					let animationMorphTargets = animationToMorphTargets[ name ];
-
-					if ( ! animationMorphTargets ) {
-
-						animationToMorphTargets[ name ] = animationMorphTargets = [];
-
-					}
-
-					animationMorphTargets.push( morphTarget );
-
-				}
-
-			}
-
-			const clips = [];
-
-			for ( const name in animationToMorphTargets ) {
-
-				clips.push( this.CreateFromMorphTargetSequence( name, animationToMorphTargets[ name ], fps, noLoop ) );
-
-			}
-
-			return clips;
-
-		}
-
-		// parse the animation.hierarchy format
-		static parseAnimation( animation, bones ) {
-
-			if ( ! animation ) {
-
-				console.error( 'THREE.AnimationClip: No animation in JSONLoader data.' );
-				return null;
-
-			}
-
-			const addNonemptyTrack = function ( trackType, trackName, animationKeys, propertyName, destTracks ) {
-
-				// only return track if there are actually keys.
-				if ( animationKeys.length !== 0 ) {
-
-					const times = [];
-					const values = [];
-
-					flattenJSON( animationKeys, times, values, propertyName );
-
-					// empty keys are filtered out, so check again
-					if ( times.length !== 0 ) {
-
-						destTracks.push( new trackType( trackName, times, values ) );
-
-					}
-
-				}
-
-			};
-
-			const tracks = [];
-
-			const clipName = animation.name || 'default';
-			const fps = animation.fps || 30;
-			const blendMode = animation.blendMode;
-
-			// automatic length determination in AnimationClip.
-			let duration = animation.length || - 1;
-
-			const hierarchyTracks = animation.hierarchy || [];
-
-			for ( let h = 0; h < hierarchyTracks.length; h ++ ) {
-
-				const animationKeys = hierarchyTracks[ h ].keys;
-
-				// skip empty tracks
-				if ( ! animationKeys || animationKeys.length === 0 ) continue;
-
-				// process morph targets
-				if ( animationKeys[ 0 ].morphTargets ) {
-
-					// figure out all morph targets used in this track
-					const morphTargetNames = {};
-
-					let k;
-
-					for ( k = 0; k < animationKeys.length; k ++ ) {
-
-						if ( animationKeys[ k ].morphTargets ) {
-
-							for ( let m = 0; m < animationKeys[ k ].morphTargets.length; m ++ ) {
-
-								morphTargetNames[ animationKeys[ k ].morphTargets[ m ] ] = - 1;
-
-							}
-
-						}
-
-					}
-
-					// create a track for each morph target with all zero
-					// morphTargetInfluences except for the keys in which
-					// the morphTarget is named.
-					for ( const morphTargetName in morphTargetNames ) {
-
-						const times = [];
-						const values = [];
-
-						for ( let m = 0; m !== animationKeys[ k ].morphTargets.length; ++ m ) {
-
-							const animationKey = animationKeys[ k ];
-
-							times.push( animationKey.time );
-							values.push( ( animationKey.morphTarget === morphTargetName ) ? 1 : 0 );
-
-						}
-
-						tracks.push( new NumberKeyframeTrack( '.morphTargetInfluence[' + morphTargetName + ']', times, values ) );
-
-					}
-
-					duration = morphTargetNames.length * fps;
-
-				} else {
-
-					// ...assume skeletal animation
-
-					const boneName = '.bones[' + bones[ h ].name + ']';
-
-					addNonemptyTrack(
-						VectorKeyframeTrack, boneName + '.position',
-						animationKeys, 'pos', tracks );
-
-					addNonemptyTrack(
-						QuaternionKeyframeTrack, boneName + '.quaternion',
-						animationKeys, 'rot', tracks );
-
-					addNonemptyTrack(
-						VectorKeyframeTrack, boneName + '.scale',
-						animationKeys, 'scl', tracks );
-
-				}
-
-			}
-
-			if ( tracks.length === 0 ) {
-
-				return null;
-
-			}
-
-			const clip = new this( clipName, duration, tracks, blendMode );
-
-			return clip;
-
-		}
-
-		resetDuration() {
-
-			const tracks = this.tracks;
-			let duration = 0;
-
-			for ( let i = 0, n = tracks.length; i !== n; ++ i ) {
-
-				const track = this.tracks[ i ];
-
-				duration = Math.max( duration, track.times[ track.times.length - 1 ] );
-
-			}
-
-			this.duration = duration;
-
-			return this;
-
-		}
-
-		trim() {
-
-			for ( let i = 0; i < this.tracks.length; i ++ ) {
-
-				this.tracks[ i ].trim( 0, this.duration );
-
-			}
-
-			return this;
-
-		}
-
-		validate() {
-
-			let valid = true;
-
-			for ( let i = 0; i < this.tracks.length; i ++ ) {
-
-				valid = valid && this.tracks[ i ].validate();
-
-			}
-
-			return valid;
-
-		}
-
-		optimize() {
-
-			for ( let i = 0; i < this.tracks.length; i ++ ) {
-
-				this.tracks[ i ].optimize();
-
-			}
-
-			return this;
-
-		}
-
-		clone() {
-
-			const tracks = [];
-
-			for ( let i = 0; i < this.tracks.length; i ++ ) {
-
-				tracks.push( this.tracks[ i ].clone() );
-
-			}
-
-			return new this.constructor( this.name, this.duration, tracks, this.blendMode );
-
-		}
-
-		toJSON() {
-
-			return this.constructor.toJSON( this );
-
-		}
-
-	}
-
-	function getTrackTypeForValueTypeName( typeName ) {
-
-		switch ( typeName.toLowerCase() ) {
-
-			case 'scalar':
-			case 'double':
-			case 'float':
-			case 'number':
-			case 'integer':
-
-				return NumberKeyframeTrack;
-
-			case 'vector':
-			case 'vector2':
-			case 'vector3':
-			case 'vector4':
-
-				return VectorKeyframeTrack;
-
-			case 'color':
-
-				return ColorKeyframeTrack;
-
-			case 'quaternion':
-
-				return QuaternionKeyframeTrack;
-
-			case 'bool':
-			case 'boolean':
-
-				return BooleanKeyframeTrack;
-
-			case 'string':
-
-				return StringKeyframeTrack;
-
-		}
-
-		throw new Error( 'THREE.KeyframeTrack: Unsupported typeName: ' + typeName );
-
-	}
-
-	function parseKeyframeTrack( json ) {
-
-		if ( json.type === undefined ) {
-
-			throw new Error( 'THREE.KeyframeTrack: track type undefined, can not parse' );
-
-		}
-
-		const trackType = getTrackTypeForValueTypeName( json.type );
-
-		if ( json.times === undefined ) {
-
-			const times = [], values = [];
-
-			flattenJSON( json.keys, times, values, 'value' );
-
-			json.times = times;
-			json.values = values;
-
-		}
-
-		// derived classes can define a static parse method
-		if ( trackType.parse !== undefined ) {
-
-			return trackType.parse( json );
-
-		} else {
-
-			// by default, we assume a constructor compatible with the base
-			return new trackType( json.name, json.times, json.values, json.interpolation );
 
 		}
 
@@ -37500,285 +30875,6 @@
 
 	Loader.DEFAULT_MATERIAL_NAME = '__DEFAULT';
 
-	const loading = {};
-
-	class HttpError extends Error {
-
-		constructor( message, response ) {
-
-			super( message );
-			this.response = response;
-
-		}
-
-	}
-
-	class FileLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			if ( url === undefined ) url = '';
-
-			if ( this.path !== undefined ) url = this.path + url;
-
-			url = this.manager.resolveURL( url );
-
-			const cached = Cache.get( url );
-
-			if ( cached !== undefined ) {
-
-				this.manager.itemStart( url );
-
-				setTimeout( () => {
-
-					if ( onLoad ) onLoad( cached );
-
-					this.manager.itemEnd( url );
-
-				}, 0 );
-
-				return cached;
-
-			}
-
-			// Check if request is duplicate
-
-			if ( loading[ url ] !== undefined ) {
-
-				loading[ url ].push( {
-
-					onLoad: onLoad,
-					onProgress: onProgress,
-					onError: onError
-
-				} );
-
-				return;
-
-			}
-
-			// Initialise array for duplicate requests
-			loading[ url ] = [];
-
-			loading[ url ].push( {
-				onLoad: onLoad,
-				onProgress: onProgress,
-				onError: onError,
-			} );
-
-			// create request
-			const req = new Request( url, {
-				headers: new Headers( this.requestHeader ),
-				credentials: this.withCredentials ? 'include' : 'same-origin',
-				// An abort controller could be added within a future PR
-			} );
-
-			// record states ( avoid data race )
-			const mimeType = this.mimeType;
-			const responseType = this.responseType;
-
-			// start the fetch
-			fetch( req )
-				.then( response => {
-
-					if ( response.status === 200 || response.status === 0 ) {
-
-						// Some browsers return HTTP Status 0 when using non-http protocol
-						// e.g. 'file://' or 'data://'. Handle as success.
-
-						if ( response.status === 0 ) {
-
-							console.warn( 'THREE.FileLoader: HTTP Status 0 received.' );
-
-						}
-
-						// Workaround: Checking if response.body === undefined for Alipay browser #23548
-
-						if ( typeof ReadableStream === 'undefined' || response.body === undefined || response.body.getReader === undefined ) {
-
-							return response;
-
-						}
-
-						const callbacks = loading[ url ];
-						const reader = response.body.getReader();
-
-						// Nginx needs X-File-Size check
-						// https://serverfault.com/questions/482875/why-does-nginx-remove-content-length-header-for-chunked-content
-						const contentLength = response.headers.get( 'Content-Length' ) || response.headers.get( 'X-File-Size' );
-						const total = contentLength ? parseInt( contentLength ) : 0;
-						const lengthComputable = total !== 0;
-						let loaded = 0;
-
-						// periodically read data into the new stream tracking while download progress
-						const stream = new ReadableStream( {
-							start( controller ) {
-
-								readData();
-
-								function readData() {
-
-									reader.read().then( ( { done, value } ) => {
-
-										if ( done ) {
-
-											controller.close();
-
-										} else {
-
-											loaded += value.byteLength;
-
-											const event = new ProgressEvent( 'progress', { lengthComputable, loaded, total } );
-											for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
-
-												const callback = callbacks[ i ];
-												if ( callback.onProgress ) callback.onProgress( event );
-
-											}
-
-											controller.enqueue( value );
-											readData();
-
-										}
-
-									} );
-
-								}
-
-							}
-
-						} );
-
-						return new Response( stream );
-
-					} else {
-
-						throw new HttpError( `fetch for "${response.url}" responded with ${response.status}: ${response.statusText}`, response );
-
-					}
-
-				} )
-				.then( response => {
-
-					switch ( responseType ) {
-
-						case 'arraybuffer':
-
-							return response.arrayBuffer();
-
-						case 'blob':
-
-							return response.blob();
-
-						case 'document':
-
-							return response.text()
-								.then( text => {
-
-									const parser = new DOMParser();
-									return parser.parseFromString( text, mimeType );
-
-								} );
-
-						case 'json':
-
-							return response.json();
-
-						default:
-
-							if ( mimeType === undefined ) {
-
-								return response.text();
-
-							} else {
-
-								// sniff encoding
-								const re = /charset="?([^;"\s]*)"?/i;
-								const exec = re.exec( mimeType );
-								const label = exec && exec[ 1 ] ? exec[ 1 ].toLowerCase() : undefined;
-								const decoder = new TextDecoder( label );
-								return response.arrayBuffer().then( ab => decoder.decode( ab ) );
-
-							}
-
-					}
-
-				} )
-				.then( data => {
-
-					// Add to cache only on HTTP success, so that we do not cache
-					// error response bodies as proper responses to requests.
-					Cache.add( url, data );
-
-					const callbacks = loading[ url ];
-					delete loading[ url ];
-
-					for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
-
-						const callback = callbacks[ i ];
-						if ( callback.onLoad ) callback.onLoad( data );
-
-					}
-
-				} )
-				.catch( err => {
-
-					// Abort errors and other errors are handled the same
-
-					const callbacks = loading[ url ];
-
-					if ( callbacks === undefined ) {
-
-						// When onLoad was called and url was deleted in `loading`
-						this.manager.itemError( url );
-						throw err;
-
-					}
-
-					delete loading[ url ];
-
-					for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
-
-						const callback = callbacks[ i ];
-						if ( callback.onError ) callback.onError( err );
-
-					}
-
-					this.manager.itemError( url );
-
-				} )
-				.finally( () => {
-
-					this.manager.itemEnd( url );
-
-				} );
-
-			this.manager.itemStart( url );
-
-		}
-
-		setResponseType( value ) {
-
-			this.responseType = value;
-			return this;
-
-		}
-
-		setMimeType( value ) {
-
-			this.mimeType = value;
-			return this;
-
-		}
-
-	}
-
 	class ImageLoader extends Loader {
 
 		constructor( manager ) {
@@ -38004,448 +31100,6 @@
 
 	}
 
-	const _projScreenMatrix$1 = /*@__PURE__*/ new Matrix4();
-	const _lightPositionWorld$1 = /*@__PURE__*/ new Vector3();
-	const _lookTarget$1 = /*@__PURE__*/ new Vector3();
-
-	class LightShadow {
-
-		constructor( camera ) {
-
-			this.camera = camera;
-
-			this.bias = 0;
-			this.normalBias = 0;
-			this.radius = 1;
-			this.blurSamples = 8;
-
-			this.mapSize = new Vector2( 512, 512 );
-
-			this.map = null;
-			this.mapPass = null;
-			this.matrix = new Matrix4();
-
-			this.autoUpdate = true;
-			this.needsUpdate = false;
-
-			this._frustum = new Frustum();
-			this._frameExtents = new Vector2( 1, 1 );
-
-			this._viewportCount = 1;
-
-			this._viewports = [
-
-				new Vector4( 0, 0, 1, 1 )
-
-			];
-
-		}
-
-		getViewportCount() {
-
-			return this._viewportCount;
-
-		}
-
-		getFrustum() {
-
-			return this._frustum;
-
-		}
-
-		updateMatrices( light ) {
-
-			const shadowCamera = this.camera;
-			const shadowMatrix = this.matrix;
-
-			_lightPositionWorld$1.setFromMatrixPosition( light.matrixWorld );
-			shadowCamera.position.copy( _lightPositionWorld$1 );
-
-			_lookTarget$1.setFromMatrixPosition( light.target.matrixWorld );
-			shadowCamera.lookAt( _lookTarget$1 );
-			shadowCamera.updateMatrixWorld();
-
-			_projScreenMatrix$1.multiplyMatrices( shadowCamera.projectionMatrix, shadowCamera.matrixWorldInverse );
-			this._frustum.setFromProjectionMatrix( _projScreenMatrix$1 );
-
-			shadowMatrix.set(
-				0.5, 0.0, 0.0, 0.5,
-				0.0, 0.5, 0.0, 0.5,
-				0.0, 0.0, 0.5, 0.5,
-				0.0, 0.0, 0.0, 1.0
-			);
-
-			shadowMatrix.multiply( _projScreenMatrix$1 );
-
-		}
-
-		getViewport( viewportIndex ) {
-
-			return this._viewports[ viewportIndex ];
-
-		}
-
-		getFrameExtents() {
-
-			return this._frameExtents;
-
-		}
-
-		dispose() {
-
-			if ( this.map ) {
-
-				this.map.dispose();
-
-			}
-
-			if ( this.mapPass ) {
-
-				this.mapPass.dispose();
-
-			}
-
-		}
-
-		copy( source ) {
-
-			this.camera = source.camera.clone();
-
-			this.bias = source.bias;
-			this.radius = source.radius;
-
-			this.mapSize.copy( source.mapSize );
-
-			return this;
-
-		}
-
-		clone() {
-
-			return new this.constructor().copy( this );
-
-		}
-
-		toJSON() {
-
-			const object = {};
-
-			if ( this.bias !== 0 ) object.bias = this.bias;
-			if ( this.normalBias !== 0 ) object.normalBias = this.normalBias;
-			if ( this.radius !== 1 ) object.radius = this.radius;
-			if ( this.mapSize.x !== 512 || this.mapSize.y !== 512 ) object.mapSize = this.mapSize.toArray();
-
-			object.camera = this.camera.toJSON( false ).object;
-			delete object.camera.matrix;
-
-			return object;
-
-		}
-
-	}
-
-	class SpotLightShadow extends LightShadow {
-
-		constructor() {
-
-			super( new PerspectiveCamera( 50, 1, 0.5, 500 ) );
-
-			this.isSpotLightShadow = true;
-
-			this.focus = 1;
-
-		}
-
-		updateMatrices( light ) {
-
-			const camera = this.camera;
-
-			const fov = RAD2DEG * 2 * light.angle * this.focus;
-			const aspect = this.mapSize.width / this.mapSize.height;
-			const far = light.distance || camera.far;
-
-			if ( fov !== camera.fov || aspect !== camera.aspect || far !== camera.far ) {
-
-				camera.fov = fov;
-				camera.aspect = aspect;
-				camera.far = far;
-				camera.updateProjectionMatrix();
-
-			}
-
-			super.updateMatrices( light );
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.focus = source.focus;
-
-			return this;
-
-		}
-
-	}
-
-	class SpotLight extends Light {
-
-		constructor( color, intensity, distance = 0, angle = Math.PI / 3, penumbra = 0, decay = 2 ) {
-
-			super( color, intensity );
-
-			this.isSpotLight = true;
-
-			this.type = 'SpotLight';
-
-			this.position.copy( Object3D.DEFAULT_UP );
-			this.updateMatrix();
-
-			this.target = new Object3D();
-
-			this.distance = distance;
-			this.angle = angle;
-			this.penumbra = penumbra;
-			this.decay = decay;
-
-			this.map = null;
-
-			this.shadow = new SpotLightShadow();
-
-		}
-
-		get power() {
-
-			// compute the light's luminous power (in lumens) from its intensity (in candela)
-			// by convention for a spotlight, luminous power (lm) = π * luminous intensity (cd)
-			return this.intensity * Math.PI;
-
-		}
-
-		set power( power ) {
-
-			// set the light's intensity (in candela) from the desired luminous power (in lumens)
-			this.intensity = power / Math.PI;
-
-		}
-
-		dispose() {
-
-			this.shadow.dispose();
-
-		}
-
-		copy( source, recursive ) {
-
-			super.copy( source, recursive );
-
-			this.distance = source.distance;
-			this.angle = source.angle;
-			this.penumbra = source.penumbra;
-			this.decay = source.decay;
-
-			this.target = source.target.clone();
-
-			this.shadow = source.shadow.clone();
-
-			return this;
-
-		}
-
-	}
-
-	const _projScreenMatrix = /*@__PURE__*/ new Matrix4();
-	const _lightPositionWorld = /*@__PURE__*/ new Vector3();
-	const _lookTarget = /*@__PURE__*/ new Vector3();
-
-	class PointLightShadow extends LightShadow {
-
-		constructor() {
-
-			super( new PerspectiveCamera( 90, 1, 0.5, 500 ) );
-
-			this.isPointLightShadow = true;
-
-			this._frameExtents = new Vector2( 4, 2 );
-
-			this._viewportCount = 6;
-
-			this._viewports = [
-				// These viewports map a cube-map onto a 2D texture with the
-				// following orientation:
-				//
-				//  xzXZ
-				//   y Y
-				//
-				// X - Positive x direction
-				// x - Negative x direction
-				// Y - Positive y direction
-				// y - Negative y direction
-				// Z - Positive z direction
-				// z - Negative z direction
-
-				// positive X
-				new Vector4( 2, 1, 1, 1 ),
-				// negative X
-				new Vector4( 0, 1, 1, 1 ),
-				// positive Z
-				new Vector4( 3, 1, 1, 1 ),
-				// negative Z
-				new Vector4( 1, 1, 1, 1 ),
-				// positive Y
-				new Vector4( 3, 0, 1, 1 ),
-				// negative Y
-				new Vector4( 1, 0, 1, 1 )
-			];
-
-			this._cubeDirections = [
-				new Vector3( 1, 0, 0 ), new Vector3( - 1, 0, 0 ), new Vector3( 0, 0, 1 ),
-				new Vector3( 0, 0, - 1 ), new Vector3( 0, 1, 0 ), new Vector3( 0, - 1, 0 )
-			];
-
-			this._cubeUps = [
-				new Vector3( 0, 1, 0 ), new Vector3( 0, 1, 0 ), new Vector3( 0, 1, 0 ),
-				new Vector3( 0, 1, 0 ), new Vector3( 0, 0, 1 ),	new Vector3( 0, 0, - 1 )
-			];
-
-		}
-
-		updateMatrices( light, viewportIndex = 0 ) {
-
-			const camera = this.camera;
-			const shadowMatrix = this.matrix;
-
-			const far = light.distance || camera.far;
-
-			if ( far !== camera.far ) {
-
-				camera.far = far;
-				camera.updateProjectionMatrix();
-
-			}
-
-			_lightPositionWorld.setFromMatrixPosition( light.matrixWorld );
-			camera.position.copy( _lightPositionWorld );
-
-			_lookTarget.copy( camera.position );
-			_lookTarget.add( this._cubeDirections[ viewportIndex ] );
-			camera.up.copy( this._cubeUps[ viewportIndex ] );
-			camera.lookAt( _lookTarget );
-			camera.updateMatrixWorld();
-
-			shadowMatrix.makeTranslation( - _lightPositionWorld.x, - _lightPositionWorld.y, - _lightPositionWorld.z );
-
-			_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
-			this._frustum.setFromProjectionMatrix( _projScreenMatrix );
-
-		}
-
-	}
-
-	class PointLight extends Light {
-
-		constructor( color, intensity, distance = 0, decay = 2 ) {
-
-			super( color, intensity );
-
-			this.isPointLight = true;
-
-			this.type = 'PointLight';
-
-			this.distance = distance;
-			this.decay = decay;
-
-			this.shadow = new PointLightShadow();
-
-		}
-
-		get power() {
-
-			// compute the light's luminous power (in lumens) from its intensity (in candela)
-			// for an isotropic light source, luminous power (lm) = 4 π luminous intensity (cd)
-			return this.intensity * 4 * Math.PI;
-
-		}
-
-		set power( power ) {
-
-			// set the light's intensity (in candela) from the desired luminous power (in lumens)
-			this.intensity = power / ( 4 * Math.PI );
-
-		}
-
-		dispose() {
-
-			this.shadow.dispose();
-
-		}
-
-		copy( source, recursive ) {
-
-			super.copy( source, recursive );
-
-			this.distance = source.distance;
-			this.decay = source.decay;
-
-			this.shadow = source.shadow.clone();
-
-			return this;
-
-		}
-
-	}
-
-	class DirectionalLightShadow extends LightShadow {
-
-		constructor() {
-
-			super( new OrthographicCamera( - 5, 5, 5, - 5, 0.5, 500 ) );
-
-			this.isDirectionalLightShadow = true;
-
-		}
-
-	}
-
-	class DirectionalLight extends Light {
-
-		constructor( color, intensity ) {
-
-			super( color, intensity );
-
-			this.isDirectionalLight = true;
-
-			this.type = 'DirectionalLight';
-
-			this.position.copy( Object3D.DEFAULT_UP );
-			this.updateMatrix();
-
-			this.target = new Object3D();
-
-			this.shadow = new DirectionalLightShadow();
-
-		}
-
-		dispose() {
-
-			this.shadow.dispose();
-
-		}
-
-		copy( source ) {
-
-			super.copy( source );
-
-			this.target = source.target.clone();
-			this.shadow = source.shadow.clone();
-
-			return this;
-
-		}
-
-	}
-
 	class AmbientLight extends Light {
 
 		constructor( color, intensity ) {
@@ -38455,199 +31109,6 @@
 			this.isAmbientLight = true;
 
 			this.type = 'AmbientLight';
-
-		}
-
-	}
-
-	class LoaderUtils {
-
-		static decodeText( array ) {
-
-			if ( typeof TextDecoder !== 'undefined' ) {
-
-				return new TextDecoder().decode( array );
-
-			}
-
-			// Avoid the String.fromCharCode.apply(null, array) shortcut, which
-			// throws a "maximum call stack size exceeded" error for large arrays.
-
-			let s = '';
-
-			for ( let i = 0, il = array.length; i < il; i ++ ) {
-
-				// Implicitly assumes little-endian.
-				s += String.fromCharCode( array[ i ] );
-
-			}
-
-			try {
-
-				// merges multi-byte utf-8 characters.
-
-				return decodeURIComponent( escape( s ) );
-
-			} catch ( e ) { // see #16358
-
-				return s;
-
-			}
-
-		}
-
-		static extractUrlBase( url ) {
-
-			const index = url.lastIndexOf( '/' );
-
-			if ( index === - 1 ) return './';
-
-			return url.slice( 0, index + 1 );
-
-		}
-
-		static resolveURL( url, path ) {
-
-			// Invalid URL
-			if ( typeof url !== 'string' || url === '' ) return '';
-
-			// Host Relative URL
-			if ( /^https?:\/\//i.test( path ) && /^\//.test( url ) ) {
-
-				path = path.replace( /(^https?:\/\/[^\/]+).*/i, '$1' );
-
-			}
-
-			// Absolute URL http://,https://,//
-			if ( /^(https?:)?\/\//i.test( url ) ) return url;
-
-			// Data URI
-			if ( /^data:.*,.*$/i.test( url ) ) return url;
-
-			// Blob URL
-			if ( /^blob:.*$/i.test( url ) ) return url;
-
-			// Relative URL
-			return path + url;
-
-		}
-
-	}
-
-	class ImageBitmapLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-			this.isImageBitmapLoader = true;
-
-			if ( typeof createImageBitmap === 'undefined' ) {
-
-				console.warn( 'THREE.ImageBitmapLoader: createImageBitmap() not supported.' );
-
-			}
-
-			if ( typeof fetch === 'undefined' ) {
-
-				console.warn( 'THREE.ImageBitmapLoader: fetch() not supported.' );
-
-			}
-
-			this.options = { premultiplyAlpha: 'none' };
-
-		}
-
-		setOptions( options ) {
-
-			this.options = options;
-
-			return this;
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			if ( url === undefined ) url = '';
-
-			if ( this.path !== undefined ) url = this.path + url;
-
-			url = this.manager.resolveURL( url );
-
-			const scope = this;
-
-			const cached = Cache.get( url );
-
-			if ( cached !== undefined ) {
-
-				scope.manager.itemStart( url );
-
-				// If cached is a promise, wait for it to resolve
-				if ( cached.then ) {
-
-					cached.then( imageBitmap => {
-
-						if ( onLoad ) onLoad( imageBitmap );
-
-						scope.manager.itemEnd( url );
-
-					} ).catch( e => {
-
-						if ( onError ) onError( e );
-
-					} );
-					return;
-
-				}
-
-				// If cached is not a promise (i.e., it's already an imageBitmap)
-				setTimeout( function () {
-
-					if ( onLoad ) onLoad( cached );
-
-					scope.manager.itemEnd( url );
-
-				}, 0 );
-
-				return cached;
-
-			}
-
-			const fetchOptions = {};
-			fetchOptions.credentials = ( this.crossOrigin === 'anonymous' ) ? 'same-origin' : 'include';
-			fetchOptions.headers = this.requestHeader;
-
-			const promise = fetch( url, fetchOptions ).then( function ( res ) {
-
-				return res.blob();
-
-			} ).then( function ( blob ) {
-
-				return createImageBitmap( blob, Object.assign( scope.options, { colorSpaceConversion: 'none' } ) );
-
-			} ).then( function ( imageBitmap ) {
-
-				Cache.add( url, imageBitmap );
-
-				if ( onLoad ) onLoad( imageBitmap );
-
-				scope.manager.itemEnd( url );
-
-				return imageBitmap;
-
-			} ).catch( function ( e ) {
-
-				if ( onError ) onError( e );
-
-				Cache.remove( url );
-
-				scope.manager.itemError( url );
-				scope.manager.itemEnd( url );
-
-			} );
-
-			Cache.add( url, promise );
-			scope.manager.itemStart( url );
 
 		}
 
@@ -38669,7 +31130,7 @@
 
 		start() {
 
-			this.startTime = now$2();
+			this.startTime = now$1();
 
 			this.oldTime = this.startTime;
 			this.elapsedTime = 0;
@@ -38705,7 +31166,7 @@
 
 			if ( this.running ) {
 
-				const newTime = now$2();
+				const newTime = now$1();
 
 				diff = ( newTime - this.oldTime ) / 1000;
 				this.oldTime = newTime;
@@ -38720,728 +31181,11 @@
 
 	}
 
-	function now$2() {
+	function now$1() {
 
 		return ( typeof performance === 'undefined' ? Date : performance ).now(); // see #10732
 
 	}
-
-	// Characters [].:/ are reserved for track binding syntax.
-	const _RESERVED_CHARS_RE = '\\[\\]\\.:\\/';
-	const _reservedRe = new RegExp( '[' + _RESERVED_CHARS_RE + ']', 'g' );
-
-	// Attempts to allow node names from any language. ES5's `\w` regexp matches
-	// only latin characters, and the unicode \p{L} is not yet supported. So
-	// instead, we exclude reserved characters and match everything else.
-	const _wordChar = '[^' + _RESERVED_CHARS_RE + ']';
-	const _wordCharOrDot = '[^' + _RESERVED_CHARS_RE.replace( '\\.', '' ) + ']';
-
-	// Parent directories, delimited by '/' or ':'. Currently unused, but must
-	// be matched to parse the rest of the track name.
-	const _directoryRe = /*@__PURE__*/ /((?:WC+[\/:])*)/.source.replace( 'WC', _wordChar );
-
-	// Target node. May contain word characters (a-zA-Z0-9_) and '.' or '-'.
-	const _nodeRe = /*@__PURE__*/ /(WCOD+)?/.source.replace( 'WCOD', _wordCharOrDot );
-
-	// Object on target node, and accessor. May not contain reserved
-	// characters. Accessor may contain any character except closing bracket.
-	const _objectRe = /*@__PURE__*/ /(?:\.(WC+)(?:\[(.+)\])?)?/.source.replace( 'WC', _wordChar );
-
-	// Property and accessor. May not contain reserved characters. Accessor may
-	// contain any non-bracket characters.
-	const _propertyRe = /*@__PURE__*/ /\.(WC+)(?:\[(.+)\])?/.source.replace( 'WC', _wordChar );
-
-	const _trackRe = new RegExp( ''
-		+ '^'
-		+ _directoryRe
-		+ _nodeRe
-		+ _objectRe
-		+ _propertyRe
-		+ '$'
-	);
-
-	const _supportedObjectNames = [ 'material', 'materials', 'bones', 'map' ];
-
-	class Composite {
-
-		constructor( targetGroup, path, optionalParsedPath ) {
-
-			const parsedPath = optionalParsedPath || PropertyBinding.parseTrackName( path );
-
-			this._targetGroup = targetGroup;
-			this._bindings = targetGroup.subscribe_( path, parsedPath );
-
-		}
-
-		getValue( array, offset ) {
-
-			this.bind(); // bind all binding
-
-			const firstValidIndex = this._targetGroup.nCachedObjects_,
-				binding = this._bindings[ firstValidIndex ];
-
-			// and only call .getValue on the first
-			if ( binding !== undefined ) binding.getValue( array, offset );
-
-		}
-
-		setValue( array, offset ) {
-
-			const bindings = this._bindings;
-
-			for ( let i = this._targetGroup.nCachedObjects_, n = bindings.length; i !== n; ++ i ) {
-
-				bindings[ i ].setValue( array, offset );
-
-			}
-
-		}
-
-		bind() {
-
-			const bindings = this._bindings;
-
-			for ( let i = this._targetGroup.nCachedObjects_, n = bindings.length; i !== n; ++ i ) {
-
-				bindings[ i ].bind();
-
-			}
-
-		}
-
-		unbind() {
-
-			const bindings = this._bindings;
-
-			for ( let i = this._targetGroup.nCachedObjects_, n = bindings.length; i !== n; ++ i ) {
-
-				bindings[ i ].unbind();
-
-			}
-
-		}
-
-	}
-
-	// Note: This class uses a State pattern on a per-method basis:
-	// 'bind' sets 'this.getValue' / 'setValue' and shadows the
-	// prototype version of these methods with one that represents
-	// the bound state. When the property is not found, the methods
-	// become no-ops.
-	class PropertyBinding {
-
-		constructor( rootNode, path, parsedPath ) {
-
-			this.path = path;
-			this.parsedPath = parsedPath || PropertyBinding.parseTrackName( path );
-
-			this.node = PropertyBinding.findNode( rootNode, this.parsedPath.nodeName );
-
-			this.rootNode = rootNode;
-
-			// initial state of these methods that calls 'bind'
-			this.getValue = this._getValue_unbound;
-			this.setValue = this._setValue_unbound;
-
-		}
-
-
-		static create( root, path, parsedPath ) {
-
-			if ( ! ( root && root.isAnimationObjectGroup ) ) {
-
-				return new PropertyBinding( root, path, parsedPath );
-
-			} else {
-
-				return new PropertyBinding.Composite( root, path, parsedPath );
-
-			}
-
-		}
-
-		/**
-		 * Replaces spaces with underscores and removes unsupported characters from
-		 * node names, to ensure compatibility with parseTrackName().
-		 *
-		 * @param {string} name Node name to be sanitized.
-		 * @return {string}
-		 */
-		static sanitizeNodeName( name ) {
-
-			return name.replace( /\s/g, '_' ).replace( _reservedRe, '' );
-
-		}
-
-		static parseTrackName( trackName ) {
-
-			const matches = _trackRe.exec( trackName );
-
-			if ( matches === null ) {
-
-				throw new Error( 'PropertyBinding: Cannot parse trackName: ' + trackName );
-
-			}
-
-			const results = {
-				// directoryName: matches[ 1 ], // (tschw) currently unused
-				nodeName: matches[ 2 ],
-				objectName: matches[ 3 ],
-				objectIndex: matches[ 4 ],
-				propertyName: matches[ 5 ], // required
-				propertyIndex: matches[ 6 ]
-			};
-
-			const lastDot = results.nodeName && results.nodeName.lastIndexOf( '.' );
-
-			if ( lastDot !== undefined && lastDot !== - 1 ) {
-
-				const objectName = results.nodeName.substring( lastDot + 1 );
-
-				// Object names must be checked against an allowlist. Otherwise, there
-				// is no way to parse 'foo.bar.baz': 'baz' must be a property, but
-				// 'bar' could be the objectName, or part of a nodeName (which can
-				// include '.' characters).
-				if ( _supportedObjectNames.indexOf( objectName ) !== - 1 ) {
-
-					results.nodeName = results.nodeName.substring( 0, lastDot );
-					results.objectName = objectName;
-
-				}
-
-			}
-
-			if ( results.propertyName === null || results.propertyName.length === 0 ) {
-
-				throw new Error( 'PropertyBinding: can not parse propertyName from trackName: ' + trackName );
-
-			}
-
-			return results;
-
-		}
-
-		static findNode( root, nodeName ) {
-
-			if ( nodeName === undefined || nodeName === '' || nodeName === '.' || nodeName === - 1 || nodeName === root.name || nodeName === root.uuid ) {
-
-				return root;
-
-			}
-
-			// search into skeleton bones.
-			if ( root.skeleton ) {
-
-				const bone = root.skeleton.getBoneByName( nodeName );
-
-				if ( bone !== undefined ) {
-
-					return bone;
-
-				}
-
-			}
-
-			// search into node subtree.
-			if ( root.children ) {
-
-				const searchNodeSubtree = function ( children ) {
-
-					for ( let i = 0; i < children.length; i ++ ) {
-
-						const childNode = children[ i ];
-
-						if ( childNode.name === nodeName || childNode.uuid === nodeName ) {
-
-							return childNode;
-
-						}
-
-						const result = searchNodeSubtree( childNode.children );
-
-						if ( result ) return result;
-
-					}
-
-					return null;
-
-				};
-
-				const subTreeNode = searchNodeSubtree( root.children );
-
-				if ( subTreeNode ) {
-
-					return subTreeNode;
-
-				}
-
-			}
-
-			return null;
-
-		}
-
-		// these are used to "bind" a nonexistent property
-		_getValue_unavailable() {}
-		_setValue_unavailable() {}
-
-		// Getters
-
-		_getValue_direct( buffer, offset ) {
-
-			buffer[ offset ] = this.targetObject[ this.propertyName ];
-
-		}
-
-		_getValue_array( buffer, offset ) {
-
-			const source = this.resolvedProperty;
-
-			for ( let i = 0, n = source.length; i !== n; ++ i ) {
-
-				buffer[ offset ++ ] = source[ i ];
-
-			}
-
-		}
-
-		_getValue_arrayElement( buffer, offset ) {
-
-			buffer[ offset ] = this.resolvedProperty[ this.propertyIndex ];
-
-		}
-
-		_getValue_toArray( buffer, offset ) {
-
-			this.resolvedProperty.toArray( buffer, offset );
-
-		}
-
-		// Direct
-
-		_setValue_direct( buffer, offset ) {
-
-			this.targetObject[ this.propertyName ] = buffer[ offset ];
-
-		}
-
-		_setValue_direct_setNeedsUpdate( buffer, offset ) {
-
-			this.targetObject[ this.propertyName ] = buffer[ offset ];
-			this.targetObject.needsUpdate = true;
-
-		}
-
-		_setValue_direct_setMatrixWorldNeedsUpdate( buffer, offset ) {
-
-			this.targetObject[ this.propertyName ] = buffer[ offset ];
-			this.targetObject.matrixWorldNeedsUpdate = true;
-
-		}
-
-		// EntireArray
-
-		_setValue_array( buffer, offset ) {
-
-			const dest = this.resolvedProperty;
-
-			for ( let i = 0, n = dest.length; i !== n; ++ i ) {
-
-				dest[ i ] = buffer[ offset ++ ];
-
-			}
-
-		}
-
-		_setValue_array_setNeedsUpdate( buffer, offset ) {
-
-			const dest = this.resolvedProperty;
-
-			for ( let i = 0, n = dest.length; i !== n; ++ i ) {
-
-				dest[ i ] = buffer[ offset ++ ];
-
-			}
-
-			this.targetObject.needsUpdate = true;
-
-		}
-
-		_setValue_array_setMatrixWorldNeedsUpdate( buffer, offset ) {
-
-			const dest = this.resolvedProperty;
-
-			for ( let i = 0, n = dest.length; i !== n; ++ i ) {
-
-				dest[ i ] = buffer[ offset ++ ];
-
-			}
-
-			this.targetObject.matrixWorldNeedsUpdate = true;
-
-		}
-
-		// ArrayElement
-
-		_setValue_arrayElement( buffer, offset ) {
-
-			this.resolvedProperty[ this.propertyIndex ] = buffer[ offset ];
-
-		}
-
-		_setValue_arrayElement_setNeedsUpdate( buffer, offset ) {
-
-			this.resolvedProperty[ this.propertyIndex ] = buffer[ offset ];
-			this.targetObject.needsUpdate = true;
-
-		}
-
-		_setValue_arrayElement_setMatrixWorldNeedsUpdate( buffer, offset ) {
-
-			this.resolvedProperty[ this.propertyIndex ] = buffer[ offset ];
-			this.targetObject.matrixWorldNeedsUpdate = true;
-
-		}
-
-		// HasToFromArray
-
-		_setValue_fromArray( buffer, offset ) {
-
-			this.resolvedProperty.fromArray( buffer, offset );
-
-		}
-
-		_setValue_fromArray_setNeedsUpdate( buffer, offset ) {
-
-			this.resolvedProperty.fromArray( buffer, offset );
-			this.targetObject.needsUpdate = true;
-
-		}
-
-		_setValue_fromArray_setMatrixWorldNeedsUpdate( buffer, offset ) {
-
-			this.resolvedProperty.fromArray( buffer, offset );
-			this.targetObject.matrixWorldNeedsUpdate = true;
-
-		}
-
-		_getValue_unbound( targetArray, offset ) {
-
-			this.bind();
-			this.getValue( targetArray, offset );
-
-		}
-
-		_setValue_unbound( sourceArray, offset ) {
-
-			this.bind();
-			this.setValue( sourceArray, offset );
-
-		}
-
-		// create getter / setter pair for a property in the scene graph
-		bind() {
-
-			let targetObject = this.node;
-			const parsedPath = this.parsedPath;
-
-			const objectName = parsedPath.objectName;
-			const propertyName = parsedPath.propertyName;
-			let propertyIndex = parsedPath.propertyIndex;
-
-			if ( ! targetObject ) {
-
-				targetObject = PropertyBinding.findNode( this.rootNode, parsedPath.nodeName );
-
-				this.node = targetObject;
-
-			}
-
-			// set fail state so we can just 'return' on error
-			this.getValue = this._getValue_unavailable;
-			this.setValue = this._setValue_unavailable;
-
-			// ensure there is a value node
-			if ( ! targetObject ) {
-
-				console.warn( 'THREE.PropertyBinding: No target node found for track: ' + this.path + '.' );
-				return;
-
-			}
-
-			if ( objectName ) {
-
-				let objectIndex = parsedPath.objectIndex;
-
-				// special cases were we need to reach deeper into the hierarchy to get the face materials....
-				switch ( objectName ) {
-
-					case 'materials':
-
-						if ( ! targetObject.material ) {
-
-							console.error( 'THREE.PropertyBinding: Can not bind to material as node does not have a material.', this );
-							return;
-
-						}
-
-						if ( ! targetObject.material.materials ) {
-
-							console.error( 'THREE.PropertyBinding: Can not bind to material.materials as node.material does not have a materials array.', this );
-							return;
-
-						}
-
-						targetObject = targetObject.material.materials;
-
-						break;
-
-					case 'bones':
-
-						if ( ! targetObject.skeleton ) {
-
-							console.error( 'THREE.PropertyBinding: Can not bind to bones as node does not have a skeleton.', this );
-							return;
-
-						}
-
-						// potential future optimization: skip this if propertyIndex is already an integer
-						// and convert the integer string to a true integer.
-
-						targetObject = targetObject.skeleton.bones;
-
-						// support resolving morphTarget names into indices.
-						for ( let i = 0; i < targetObject.length; i ++ ) {
-
-							if ( targetObject[ i ].name === objectIndex ) {
-
-								objectIndex = i;
-								break;
-
-							}
-
-						}
-
-						break;
-
-					case 'map':
-
-						if ( 'map' in targetObject ) {
-
-							targetObject = targetObject.map;
-							break;
-
-						}
-
-						if ( ! targetObject.material ) {
-
-							console.error( 'THREE.PropertyBinding: Can not bind to material as node does not have a material.', this );
-							return;
-
-						}
-
-						if ( ! targetObject.material.map ) {
-
-							console.error( 'THREE.PropertyBinding: Can not bind to material.map as node.material does not have a map.', this );
-							return;
-
-						}
-
-						targetObject = targetObject.material.map;
-						break;
-
-					default:
-
-						if ( targetObject[ objectName ] === undefined ) {
-
-							console.error( 'THREE.PropertyBinding: Can not bind to objectName of node undefined.', this );
-							return;
-
-						}
-
-						targetObject = targetObject[ objectName ];
-
-				}
-
-
-				if ( objectIndex !== undefined ) {
-
-					if ( targetObject[ objectIndex ] === undefined ) {
-
-						console.error( 'THREE.PropertyBinding: Trying to bind to objectIndex of objectName, but is undefined.', this, targetObject );
-						return;
-
-					}
-
-					targetObject = targetObject[ objectIndex ];
-
-				}
-
-			}
-
-			// resolve property
-			const nodeProperty = targetObject[ propertyName ];
-
-			if ( nodeProperty === undefined ) {
-
-				const nodeName = parsedPath.nodeName;
-
-				console.error( 'THREE.PropertyBinding: Trying to update property for track: ' + nodeName +
-					'.' + propertyName + ' but it wasn\'t found.', targetObject );
-				return;
-
-			}
-
-			// determine versioning scheme
-			let versioning = this.Versioning.None;
-
-			this.targetObject = targetObject;
-
-			if ( targetObject.needsUpdate !== undefined ) { // material
-
-				versioning = this.Versioning.NeedsUpdate;
-
-			} else if ( targetObject.matrixWorldNeedsUpdate !== undefined ) { // node transform
-
-				versioning = this.Versioning.MatrixWorldNeedsUpdate;
-
-			}
-
-			// determine how the property gets bound
-			let bindingType = this.BindingType.Direct;
-
-			if ( propertyIndex !== undefined ) {
-
-				// access a sub element of the property array (only primitives are supported right now)
-
-				if ( propertyName === 'morphTargetInfluences' ) {
-
-					// potential optimization, skip this if propertyIndex is already an integer, and convert the integer string to a true integer.
-
-					// support resolving morphTarget names into indices.
-					if ( ! targetObject.geometry ) {
-
-						console.error( 'THREE.PropertyBinding: Can not bind to morphTargetInfluences because node does not have a geometry.', this );
-						return;
-
-					}
-
-					if ( ! targetObject.geometry.morphAttributes ) {
-
-						console.error( 'THREE.PropertyBinding: Can not bind to morphTargetInfluences because node does not have a geometry.morphAttributes.', this );
-						return;
-
-					}
-
-					if ( targetObject.morphTargetDictionary[ propertyIndex ] !== undefined ) {
-
-						propertyIndex = targetObject.morphTargetDictionary[ propertyIndex ];
-
-					}
-
-				}
-
-				bindingType = this.BindingType.ArrayElement;
-
-				this.resolvedProperty = nodeProperty;
-				this.propertyIndex = propertyIndex;
-
-			} else if ( nodeProperty.fromArray !== undefined && nodeProperty.toArray !== undefined ) {
-
-				// must use copy for Object3D.Euler/Quaternion
-
-				bindingType = this.BindingType.HasFromToArray;
-
-				this.resolvedProperty = nodeProperty;
-
-			} else if ( Array.isArray( nodeProperty ) ) {
-
-				bindingType = this.BindingType.EntireArray;
-
-				this.resolvedProperty = nodeProperty;
-
-			} else {
-
-				this.propertyName = propertyName;
-
-			}
-
-			// select getter / setter
-			this.getValue = this.GetterByBindingType[ bindingType ];
-			this.setValue = this.SetterByBindingTypeAndVersioning[ bindingType ][ versioning ];
-
-		}
-
-		unbind() {
-
-			this.node = null;
-
-			// back to the prototype version of getValue / setValue
-			// note: avoiding to mutate the shape of 'this' via 'delete'
-			this.getValue = this._getValue_unbound;
-			this.setValue = this._setValue_unbound;
-
-		}
-
-	}
-
-	PropertyBinding.Composite = Composite;
-
-	PropertyBinding.prototype.BindingType = {
-		Direct: 0,
-		EntireArray: 1,
-		ArrayElement: 2,
-		HasFromToArray: 3
-	};
-
-	PropertyBinding.prototype.Versioning = {
-		None: 0,
-		NeedsUpdate: 1,
-		MatrixWorldNeedsUpdate: 2
-	};
-
-	PropertyBinding.prototype.GetterByBindingType = [
-
-		PropertyBinding.prototype._getValue_direct,
-		PropertyBinding.prototype._getValue_array,
-		PropertyBinding.prototype._getValue_arrayElement,
-		PropertyBinding.prototype._getValue_toArray,
-
-	];
-
-	PropertyBinding.prototype.SetterByBindingTypeAndVersioning = [
-
-		[
-			// Direct
-			PropertyBinding.prototype._setValue_direct,
-			PropertyBinding.prototype._setValue_direct_setNeedsUpdate,
-			PropertyBinding.prototype._setValue_direct_setMatrixWorldNeedsUpdate,
-
-		], [
-
-			// EntireArray
-
-			PropertyBinding.prototype._setValue_array,
-			PropertyBinding.prototype._setValue_array_setNeedsUpdate,
-			PropertyBinding.prototype._setValue_array_setMatrixWorldNeedsUpdate,
-
-		], [
-
-			// ArrayElement
-			PropertyBinding.prototype._setValue_arrayElement,
-			PropertyBinding.prototype._setValue_arrayElement_setNeedsUpdate,
-			PropertyBinding.prototype._setValue_arrayElement_setMatrixWorldNeedsUpdate,
-
-		], [
-
-			// HasToFromArray
-			PropertyBinding.prototype._setValue_fromArray,
-			PropertyBinding.prototype._setValue_fromArray_setNeedsUpdate,
-			PropertyBinding.prototype._setValue_fromArray_setMatrixWorldNeedsUpdate,
-
-		]
-
-	];
 
 	class Raycaster {
 
@@ -39633,491 +31377,6 @@
 
 	}
 
-	const _vector$4 = /*@__PURE__*/ new Vector2();
-
-	class Box2 {
-
-		constructor( min = new Vector2( + Infinity, + Infinity ), max = new Vector2( - Infinity, - Infinity ) ) {
-
-			this.isBox2 = true;
-
-			this.min = min;
-			this.max = max;
-
-		}
-
-		set( min, max ) {
-
-			this.min.copy( min );
-			this.max.copy( max );
-
-			return this;
-
-		}
-
-		setFromPoints( points ) {
-
-			this.makeEmpty();
-
-			for ( let i = 0, il = points.length; i < il; i ++ ) {
-
-				this.expandByPoint( points[ i ] );
-
-			}
-
-			return this;
-
-		}
-
-		setFromCenterAndSize( center, size ) {
-
-			const halfSize = _vector$4.copy( size ).multiplyScalar( 0.5 );
-			this.min.copy( center ).sub( halfSize );
-			this.max.copy( center ).add( halfSize );
-
-			return this;
-
-		}
-
-		clone() {
-
-			return new this.constructor().copy( this );
-
-		}
-
-		copy( box ) {
-
-			this.min.copy( box.min );
-			this.max.copy( box.max );
-
-			return this;
-
-		}
-
-		makeEmpty() {
-
-			this.min.x = this.min.y = + Infinity;
-			this.max.x = this.max.y = - Infinity;
-
-			return this;
-
-		}
-
-		isEmpty() {
-
-			// this is a more robust check for empty than ( volume <= 0 ) because volume can get positive with two negative axes
-
-			return ( this.max.x < this.min.x ) || ( this.max.y < this.min.y );
-
-		}
-
-		getCenter( target ) {
-
-			return this.isEmpty() ? target.set( 0, 0 ) : target.addVectors( this.min, this.max ).multiplyScalar( 0.5 );
-
-		}
-
-		getSize( target ) {
-
-			return this.isEmpty() ? target.set( 0, 0 ) : target.subVectors( this.max, this.min );
-
-		}
-
-		expandByPoint( point ) {
-
-			this.min.min( point );
-			this.max.max( point );
-
-			return this;
-
-		}
-
-		expandByVector( vector ) {
-
-			this.min.sub( vector );
-			this.max.add( vector );
-
-			return this;
-
-		}
-
-		expandByScalar( scalar ) {
-
-			this.min.addScalar( - scalar );
-			this.max.addScalar( scalar );
-
-			return this;
-
-		}
-
-		containsPoint( point ) {
-
-			return point.x < this.min.x || point.x > this.max.x ||
-				point.y < this.min.y || point.y > this.max.y ? false : true;
-
-		}
-
-		containsBox( box ) {
-
-			return this.min.x <= box.min.x && box.max.x <= this.max.x &&
-				this.min.y <= box.min.y && box.max.y <= this.max.y;
-
-		}
-
-		getParameter( point, target ) {
-
-			// This can potentially have a divide by zero if the box
-			// has a size dimension of 0.
-
-			return target.set(
-				( point.x - this.min.x ) / ( this.max.x - this.min.x ),
-				( point.y - this.min.y ) / ( this.max.y - this.min.y )
-			);
-
-		}
-
-		intersectsBox( box ) {
-
-			// using 4 splitting planes to rule out intersections
-
-			return box.max.x < this.min.x || box.min.x > this.max.x ||
-				box.max.y < this.min.y || box.min.y > this.max.y ? false : true;
-
-		}
-
-		clampPoint( point, target ) {
-
-			return target.copy( point ).clamp( this.min, this.max );
-
-		}
-
-		distanceToPoint( point ) {
-
-			return this.clampPoint( point, _vector$4 ).distanceTo( point );
-
-		}
-
-		intersect( box ) {
-
-			this.min.max( box.min );
-			this.max.min( box.max );
-
-			if ( this.isEmpty() ) this.makeEmpty();
-
-			return this;
-
-		}
-
-		union( box ) {
-
-			this.min.min( box.min );
-			this.max.max( box.max );
-
-			return this;
-
-		}
-
-		translate( offset ) {
-
-			this.min.add( offset );
-			this.max.add( offset );
-
-			return this;
-
-		}
-
-		equals( box ) {
-
-			return box.min.equals( this.min ) && box.max.equals( this.max );
-
-		}
-
-	}
-
-	class ShapePath {
-
-		constructor() {
-
-			this.type = 'ShapePath';
-
-			this.color = new Color();
-
-			this.subPaths = [];
-			this.currentPath = null;
-
-		}
-
-		moveTo( x, y ) {
-
-			this.currentPath = new Path();
-			this.subPaths.push( this.currentPath );
-			this.currentPath.moveTo( x, y );
-
-			return this;
-
-		}
-
-		lineTo( x, y ) {
-
-			this.currentPath.lineTo( x, y );
-
-			return this;
-
-		}
-
-		quadraticCurveTo( aCPx, aCPy, aX, aY ) {
-
-			this.currentPath.quadraticCurveTo( aCPx, aCPy, aX, aY );
-
-			return this;
-
-		}
-
-		bezierCurveTo( aCP1x, aCP1y, aCP2x, aCP2y, aX, aY ) {
-
-			this.currentPath.bezierCurveTo( aCP1x, aCP1y, aCP2x, aCP2y, aX, aY );
-
-			return this;
-
-		}
-
-		splineThru( pts ) {
-
-			this.currentPath.splineThru( pts );
-
-			return this;
-
-		}
-
-		toShapes( isCCW ) {
-
-			function toShapesNoHoles( inSubpaths ) {
-
-				const shapes = [];
-
-				for ( let i = 0, l = inSubpaths.length; i < l; i ++ ) {
-
-					const tmpPath = inSubpaths[ i ];
-
-					const tmpShape = new Shape();
-					tmpShape.curves = tmpPath.curves;
-
-					shapes.push( tmpShape );
-
-				}
-
-				return shapes;
-
-			}
-
-			function isPointInsidePolygon( inPt, inPolygon ) {
-
-				const polyLen = inPolygon.length;
-
-				// inPt on polygon contour => immediate success    or
-				// toggling of inside/outside at every single! intersection point of an edge
-				//  with the horizontal line through inPt, left of inPt
-				//  not counting lowerY endpoints of edges and whole edges on that line
-				let inside = false;
-				for ( let p = polyLen - 1, q = 0; q < polyLen; p = q ++ ) {
-
-					let edgeLowPt = inPolygon[ p ];
-					let edgeHighPt = inPolygon[ q ];
-
-					let edgeDx = edgeHighPt.x - edgeLowPt.x;
-					let edgeDy = edgeHighPt.y - edgeLowPt.y;
-
-					if ( Math.abs( edgeDy ) > Number.EPSILON ) {
-
-						// not parallel
-						if ( edgeDy < 0 ) {
-
-							edgeLowPt = inPolygon[ q ]; edgeDx = - edgeDx;
-							edgeHighPt = inPolygon[ p ]; edgeDy = - edgeDy;
-
-						}
-
-						if ( ( inPt.y < edgeLowPt.y ) || ( inPt.y > edgeHighPt.y ) ) 		continue;
-
-						if ( inPt.y === edgeLowPt.y ) {
-
-							if ( inPt.x === edgeLowPt.x )		return	true;		// inPt is on contour ?
-							// continue;				// no intersection or edgeLowPt => doesn't count !!!
-
-						} else {
-
-							const perpEdge = edgeDy * ( inPt.x - edgeLowPt.x ) - edgeDx * ( inPt.y - edgeLowPt.y );
-							if ( perpEdge === 0 )				return	true;		// inPt is on contour ?
-							if ( perpEdge < 0 ) 				continue;
-							inside = ! inside;		// true intersection left of inPt
-
-						}
-
-					} else {
-
-						// parallel or collinear
-						if ( inPt.y !== edgeLowPt.y ) 		continue;			// parallel
-						// edge lies on the same horizontal line as inPt
-						if ( ( ( edgeHighPt.x <= inPt.x ) && ( inPt.x <= edgeLowPt.x ) ) ||
-							 ( ( edgeLowPt.x <= inPt.x ) && ( inPt.x <= edgeHighPt.x ) ) )		return	true;	// inPt: Point on contour !
-						// continue;
-
-					}
-
-				}
-
-				return	inside;
-
-			}
-
-			const isClockWise = ShapeUtils.isClockWise;
-
-			const subPaths = this.subPaths;
-			if ( subPaths.length === 0 ) return [];
-
-			let solid, tmpPath, tmpShape;
-			const shapes = [];
-
-			if ( subPaths.length === 1 ) {
-
-				tmpPath = subPaths[ 0 ];
-				tmpShape = new Shape();
-				tmpShape.curves = tmpPath.curves;
-				shapes.push( tmpShape );
-				return shapes;
-
-			}
-
-			let holesFirst = ! isClockWise( subPaths[ 0 ].getPoints() );
-			holesFirst = isCCW ? ! holesFirst : holesFirst;
-
-			// console.log("Holes first", holesFirst);
-
-			const betterShapeHoles = [];
-			const newShapes = [];
-			let newShapeHoles = [];
-			let mainIdx = 0;
-			let tmpPoints;
-
-			newShapes[ mainIdx ] = undefined;
-			newShapeHoles[ mainIdx ] = [];
-
-			for ( let i = 0, l = subPaths.length; i < l; i ++ ) {
-
-				tmpPath = subPaths[ i ];
-				tmpPoints = tmpPath.getPoints();
-				solid = isClockWise( tmpPoints );
-				solid = isCCW ? ! solid : solid;
-
-				if ( solid ) {
-
-					if ( ( ! holesFirst ) && ( newShapes[ mainIdx ] ) )	mainIdx ++;
-
-					newShapes[ mainIdx ] = { s: new Shape(), p: tmpPoints };
-					newShapes[ mainIdx ].s.curves = tmpPath.curves;
-
-					if ( holesFirst )	mainIdx ++;
-					newShapeHoles[ mainIdx ] = [];
-
-					//console.log('cw', i);
-
-				} else {
-
-					newShapeHoles[ mainIdx ].push( { h: tmpPath, p: tmpPoints[ 0 ] } );
-
-					//console.log('ccw', i);
-
-				}
-
-			}
-
-			// only Holes? -> probably all Shapes with wrong orientation
-			if ( ! newShapes[ 0 ] )	return	toShapesNoHoles( subPaths );
-
-
-			if ( newShapes.length > 1 ) {
-
-				let ambiguous = false;
-				let toChange = 0;
-
-				for ( let sIdx = 0, sLen = newShapes.length; sIdx < sLen; sIdx ++ ) {
-
-					betterShapeHoles[ sIdx ] = [];
-
-				}
-
-				for ( let sIdx = 0, sLen = newShapes.length; sIdx < sLen; sIdx ++ ) {
-
-					const sho = newShapeHoles[ sIdx ];
-
-					for ( let hIdx = 0; hIdx < sho.length; hIdx ++ ) {
-
-						const ho = sho[ hIdx ];
-						let hole_unassigned = true;
-
-						for ( let s2Idx = 0; s2Idx < newShapes.length; s2Idx ++ ) {
-
-							if ( isPointInsidePolygon( ho.p, newShapes[ s2Idx ].p ) ) {
-
-								if ( sIdx !== s2Idx )	toChange ++;
-
-								if ( hole_unassigned ) {
-
-									hole_unassigned = false;
-									betterShapeHoles[ s2Idx ].push( ho );
-
-								} else {
-
-									ambiguous = true;
-
-								}
-
-							}
-
-						}
-
-						if ( hole_unassigned ) {
-
-							betterShapeHoles[ sIdx ].push( ho );
-
-						}
-
-					}
-
-				}
-
-				if ( toChange > 0 && ambiguous === false ) {
-
-					newShapeHoles = betterShapeHoles;
-
-				}
-
-			}
-
-			let tmpHoles;
-
-			for ( let i = 0, il = newShapes.length; i < il; i ++ ) {
-
-				tmpShape = newShapes[ i ].s;
-				shapes.push( tmpShape );
-				tmpHoles = newShapeHoles[ i ];
-
-				for ( let j = 0, jl = tmpHoles.length; j < jl; j ++ ) {
-
-					tmpShape.holes.push( tmpHoles[ j ].h );
-
-				}
-
-			}
-
-			//console.log("shape", shapes);
-
-			return shapes;
-
-		}
-
-	}
-
 	if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
 
 		__THREE_DEVTOOLS__.dispatchEvent( new CustomEvent( 'register', { detail: {
@@ -40138,5065 +31397,6 @@
 
 		}
 
-	}
-
-	// OrbitControls performs orbiting, dollying (zooming), and panning.
-	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-	//
-	//    Orbit - left mouse / touch: one-finger move
-	//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-	//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
-
-	const _changeEvent$1 = { type: 'change' };
-	const _startEvent$1 = { type: 'start' };
-	const _endEvent$1 = { type: 'end' };
-	const _ray$1 = new Ray();
-	const _plane$1 = new Plane();
-	const TILT_LIMIT$1 = Math.cos( 70 * MathUtils.DEG2RAD );
-
-	let OrbitControls$1 = class OrbitControls extends EventDispatcher {
-
-		constructor( object, domElement ) {
-
-			super();
-
-			this.object = object;
-			this.domElement = domElement;
-			this.domElement.style.touchAction = 'none'; // disable touch scroll
-
-			// Set to false to disable this control
-			this.enabled = true;
-
-			// "target" sets the location of focus, where the object orbits around
-			this.target = new Vector3();
-
-			// Sets the 3D cursor (similar to Blender), from which the maxTargetRadius takes effect
-			this.cursor = new Vector3();
-
-			// How far you can dolly in and out ( PerspectiveCamera only )
-			this.minDistance = 0;
-			this.maxDistance = Infinity;
-
-			// How far you can zoom in and out ( OrthographicCamera only )
-			this.minZoom = 0;
-			this.maxZoom = Infinity;
-
-			// Limit camera target within a spherical area around the cursor
-			this.minTargetRadius = 0;
-			this.maxTargetRadius = Infinity;
-
-			// How far you can orbit vertically, upper and lower limits.
-			// Range is 0 to Math.PI radians.
-			this.minPolarAngle = 0; // radians
-			this.maxPolarAngle = Math.PI; // radians
-
-			// How far you can orbit horizontally, upper and lower limits.
-			// If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
-			this.minAzimuthAngle = - Infinity; // radians
-			this.maxAzimuthAngle = Infinity; // radians
-
-			// Set to true to enable damping (inertia)
-			// If damping is enabled, you must call controls.update() in your animation loop
-			this.enableDamping = false;
-			this.dampingFactor = 0.05;
-
-			// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
-			// Set to false to disable zooming
-			this.enableZoom = true;
-			this.zoomSpeed = 1.0;
-
-			// Set to false to disable rotating
-			this.enableRotate = true;
-			this.rotateSpeed = 1.0;
-
-			// Set to false to disable panning
-			this.enablePan = true;
-			this.panSpeed = 1.0;
-			this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
-			this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
-			this.zoomToCursor = false;
-
-			// Set to true to automatically rotate around the target
-			// If auto-rotate is enabled, you must call controls.update() in your animation loop
-			this.autoRotate = false;
-			this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
-
-			// The four arrow keys
-			this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
-
-			// Mouse buttons
-			this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
-
-			// Touch fingers
-			this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
-
-			// for reset
-			this.target0 = this.target.clone();
-			this.position0 = this.object.position.clone();
-			this.zoom0 = this.object.zoom;
-
-			// the target DOM element for key events
-			this._domElementKeyEvents = null;
-
-			//
-			// public methods
-			//
-
-			this.getPolarAngle = function () {
-
-				return spherical.phi;
-
-			};
-
-			this.getAzimuthalAngle = function () {
-
-				return spherical.theta;
-
-			};
-
-			this.getDistance = function () {
-
-				return this.object.position.distanceTo( this.target );
-
-			};
-
-			this.listenToKeyEvents = function ( domElement ) {
-
-				domElement.addEventListener( 'keydown', onKeyDown );
-				this._domElementKeyEvents = domElement;
-
-			};
-
-			this.stopListenToKeyEvents = function () {
-
-				this._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
-				this._domElementKeyEvents = null;
-
-			};
-
-			this.saveState = function () {
-
-				scope.target0.copy( scope.target );
-				scope.position0.copy( scope.object.position );
-				scope.zoom0 = scope.object.zoom;
-
-			};
-
-			this.reset = function () {
-
-				scope.target.copy( scope.target0 );
-				scope.object.position.copy( scope.position0 );
-				scope.object.zoom = scope.zoom0;
-
-				scope.object.updateProjectionMatrix();
-				scope.dispatchEvent( _changeEvent$1 );
-
-				scope.update();
-
-				state = STATE.NONE;
-
-			};
-
-			// this method is exposed, but perhaps it would be better if we can make it private...
-			this.update = function () {
-
-				const offset = new Vector3();
-
-				// so camera.up is the orbit axis
-				const quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
-				const quatInverse = quat.clone().invert();
-
-				const lastPosition = new Vector3();
-				const lastQuaternion = new Quaternion();
-				const lastTargetPosition = new Vector3();
-
-				const twoPI = 2 * Math.PI;
-
-				return function update( deltaTime = null ) {
-
-					const position = scope.object.position;
-
-					offset.copy( position ).sub( scope.target );
-
-					// rotate offset to "y-axis-is-up" space
-					offset.applyQuaternion( quat );
-
-					// angle from z-axis around y-axis
-					spherical.setFromVector3( offset );
-
-					if ( scope.autoRotate && state === STATE.NONE ) {
-
-						rotateLeft( getAutoRotationAngle( deltaTime ) );
-
-					}
-
-					if ( scope.enableDamping ) {
-
-						spherical.theta += sphericalDelta.theta * scope.dampingFactor;
-						spherical.phi += sphericalDelta.phi * scope.dampingFactor;
-
-					} else {
-
-						spherical.theta += sphericalDelta.theta;
-						spherical.phi += sphericalDelta.phi;
-
-					}
-
-					// restrict theta to be between desired limits
-
-					let min = scope.minAzimuthAngle;
-					let max = scope.maxAzimuthAngle;
-
-					if ( isFinite( min ) && isFinite( max ) ) {
-
-						if ( min < - Math.PI ) min += twoPI; else if ( min > Math.PI ) min -= twoPI;
-
-						if ( max < - Math.PI ) max += twoPI; else if ( max > Math.PI ) max -= twoPI;
-
-						if ( min <= max ) {
-
-							spherical.theta = Math.max( min, Math.min( max, spherical.theta ) );
-
-						} else {
-
-							spherical.theta = ( spherical.theta > ( min + max ) / 2 ) ?
-								Math.max( min, spherical.theta ) :
-								Math.min( max, spherical.theta );
-
-						}
-
-					}
-
-					// restrict phi to be between desired limits
-					spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
-
-					spherical.makeSafe();
-
-
-					// move target to panned location
-
-					if ( scope.enableDamping === true ) {
-
-						scope.target.addScaledVector( panOffset, scope.dampingFactor );
-
-					} else {
-
-						scope.target.add( panOffset );
-
-					}
-
-					// Limit the target distance from the cursor to create a sphere around the center of interest
-					scope.target.sub( scope.cursor );
-					scope.target.clampLength( scope.minTargetRadius, scope.maxTargetRadius );
-					scope.target.add( scope.cursor );
-
-					// adjust the camera position based on zoom only if we're not zooming to the cursor or if it's an ortho camera
-					// we adjust zoom later in these cases
-					if ( scope.zoomToCursor && performCursorZoom || scope.object.isOrthographicCamera ) {
-
-						spherical.radius = clampDistance( spherical.radius );
-
-					} else {
-
-						spherical.radius = clampDistance( spherical.radius * scale );
-
-					}
-
-					offset.setFromSpherical( spherical );
-
-					// rotate offset back to "camera-up-vector-is-up" space
-					offset.applyQuaternion( quatInverse );
-
-					position.copy( scope.target ).add( offset );
-
-					scope.object.lookAt( scope.target );
-
-					if ( scope.enableDamping === true ) {
-
-						sphericalDelta.theta *= ( 1 - scope.dampingFactor );
-						sphericalDelta.phi *= ( 1 - scope.dampingFactor );
-
-						panOffset.multiplyScalar( 1 - scope.dampingFactor );
-
-					} else {
-
-						sphericalDelta.set( 0, 0, 0 );
-
-						panOffset.set( 0, 0, 0 );
-
-					}
-
-					// adjust camera position
-					let zoomChanged = false;
-					if ( scope.zoomToCursor && performCursorZoom ) {
-
-						let newRadius = null;
-						if ( scope.object.isPerspectiveCamera ) {
-
-							// move the camera down the pointer ray
-							// this method avoids floating point error
-							const prevRadius = offset.length();
-							newRadius = clampDistance( prevRadius * scale );
-
-							const radiusDelta = prevRadius - newRadius;
-							scope.object.position.addScaledVector( dollyDirection, radiusDelta );
-							scope.object.updateMatrixWorld();
-
-						} else if ( scope.object.isOrthographicCamera ) {
-
-							// adjust the ortho camera position based on zoom changes
-							const mouseBefore = new Vector3( mouse.x, mouse.y, 0 );
-							mouseBefore.unproject( scope.object );
-
-							scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
-							scope.object.updateProjectionMatrix();
-							zoomChanged = true;
-
-							const mouseAfter = new Vector3( mouse.x, mouse.y, 0 );
-							mouseAfter.unproject( scope.object );
-
-							scope.object.position.sub( mouseAfter ).add( mouseBefore );
-							scope.object.updateMatrixWorld();
-
-							newRadius = offset.length();
-
-						} else {
-
-							console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled.' );
-							scope.zoomToCursor = false;
-
-						}
-
-						// handle the placement of the target
-						if ( newRadius !== null ) {
-
-							if ( this.screenSpacePanning ) {
-
-								// position the orbit target in front of the new camera position
-								scope.target.set( 0, 0, - 1 )
-									.transformDirection( scope.object.matrix )
-									.multiplyScalar( newRadius )
-									.add( scope.object.position );
-
-							} else {
-
-								// get the ray and translation plane to compute target
-								_ray$1.origin.copy( scope.object.position );
-								_ray$1.direction.set( 0, 0, - 1 ).transformDirection( scope.object.matrix );
-
-								// if the camera is 20 degrees above the horizon then don't adjust the focus target to avoid
-								// extremely large values
-								if ( Math.abs( scope.object.up.dot( _ray$1.direction ) ) < TILT_LIMIT$1 ) {
-
-									object.lookAt( scope.target );
-
-								} else {
-
-									_plane$1.setFromNormalAndCoplanarPoint( scope.object.up, scope.target );
-									_ray$1.intersectPlane( _plane$1, scope.target );
-
-								}
-
-							}
-
-						}
-
-					} else if ( scope.object.isOrthographicCamera ) {
-
-						scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
-						scope.object.updateProjectionMatrix();
-						zoomChanged = true;
-
-					}
-
-					scale = 1;
-					performCursorZoom = false;
-
-					// update condition is:
-					// min(camera displacement, camera rotation in radians)^2 > EPS
-					// using small-angle approximation cos(x/2) = 1 - x^2 / 8
-
-					if ( zoomChanged ||
-						lastPosition.distanceToSquared( scope.object.position ) > EPS ||
-						8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ||
-						lastTargetPosition.distanceToSquared( scope.target ) > 0 ) {
-
-						scope.dispatchEvent( _changeEvent$1 );
-
-						lastPosition.copy( scope.object.position );
-						lastQuaternion.copy( scope.object.quaternion );
-						lastTargetPosition.copy( scope.target );
-
-						return true;
-
-					}
-
-					return false;
-
-				};
-
-			}();
-
-			this.dispose = function () {
-
-				scope.domElement.removeEventListener( 'contextmenu', onContextMenu );
-
-				scope.domElement.removeEventListener( 'pointerdown', onPointerDown );
-				scope.domElement.removeEventListener( 'pointercancel', onPointerUp );
-				scope.domElement.removeEventListener( 'wheel', onMouseWheel );
-
-				scope.domElement.removeEventListener( 'pointermove', onPointerMove );
-				scope.domElement.removeEventListener( 'pointerup', onPointerUp );
-
-
-				if ( scope._domElementKeyEvents !== null ) {
-
-					scope._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
-					scope._domElementKeyEvents = null;
-
-				}
-
-				//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
-
-			};
-
-			//
-			// internals
-			//
-
-			const scope = this;
-
-			const STATE = {
-				NONE: - 1,
-				ROTATE: 0,
-				DOLLY: 1,
-				PAN: 2,
-				TOUCH_ROTATE: 3,
-				TOUCH_PAN: 4,
-				TOUCH_DOLLY_PAN: 5,
-				TOUCH_DOLLY_ROTATE: 6
-			};
-
-			let state = STATE.NONE;
-
-			const EPS = 0.000001;
-
-			// current position in spherical coordinates
-			const spherical = new Spherical();
-			const sphericalDelta = new Spherical();
-
-			let scale = 1;
-			const panOffset = new Vector3();
-
-			const rotateStart = new Vector2();
-			const rotateEnd = new Vector2();
-			const rotateDelta = new Vector2();
-
-			const panStart = new Vector2();
-			const panEnd = new Vector2();
-			const panDelta = new Vector2();
-
-			const dollyStart = new Vector2();
-			const dollyEnd = new Vector2();
-			const dollyDelta = new Vector2();
-
-			const dollyDirection = new Vector3();
-			const mouse = new Vector2();
-			let performCursorZoom = false;
-
-			const pointers = [];
-			const pointerPositions = {};
-
-			let controlActive = false;
-
-			function getAutoRotationAngle( deltaTime ) {
-
-				if ( deltaTime !== null ) {
-
-					return ( 2 * Math.PI / 60 * scope.autoRotateSpeed ) * deltaTime;
-
-				} else {
-
-					return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
-
-				}
-
-			}
-
-			function getZoomScale( delta ) {
-
-				const normalizedDelta = Math.abs( delta * 0.01 );
-				return Math.pow( 0.95, scope.zoomSpeed * normalizedDelta );
-
-			}
-
-			function rotateLeft( angle ) {
-
-				sphericalDelta.theta -= angle;
-
-			}
-
-			function rotateUp( angle ) {
-
-				sphericalDelta.phi -= angle;
-
-			}
-
-			const panLeft = function () {
-
-				const v = new Vector3();
-
-				return function panLeft( distance, objectMatrix ) {
-
-					v.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
-					v.multiplyScalar( - distance );
-
-					panOffset.add( v );
-
-				};
-
-			}();
-
-			const panUp = function () {
-
-				const v = new Vector3();
-
-				return function panUp( distance, objectMatrix ) {
-
-					if ( scope.screenSpacePanning === true ) {
-
-						v.setFromMatrixColumn( objectMatrix, 1 );
-
-					} else {
-
-						v.setFromMatrixColumn( objectMatrix, 0 );
-						v.crossVectors( scope.object.up, v );
-
-					}
-
-					v.multiplyScalar( distance );
-
-					panOffset.add( v );
-
-				};
-
-			}();
-
-			// deltaX and deltaY are in pixels; right and down are positive
-			const pan = function () {
-
-				const offset = new Vector3();
-
-				return function pan( deltaX, deltaY ) {
-
-					const element = scope.domElement;
-
-					if ( scope.object.isPerspectiveCamera ) {
-
-						// perspective
-						const position = scope.object.position;
-						offset.copy( position ).sub( scope.target );
-						let targetDistance = offset.length();
-
-						// half of the fov is center to top of screen
-						targetDistance *= Math.tan( ( scope.object.fov / 2 ) * Math.PI / 180.0 );
-
-						// we use only clientHeight here so aspect ratio does not distort speed
-						panLeft( 2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix );
-						panUp( 2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix );
-
-					} else if ( scope.object.isOrthographicCamera ) {
-
-						// orthographic
-						panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
-						panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
-
-					} else {
-
-						// camera neither orthographic nor perspective
-						console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
-						scope.enablePan = false;
-
-					}
-
-				};
-
-			}();
-
-			function dollyOut( dollyScale ) {
-
-				if ( scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera ) {
-
-					scale /= dollyScale;
-
-				} else {
-
-					console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
-					scope.enableZoom = false;
-
-				}
-
-			}
-
-			function dollyIn( dollyScale ) {
-
-				if ( scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera ) {
-
-					scale *= dollyScale;
-
-				} else {
-
-					console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
-					scope.enableZoom = false;
-
-				}
-
-			}
-
-			function updateZoomParameters( x, y ) {
-
-				if ( ! scope.zoomToCursor ) {
-
-					return;
-
-				}
-
-				performCursorZoom = true;
-
-				const rect = scope.domElement.getBoundingClientRect();
-				const dx = x - rect.left;
-				const dy = y - rect.top;
-				const w = rect.width;
-				const h = rect.height;
-
-				mouse.x = ( dx / w ) * 2 - 1;
-				mouse.y = - ( dy / h ) * 2 + 1;
-
-				dollyDirection.set( mouse.x, mouse.y, 1 ).unproject( scope.object ).sub( scope.object.position ).normalize();
-
-			}
-
-			function clampDistance( dist ) {
-
-				return Math.max( scope.minDistance, Math.min( scope.maxDistance, dist ) );
-
-			}
-
-			//
-			// event callbacks - update the object state
-			//
-
-			function handleMouseDownRotate( event ) {
-
-				rotateStart.set( event.clientX, event.clientY );
-
-			}
-
-			function handleMouseDownDolly( event ) {
-
-				updateZoomParameters( event.clientX, event.clientX );
-				dollyStart.set( event.clientX, event.clientY );
-
-			}
-
-			function handleMouseDownPan( event ) {
-
-				panStart.set( event.clientX, event.clientY );
-
-			}
-
-			function handleMouseMoveRotate( event ) {
-
-				rotateEnd.set( event.clientX, event.clientY );
-
-				rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
-
-				const element = scope.domElement;
-
-				rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
-
-				rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
-
-				rotateStart.copy( rotateEnd );
-
-				scope.update();
-
-			}
-
-			function handleMouseMoveDolly( event ) {
-
-				dollyEnd.set( event.clientX, event.clientY );
-
-				dollyDelta.subVectors( dollyEnd, dollyStart );
-
-				if ( dollyDelta.y > 0 ) {
-
-					dollyOut( getZoomScale( dollyDelta.y ) );
-
-				} else if ( dollyDelta.y < 0 ) {
-
-					dollyIn( getZoomScale( dollyDelta.y ) );
-
-				}
-
-				dollyStart.copy( dollyEnd );
-
-				scope.update();
-
-			}
-
-			function handleMouseMovePan( event ) {
-
-				panEnd.set( event.clientX, event.clientY );
-
-				panDelta.subVectors( panEnd, panStart ).multiplyScalar( scope.panSpeed );
-
-				pan( panDelta.x, panDelta.y );
-
-				panStart.copy( panEnd );
-
-				scope.update();
-
-			}
-
-			function handleMouseWheel( event ) {
-
-				updateZoomParameters( event.clientX, event.clientY );
-
-				if ( event.deltaY < 0 ) {
-
-					dollyIn( getZoomScale( event.deltaY ) );
-
-				} else if ( event.deltaY > 0 ) {
-
-					dollyOut( getZoomScale( event.deltaY ) );
-
-				}
-
-				scope.update();
-
-			}
-
-			function handleKeyDown( event ) {
-
-				let needsUpdate = false;
-
-				switch ( event.code ) {
-
-					case scope.keys.UP:
-
-						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-							rotateUp( 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
-
-						} else {
-
-							pan( 0, scope.keyPanSpeed );
-
-						}
-
-						needsUpdate = true;
-						break;
-
-					case scope.keys.BOTTOM:
-
-						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-							rotateUp( - 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
-
-						} else {
-
-							pan( 0, - scope.keyPanSpeed );
-
-						}
-
-						needsUpdate = true;
-						break;
-
-					case scope.keys.LEFT:
-
-						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-							rotateLeft( 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
-
-						} else {
-
-							pan( scope.keyPanSpeed, 0 );
-
-						}
-
-						needsUpdate = true;
-						break;
-
-					case scope.keys.RIGHT:
-
-						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-							rotateLeft( - 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
-
-						} else {
-
-							pan( - scope.keyPanSpeed, 0 );
-
-						}
-
-						needsUpdate = true;
-						break;
-
-				}
-
-				if ( needsUpdate ) {
-
-					// prevent the browser from scrolling on cursor keys
-					event.preventDefault();
-
-					scope.update();
-
-				}
-
-
-			}
-
-			function handleTouchStartRotate( event ) {
-
-				if ( pointers.length === 1 ) {
-
-					rotateStart.set( event.pageX, event.pageY );
-
-				} else {
-
-					const position = getSecondPointerPosition( event );
-
-					const x = 0.5 * ( event.pageX + position.x );
-					const y = 0.5 * ( event.pageY + position.y );
-
-					rotateStart.set( x, y );
-
-				}
-
-			}
-
-			function handleTouchStartPan( event ) {
-
-				if ( pointers.length === 1 ) {
-
-					panStart.set( event.pageX, event.pageY );
-
-				} else {
-
-					const position = getSecondPointerPosition( event );
-
-					const x = 0.5 * ( event.pageX + position.x );
-					const y = 0.5 * ( event.pageY + position.y );
-
-					panStart.set( x, y );
-
-				}
-
-			}
-
-			function handleTouchStartDolly( event ) {
-
-				const position = getSecondPointerPosition( event );
-
-				const dx = event.pageX - position.x;
-				const dy = event.pageY - position.y;
-
-				const distance = Math.sqrt( dx * dx + dy * dy );
-
-				dollyStart.set( 0, distance );
-
-			}
-
-			function handleTouchStartDollyPan( event ) {
-
-				if ( scope.enableZoom ) handleTouchStartDolly( event );
-
-				if ( scope.enablePan ) handleTouchStartPan( event );
-
-			}
-
-			function handleTouchStartDollyRotate( event ) {
-
-				if ( scope.enableZoom ) handleTouchStartDolly( event );
-
-				if ( scope.enableRotate ) handleTouchStartRotate( event );
-
-			}
-
-			function handleTouchMoveRotate( event ) {
-
-				if ( pointers.length == 1 ) {
-
-					rotateEnd.set( event.pageX, event.pageY );
-
-				} else {
-
-					const position = getSecondPointerPosition( event );
-
-					const x = 0.5 * ( event.pageX + position.x );
-					const y = 0.5 * ( event.pageY + position.y );
-
-					rotateEnd.set( x, y );
-
-				}
-
-				rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
-
-				const element = scope.domElement;
-
-				rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
-
-				rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
-
-				rotateStart.copy( rotateEnd );
-
-			}
-
-			function handleTouchMovePan( event ) {
-
-				if ( pointers.length === 1 ) {
-
-					panEnd.set( event.pageX, event.pageY );
-
-				} else {
-
-					const position = getSecondPointerPosition( event );
-
-					const x = 0.5 * ( event.pageX + position.x );
-					const y = 0.5 * ( event.pageY + position.y );
-
-					panEnd.set( x, y );
-
-				}
-
-				panDelta.subVectors( panEnd, panStart ).multiplyScalar( scope.panSpeed );
-
-				pan( panDelta.x, panDelta.y );
-
-				panStart.copy( panEnd );
-
-			}
-
-			function handleTouchMoveDolly( event ) {
-
-				const position = getSecondPointerPosition( event );
-
-				const dx = event.pageX - position.x;
-				const dy = event.pageY - position.y;
-
-				const distance = Math.sqrt( dx * dx + dy * dy );
-
-				dollyEnd.set( 0, distance );
-
-				dollyDelta.set( 0, Math.pow( dollyEnd.y / dollyStart.y, scope.zoomSpeed ) );
-
-				dollyOut( dollyDelta.y );
-
-				dollyStart.copy( dollyEnd );
-
-				const centerX = ( event.pageX + position.x ) * 0.5;
-				const centerY = ( event.pageY + position.y ) * 0.5;
-
-				updateZoomParameters( centerX, centerY );
-
-			}
-
-			function handleTouchMoveDollyPan( event ) {
-
-				if ( scope.enableZoom ) handleTouchMoveDolly( event );
-
-				if ( scope.enablePan ) handleTouchMovePan( event );
-
-			}
-
-			function handleTouchMoveDollyRotate( event ) {
-
-				if ( scope.enableZoom ) handleTouchMoveDolly( event );
-
-				if ( scope.enableRotate ) handleTouchMoveRotate( event );
-
-			}
-
-			//
-			// event handlers - FSM: listen for events and reset state
-			//
-
-			function onPointerDown( event ) {
-
-				if ( scope.enabled === false ) return;
-
-				if ( pointers.length === 0 ) {
-
-					scope.domElement.setPointerCapture( event.pointerId );
-
-					scope.domElement.addEventListener( 'pointermove', onPointerMove );
-					scope.domElement.addEventListener( 'pointerup', onPointerUp );
-
-				}
-
-				//
-
-				addPointer( event );
-
-				if ( event.pointerType === 'touch' ) {
-
-					onTouchStart( event );
-
-				} else {
-
-					onMouseDown( event );
-
-				}
-
-			}
-
-			function onPointerMove( event ) {
-
-				if ( scope.enabled === false ) return;
-
-				if ( event.pointerType === 'touch' ) {
-
-					onTouchMove( event );
-
-				} else {
-
-					onMouseMove( event );
-
-				}
-
-			}
-
-			function onPointerUp( event ) {
-
-				removePointer( event );
-
-				if ( pointers.length === 0 ) {
-
-					scope.domElement.releasePointerCapture( event.pointerId );
-
-					scope.domElement.removeEventListener( 'pointermove', onPointerMove );
-					scope.domElement.removeEventListener( 'pointerup', onPointerUp );
-
-				}
-
-				scope.dispatchEvent( _endEvent$1 );
-
-				state = STATE.NONE;
-
-			}
-
-			function onMouseDown( event ) {
-
-				let mouseAction;
-
-				switch ( event.button ) {
-
-					case 0:
-
-						mouseAction = scope.mouseButtons.LEFT;
-						break;
-
-					case 1:
-
-						mouseAction = scope.mouseButtons.MIDDLE;
-						break;
-
-					case 2:
-
-						mouseAction = scope.mouseButtons.RIGHT;
-						break;
-
-					default:
-
-						mouseAction = - 1;
-
-				}
-
-				switch ( mouseAction ) {
-
-					case MOUSE.DOLLY:
-
-						if ( scope.enableZoom === false ) return;
-
-						handleMouseDownDolly( event );
-
-						state = STATE.DOLLY;
-
-						break;
-
-					case MOUSE.ROTATE:
-
-						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-							if ( scope.enablePan === false ) return;
-
-							handleMouseDownPan( event );
-
-							state = STATE.PAN;
-
-						} else {
-
-							if ( scope.enableRotate === false ) return;
-
-							handleMouseDownRotate( event );
-
-							state = STATE.ROTATE;
-
-						}
-
-						break;
-
-					case MOUSE.PAN:
-
-						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-							if ( scope.enableRotate === false ) return;
-
-							handleMouseDownRotate( event );
-
-							state = STATE.ROTATE;
-
-						} else {
-
-							if ( scope.enablePan === false ) return;
-
-							handleMouseDownPan( event );
-
-							state = STATE.PAN;
-
-						}
-
-						break;
-
-					default:
-
-						state = STATE.NONE;
-
-				}
-
-				if ( state !== STATE.NONE ) {
-
-					scope.dispatchEvent( _startEvent$1 );
-
-				}
-
-			}
-
-			function onMouseMove( event ) {
-
-				switch ( state ) {
-
-					case STATE.ROTATE:
-
-						if ( scope.enableRotate === false ) return;
-
-						handleMouseMoveRotate( event );
-
-						break;
-
-					case STATE.DOLLY:
-
-						if ( scope.enableZoom === false ) return;
-
-						handleMouseMoveDolly( event );
-
-						break;
-
-					case STATE.PAN:
-
-						if ( scope.enablePan === false ) return;
-
-						handleMouseMovePan( event );
-
-						break;
-
-				}
-
-			}
-
-			function onMouseWheel( event ) {
-
-				if ( scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE ) return;
-
-				event.preventDefault();
-
-				scope.dispatchEvent( _startEvent$1 );
-
-				handleMouseWheel( customWheelEvent( event ) );
-
-				scope.dispatchEvent( _endEvent$1 );
-
-			}
-
-			function customWheelEvent( event ) {
-
-				const mode = event.deltaMode;
-
-				// minimal wheel event altered to meet delta-zoom demand
-				const newEvent = {
-					clientX: event.clientX,
-					clientY: event.clientY,
-					deltaY: event.deltaY,
-				};
-
-				switch ( mode ) {
-
-					case 1: // LINE_MODE
-						newEvent.deltaY *= 16;
-						break;
-
-					case 2: // PAGE_MODE
-						newEvent.deltaY *= 100;
-						break;
-
-				}
-
-				// detect if event was triggered by pinching
-				if ( event.ctrlKey && !controlActive ) {
-
-					newEvent.deltaY *= 10;
-
-				}
-
-				return newEvent;
-
-			}
-
-			function interceptControlDown( event ) {
-
-				if ( event.key === "Control" ) {
-
-					controlActive = true;
-					
-					document.addEventListener('keyup', interceptControlUp, { passive: true, capture: true });
-
-				}
-
-			}
-
-			function interceptControlUp( event ) {
-
-				if ( event.key === "Control" ) {
-
-					controlActive = false;
-					
-					document.removeEventListener('keyup', interceptControlUp, { passive: true, capture: true });
-
-				}
-
-			}
-
-			function onKeyDown( event ) {
-
-				if ( scope.enabled === false || scope.enablePan === false ) return;
-
-				handleKeyDown( event );
-
-			}
-
-			function onTouchStart( event ) {
-
-				trackPointer( event );
-
-				switch ( pointers.length ) {
-
-					case 1:
-
-						switch ( scope.touches.ONE ) {
-
-							case TOUCH.ROTATE:
-
-								if ( scope.enableRotate === false ) return;
-
-								handleTouchStartRotate( event );
-
-								state = STATE.TOUCH_ROTATE;
-
-								break;
-
-							case TOUCH.PAN:
-
-								if ( scope.enablePan === false ) return;
-
-								handleTouchStartPan( event );
-
-								state = STATE.TOUCH_PAN;
-
-								break;
-
-							default:
-
-								state = STATE.NONE;
-
-						}
-
-						break;
-
-					case 2:
-
-						switch ( scope.touches.TWO ) {
-
-							case TOUCH.DOLLY_PAN:
-
-								if ( scope.enableZoom === false && scope.enablePan === false ) return;
-
-								handleTouchStartDollyPan( event );
-
-								state = STATE.TOUCH_DOLLY_PAN;
-
-								break;
-
-							case TOUCH.DOLLY_ROTATE:
-
-								if ( scope.enableZoom === false && scope.enableRotate === false ) return;
-
-								handleTouchStartDollyRotate( event );
-
-								state = STATE.TOUCH_DOLLY_ROTATE;
-
-								break;
-
-							default:
-
-								state = STATE.NONE;
-
-						}
-
-						break;
-
-					default:
-
-						state = STATE.NONE;
-
-				}
-
-				if ( state !== STATE.NONE ) {
-
-					scope.dispatchEvent( _startEvent$1 );
-
-				}
-
-			}
-
-			function onTouchMove( event ) {
-
-				trackPointer( event );
-
-				switch ( state ) {
-
-					case STATE.TOUCH_ROTATE:
-
-						if ( scope.enableRotate === false ) return;
-
-						handleTouchMoveRotate( event );
-
-						scope.update();
-
-						break;
-
-					case STATE.TOUCH_PAN:
-
-						if ( scope.enablePan === false ) return;
-
-						handleTouchMovePan( event );
-
-						scope.update();
-
-						break;
-
-					case STATE.TOUCH_DOLLY_PAN:
-
-						if ( scope.enableZoom === false && scope.enablePan === false ) return;
-
-						handleTouchMoveDollyPan( event );
-
-						scope.update();
-
-						break;
-
-					case STATE.TOUCH_DOLLY_ROTATE:
-
-						if ( scope.enableZoom === false && scope.enableRotate === false ) return;
-
-						handleTouchMoveDollyRotate( event );
-
-						scope.update();
-
-						break;
-
-					default:
-
-						state = STATE.NONE;
-
-				}
-
-			}
-
-			function onContextMenu( event ) {
-
-				if ( scope.enabled === false ) return;
-
-				event.preventDefault();
-
-			}
-
-			function addPointer( event ) {
-
-				pointers.push( event.pointerId );
-
-			}
-
-			function removePointer( event ) {
-
-				delete pointerPositions[ event.pointerId ];
-
-				for ( let i = 0; i < pointers.length; i ++ ) {
-
-					if ( pointers[ i ] == event.pointerId ) {
-
-						pointers.splice( i, 1 );
-						return;
-
-					}
-
-				}
-
-			}
-
-			function trackPointer( event ) {
-
-				let position = pointerPositions[ event.pointerId ];
-
-				if ( position === undefined ) {
-
-					position = new Vector2();
-					pointerPositions[ event.pointerId ] = position;
-
-				}
-
-				position.set( event.pageX, event.pageY );
-
-			}
-
-			function getSecondPointerPosition( event ) {
-
-				const pointerId = ( event.pointerId === pointers[ 0 ] ) ? pointers[ 1 ] : pointers[ 0 ];
-
-				return pointerPositions[ pointerId ];
-
-			}
-
-			//
-
-			scope.domElement.addEventListener( 'contextmenu', onContextMenu );
-
-			scope.domElement.addEventListener( 'pointerdown', onPointerDown );
-			scope.domElement.addEventListener( 'pointercancel', onPointerUp );
-			scope.domElement.addEventListener( 'wheel', onMouseWheel, { passive: false } );
-
-			document.addEventListener( 'keydown', interceptControlDown, { passive: true, capture: true } );
-
-			// force an update at start
-
-			this.update();
-
-		}
-
-	};
-
-	/**
-	 * A map provider is a object that handles the access to map tiles of a specific service.
-	 *
-	 * They contain the access configuration and are responsible for handling the map theme size etc.
-	 *
-	 * MapProvider should be used as a base for all the providers.
-	 */
-	class MapProvider 
-	{
-		/**
-		 * Name of the map provider
-		 */
-		name = '';
-
-		/**
-		 * Minimum tile level.
-		 */
-		minZoom = 0;
-
-		/**
-		 * Maximum tile level.
-		 */
-		maxZoom = 25;
-
-		/**
-		 * Map tile size.
-		 */
-		tileSize = 256;
-
-		/**
-		 * Map bounds.
-		 */
-		bounds = [];
-
-		/**
-		 * Map center point.
-		 */
-		center = [];
-
-		/**
-		 * Get a tile for the x, y, zoom based on the provider configuration.
-		 *
-		 * The tile should be returned as a image object, compatible with canvas context 2D drawImage() and with webgl texImage2D() method.
-		 *
-		 * @param zoom - Zoom level.
-		 * @param x - Tile x.
-		 * @param y - Tile y.
-		 * @returns Promise with the image obtained for the tile ready to use.
-		 */
-		fetchTile(zoom, x, y)
-		{
-			return null;
-		}
-
-		/**
-		 * Get map meta data from server if supported.
-		 *
-		 * Usually map server have API method to retrieve TileJSON metadata.
-		 */
-		async getMetaData() {}
-	}
-
-	/**
-	 * Open street maps tile server.
-	 *
-	 * Works with any service that uses a address/zoom/x/y.format URL for tile access.
-	 */
-	class OpenStreetMapsProvider extends MapProvider 
-	{
-		/**
-		* Map server address.
-		*
-		* By default the open OSM tile server is used.
-		*/
-		address;
-
-		/**
-		* Map image tile format.
-		*/
-		format;
-
-		constructor(address = 'https://a.tile.openstreetmap.org/')
-		{
-			super();
-
-			this.address = address;
-			this.format = 'png';
-			this.maxZoom = 19;
-		}
-
-		fetchTile(zoom, x, y)
-		{
-			return new Promise<HTMLImageElement>((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = this.address + zoom + '/' + x + '/' + y + '.' + this.format;
-			});
-		}
-	}
-
-	/**
-	 * Contains utils to handle canvas element manipulation and common canvas operations.
-	 */
-	class CanvasUtils 
-	{
-		/**
-	     * Create a offscreen canvas, used to draw content that will not be displayed using DOM.
-	     * 
-	     * If OffscreenCanvas object is no available creates a regular DOM canvas object instead.
-	     * 
-	     * @param width - Width of the canvas in pixels.
-	     * @param height - Height of the canvas in pixels.
-	     */
-		static createOffscreenCanvas(width, height) 
-		{
-			if (typeof OffscreenCanvas !== 'undefined') 
-			{
-				return new OffscreenCanvas(width, height);
-			}
-			else 
-			{
-				let canvas = document.createElement('canvas');
-				canvas.width = width;
-				canvas.height = height;
-				return canvas;
-			}
-		}
-
-		static createImageData(image,imgWidth,imgHeight, targetWidth, targetHeight){
-			const canvas = CanvasUtils.createOffscreenCanvas(targetWidth, targetHeight); 
-
-			const context = canvas.getContext('2d');
-			context.imageSmoothingEnabled = false;
-			context.drawImage(image, 0, 0, imgWidth, imgHeight, 0, 0, canvas.width, canvas.height);
-
-			const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-			// var img = new Image();
-			// img.src = canvas.toDataURL();
-			// 这里返回OffscreenCanvas是因为threejs的Texture可以接受image和offscreenCanvas
-			return imageData;
-		}
-	}
-
-	/**
-	 * Utils for texture creation and manipulation.
-	 */
-	class TextureUtils 
-	{
-		/**
-	      * Create a new texture filled with a CSS style.
-	      * 
-	      * Can be color, gradient or pattern. Supports all options supported in the fillStyle of the canvas API.
-	      * 
-	      * @param color - Style to apply to the texture surface.
-	      * @param width - Width of the canvas in pixels.
-	      * @param height - Height of the canvas in pixels.
-	      */
-		static createFillTexture(color = '#FFFFFF', width = 1, height = 1)
-		{
-			const canvas = CanvasUtils.createOffscreenCanvas(width, height);
-
-			const context = canvas.getContext('2d');
-			context.fillStyle = color;
-			context.fillRect(0, 0, width, height);
-
-			const texture = new Texture(canvas);
-			texture.format = RGBAFormat;
-			texture.magFilter = LinearFilter;
-			texture.minFilter = LinearFilter;
-			texture.generateMipmaps = false;
-			texture.needsUpdate = true;
-	        
-			return texture;
-		}
-	}
-
-	/**
-	 * Geolocation is used to represent a position in earth using WGS84 Datum units.
-	 */
-	class Geolocation 
-	{
-		/**
-	     * Latitude in degrees. Range from -90° to 90°.
-		 * 维度
-	     */
-		latitude;
-
-		/**
-	     * longitude in degrees. Range from -180° to 180°.
-		 * 经度
-	     */
-		longitude;
-
-		constructor(latitude, longitude) 
-		{
-			this.latitude = latitude;
-			this.longitude = longitude;
-		}
-	}
-
-	/**
-	 * Units utils contains methods to convert data between representations.
-	 *
-	 * Multiple methods are used to reprent world coordinates based on the type of data being presented.
-	 * 
-	 * WGS84 is the most commonly used representation with (latitude, longitude, altitude).
-	 * 
-	 * EPSG:900913 is used for planar coordinates in (X, Y, Z)
-	 */
-	class UnitsUtils 
-	{
-		/**
-		 * Average radius of earth in meters. // 赤道平均半径
-		 */
-		static EARTH_RADIUS = 6371008;
-
-		/**
-		 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
-		 */
-		static EARTH_RADIUS_A = 6378137.0;
-
-		/**
-		 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
-		 */
-		static EARTH_RADIUS_B = 6356752.314245;
-
-		/**
-		 * Earth equator perimeter in meters.
-		 */
-		static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
-
-		/**
-		 * Earth equator perimeter in meters.
-		 */
-		static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
-
-			/**
-		 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
-		 */
-		static MERCATOR_MAX_EXTENT = 20037508.342789244;
-
-		static tileWidth(level){
-			return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
-		}
-
-		/**
-		 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
-		 *	经纬度转为世界坐标（x,y） 
-		 * @param latitude - Latitude value in degrees. 纬度
-		 * @param longitude - Longitude value in degrees. 经度
-		 */
-		static datumsToSpherical(latitude, longitude)
-		{
-			const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
-			let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
-
-			y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
-
-			return new Vector2(x, y);
-		}
-
-		/**
-		 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-		 * 计算世界坐标(x,y)到经纬度(lat,lon)
-		 * @param x - X coordinate.
-		 * @param y - Y coordinate.
-		 */
-		static sphericalToDatums(x, y)
-		{
-			const longitude = x / UnitsUtils.EARTH_ORIGIN * 180.0;
-			let latitude = y / UnitsUtils.EARTH_ORIGIN * 180.0;
-
-			latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
-
-			return new Geolocation(latitude, longitude);
-		}
-
-		/**
-		 * Converts quad tree zoom/x/y to lat/lon in WGS84 Datum.
-		 * 
-		 * The X and Y start from 0 from the top/left corner of the quadtree up to (4^zoom - 1)
-		 *
-		 * @param zoom - Zoom level of the quad tree.
-		 * @param x - X coordinate.
-		 * @param y - Y coordinate.
-		 */
-		static quadtreeToDatums(zoom, x, y)
-		{
-			const n = Math.pow(2.0, zoom);
-			const longitude = x / n * 360.0 - 180.0;
-			const latitudeRad = Math.atan(Math.sinh(Math.PI * (1.0 - 2.0 * y / n)));
-			const latitude = 180.0 * (latitudeRad / Math.PI);
-
-			return new Geolocation(latitude, longitude);
-		}
-
-		/**
-		 * Direction vector to WGS84 coordinates.
-		 * 
-		 * Can be used to transform surface points of world sphere to coordinates.
-		 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
-		 * @param dir - Direction vector.
-		 * @returns WGS84 coordinates.
-		 */
-		static vectorToDatums(dir) 
-		{
-			const radToDeg = 180 / Math.PI;
-
-			const latitude = Math.atan2(dir.y, Math.sqrt(Math.pow(dir.x, 2) + Math.pow(-dir.z, 2))) * radToDeg;
-			const longitude = Math.atan2(-dir.z, dir.x) * radToDeg;
-
-			return new Geolocation(latitude, longitude);
-		}
-
-		
-		/**
-		 * Get a direction vector from WGS84 coordinates.
-		 * 
-		 * The vector obtained will be normalized.
-		 * 经纬度到空间内（x,y,z）的转换。
-		 * @param latitude - Latitude value in degrees.
-		 * @param longitude - Longitude value in degrees.
-		 * @returns Direction vector normalized.
-		 */
-		static datumsToVector(latitude, longitude) 
-		{
-			const degToRad = Math.PI / 180;
-			
-			const rotX = longitude * degToRad;
-			const rotY = latitude * degToRad;
-
-			var cos = Math.cos(rotY);
-			
-			return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
-		}
-
-		/**
-		 * Get altitude from RGB color for mapbox altitude encoding
-		 * 
-		 * https://docs.mapbox.com/data/tilesets/guides/access-elevation-data/~
-		 * 
-		 * @param color - Color of the pixel
-		 * @returns The altitude encoded in meters.
-		 */
-		static mapboxAltitude(color) 
-		{
-			return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
-		}
-		
-		/**
-		 * WGS84经纬度转平面xy坐标
-		 * @param {*} lat 维度
-		 * @param {*} lon 经度
-		 * @returns {Vector2}
-		 */
-		static latLonToXy(lat, lon){
-			let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
-			let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
-			return new Vector2(x, y);
-		}
-
-		/**
-		 * 平面xy坐标转WGS84经纬度
-		 * @param {*} x 
-		 * @param {*} y 
-		 * @returns {Geolocation}
-		 */
-		static xyToLatLon(x, y){
-		    let lat = y/UnitsUtils.EARTH_RADIUS_A *180 /Math.PI;
-			let lon = x/(UnitsUtils.EARTH_RADIUS_A * Math.cos(lat/180 *Math.PI))*180 /Math.PI;
-			return new Geolocation(lat, lon);
-		}
-
-		/**
-		 * @param {*} lat 维度 
-		 * @param {*} lng 经度
-		 * @returns {Vector2}
-		 */
-		static mecatorLL2XY(lat, lng){
-			let earthRad = UnitsUtils.EARTH_RADIUS_A;
-			let x = ((lng * Math.PI) / 180) * earthRad;
-			let a = (lat * Math.PI) / 180;
-			let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
-			return new Vector2(x, y)
-		}
-
-
-		/**
-		 * Get the size of a web mercator tile in mercator coordinates
-		 * 计算每个tile的大小，单位是米
-		 * 	 
-		 * @param zoom - the zoom level of the tile
-		 * @returns the size of the tile in mercator coordinates
-		 */
-		static getTileSize(zoom){
-			const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
-			const numTiles = Math.pow(2, zoom);
-			return 2 * maxExtent / numTiles;	
-		}
-
-		/**
-		 * Get the bounds of a web mercator tile in mercator coordinates
-		 * 	 x,y的起止， 和tilsize的大小。
-		 * @param zoom - the zoom level of the tile
-		 * @param x - the x coordinate of the tile
-		 * @param y - the y coordinate of the tile
-		 * @returns list of bounds - [startX, sizeX, startY, sizeY]
-		 */
-		static tileBounds(zoom, x, y){
-			const tileSize = UnitsUtils.getTileSize(zoom);
-			const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
-			const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
-			return [minX, tileSize, minY, tileSize];
-		}
-
-		/**
-		 * Get the latitude value of a given mercator coordinate and zoom level
-		 * 
-		 * @param zoom - the zoom level of the coordinate
-		 * @param y - the y mercator coordinate
-		 * @returns - latitude of coordinate in radians
-		 */
-		static mercatorToLatitude(zoom, y) {
-			const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
-			return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS));
-		}
-
-		/**
-		 * Get the latitude value of a given mercator coordinate and zoom level
-		 * 
-		 * @param zoom - the zoom level of the coordinate
-		 * @param x - the x mercator coordinate
-		 * @returns - longitude of coordinate in radians
-		 */
-		static mercatorToLongitude(zoom, x) {
-			const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
-			return xMerc / UnitsUtils.EARTH_RADIUS;
-		}
-	}
-
-	/**
-	 * Constants to store quad-tree positions.
-	 */
-	class QuadTreePosition 
-	{
-		/**
-		 * Root node has no location.
-		 */
-		static root = -1;
-
-		/**
-		 * Index of top left quad-tree branch node.
-		 *
-		 * Can be used to navigate the children array looking for neighbors.
-		 */
-		static topLeft = 0;
-
-		/**
-		 * Index of top left quad-tree branch node.
-		 *
-		 * Can be used to navigate the children array looking for neighbors.
-		 */
-		static topRight = 1;
-
-		/**
-		 * Index of top left quad-tree branch node.
-		 *
-		 * Can be used to navigate the children array looking for neighbors.
-		 */
-		static bottomLeft = 2;
-
-		/**
-		 * Index of top left quad-tree branch node.
-		 *
-		 * Can be used to navigate the children array looking for neighbors.
-		 */
-		static bottomRight = 3;
-	}
-
-	/**
-	 * Represents a map tile node inside of the tiles quad-tree
-	 *
-	 * Each map node can be subdivided into other nodes.
-	 *
-	 * It is intended to be used as a base class for other map node implementations.
-	 */
-	class MapNode extends Mesh 
-	{
-		/**
-		 * Default texture used when texture fails to load.
-		 */
-		static defaultTexture = TextureUtils.createFillTexture();
-
-		/**
-		 * The map view object where the node is placed.
-		 */
-		mapView = null;
-
-		/**
-		 * Parent node (from an upper tile level).
-		 */
-		parentNode = null;
-
-		/**
-		 * Index of the map node in the quad-tree parent node.
-		 *
-		 * Position in the tree parent, can be topLeft, topRight, bottomLeft or bottomRight.
-		 */
-		location;
-
-		/**
-		 * Tile level of this node.
-		 */
-		level;
-
-		/**
-		 * Tile x position.
-		 */
-		x;
-
-		/**
-		 * Tile y position.
-		 */
-		y;
-
-
-
-		/**
-		 * Variable to check if the node is subdivided.
-		 *
-		 * To avoid bad visibility changes on node load.
-		 */
-		subdivided = false;
-
-		/**
-		 * Flag to indicate if the map node was disposed.
-		 * 
-		 * When a map node is disposed its resources are dealocated to save memory.
-		 */
-		disposed = false;
-
-		/**
-		 * Indicates how many children nodes are loaded.
-		 * 
-		 * The child on become visible once all of them are loaded.
-		 */
-		nodesLoaded = 0;
-
-		/**
-		 * Cache with the children objects created from subdivision.
-		 *
-		 * Used to avoid recreate object after simplification and subdivision.
-		 *
-		 * The default value is null. Only used if "cacheTiles" is set to true.
-		 */
-		childrenCache = null;
-
-		/**
-		 * Base geometry is attached to the map viewer object.
-		 *
-		 * It should have the full size of the world so that operations over the MapView bounding box/sphere work correctly.
-		 */
-		static baseGeometry = null;
-
-		/**
-		 * Base scale applied to the map viewer object.
-		 */
-		static baseScale = null;
-	 
-		/**
-		 * How many children each branch of the tree has.
-		 *
-		 * For a quad-tree this value is 4.
-		 */
-		static childrens = 4;
-
-		/**
-		 * Flag to check if the node is a mesh by the renderer.
-		 *
-		 * Used to toggle the visibility of the node. The renderer skips the node rendering if this is set false.
-		 */
-		// @ts-ignore
-		isMesh = true;
-
-
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
-		{
-			super(geometry, material);
-
-			this.mapView = mapView;
-			this.parentNode = parentNode;
-			this.disposed = false;
-
-			this.location = location;
-			this.level = level;
-			this.x = x;
-			this.y = y;
-			// this.transparent = mapView.transparent;
-			// this.opacity = mapView.opacity;
-
-			this.initialize();
-		}
-
-		/**
-		 * Initialize resources that require access to data from the MapView.
-		 *
-		 * Called automatically by the constructor for child nodes and MapView when a root node is attached to it.
-		 */
-		async initialize() {}
-		
-		/**
-		 * Create the child nodes to represent the next tree level.
-		 *
-		 * These nodes should be added to the object, and their transformations matrix should be updated.
-		 */
-		createChildNodes() {}
-
-		/**
-		 * Subdivide node,check the maximum depth allowed for the tile provider.
-		 *
-		 * Uses the createChildNodes() method to actually create the child nodes that represent the next tree level.
-		 */
-		subdivide()
-		{
-			const maxZoom = this.mapView.maxZoom();
-			// 先计算与，后计算或
-			// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂
-			if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
-			{
-				return;
-			}
-
-			if (this.mapView.cacheTiles && this.childrenCache !== null) 
-			{
-				// @ts-ignore
-				this.isMesh = false;
-				this.children = this.childrenCache;
-				this.nodesLoaded = this.childrenCache.length;
-			}
-			else 
-			{
-				this.createChildNodes();
-			}
-
-			this.subdivided = true;
-		}
-
-		/**
-		 * Simplify node, remove all children from node, store them in cache.
-		 *
-		 * Reset the subdivided flag and restore the visibility.
-		 * 分裂孩子的逆向调用
-		 * This base method assumes that the node implementation is based off Mesh and that the isMesh property is used to toggle visibility.
-		 */
-		simplify()
-		{
-			const minZoom = this.mapView.minZoom();
-			if (this.level - 1 < minZoom)
-			{
-				return;
-			}
-
-			if (this.mapView.cacheTiles) 
-			{
-				// Store current children in cache.
-				this.childrenCache = this.children;
-			}
-			else
-			{
-				// Dispose resources in use
-				for (let i = 0; i < this.children.length; i++) 
-				{
-					(this.children[i]).dispose();
-				}
-			}
-			
-			// Clear children and reset flags
-			this.subdivided = false;
-			this.isMesh = true;
-			this.children = [];
-			this.nodesLoaded = 0;
-		}
-
-		/**
-		 * Load tile texture from the server.
-		 * 加载材质
-		 * This base method assumes the existence of a material attribute with a map texture.
-		 */
-		async loadData()
-		{
-			if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
-			{
-				console.warn('Geo-Three: Loading tile outside of provider range.', this);
-
-				// @ts-ignore
-				this.material.map = MapNode.defaultTexture;
-				// @ts-ignore
-				this.material.needsUpdate = true;
-				// this.material.transparent = true;
-				// this.material.alphaTest = 0.01;
-				// this.material.opacity = 0;
-				return;
-			}
-
-			try 
-			{
-				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y, this.bbox);
-				
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				const texture = new Texture(image);
-				texture.generateMipmaps = false;
-				texture.format = RGBAFormat;
-				texture.magFilter = LinearFilter;
-				texture.minFilter = LinearFilter;
-				texture.needsUpdate = true;
-				// texture.wrapS = RepeatWrapping;
-	            // texture.wrapT = RepeatWrapping;
-				
-				// @ts-ignore
-				this.material.map = texture;
-				
-				// this.material.transparent = true;
-				this.material.alphaTest = 0.01;
-				// this.material.opacity = this.opacity;
-			}
-			catch (e) 
-			{
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				console.warn('Geo-Three: Failed to load node tile data.', this);
-
-				// @ts-ignore
-				this.material.map = MapNode.defaultTexture;
-				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-				this.material.transparent = true;
-				// this.material.alphaTest = 0.01;
-				this.material.opacity = 0;
-			}
-
-			// @ts-ignore
-			this.material.needsUpdate = true;
-		}
-
-
-
-		/**
-		 * Increment the child loaded counter.
-		 * 当所有子节点加载完毕后，调用此方法
-		 * 每个节点都有四个子节点
-		 * Should be called after a map node is ready for display.
-		 */
-		nodeReady()
-		{
-			if (this.disposed) 
-			{
-				console.warn('Geo-Three: nodeReady() called for disposed node.', this);
-				this.dispose();
-				return;
-			}
-
-			if (this.parentNode !== null) 
-			{
-				this.parentNode.nodesLoaded++;
-
-				if (this.parentNode.nodesLoaded === MapNode.childrens) 
-				{
-					if (this.parentNode.subdivided === true) 
-					{
-						// @ts-ignore
-						this.parentNode.isMesh = false;
-					}
-					
-					for (let i = 0; i < this.parentNode.children.length; i++) 
-					{
-						this.parentNode.children[i].visible = true;
-					}
-				}
-
-				if (this.parentNode.nodesLoaded > MapNode.childrens) 
-				{
-					console.error('Geo-Three: Loaded more children objects than expected.', this.parentNode.nodesLoaded, this);
-				}
-			}
-			// If its the root object just set visible
-			else
-			{
-				this.visible = true;
-			}
-		}
-
-		/**
-		 * Dispose the map node and its resources.
-		 * 
-		 * Should cancel all pending processing for the node.
-		 */
-		dispose() 
-		{
-			this.disposed = true;
-
-			const self = this;
-
-			try 
-			{
-				const material = self.material;
-				material.dispose();
-
-				// @ts-ignore
-				if (material.map && material.map !== MapNode.defaultTexture)
-				{
-					// @ts-ignore
-					material.map.dispose();
-				}
-			}
-			catch (e) {}
-			
-			try 
-			{
-				self.geometry.dispose();
-			}
-			catch (e) {}	
-		}
-	}
-
-	/**
-	 * Map node geometry is a geometry used to represent the map nodes.
-	 *
-	 * Consists of a XZ plane with normals facing +Y.
-	 * 
-	 * The geometry points start in XZ plane that can be manipulated for example for height adjustment.
-	 * 
-	 * Geometry can also include skirts to mask off missalignments between tiles.
-	 */
-	class MapNodeGeometry extends BufferGeometry
-	{
-		/**
-		 * Map node geometry constructor.
-		 *
-		 * @param width - Width of the node.
-		 * @param height - Height of the node.
-		 * @param widthSegments - Number of subdivisions along the width.
-		 * @param heightSegments - Number of subdivisions along the height.
-		 * @param skirt - Skirt around the plane to mask gaps between tiles. 非高程几何体，不带skirt
-		 */
-		constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0)
-		{
-			super();
-
-			// Buffers
-			const indices = []; // [0,2,1,2,3,1] 四边形分两个三角形进行绘制，顶点索引数组
-			const vertices = []; // 顶点数组，每个顶点的三维坐标
-			const normals = []; // 顶点法线数组，每个顶点的法线向量
-			const uvs = []; // 顶点纹理坐标数组，每个顶点的纹理坐标  [0,1,1,1,0,0,1,0]
-
-
-			// Build plane
-			MapNodeGeometry.buildPlane(width, height, widthSegments, heightSegments, indices, vertices, normals, uvs);
-
-			// Generate the skirt
-			if (skirt)
-			{
-				MapNodeGeometry.buildSkirt(width, height, widthSegments, heightSegments, skirtDepth, indices, vertices, normals, uvs);
-			}
-
-			this.setIndex(indices);
-			this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
-			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
-			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
-		}
-
-		static buildPlane(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, indices=[], vertices=[], normals=[], uvs=[])
-		{
-			// Half width X  这里基本只能设置为1，和父节点的相对坐标有关系
-			// 以父节点横向和纵向中间点为坐标原点，（xy坐标），所以作为子节点，在拼接
-			// 的时候，xy坐标就限制在了-0.5到0.5之间，所以这里只能设置为1
-			const widthHalf = width / 2; 
-
-			// Half width Z
-			const heightHalf = height / 2;
-
-			// Size of the grid in X
-			const gridX = widthSegments + 1;
-
-			// Size of the grid in Z
-			const gridZ = heightSegments + 1;
-
-			// Width of each segment X
-			const segmentWidth = width / widthSegments;
-			
-			// Height of each segment Z
-			const segmentHeight = height / heightSegments;
-
-			// Generate vertices, normals and uvs
-			for (let iz = 0; iz < gridZ; iz++) 
-			{
-				const z = iz * segmentHeight - heightHalf;
-
-				for (let ix = 0; ix < gridX; ix++) 
-				{
-					const x = ix * segmentWidth - widthHalf;
-
-					vertices.push(x, 0, z);
-					normals.push(0, 1, 0);
-					uvs.push(ix / widthSegments, 1 - iz / heightSegments);
-				}
-			}
-
-			// Indices
-			for (let iz = 0; iz < heightSegments; iz++) 
-			{
-				for (let ix = 0; ix < widthSegments; ix++) 
-				{
-					const a = ix + gridX * iz;
-					const b = ix + gridX * (iz + 1);
-					const c = ix + 1 + gridX * (iz + 1);
-					const d = ix + 1 + gridX * iz;
-
-					// Faces
-					indices.push(a, b, d, b, c, d);
-				}
-			}
-		}
-		// skirts to mask off missalignments between tiles.
-		// 构建裙边以掩盖错位。 和let geom = new THREE.PlaneBufferGeometry(1, 1, 256, 256); 此处很像，当构建裙边以后就是256个段，否则就是255个段
-		// 该方法分别是向下构建一个裙边，不是上面一行代码，是横向平面构建裙边。
-		/**
-		 * 
-		 * @param {*} width 宽度单位，默认1
-		 * @param {*} height 宽度单位，默认1
-		 * @param {*} widthSegments 宽度段数，默认1
-		 * @param {*} heightSegments 高度段数，默认1
-		 * @param {*} skirtDepth 裙边深度
-		 * @param {*} indices 索引数组
-		 * @param {*} vertices 顶点数组
-		 * @param {*} normals 法线数组
-		 * @param {*} uvs 贴图坐标数组
-		 */
-		static buildSkirt(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirtDepth=10, indices=[], vertices=[], normals=[], uvs=[])
-		{
-			// Half width X，  0.5
-			const widthHalf = width / 2;
-
-			// Half width Z， 0.5
-			const heightHalf = height / 2;
-
-			// Size of the grid in X， 17
-			const gridX = widthSegments + 1;
-
-			// Size of the grid in Z, 17
-			const gridZ = heightSegments + 1;
-
-			// Width of each segment X， 1/16 = 0.0625
-			const segmentWidth = width / widthSegments;
-			
-			// Height of each segment Z, 1/16 = 0.0625
-			const segmentHeight = height / heightSegments;
-
-			let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
-
-			// Down X 负向x轴
-			for (let ix = 0; ix < gridX; ix++) 
-			{
-				const x = ix * segmentWidth - widthHalf;
-				const z = -heightHalf;
-				//vertices add values(x,z): [-0.5, -0.5], [-0.4375, -0.5], [-0.375, -0.5], [-0.3125, -0.5],[-0.25, -0.5]
-				vertices.push(x, -skirtDepth, z);
-				normals.push(0, 1, 0);
-				uvs.push(ix / widthSegments, 1);
-				// uvs: [0, 1], [0.0625, 1], [0.125, 1], [0.1875, 1], [0.25, 1]
-			}
-
-			// Indices
-			for (let ix = 0; ix < widthSegments; ix++) 
-			{
-				const a = ix;
-				const d = ix + 1;
-				const b = ix + start;
-				const c = ix + start + 1;
-				indices.push(d, b, a, d, c, b);
-				// indices: [1, 289, 0, 1, 290, 289], [2, 290, 1, 2, 291, 290], [3, 291, 2, 3, 292, 291], [4, 292, 3, 4, 293, 292], [5, 293, 4, 5, 294, 293]
-			}
-			// 经过操作， start已经增加了gridx（17）个点 为306
-			start = vertices.length / 3;
-
-			// Up X 正向x轴
-			for (let ix = 0; ix < gridX; ix++) 
-			{
-				const x = ix * segmentWidth - widthHalf; //
-				const z = heightSegments * segmentHeight - heightHalf; // 0.5
-				//vertices add values(x,z): [-0.5, 0.5], [-0.4375, 0.5], [-0.375, 0.5], [-0.3125, 0.5],[-0.25, 0.5]
-				vertices.push(x, -skirtDepth, z);
-				normals.push(0, 1, 0);
-				uvs.push(ix / widthSegments, 0);
-				// uvs: [0, 0], [0.0625, 0], [0.125, 0], [0.1875, 0], [0.25, 0]
-			}
-			
-			// Index of the beginning of the last X row
-			let offset = gridX * gridZ - widthSegments - 1; // 17*17-16-1=272
-
-			for (let ix = 0; ix < widthSegments; ix++) 
-			{
-				const a = offset + ix;
-				const d = offset + ix + 1;
-				const b = ix + start;
-				const c = ix + start + 1;
-				indices.push(a, b, d, b, c, d);
-				// indices: [272, 306, 273, 306, 307, 273], [273, 307, 274, 307, 308, 274], [274, 308, 275, 308, 309, 275]
-			}
-			// 经过上轮添加，再次增加了gridx（17）个点， 为306+17=323
-			start = vertices.length / 3;
-
-			// Down Z 负向z轴
-			for (let iz = 0; iz < gridZ; iz++) 
-			{
-				const z = iz * segmentHeight - heightHalf;
-				const x = - widthHalf;
-				//vertices add values(x,z): [-0.5, -0.5], [-0.5，-0.4375], [-0.5，-0.375], [-0.5，-0.3125],[-0.5，-0.25]
-				vertices.push(x, -skirtDepth, z);
-				normals.push(0, 1, 0);
-				uvs.push(0, 1 - iz / heightSegments);
-				//uvs: [0, 1], [0, 0.9375], [0, 0.875], [0, 0.8125], [0, 0.75]
-			}
-
-			for (let iz = 0; iz < heightSegments; iz++) 
-			{
-				const a = iz * gridZ;
-				const d = (iz + 1) * gridZ;
-				const b = iz + start;
-				const c = iz + start + 1;
-
-				indices.push(a, b, d, b, c, d);
-				// indices: [0, 323, 17, 323, 324, 17], [17, 324, 34, 324, 325, 34], [34, 325, 51, 325, 326, 51]
-			}
-			// 经过上轮添加，再次增加了gridx（17*2）个点， 为323+17=340
-			start = vertices.length / 3;
-
-			// Up Z 正向z轴
-			for (let iz = 0; iz < gridZ; iz++) 
-			{
-				const z = iz * segmentHeight - heightHalf;
-				const x = widthSegments * segmentWidth - widthHalf;
-				//vertices add values(x,z): [0.5, -0.5], [0.5，-0.4375], [0.5，-0.375], [0.5，-0.3125],[0.5，-0.25]
-				vertices.push(x, -skirtDepth, z);
-				normals.push(0, 1, 0);
-
-				uvs.push(1.0, 1 - iz / heightSegments);
-				//uvs: [1, 1], [1, 0.9375], [1, 0.875], [1, 0.8125], [1, 0.75]
-			}
-
-			for (let iz = 0; iz < heightSegments; iz++) 
-			{
-				const a = iz * gridZ + heightSegments;
-				const d = (iz + 1) * gridZ + heightSegments;
-				const b = iz + start;
-				const c = iz + start + 1;
-				
-				indices.push(d, b, a, d, c, b);
-				// indices: [33, 340, 16, 33, 341, 340], [50, 341, 33, 50, 342, 341], [67, 342, 50, 67, 343, 342]
-			}
-		}
-	}
-
-	/*
-	 * @Author: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
-	 * @Date: 2024-03-28 17:43:14
-	 * @LastEditors: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
-	 * @LastEditTime: 2024-04-10 21:44:55
-	 * @FilePath: \we-geo\src\nodes\MapPlaneNode.js
-	 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
-	 */
-	/**
-	 * Represents a basic plane tile node.
-	 */
-	class MapPlaneNode extends MapNode 
-	{
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
-		{
-			super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
-
-			this.matrixAutoUpdate = false;
-			this.isMesh = true;
-			this.visible = false;
-		}
-
-		/**
-		 * Map node plane geometry.
-		 */
-		static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
-
-		static baseGeometry = MapPlaneNode.geometry;
-
-		static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
-
-		async initialize()
-		{
-			super.initialize();
-			
-			await this.loadData();
-			
-			this.nodeReady();
-		}
-
-		createChildNodes()
-		{
-			const level = this.level + 1;
-			const x = this.x * 2;
-			const y = this.y * 2;
-
-			const Constructor = Object.getPrototypeOf(this).constructor;
-
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(-0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-			
-			
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(-0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-		}
-		
-
-		/**
-		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
-		 */
-		raycast(raycaster, intersects)
-		{
-			if (this.isMesh === true) 
-			{
-				super.raycast(raycaster, intersects);
-			}
-		}
-	}
-
-	class MapNodeHeightGeometry extends BufferGeometry
-	{
-		/**
-		 * Map node geometry constructor.
-		 *
-		 * @param width - Width of the node. 一个节点的宽度 1
-		 * @param height - Height of the node.	一个节点的高度 1
-		 * @param widthSegments - Number of subdivisions along the width. 一个节点在宽度方向上的分割数 16
-		 * @param heightSegments - Number of subdivisions along the height.	一个节点在高度方向上的分割数 16
-		 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是10，calculateNormals默认是true
-		 */
-		constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0, imageData = null, calculateNormals = true)
-		{
-			super();
-
-			// Buffers
-			const indices = [];
-			const vertices = [];
-			const normals = [];
-			const uvs = [];
-
-			// Build plane
-			MapNodeGeometry.buildPlane(width, height, widthSegments, heightSegments, indices, vertices, normals, uvs);
-
-			const data = imageData.data;
-			// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
-			for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) 
-			{
-				const r = data[i];
-				const g = data[i + 1];
-				const b = data[i + 2];
-
-				// The value will be composed of the bits RGB
-				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-
-				vertices[j + 1] = value;
-			}
-
-			// Generate the skirt
-			// 设置裙边。
-			if (skirt)
-			{
-				MapNodeGeometry.buildSkirt(width, height, widthSegments, heightSegments, skirtDepth, indices, vertices, normals, uvs);
-			}
-
-			this.setIndex(indices);
-			this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
-			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
-			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
-
-			if (calculateNormals)
-			{
-				this.computeNormals(widthSegments, heightSegments);
-			}
-		}
-
-		/**
-		 * Compute normals for the height geometry.
-		 * 计算法向量
-		 * Only computes normals for the surface of the map geometry. Skirts are not considered.
-		 * 
-		 * @param widthSegments - Number of segments in width.
-		 * @param heightSegments - Number of segments in height.
-		 */
-		computeNormals(widthSegments, heightSegments)
-		{
-			const positionAttribute = this.getAttribute('position');
-		
-			if (positionAttribute !== undefined)
-			{
-				// Reset existing normals to zero
-				let normalAttribute = this.getAttribute('normal');
-				const normalLength = heightSegments * widthSegments;
-				for (let i = 0; i < normalLength; i++)
-				{
-					normalAttribute.setXYZ(i, 0, 0, 0);
-				}
-
-				const pA = new Vector3(), pB = new Vector3(), pC = new Vector3();
-				const nA = new Vector3(), nB = new Vector3(), nC = new Vector3();
-				const cb = new Vector3(), ab = new Vector3();
-				
-				const indexLength = heightSegments * widthSegments * 6;
-				for (let i = 0; i < indexLength ; i += 3)
-				{
-					const vA = this.index.getX(i + 0);
-					const vB = this.index.getX(i + 1);
-					const vC = this.index.getX(i + 2);
-
-					pA.fromBufferAttribute(positionAttribute, vA);
-					pB.fromBufferAttribute(positionAttribute, vB);
-					pC.fromBufferAttribute(positionAttribute, vC);
-
-					cb.subVectors(pC, pB);
-					ab.subVectors(pA, pB);
-					cb.cross(ab);
-
-					nA.fromBufferAttribute(normalAttribute, vA);
-					nB.fromBufferAttribute(normalAttribute, vB);
-					nC.fromBufferAttribute(normalAttribute, vC);
-
-					nA.add(cb);
-					nB.add(cb);
-					nC.add(cb);
-
-					normalAttribute.setXYZ(vA, nA.x, nA.y, nA.z);
-					normalAttribute.setXYZ(vB, nB.x, nB.y, nB.z);
-					normalAttribute.setXYZ(vC, nC.x, nC.y, nC.z);
-				}
-
-				this.normalizeNormals();
-
-				normalAttribute.needsUpdate = true;
-			}
-		}
-	}
-
-	/**
-	 * Represents a height map tile node that can be subdivided into other height nodes.
-	 *
-	 * Its important to update match the height of the tile with the neighbors nodes edge heights to ensure proper continuity of the surface.
-	 *
-	 * The height node is designed to use MapBox elevation tile encoded data as described in https://www.mapbox.com/help/access-elevation-data/
-	 */
-	class MapHeightNode extends MapNode 
-	{
-		/**
-		 * Flag indicating if the tile height data was loaded.
-		 */
-		heightLoaded = false;
-
-		/**
-		 * Flag indicating if the tile texture was loaded.
-		 */
-		textureLoaded = false;
-
-		/**
-		 * Original tile size of the images retrieved from the height provider.
-		 */
-		static tileSize = 256;
-
-		/**
-		 * Size of the grid of the geometry displayed on the scene for each tile.
-		 */
-		geometrySize = 16;
-
-		/**
-		 * If true the tiles will compute their normals.
-		 */
-		geometryNormals = false;
-
-		/**
-		 * Map node plane geometry.
-		 */
-		static geometry = new MapNodeGeometry(1, 1, 1, 1);
-
-		/**
-		 * Base geometry shared across all the nodes.
-		 */
-		static baseGeometry = MapPlaneNode.geometry;
-
-		/**
-		 * Scale to apply to each node.
-		 */
-		static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
-
-		/**
-		 * Map height node constructor.
-		 *
-		 * @param parentNode - The parent node of this node.
-		 * @param mapView - Map view object where this node is placed.
-		 * @param location - Position in the node tree relative to the parent.
-		 * @param level - Zoom level in the tile tree of the node.
-		 * @param x - X position of the node in the tile tree.
-		 * @param y - Y position of the node in the tile tree.
-		 * @param material - Material used to render this height node.
-		 * @param geometry - Geometry used to render this height node.
-		 */
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
-		{
-			super(parentNode, mapView, location, level, x, y, geometry, material);
-
-			this.isMesh = true;
-			this.visible = false;
-			this.matrixAutoUpdate = false;
-		}
-
-		async initialize()
-		{
-			super.initialize();
-			
-			await this.loadData();
-			await this.loadHeightGeometry();
-
-			this.nodeReady();
-		}
-
-		/**
-		 * Load tile texture from the server.
-		 *
-		 * Aditionally in this height node it loads elevation data from the height provider and generate the appropiate maps.
-		 */
-		async loadData() 
-		{
-			await super.loadData();
-			
-			this.textureLoaded = true;
-		}
-
-		/**
-		 * Load height texture from the server and create a geometry to match it.
-		 *
-		 * @returns Returns a promise indicating when the geometry generation has finished.
-		 */
-		async loadHeightGeometry() 
-		{
-			if (this.mapView.heightProvider === null) 
-			{
-				throw new Error('GeoThree: MapView.heightProvider provider is null.');
-			}
-	 
-			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
-			{
-				console.warn('Geo-Three: Loading tile outside of provider range.', this);
-
-				this.geometry = MapPlaneNode.baseGeometry;
-				return;
-			}
-
-			try 
-			{
-				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y, this.bbox);
-	 
-				if (this.disposed) 
-				{
-					return;
-				}
-
-				const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
-
-				const context = canvas.getContext('2d');
-				context.imageSmoothingEnabled = false;
-				context.drawImage(image, 0, 0, MapHeightNode.tileSize, MapHeightNode.tileSize, 0, 0, canvas.width, canvas.height);
-
-				const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
-
-				this.geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
-			}
-			catch (e) 
-			{
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				this.geometry = MapPlaneNode.baseGeometry;
-			}
-
-			this.heightLoaded = true;
-		}
-
-		createChildNodes() 
-		{
-			const level = this.level + 1;
-			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
-			const x = this.x * 2;
-			const y = this.y * 2;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(-0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(-0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
-			node.scale.set(0.5, 1.0, 0.5);
-			node.position.set(0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			node.updateMatrix();
-			node.updateMatrixWorld(true);
-		}
-
-		/**
-		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
-		 */
-		raycast(raycaster, intersects)
-		{
-			if (this.isMesh === true) 
-			{
-				super.raycast(raycaster, intersects);
-			}
-		}
-	}
-
-	/**
-	 * Map node geometry is a geometry used to represent the spherical map nodes.
-	 */
-	class MapSphereNodeGeometry extends BufferGeometry 
-	{
-		/**
-		 * Map sphere geometry constructor.
-		 * 
-		 * @param radius - Radius of the sphere.
-		 * @param width - Width of the node.
-		 * @param height - Height of the node.
-		 * @param widthSegments - Number of subdivisions along the width.
-		 * @param heightSegments - Number of subdivisions along the height.
-		 */
-		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
-		{
-			super();
-
-			const thetaEnd = thetaStart + thetaLength;
-			let index = 0;
-			const grid = [];
-			const vertex = new Vector3();
-			const normal = new Vector3();
-
-			// Buffers
-			const indices = [];
-			const vertices = [];
-			const normals = [];
-			const uvs = [];
-
-			// Generate vertices, normals and uvs
-			for (let iy = 0; iy <= heightSegments; iy++) 
-			{
-				const verticesRow = [];
-				const v = iy / heightSegments;
-
-				for (let ix = 0; ix <= widthSegments; ix++) 
-				{
-					const u = ix / widthSegments;
-
-					// Vertex
-					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
-					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-
-					vertices.push(vertex.x, vertex.y, vertex.z);
-
-					// Normal
-					normal.set(vertex.x, vertex.y, vertex.z).normalize();
-					normals.push(normal.x, normal.y, normal.z);
-
-					// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
-					// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
-				
-					// modify uv
-					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS);
-					
-					let len = this.distance(vertex); // length of the vertex, distance from the center
-					// let len = radius; // length of the vertex, distance from the center
-					let latitude = Math.asin(vertex.y/len); 
-					let longitude = Math.atan2(-vertex.z,vertex.x);
-					// let longitude = Math.atan(-vertex.z);
-					let mercator_x = len * longitude;
-					let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
-					let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
-					let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
-					uvs.push(x, y);
-					// modify uv end
-					
-					// let latitude = Math.acos(vertex.y);
-					// let longitude = Math.atan(-vertex.z, vertex.x);
-					// uvs.push(longitude, latitude);
-					// uvs.push(u, 1 - v);
-					verticesRow.push(index++);
-				}
-
-				grid.push(verticesRow);
-			}
-
-			// Indices
-			for (let iy = 0; iy < heightSegments; iy++) 
-			{
-				for (let ix = 0; ix < widthSegments; ix++) 
-				{
-					const a = grid[iy][ix + 1];
-					const b = grid[iy][ix];
-					const c = grid[iy + 1][ix];
-					const d = grid[iy + 1][ix + 1];
-
-					if (iy !== 0 || thetaStart > 0) 
-					{
-						indices.push(a, b, d);
-					}
-
-					if (iy !== heightSegments - 1 || thetaEnd < Math.PI) 
-					{
-						indices.push(b, c, d);
-					}
-				}
-			}
-
-			this.setIndex(indices);
-			this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
-			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
-			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
-		}
-
-		/**
-		 * 计算position的长度
-		 * @param {*} postion  
-		 */
-		distance(postion){
-			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
-			return distance;
-		}
-	}
-
-	/** 
-	 * Represents a map tile node.
-	 * 
-	 * A map node can be subdivided into other nodes (Quadtree).
-	 */
-	class MapSphereNode extends MapNode 
-	{	
-		/**
-		 * Base geometry contains the entire globe.
-		 * 
-		 * Individual geometries generated for the sphere nodes are not based on this base geometry.
-		 * 
-		 * Applied to the map view on initialization.
-		 */
-		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
-
-		/**
-		 * Base scale of the node.
-		 * 
-		 * Applied to the map view on initialization.
-		 */
-		static baseScale = new Vector3(1, 1, 1);
-
-		/**
-		 * Number of segments per node geometry.
-		 * 
-		 * Can be configured globally and is applied to all nodes.
-		 */
-		static segments = 160;
-		// static segments = 64;
-
-
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
-		{
-			
-			
-			super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
-			// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
-		
-			this.applyScaleNode();
-			this.matrixAutoUpdate = false;
-			this.isMesh = true;
-			this.visible = false;
-		}
-		
-		async initialize()
-		{
-			super.initialize();
-			
-			await this.loadData();
-			
-			this.nodeReady();
-		}
-
-		/**
-		 * Create a geometry for a sphere map node.
-		 *
-		 * @param zoom - Zoom level to generate the geometry for.
-		 * @param x - X tile position.
-		 * @param y - Y tile position.
-		 */
-		static createGeometry(zoom, x, y)
-		{
-			const range = Math.pow(2, zoom);
-			const max = 40;
-			const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
-
-
-		
-			// X
-			// const phiLength = 1 / range * 2 * Math.PI;
-			// const phiStart = x * phiLength;
-			
-			// // 经度
-			const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
-			const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
-			const phiStart = lon1;
-			const phiLength = lon2 - lon1;
-		
-			// Y
-			// const thetaLength = 1 / range * Math.PI;
-			// const thetaStart = y * thetaLength;
-			// 维度
-			const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
-			const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
-			const thetaLength = lat1 - lat2;
-			const thetaStart = Math.PI - (lat1 + Math.PI / 2);
-			let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
-
-			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
-		}
-		
-		/** 
-		 * Apply scale and offset position to the sphere node geometry.
-		 */
-		applyScaleNode()
-		{
-			this.geometry.computeBoundingBox();
-		
-			const box = this.geometry.boundingBox.clone();
-			const center = box.getCenter(new Vector3());
-		
-			const matrix = new Matrix4();
-			matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
-			this.geometry.applyMatrix4(matrix);
-			// 未赋值matrix的缘故？
-			// this.matrix = matrix;
-			this.position.copy(center);
-			
-			// var centerCopy = this.geometry.boundingBox.getCenter(new Vector3());
-		
-			this.updateMatrix();
-			this.updateMatrixWorld();
-		}
-		
-		updateMatrix()
-		{
-			this.matrix.setPosition(this.position);
-			this.matrixWorldNeedsUpdate = true;
-		}
-		
-		updateMatrixWorld(force = false)
-		{
-			if (this.matrixWorldNeedsUpdate || force) 
-			{
-				// var temp = this.matrix.clone().multiplyScalar(6371008);
-				// this.matrixWorld.copy(temp);
-				this.matrixWorld.copy(this.matrix);
-				this.matrixWorldNeedsUpdate = false;
-			}
-		}
-		
-		createChildNodes()
-		{
-			const level = this.level + 1;
-			const x = this.x * 2;
-			const y = this.y * 2;
-
-			const Constructor = Object.getPrototypeOf(this).constructor;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-			// return;
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
-			node.renderOrder = this.renderOrder;
-			this.add(node);
-		}
-
-		async loadData()
-		{
-			if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
-			{
-				console.warn('Geo-Three: Loading tile outside of provider range.', this);
-
-				// @ts-ignore
-				this.material.map = MapNode.defaultTexture;
-				// @ts-ignore
-				this.material.needsUpdate = true;
-				return;
-			}
-
-			try 
-			{
-				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
-				
-				if (this.disposed) 
-				{
-					return;
-				}
-							
-				// const textureLoader = new TextureLoader();
-				// const texture = textureLoader.load(image.src, function() {});
-				
-				const texture = new Texture(image);
-				texture.generateMipmaps = false;
-				texture.format = RGBAFormat;
-				texture.magFilter = LinearFilter;
-				texture.minFilter = LinearFilter;
-				texture.needsUpdate = true;
-				// texture.wrapS = RepeatWrapping;
-	            // texture.wrapT = RepeatWrapping;
-				
-				// @ts-ignore
-				this.material.map = texture;
-				// this.material.uniforms.uTexture.value = texture;
-				// this.material.uniforms.uTexture.needsUpdate = true;
-			}
-			catch (e) 
-			{
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				console.warn('Geo-Three: Failed to load node tile data.', this);
-
-				// @ts-ignore
-				this.material.map = MapNode.defaultTexture;
-				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-				this.material.transparent = true;
-				// this.material.alphaTest = 0.01;
-				this.material.opacity = 0;
-			}
-
-			// @ts-ignore
-			this.material.needsUpdate = true;
-		}
-		
-		/**
-		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
-		 */
-		raycast(raycaster, intersects)
-		{
-			if (this.isMesh === true) 
-			{
-				super.raycast(raycaster, intersects);
-			}
-		}
-
-		shaderMaterial(level,x,y){
-			let bounds = UnitsUtils.tileBounds(level, x, y);
-			// Load shaders
-			const vertexShader = /* WGSL */`
-		varying vec3 vPosition;
-		void main() {
-			vPosition = position;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-		}
-		`;
-
-			const fragmentShader =  /* WGSL */`
-		#define PI 3.141592653589
-		varying vec3 vPosition;
-		uniform sampler2D uTexture;
-		uniform vec4 mercatorBounds;
-		void main() {
-			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
-			float radius = length(vPosition);
-			float latitude = asin(vPosition.y / radius);
-			float longitude = atan(-vPosition.z, vPosition.x);
-			float mercator_x = radius * longitude;
-			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
-			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
-			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
-			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
-			
-			vec4 color = texture2D(uTexture, vec2(x, y));
-			gl_FragColor = color;
-		}
-		`;
-			
-			// Create shader material
-			let vBounds = new Vector4(...bounds);
-			const material = new ShaderMaterial({
-				uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
-				vertexShader: vertexShader,
-				fragmentShader: fragmentShader
-			});
-			return material;
-		}
-		static getGeometry(scale){
-			let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
-			return geometry;
-		}
-	}
-
-	/**
-	 * Map height node that uses GPU height calculation to generate the deformed plane mesh.
-	 *
-	 * This solution is faster if no mesh interaction is required since all trasnformations are done in the GPU the transformed mesh cannot be accessed for CPU operations (e.g. raycasting).
-	 *
-	 * @param parentNode - The parent node of this node.
-	 * @param mapView - Map view object where this node is placed.
-	 * @param location - Position in the node tree relative to the parent.
-	 * @param level - Zoom level in the tile tree of the node.
-	 * @param x - X position of the node in the tile tree.
-	 * @param y - Y position of the node in the tile tree.
-	 */
-	class MapHeightNodeShader extends MapHeightNode 
-	{
-		/**
-		 * Default height texture applied when tile load fails.
-		 * 
-		 * This tile sets the height to sea level where it is common for the data sources to be missing height data.
-		 */
-		static defaultHeightTexture = TextureUtils.createFillTexture('#0186C0');
-
-		/**
-		 * Size of the grid of the geometry displayed on the scene for each tile.
-		 */
-		static geometrySize = 256;
-
-		/**
-		 * Map node plane geometry.
-		 */
-		static geometry = new MapNodeGeometry(1.0, 1.0, MapHeightNodeShader.geometrySize, MapHeightNodeShader.geometrySize, true);
-
-		/**
-		 * Base geometry of the map node.
-		 */
-		static baseGeometry = MapPlaneNode.geometry;
-
-		/**
-		 * Base scale of the map node.
-		 */
-		static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
-
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
-		{
-			const material = MapHeightNodeShader.prepareMaterial(new MeshPhongMaterial({map: MapNode.defaultTexture, color: 0xFFFFFF}));
-
-			super(parentNode, mapView, location, level, x, y, MapHeightNodeShader.geometry, material);
-
-			this.frustumCulled = false;
-		}
-
-		/**
-		 * Prepare the three.js material to be used in the map tile.
-		 *
-		 * @param material - Material to be transformed.
-		 */
-		static prepareMaterial(material)
-		{
-			material.userData = {heightMap: {value: MapHeightNodeShader.defaultHeightTexture}};
-
-			material.onBeforeCompile = (shader) => 
-			{
-				// Pass uniforms from userData to the
-				for (const i in material.userData) 
-				{
-					shader.uniforms[i] = material.userData[i];
-				}
-
-				// Vertex variables
-				shader.vertexShader =
-					`
-			uniform sampler2D heightMap;
-			` + shader.vertexShader;
-
-				// Vertex depth logic
-				shader.vertexShader = shader.vertexShader.replace('#include <fog_vertex>', `
-			#include <fog_vertex>
-	
-			// Calculate height of the title
-			vec4 _theight = texture2D(heightMap, vUv);
-			float _height = ((_theight.r * 255.0 * 65536.0 + _theight.g * 255.0 * 256.0 + _theight.b * 255.0) * 0.1) - 10000.0;
-			vec3 _transformed = position + _height * normal;
-	
-			// Vertex position based on height
-			gl_Position = projectionMatrix * modelViewMatrix * vec4(_transformed, 1.0);
-			`);
-			};
-
-			return material;
-		}
-
-		async loadData() 
-		{
-			await super.loadData();
-
-			this.textureLoaded = true;
-		}
-
-		async loadHeightGeometry() 
-		{
-			
-			if (this.mapView.heightProvider === null) 
-			{
-				throw new Error('GeoThree: MapView.heightProvider provider is null.');
-			}
-
-			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
-			{
-				console.warn('Geo-Three: Loading tile outside of provider range.', this);
-
-				// @ts-ignore
-				this.material.map = MapHeightNodeShader.defaultTexture;
-				// @ts-ignore
-				this.material.needsUpdate = true;
-				return;
-			}
-
-			try 
-			{
-				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
-
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				const texture = new Texture(image);
-				texture.generateMipmaps = false;
-				texture.format = RGBAFormat;
-				texture.magFilter = NearestFilter;
-				texture.minFilter = NearestFilter;
-				texture.needsUpdate = true;
-				
-				// @ts-ignore
-				this.material.userData.heightMap.value = texture;
-			}
-			catch (e) 
-			{
-				if (this.disposed) 
-				{
-					return;
-				}
-				
-				console.error('Geo-Three: Failed to load node tile height data.', this);
-				
-				// Water level texture (assume that missing texture will be water level)
-				// @ts-ignore
-				this.material.userData.heightMap.value = MapHeightNodeShader.defaultHeightTexture;
-			}
-
-			// @ts-ignore
-			this.material.needsUpdate = true;
-
-			this.heightLoaded = true;
-		}
-
-		/**
-		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
-		 *
-		 * Switches the geometry for a simpler one for faster raycasting.
-		 */
-		raycast(raycaster, intersects)
-		{
-			if (this.isMesh === true) 
-			{
-				this.geometry = MapPlaneNode.geometry;
-
-				super.raycast(raycaster, intersects);
-
-				this.geometry = MapHeightNodeShader.geometry;
-			}
-		}
-
-		dispose()
-		{
-			super.dispose();
-
-			// @ts-ignore
-			if (this.material.userData.heightMap.value && this.material.userData.heightMap.value !== MapHeightNodeShader.defaultHeightTexture)
-			{
-				// @ts-ignore
-				this.material.userData.heightMap.value.dispose();
-			}
-		}
-	}
-
-	/**
-	 * LOD control objects define how the map tiles are subsivided or simplified.
-	 */
-	class LODControl 
-	{
-
-		constructor(){
-			
-		}
-		/**
-		 * Update LOD of the MapView and Camera position on the world.
-		 * 
-		 * @param view - Map view for wich the LOD will be updated.
-		 * @param camera - Camera used to view the scene.
-		 * @param renderer - Renderer object.
-		 * @param scene - Scene that compose the mapview.
-		 */
-		updateLOD(view, camera, renderer, scene){}
-	}
-
-	/**
-	 * Use random raycasting to randomly pick n objects to be tested on screen space.
-	 *
-	 * Overall the fastest solution but does not include out of screen objects.
-	 */
-	class LODRaycast extends LODControl 
-	{
-		/**
-		 * Number of rays used to test nodes and subdivide the map.
-		 *
-		 * N rays are cast each frame dependeing on this value to check distance to the visible map nodes. A single ray should be enough for must scenarios.
-		 */
-		subdivisionRays = 1;
-
-		/**
-		 * Threshold to subdivide the map tiles.
-		 *
-		 * Lower value will subdivide earlier (less zoom required to subdivide).
-		 */
-		thresholdUp = 0.6;
-
-		/**
-		 * Threshold to simplify the map tiles.
-		 *
-		 * Higher value will simplify earlier.
-		 */
-		thresholdDown = 0.15;
-
-		/**
-		 * Raycaster object used to cast rays into the world and check for hits.
-		 */
-		raycaster = new Raycaster();
-
-		/**
-		 * Normalized mouse coordinates.
-		 */
-		mouse = new Vector2();
-
-		/**
-		 * Consider the distance powered to level of the node.
-		 */
-		powerDistance = false;
-
-		/**
-		 * Consider the scale of the node when calculating the distance.
-		 * 
-		 * If distance is not considered threshold values should be absolute distances.
-		 */
-		scaleDistance = true;
-
-		constructor(){
-			super();
-		}
-
-		updateLOD(view, camera, renderer, scene)
-		{
-			const intersects = [];
-			
-			for (let t = 0; t < this.subdivisionRays; t++) 
-			{
-				// Generate random point in viewport
-				this.mouse.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
-
-				// Check intersection
-				this.raycaster.setFromCamera(this.mouse, camera);
-				this.raycaster.intersectObjects(view.children, true, intersects);
-			}
-
-			for (let i = 0; i < intersects.length; i++) 
-			{
-				const node = intersects[i].object;
-				let distance = intersects[i].distance;
-
-				if (this.powerDistance) 
-				{
-					distance = Math.pow(distance * 2, node.level);
-				}
-
-				if (this.scaleDistance) 
-				{
-					// Get scale from transformation matrix directly
-					const matrix = node.matrixWorld.elements;
-					const vector = new Vector3(matrix[0], matrix[1], matrix[2]);
-					distance = vector.length() / distance;
-				}
-
-				if (distance > this.thresholdUp) 
-				{
-					node.subdivide();
-				}
-				else if (distance < this.thresholdDown && node.parentNode) 
-				{
-					node.parentNode.simplify();
-				}
-			}
-		}
-	}
-
-	new Vector3();
-	new Vector3();
-
-	new Matrix4();
-	new Vector3();
-	new Frustum();
-	new Vector3();
-
-	/**
-	 * Martini mesh tile generator (Mapbox's Awesome Right-Triangulated Irregular Networks, Improved).
-	 * 
-	 * Represents a height map tile node using the RTIN method from the paper "Right Triangulated Irregular Networks".
-	 * 
-	 * Based off the library https://github.com/mapbox/martini.
-	 */
-	class Martini 
-	{
-		/**
-		 * Size of the grid to be generated.
-		 */
-		gridSize;
-
-		/**
-		 * Number of triangles to be used in the tile.
-		 */
-		numTriangles;
-
-		/**
-		 * Number of triangles in the parent node.
-		 */
-		numParentTriangles;
-
-		/**
-		 * Indices of the triangles faces.
-		 */
-		indices;
-
-		/**
-		 * Coordinates of the points composing the mesh.
-		 */
-		coords;
-
-		/**
-		 * Constructor for the generator.
-		 * 
-		 * @param gridSize - Size of the grid.
-		 */
-		constructor(gridSize = 257) 
-		{
-			this.gridSize = gridSize;
-			const tileSize = gridSize - 1;
-			
-			if (tileSize & tileSize - 1) 
-			{
-				throw new Error(`Expected grid size to be 2^n+1, got ${gridSize}.`);
-			}
-
-			this.numTriangles = tileSize * tileSize * 2 - 2;
-			this.numParentTriangles = this.numTriangles - tileSize * tileSize;
-
-			this.indices = new Uint32Array(this.gridSize * this.gridSize);
-
-			// coordinates for all possible triangles in an RTIN tile
-			this.coords = new Uint16Array(this.numTriangles * 4);
-
-			// get triangle coordinates from its index in an implicit binary tree
-			for (let i = 0; i < this.numTriangles; i++) 
-			{
-				let id = i + 2;
-				let ax = 0, ay = 0, bx = 0, by = 0, cx = 0, cy = 0;
-				if (id & 1) 
-				{
-					bx = by = cx = tileSize; // bottom-left triangle
-				}
-				else 
-				{
-					ax = ay = cy = tileSize; // top-right triangle
-				}
-				while ((id >>= 1) > 1) 
-				{
-					const mx = ax + bx >> 1;
-					const my = ay + by >> 1;
-
-					if (id & 1) 
-					{ // left half
-						bx = ax; by = ay;
-						ax = cx; ay = cy;
-					}
-					else 
-					{ // right half
-						ax = bx; ay = by;
-						bx = cx; by = cy;
-					}
-					cx = mx; cy = my;
-				}
-				const k = i * 4;
-				this.coords[k + 0] = ax;
-				this.coords[k + 1] = ay;
-				this.coords[k + 2] = bx;
-				this.coords[k + 3] = by;
-			}
-		}
-
-		createTile(terrain)
-		{
-			return new Tile(terrain, this);
-		}
-	}
-
-	/**
-	 * Class describes the generation of a tile using the Martini method.
-	 */
-	class Tile 
-	{
-		/**
-		 * Pointer to the martini generator object.
-		 */
-		martini;
-
-		/**
-		 * Terrain to generate the tile for.
-		 */
-		terrain;
-
-		/**
-		 * Errors detected while creating the tile.
-		 */
-		errors;
-
-		constructor(terrain, martini) 
-		{
-			const size = martini.gridSize;
-
-			if (terrain.length !== size * size) 
-			{
-				throw new Error(`Expected terrain data of length ${size * size} (${size} x ${size}), got ${terrain.length}.`);
-			}
-
-			this.terrain = terrain;
-			this.martini = martini;
-			this.errors = new Float32Array(terrain.length);
-			this.update();
-		}
-
-		update()
-		{
-			const {numTriangles, numParentTriangles, coords, gridSize: size} = this.martini;
-			const {terrain, errors} = this;
-
-			// iterate over all possible triangles, starting from the smallest level
-			for (let i = numTriangles - 1; i >= 0; i--) 
-			{
-				const k = i * 4;
-				const ax = coords[k + 0];
-				const ay = coords[k + 1];
-				const bx = coords[k + 2];
-				const by = coords[k + 3];
-				const mx = ax + bx >> 1;
-				const my = ay + by >> 1;
-				const cx = mx + my - ay;
-				const cy = my + ax - mx;
-
-				// calculate error in the middle of the long edge of the triangle
-				const interpolatedHeight = (terrain[ay * size + ax] + terrain[by * size + bx]) / 2;
-				const middleIndex = my * size + mx;
-				const middleError = Math.abs(interpolatedHeight - terrain[middleIndex]);
-
-				errors[middleIndex] = Math.max(errors[middleIndex], middleError);
-
-				if (i < numParentTriangles) 
-				{ // bigger triangles; accumulate error with children
-					const leftChildIndex = (ay + cy >> 1) * size + (ax + cx >> 1);
-					const rightChildIndex = (by + cy >> 1) * size + (bx + cx >> 1);
-					errors[middleIndex] = Math.max(errors[middleIndex], errors[leftChildIndex], errors[rightChildIndex]);
-				}
-			}
-		}
-
-		getMesh(maxError = 0, withSkirts = false)
-		{
-			const {gridSize: size, indices} = this.martini;
-			const {errors} = this;
-			let numVertices = 0;
-			let numTriangles = 0;
-			const max = size - 1;
-			let aIndex, bIndex, cIndex = 0;
-
-			// Skirt indices
-			const leftSkirtIndices = [];
-			const rightSkirtIndices = [];
-			const bottomSkirtIndices = [];
-			const topSkirtIndices = [];
-
-			// Use an index grid to keep track of vertices that were already used to avoid duplication
-			indices.fill(0);
-
-			// Retrieve mesh in two stages that both traverse the error map:
-			// - countElements: find used vertices (and assign each an index), and count triangles (for minimum allocation)
-			// - processTriangle: fill the allocated vertices & triangles typed arrays
-			function countElements(ax, ay, bx, by, cx, cy)
-			{
-				const mx = ax + bx >> 1;
-				const my = ay + by >> 1;
-
-				if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) 
-				{
-					countElements(cx, cy, ax, ay, mx, my);
-					countElements(bx, by, cx, cy, mx, my);
-				}
-				else 
-				{
-					aIndex = ay * size + ax;
-					bIndex = by * size + bx;
-					cIndex = cy * size + cx;
-
-					if (indices[aIndex] === 0) 
-					{
-						if (withSkirts) 
-						{
-							if (ax === 0) 
-							{
-								leftSkirtIndices.push(numVertices);
-							}
-							else if (ax === max)
-							{
-								rightSkirtIndices.push(numVertices);
-							} if (ay === 0) 
-							{
-								bottomSkirtIndices.push(numVertices);
-							}
-							else if (ay === max) 
-							{
-								topSkirtIndices.push(numVertices);
-							}
-						}
-	                    
-						indices[aIndex] = ++numVertices;
-					}
-					if (indices[bIndex] === 0) 
-					{
-						if (withSkirts) 
-						{
-							if (bx === 0) 
-							{
-								leftSkirtIndices.push(numVertices);
-							}
-							else if (bx === max) 
-							{
-								rightSkirtIndices.push(numVertices);
-							} if (by === 0) 
-							{
-								bottomSkirtIndices.push(numVertices);
-							}
-							else if (by === max) 
-							{
-								topSkirtIndices.push(numVertices);
-							}
-						}
-						indices[bIndex] = ++numVertices;
-					}
-					if (indices[cIndex] === 0) 
-					{
-						if (withSkirts) 
-						{
-							if (cx === 0) 
-							{
-								leftSkirtIndices.push(numVertices);
-							}
-							else if (cx === max) 
-							{
-								rightSkirtIndices.push(numVertices);
-							} if (cy === 0) 
-							{
-								bottomSkirtIndices.push(numVertices);
-							}
-							else if (cy === max) 
-							{
-								topSkirtIndices.push(numVertices);
-							}
-						}
-						indices[cIndex] = ++numVertices;
-					}
-					numTriangles++;
-				}
-			}
-
-			countElements(0, 0, max, max, max, 0);
-			countElements(max, max, 0, 0, 0, max);
-
-			let numTotalVertices =numVertices * 2;
-			let numTotalTriangles = numTriangles * 3;
-
-			if (withSkirts) 
-			{
-				numTotalVertices +=(leftSkirtIndices.length + rightSkirtIndices.length + bottomSkirtIndices.length + topSkirtIndices.length) * 2;
-				numTotalTriangles += ((leftSkirtIndices.length - 1) * 2 + (rightSkirtIndices.length - 1) * 2 + (bottomSkirtIndices.length - 1) * 2 + (topSkirtIndices.length - 1) * 2) * 3;
-			}
-
-			const vertices = new Uint16Array(numTotalVertices);
-			const triangles = new Uint32Array(numTotalTriangles);
-
-			let triIndex = 0;
-
-			function processTriangle(ax, ay, bx, by, cx, cy)
-			{
-				const mx = ax + bx >> 1;
-				const my = ay + by >> 1;
-
-				if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) 
-				{
-					// Triangle doesn't approximate the surface well enough; drill down further
-					processTriangle(cx, cy, ax, ay, mx, my);
-					processTriangle(bx, by, cx, cy, mx, my);
-
-				}
-				else 
-				{
-					// Add a triangle
-					const a = indices[ay * size + ax] - 1;
-					const b = indices[by * size + bx] - 1;
-					const c = indices[cy * size + cx] - 1;
-
-					vertices[2 * a] = ax;
-					vertices[2 * a + 1] = ay;
-
-					vertices[2 * b] = bx;
-					vertices[2 * b + 1] = by;
-
-					vertices[2 * c] = cx;
-					vertices[2 * c + 1] = cy;
-					triangles[triIndex++] = a;
-					triangles[triIndex++] = b;
-					triangles[triIndex++] = c;
-				}
-			}
-
-			processTriangle(0, 0, max, max, max, 0);
-			processTriangle(max, max, 0, 0, 0, max);
-
-			if (withSkirts) 
-			{
-				// Sort skirt indices to create adjacent triangles
-				leftSkirtIndices.sort((a, b) => {return vertices[2 * a + 1] - vertices[2 * b + 1];});
-
-				// Reverse (b - a) to match triangle winding
-				rightSkirtIndices.sort((a, b) => {return vertices[2 * b + 1] - vertices[2 * a + 1];});
-
-				bottomSkirtIndices.sort((a, b) => {return vertices[2 * b] - vertices[2 * a];});
-
-				// Reverse (b - a) to match triangle winding
-				topSkirtIndices.sort((a, b) => {return vertices[2 * a] - vertices[2 * b];});
-
-				let skirtIndex = numVertices * 2;
-
-				// Add skirt vertices from index of last mesh vertex
-				function constructSkirt(skirt)
-				{
-					const skirtLength = skirt.length;
-
-					// Loop through indices in groups of two to generate triangles
-					for (let i = 0; i < skirtLength - 1; i++) 
-					{
-						const currIndex = skirt[i];
-						const nextIndex = skirt[i + 1];
-						const currentSkirt = skirtIndex / 2;
-						const nextSkirt = (skirtIndex + 2) / 2;
-
-						vertices[skirtIndex++] = vertices[2 * currIndex];
-						vertices[skirtIndex++] = vertices[2 * currIndex + 1];
-
-						triangles[triIndex++] = currIndex;
-						triangles[triIndex++] = currentSkirt;
-						triangles[triIndex++] = nextIndex;
-
-						triangles[triIndex++] = currentSkirt;
-						triangles[triIndex++] = nextSkirt;
-						triangles[triIndex++] = nextIndex;
-					}
-
-					// Add vertices of last skirt not added above (i < skirtLength - 1)
-					vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1]];
-					vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1] + 1];
-				}
-
-				constructSkirt(leftSkirtIndices);
-				constructSkirt(rightSkirtIndices);
-				constructSkirt(bottomSkirtIndices);
-				constructSkirt(topSkirtIndices);
-			}
-
-			// Return vertices and triangles and index into vertices array where skirts start
-			return {vertices: vertices, triangles: triangles, numVerticesWithoutSkirts: numVertices};
-		}
-	}
-
-	/** 
-	 * Represents a height map tile node using the RTIN method from the paper "Right Triangulated Irregular Networks".
-	 * 
-	 * Based off the library https://github.com/mapbox/martini (Mapbox's Awesome Right-Triangulated Irregular Networks, Improved)
-	 *
-	 * @param parentNode - The parent node of this node.
-	 * @param mapView - Map view object where this node is placed.
-	 * @param location - Position in the node tree relative to the parent.
-	 * @param level - Zoom level in the tile tree of the node.
-	 * @param x - X position of the node in the tile tree.
-	 * @param y - Y position of the node in the tile tree.
-	 * @param material   -Material used to render this height node.
-	 * @param geometry - Geometry used to render this height node.
-	 */
-	class MapMartiniHeightNode extends MapHeightNode
-	{
-		/**
-		 * Geometry size to be used for each martini height node.
-		 */
-		static geometrySize = 16;
-
-		/**
-		 * Empty texture used as a placeholder for missing textures.
-		 */
-		static emptyTexture = new Texture();
-		
-		/**
-		 * Base geometry appied before any custom geometru is used.
-		 */
-		static geometry = new MapNodeGeometry(1, 1, 1, 1);
-
-		/**
-		 * Elevation decoder configuration.
-		 * 
-		 * Indicates how the pixels should be unpacked and transformed into height data.
-		 */
-		elevationDecoder = {
-			rScaler: 256,
-			gScaler: 1,
-			bScaler: 1 / 256,
-			offset: -32768
-		};
-
-		/**
-		 * Original tile size of the images retrieved from the height provider.
-		 */
-		static tileSize = 256;
-
-		/**
-		 * Exageration (scale) of the terrain height.
-		 */
-		exageration = 1.0;
-
-		/**
-		 * Max admissible error in the mesh generation.
-		 */
-		meshMaxError = 10;
-
-		material;
-
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, {elevationDecoder = null, meshMaxError = 10, exageration = 1} = {})
-		{
-			super(parentNode, mapView, location, level, x, y, MapMartiniHeightNode.geometry, MapMartiniHeightNode.prepareMaterial(new MeshPhongMaterial({
-				map: MapMartiniHeightNode.emptyTexture,
-				color: 0xFFFFFF,
-				side: DoubleSide
-			}), level, exageration));
-
-			
-			// Set elevation decoder method
-			if (elevationDecoder) 
-			{
-				this.elevationDecoder = elevationDecoder;
-			}
-
-			this.meshMaxError = meshMaxError;
-			this.exageration = exageration;
-			this.frustumCulled = false;
-		}
-
-		/**
-		 * Prepare materia for usage in the height node.
-		 * 
-		 * @param material - Material to be prepared for usage.
-		 * @param level - Depth of the tree.
-		 * @param exageration - Exageration to apply to the terrain.
-		 * @returns The material trasnformed.
-		 */
-		static prepareMaterial(material, level, exageration = 1.0) 
-		{
-			material.userData = {
-				heightMap: {value: MapMartiniHeightNode.emptyTexture},
-				drawNormals: {value: 0},
-				drawBlack: {value: 0},
-				zoomlevel: {value: level},
-				computeNormals: {value: 1},
-				drawTexture: {value: 1}
-			};
-
-			material.onBeforeCompile = (shader) => 
-			{
-				// Pass uniforms from userData to the
-				for (let i in material.userData) 
-				{
-					shader.uniforms[i] = material.userData[i];
-				}
-
-				// Vertex variables
-				shader.vertexShader =
-					`
-				uniform bool computeNormals;
-				uniform float zoomlevel;
-				uniform sampler2D heightMap;
-				` + shader.vertexShader;
-				
-				shader.fragmentShader =
-					`
-				uniform bool drawNormals;
-				uniform bool drawTexture;
-				uniform bool drawBlack;
-				` + shader.fragmentShader;
-
-				// Vertex depth logic
-				shader.fragmentShader = shader.fragmentShader.replace('#include <dithering_fragment>',
-					`
-				if(drawBlack) {
-					gl_FragColor = vec4( 0.0,0.0,0.0, 1.0 );
-				} else if(drawNormals) {
-					gl_FragColor = vec4( ( 0.5 * vNormal + 0.5 ), 1.0 );
-				} else if (!drawTexture) {
-					gl_FragColor = vec4( 0.0,0.0,0.0, 0.0 );
-				}`
-				);
-
-				shader.vertexShader = shader.vertexShader.replace('#include <fog_vertex>',
-					`
-				#include <fog_vertex>
-
-				// queried pixels:
-				// +-----------+
-				// |   |   |   |
-				// | a | b | c |
-				// |   |   |   |
-				// +-----------+
-				// |   |   |   |
-				// | d | e | f |
-				// |   |   |   |
-				// +-----------+
-				// |   |   |   |
-				// | g | h | i |
-				// |   |   |   |
-				// +-----------+
-
-				if (computeNormals) {
-					float e = getElevation(vUv, 0.0);
-					ivec2 size = textureSize(heightMap, 0);
-					float offset = 1.0 / float(size.x);
-					float a = getElevation(vUv + vec2(-offset, -offset), 0.0);
-					float b = getElevation(vUv + vec2(0, -offset), 0.0);
-					float c = getElevation(vUv + vec2(offset, -offset), 0.0);
-					float d = getElevation(vUv + vec2(-offset, 0), 0.0);
-					float f = getElevation(vUv + vec2(offset, 0), 0.0);
-					float g = getElevation(vUv + vec2(-offset, offset), 0.0);
-					float h = getElevation(vUv + vec2(0, offset), 0.0);
-					float i = getElevation(vUv + vec2(offset,offset), 0.0);
-
-
-					float normalLength = 500.0 / zoomlevel;
-
-					vec3 v0 = vec3(0.0, 0.0, 0.0);
-					vec3 v1 = vec3(0.0, normalLength, 0.0);
-					vec3 v2 = vec3(normalLength, 0.0, 0.0);
-					v0.z = (e + d + g + h) / 4.0;
-					v1.z = (e+ b + a + d) / 4.0;
-					v2.z = (e+ h + i + f) / 4.0;
-					vNormal = (normalize(cross(v2 - v0, v1 - v0))).rbg;
-				}
-				`
-				);
-			};
-
-			return material;
-		}
-		
-		/**
-		 * Get terrain points from image data.
-		 * 
-		 * @param imageData - Terrain data encoded as image.
-		 * @param tileSize - Tile size.
-		 * @param elevation - Elevation scale (r, g, b, offset) object.
-		 * @returns The terrain elevation as a Float32 array.
-		 */
-		static getTerrain(imageData, tileSize, elevation)
-		{
-			const {rScaler, bScaler, gScaler, offset} = elevation;
-			const gridSize = tileSize + 1;
-
-			// From Martini demo
-			// https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
-			const terrain = new Float32Array(gridSize * gridSize);
-
-			// Decode terrain values
-			for (let i = 0, y = 0; y < tileSize; y++) 
-			{
-				for (let x = 0; x < tileSize; x++, i++) 
-				{
-					const k = i * 4;
-					const r = imageData[k + 0];
-					const g = imageData[k + 1];
-					const b = imageData[k + 2];
-					terrain[i + y] = r * rScaler + g * gScaler + b * bScaler + offset;
-				}
-			}
-
-			// Backfill bottom border
-			for (let i = gridSize * (gridSize - 1), x = 0; x < gridSize - 1; x++, i++) 
-			{
-				terrain[i] = terrain[i - gridSize];
-			}
-
-			// Backfill right border
-			for (let i = gridSize - 1, y = 0; y < gridSize; y++, i += gridSize) 
-			{
-				terrain[i] = terrain[i - 1];
-			}
-
-			return terrain;
-		}
-		
-		/**
-		 * Get the attributes that compose the mesh.
-		 * 
-		 * @param vertices - Vertices.
-		 * @param terrain  - Terrain
-		 * @param tileSize - Size of each tile.
-		 * @param bounds - Array with the bound of the map.
-		 * @param exageration - Vertical exageration of the map scale.
-		 * @returns The position and UV coordinates of the mesh.
-		 */
-		static getMeshAttributes(vertices=[], terrain, tileSize, bounds=[], exageration)
-		{
-			const gridSize = tileSize + 1;
-			const numOfVerticies = vertices.length / 2;
-		
-			// vec3. x, y in pixels, z in meters
-			const positions = new Float32Array(numOfVerticies * 3);
-		
-			// vec2. 1 to 1 relationship with position. represents the uv on the texture image. 0,0 to 1,1.
-			const texCoords = new Float32Array(numOfVerticies * 2);
-
-			const [minX, minY, maxX, maxY] = bounds || [0, 0, tileSize, tileSize];
-			const xScale = (maxX - minX) / tileSize;
-			const yScale = (maxY - minY) / tileSize;
-
-			for (let i = 0; i < numOfVerticies; i++) 
-			{
-				const x = vertices[i * 2];
-				const y = vertices[i * 2 + 1];
-				const pixelIdx = y * gridSize + x;
-
-				positions[3 * i + 0] = x * xScale + minX;
-				positions[3 * i + 1] = -terrain[pixelIdx] * exageration;
-				positions[3 * i + 2] = -y * yScale + maxY;
-		
-				texCoords[2 * i + 0] = x / tileSize;
-				texCoords[2 * i + 1] = y / tileSize;
-			}
-
-			return {
-				position: {value: positions, size: 3},
-				uv: {value: texCoords, size: 2}
-			};
-		}	
-
-		/**
-		 * Process the height texture received from the tile data provider.
-		 * 
-		 * @param image - Image element received by the tile provider.
-		 */
-		async processHeight(image)
-		{
-			const tileSize = image.width;
-			const gridSize = tileSize + 1;
-			var canvas = CanvasUtils.createOffscreenCanvas(tileSize, tileSize);
-
-			var context = canvas.getContext('2d');
-			context.imageSmoothingEnabled = false;
-			context.drawImage(image, 0, 0, tileSize, tileSize, 0, 0, canvas.width, canvas.height);
-			
-			var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-			var data = imageData.data;
-
-			const terrain = MapMartiniHeightNode.getTerrain(data, tileSize, this.elevationDecoder);
-			const martini = new Martini(gridSize);
-			const tile = martini.createTile(terrain);
-			const {vertices, triangles} = tile.getMesh(typeof this.meshMaxError === 'function' ? this.meshMaxError(this.level) : this.meshMaxError);
-
-			const attributes = MapMartiniHeightNode.getMeshAttributes(vertices, terrain, tileSize, [-0.5, -0.5, 0.5, 0.5], this.exageration);
-
-			this.geometry = new BufferGeometry();
-			this.geometry.setIndex(new Uint32BufferAttribute(triangles, 1));
-			this.geometry.setAttribute('position', new Float32BufferAttribute( attributes.position.value, attributes.position.size));
-			this.geometry.setAttribute('uv', new Float32BufferAttribute( attributes.uv.value, attributes.uv.size));
-			this.geometry.rotateX(Math.PI);
-
-			var texture = new Texture(image);
-			texture.generateMipmaps = false;
-			texture.format = RGBAFormat;
-			texture.magFilter = NearestFilter;
-			texture.minFilter = NearestFilter;
-			texture.needsUpdate = true;
-
-			this.material.userData.heightMap.value = texture;
-			// @ts-ignore
-			this.material.map = texture;
-			// @ts-ignore
-			this.material.needsUpdate = true;
-		}
-		
-		/**
-		 * Load height texture from the server and create a geometry to match it.
-		 */
-		async loadHeightGeometry()
-		{
-			if (this.mapView.heightProvider === null) 
-			{
-				throw new Error('GeoThree: MapView.heightProvider provider is null.');
-			}
-
-			const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
-
-			if (this.disposed) 
-			{
-				return;
-			}
-
-			this.processHeight(image);
-
-			this.heightLoaded = true;
-			this.nodeReady();
-		}
-	}
-
-	/**
-	 * Map viewer is used to read and display map tiles from a server.
-	 *
-	 * It was designed to work with a OpenMapTiles but can also be used with another map tiles.
-	 *
-	 * The map is drawn in plane map nodes using a quad tree that is subdivided as necessary to guaratee good map quality.
-	 */
-	class MapView extends Mesh 
-	{
-		/**
-		 * Planar map projection.
-		 */
-		static PLANAR = 200;
-
-		/**
-		 * Spherical map projection.
-		 */
-		static SPHERICAL = 201;
-
-		/**
-		 * Planar map projection with height deformation.
-		 */
-		static HEIGHT = 202;
-
-		/**
-		 * Planar map projection with height deformation using the GPU for height generation.
-		 */
-		static HEIGHT_SHADER = 203;
-
-		/**
-		 * RTIN map mode.
-		 */
-		static MARTINI = 204;
-
-		/**
-		 * Map of the map node types available.
-		 */
-		static mapModes = new Map([
-			[MapView.PLANAR, MapPlaneNode],
-			[MapView.SPHERICAL, MapSphereNode],
-			[MapView.HEIGHT, MapHeightNode],
-			[MapView.HEIGHT_SHADER, MapHeightNodeShader],
-			[MapView.MARTINI, MapMartiniHeightNode]
-		]);
-
-		/**
-		 * LOD control object used to defined how tiles are loaded in and out of memory.
-		 */
-		lod = null;
-
-		/**
-		 * Map tile color layer provider.
-		 */
-		provider = null;
-
-		/**
-		 * Map height (terrain elevation) layer provider.
-		 * 
-		 * Only used for HEIGHT, HEIGHT_SHADER and MARTINI map modes.
-		 */
-		heightProvider = null;
-
-		/**
-		 * Define the type of map node in use, defined how the map is presented.
-		 *
-		 * Should only be set on creation.
-		 */
-		root = null;
-
-		/**
-		 * Indicate if the nodes should cache its children when it is simplified. Nodes that are no longer in use should be kept in memory.
-		 * 
-		 * Usefull for fast moving scenarios to prevent reparsing data in fast moving scenes.
-		 * 
-		 * Should only be used if the child generation process is time consuming. Should be kept off unless required.
-		 */
-		cacheTiles = false;
-		
-
-
-		/**
-		 * Constructor for the map view objects.
-		 *
-		 * @param root - Map view node modes can be SPHERICAL, HEIGHT or PLANAR. PLANAR is used by default. Can also be a custom MapNode instance.
-		 * @param provider - Map color tile provider by default a OSM maps provider is used if none specified.
-		 * @param heightProvider - Map height tile provider, by default no height provider is used.
-		 */
-		constructor(root = MapView.PLANAR, provider = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
-		{
-			super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
-
-			this.lod = new LODRaycast();
-			// this.lod = new LODRadial();
-			// this.lod = new LODFrustum();
-
-			this.provider = provider;
-			this.heightProvider = heightProvider;
-			// 设置根节点，准备开始分裂
-			this.setRoot(root, scale);
-			this.preSubdivide();
-		}
-
-		/**
-		 * Ajust node configuration depending on the camera distance.
-		 * 系统自动调用
-		 * Called everytime automatically before render by the renderer.
-		 */
-		onBeforeRender(renderer, scene, camera, geometry, material, group){
-			this.lod.updateLOD(this, camera, renderer, scene);
-		};
-
-		/**
-		 * Set the root of the map view.
-		 *
-		 * Is set by the constructor by default, can be changed in runtime.
-		 * 设置根节点，可以动态修改。
-		 * @param root - Map node to be used as root.
-		 */
-		setRoot(root, scale)
-		{
-			if (typeof root === 'number') 
-			{
-				if (!MapView.mapModes.has(root)) 
-				{
-					throw new Error('Map mode ' + root + ' does is not registered.');
-				}
-
-				const rootConstructor = MapView.mapModes.get(root);
-
-				// @ts-ignore
-				root = new rootConstructor(null, this);
-			}
-
-			// Remove old root
-			if (this.root !== null) 
-			{
-				this.remove(this.root);
-				this.root = null;
-			}
-
-			// @ts-ignore
-			this.root = root;
-
-			// Initialize root node
-			if (this.root !== null) 
-			{
-				// @ts-ignore
-				
-				// @ts-ignore
-				if (scale === null)
-					this.geometry = this.root.constructor.baseGeometry;
-				else
-					this.geometry = this.root.constructor.getGeometry(scale);
-				this.scale.copy(this.root.constructor.baseScale);
-				this.root.mapView = this;
-				this.add(this.root); // 将mapnode添加到mapview中
-				this.root.initialize(); // 将根mapnode初始化
-			}
-		}
-
-		/**
-		 * Pre-subdivide map tree to create nodes of levels not available in the provider.
-		 * 
-		 * Checks for the minimum zoom level in the providers attached to the map view.
-		 * 如果数据提供者最小zoom为1，则预分裂只需要分裂到level1，如果为2，则需要分裂到level2
-		 * 同理如果minzoom最小为5，则直接会分裂到level5
-		 */
-		preSubdivide()
-		{
-			function subdivide(node, depth) 
-			{
-				if (depth <= 0) 
-				{
-					return;
-				}
-
-				node.subdivide(); // 创建当前节点的子节点，如level1下的level2四个节点
-
-				for (let i = 0; i < node.children.length; i++) 
-				{
-					if (node.children[i] instanceof MapNode) 
-					{
-						const child = node.children[i];
-						subdivide(child, depth - 1);
-					}
-				}
-			}
-
-			const minZoom = Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
-			if (minZoom > 0) 
-			{
-				subdivide(this.root, minZoom);
-			}
-		}
-
-		/**
-		 * Change the map provider of this map view.
-		 *
-		 * Will discard all the tiles already loaded using the old provider.
-		 */
-		setProvider(provider)
-		{
-			if (provider !== this.provider) 
-			{
-				this.provider = provider;
-				this.clear();
-			}
-		}
-
-		/**
-		 * Change the map height provider of this map view.
-		 *
-		 * Will discard all the tiles already loaded using the old provider.
-		 */
-		setHeightProvider(heightProvider)
-		{
-			if (heightProvider !== this.heightProvider) 
-			{
-				this.heightProvider = heightProvider;
-				this.clear();
-			}
-		}
-
-		/**
-		 * Clears all tiles from memory and reloads data. Used when changing the provider.
-		 *
-		 * Should be called manually if any changed to the provider are made without setting the provider.
-		 */
-		clear()
-		{
-			this.traverse(function(children)
-			{
-				// @ts-ignore
-				if (children.childrenCache) 
-				{
-					// @ts-ignore
-					children.childrenCache = null;
-				}
-
-				// @ts-ignore
-				if (children.initialize) 
-				{
-					// @ts-ignore
-					children.initialize();
-				}
-			});
-
-			return this;
-		}
-
-		/**
-		 * Get the minimum zoom level available in the providers attached to the map view.
-		 * 
-		 * @returns Minimum zoom level available.
-		 */
-		minZoom() 
-		{
-			return Math.max(this.provider.minZoom, this.heightProvider?.minZoom ?? -Infinity);
-		}
-
-		/**
-		 * Get the maximum zoom level available in the providers attached to the map view.
-		 * 
-		 * @returns Maximum zoom level available.
-		 */
-		maxZoom() 
-		{
-			return Math.min(this.provider.maxZoom, this.heightProvider?.maxZoom ?? Infinity);
-		}
-
-		/**
-		 * Get map meta data from server if supported.
-		 */
-		getMetaData()
-		{
-			this.provider.getMetaData();
-		}
-
-		raycast(raycaster, intersects)
-		{
-			return false;
-		}
-	}
-
-	new Vector3();
-	new Vector3();
-	/**
-	 * Use random raycasting to randomly pick n objects to be tested on screen space.
-	 *
-	 * Overall the fastest solution but does not include out of screen objects.
-	 */
-	class LODSphere extends LODControl 
-	{
-		/**
-		 * Number of rays used to test nodes and subdivide the map.
-		 *
-		 * N rays are cast each frame dependeing on this value to check distance to the visible map nodes. A single ray should be enough for must scenarios.
-		 */
-		subdivisionRays = 1;
-
-		/**
-		 * Raycaster object used to cast rays into the world and check for hits.
-		 */
-		raycaster = new Raycaster();
-
-		/**
-		 * Normalized mouse coordinates.
-		 */
-		mouse = new Vector2();
-
-
-		constructor(subdivideDistance = 120, simplifyDistance = 400){
-			super();
-	        this.subdivideDistance = subdivideDistance;
-			this.simplifyDistance = simplifyDistance;
-		}
-
-		updateLOD(view, camera, renderer, scene)
-		{
-			const intersects = [];
-			
-			for (let t = 0; t < this.subdivisionRays; t++) 
-			{
-				// Generate random point in viewport
-				this.mouse.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
-
-				// Check intersection
-				this.raycaster.setFromCamera(this.mouse, camera);
-				this.raycaster.intersectObjects(view.children, true, intersects);
-			}
-
-			for (let i = 0; i < intersects.length; i++) 
-			{
-				const node = intersects[i].object;
-				let distance = intersects[i].distance;
-
-				distance /= Math.pow(2, view.provider.maxZoom - node.level);
-
-				if (distance < this.subdivideDistance) 
-				{
-					node.subdivide();
-				}
-				else if (distance > this.simplifyDistance && node.parentNode) 
-				{
-					node.parentNode.simplify();
-				}
-			}
-		}
-	}
-
-	/**
-	 * XHR utils contains public static methods to allow easy access to services via XHR.
-	 */
-	class XHRUtils 
-	{
-		/**
-		 * Get file data from URL as text, using a XHR call.
-		 *
-		 * @param url - Target for the request.
-		 * @param onLoad - On load callback.
-		 * @param onError - On progress callback.
-		 */
-		static async get(url)
-		{
-			return new Promise(function(resolve, reject) 
-			{
-				const xhr = new XMLHttpRequest();
-				xhr.overrideMimeType('text/plain');
-				xhr.open('GET', url, true);
-
-				xhr.onload = function() 
-				{
-					resolve(xhr.response);
-				};
-
-				xhr.onerror = reject;
-				xhr.send(null);
-			});
-		}
-
-		/**
-		 * Get raw file data from URL, using a XHR call.
-		 *
-		 * @param url - Target for the request.
-		 * @param onLoad - On load callback.
-		 * @param onError - On progress callback.
-		 */
-		static async getRaw(url)
-		{
-			return new Promise(function(resolve, reject) 
-			{
-				var xhr = new XMLHttpRequest();
-				xhr.responseType = 'arraybuffer';
-				xhr.open('GET', url, true);
-
-				xhr.onload = function() 
-				{
-					resolve(xhr.response);
-				};
-
-				xhr.onerror = reject;
-				xhr.send(null);
-			});
-		}
-
-		/**
-		 * Perform a request with the specified configuration.
-		 *
-		 * Syncronous request should be avoided unless they are strictly necessary.
-		 *
-		 * @param url - Target for the request.
-		 * @param type - Resquest type (POST, GET, ...)
-		 * @param header - Object with data to be added to the request header.
-		 * @param body - Data to be sent in the resquest.
-		 * @param onLoad - On load callback, receives data (String or Object) and XHR as arguments.
-		 * @param onError - XHR onError callback.
-		 */
-		static request(url, type, header, body, onLoad, onError, onProgress) 
-		{
-			function parseResponse(response)
-			{
-				try 
-				{
-					return JSON.parse(response);
-				}
-				catch (e) 
-				{
-					return response;
-				}
-			}
-
-			const xhr = new XMLHttpRequest();
-			xhr.overrideMimeType('text/plain');
-			xhr.open(type, url, true);
-
-			// Fill header data from Object
-			if (header !== null && header !== undefined) 
-			{
-				for (const i in header) 
-				{
-					xhr.setRequestHeader(i, header[i]);
-				}
-			}
-
-			if (onLoad !== undefined) 
-			{
-				xhr.onload = function(event) 
-				{
-					onLoad(parseResponse(xhr.response), xhr);
-				};
-			}
-
-			if (onError !== undefined) 
-			{
-				// @ts-ignore
-				xhr.onerror = onError;
-			}
-
-			if (onProgress !== undefined) 
-			{
-				// @ts-ignore
-				xhr.onprogress = onProgress;
-			}
-
-			xhr.send(body !== undefined ? body : null);
-
-			return xhr;
-		}
-	}
-
-	class ErrorCode {
-	    static  UNKNOWN_ERROR = 'UNKNOWN_ERROR';
-	    static  INVALID_REQUEST = 'INVALID_REQUEST';
-	    // 不同类型的错误用不同的数字进行开头
-	    static  ImageConvert = '10001';
-	    static  ImageDownload = '10002';
-	}
-
-	/**
-	 * Bing maps tile provider.
-	 *
-	 * API Reference
-	 *  - https://msdn.microsoft.com/en-us/library/bb259689.aspx (Bing Maps Tile System)
-	 *  - https://msdn.microsoft.com/en-us/library/mt823633.aspx (Directly accessing the Bing Maps tiles)
-	 *  - https://www.bingmapsportal.com/
-	 */
-	class BingMapsProvider extends MapProvider 
-	{
-		/**
-		 * Base address of the bing map provider.
-		 */
-		static ADDRESS = 'https://dev.virtualearth.net';
-
-		/**
-		 * Maximum zoom level allowed by the provider.
-		 */
-		maxZoom = 19;
-
-		/**
-		 * Minimum zoom level allowed by the provider.
-		 */
-		minZoom = 1;
-
-		/**
-		 * Server API access token.
-		 */
-		apiKey;
-
-		/**
-		 * The type of the map used.
-		 */
-		type;
-
-		/**
-		 * Map image tile format, the formats available are:
-		 *  - gif: Use GIF image format.
-		 *  - jpeg: Use JPEG image format. JPEG format is the default for Road, Aerial and AerialWithLabels imagery.
-		 *  - png: Use PNG image format. PNG is the default format for OrdnanceSurvey imagery.
-		 */
-		format = 'jpeg';
-
-		/**
-		 * Size of the map tiles.
-		 */
-		tileSize = 256;
-
-		/**
-		 * Tile server subdomain.
-		 */
-		subdomain = 't1';
-
-		/**
-		 * Metadata of the provider.
-		 */
-		meta = null;
-
-		/**
-		 * @param apiKey - Bing API key.
-		 * @param type - Type provider.
-		 */
-		constructor(apiKey = '', type = BingMapsProvider.AERIAL) 
-		{
-			super();
-
-			this.apiKey = apiKey;
-			this.type = type;
-		}
-
-		/**
-		 * Display an aerial view of the map.
-		 */
-		static AERIAL = 'a';
-
-		/**
-		 * Display a road view of the map.
-		 */
-		static ROAD = 'r';
-
-		/**
-		 * Display an aerial view of the map with labels.
-		 */
-		static AERIAL_LABELS = 'h';
-
-		/**
-		 * Use this value to display a bird's eye (oblique) view of the map.
-		 */
-		static OBLIQUE = 'o';
-
-		/**
-		 * Display a bird's eye (oblique) with labels view of the map.
-		 */
-		static OBLIQUE_LABELS = 'b';
-
-		/**
-		 * Get the base URL for the map configuration requested.
-		 *
-		 * Uses the follwing format
-		 * 
-		 * http://ecn.\{subdomain\}.tiles.virtualearth.net/tiles/r\{quadkey\}.jpeg?g=129&mkt=\{culture\}&shading=hill&stl=H
-		 */
-		async getMetaData() 
-		{
-			const address = BingMapsProvider.ADDRESS + '/REST/V1/Imagery/Metadata/RoadOnDemand?output=json&include=ImageryProviders&key=' + this.apiKey;
-			const data = await XHRUtils.get(address);
-
-			this.meta = JSON.parse(data);
-		}
-
-		/**
-		 * Convert x, y, zoom quadtree to a bing maps specific quadkey.
-		 *
-		 * Adapted from original C# code at https://msdn.microsoft.com/en-us/library/bb259689.aspx.
-		 */
-		static quadKey(zoom, x, y)
-		{
-			let quad = '';
-
-			for (let i = zoom; i > 0; i--) 
-			{
-				const mask = 1 << i - 1;
-				let cell = 0;
-
-				if ((x & mask) !== 0) 
-				{
-					cell++;
-				}
-
-				if ((y & mask) !== 0) 
-				{
-					cell += 2;
-				}
-
-				quad += cell;
-			}
-
-			return quad;
-		}
-
-		static convert(image, resolve, reject){
-			let imageSize = 256;
-			const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
-			const context = canvas.getContext('2d');
-			context.imageSmoothingEnabled = false;
-			context.drawImage(image, 0, 0, imageSize, imageSize, 0, 0, imageSize, imageSize);
-
-			const imageData = context.getImageData(0, 0, imageSize, imageSize); // 图像变成17*17像素
-			const data = imageData.data;
-			for (let i = 0; i < data.length; i += 4) {
-			    let gray = (data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11);
-				data[i] = gray;
-				data[i+1] = gray;
-				data[i+2] = gray;	
-			}
-			// context.putImageData(imageData, 0, 0);
-			// 此处仅仅是修改了画布上的数据。
-			// 如何生成一个图片对象并返回。
-			var img = new Image();
-			img.onload = () => {
-			// 画图片
-				ctx.drawImage(img, 60, 0);
-				// toImage
-				var dataImg = new Image();
-				dataImg.src = canvas.toDataURL('image/png');
-				resolve(dataImg);
-			};
-			img.onerror = function() {
-					reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
-			};
-
-		}
-
-		fetchTile(zoom, x, y)
-		{
-			return new Promise((resolve, reject) => 
-			{
-				const image = document.createElement('img');
-				// imgage = new Image();
-				image.onload = function() 
-				{
-					// BingMapsProvider.convert(image);
-					// 这里这个convert先禁用。
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
-				// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
-				// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
-			});
-		}
 	}
 
 	// OrbitControls performs orbiting, dollying (zooming), and panning.
@@ -46665,10 +32865,3624 @@
 	}
 
 	/**
+	 * A map provider is a object that handles the access to map tiles of a specific service.
+	 *
+	 * They contain the access configuration and are responsible for handling the map theme size etc.
+	 *
+	 * MapProvider should be used as a base for all the providers.
+	 */
+	class MapProvider 
+	{
+		/**
+		 * Name of the map provider
+		 */
+		name = '';
+
+		/**
+		 * Minimum tile level.
+		 */
+		minZoom = 0;
+
+		/**
+		 * Maximum tile level.
+		 */
+		maxZoom = 25;
+
+		/**
+		 * Map tile size.
+		 */
+		tileSize = 256;
+
+		/**
+		 * Map bounds.
+		 */
+		bounds = [];
+
+		/**
+		 * Map center point.
+		 */
+		center = [];
+
+		/**
+		 * Get a tile for the x, y, zoom based on the provider configuration.
+		 *
+		 * The tile should be returned as a image object, compatible with canvas context 2D drawImage() and with webgl texImage2D() method.
+		 *
+		 * @param zoom - Zoom level.
+		 * @param x - Tile x.
+		 * @param y - Tile y.
+		 * @returns Promise with the image obtained for the tile ready to use.
+		 */
+		fetchTile(zoom, x, y)
+		{
+			return null;
+		}
+
+		/**
+		 * Get map meta data from server if supported.
+		 *
+		 * Usually map server have API method to retrieve TileJSON metadata.
+		 */
+		async getMetaData() {}
+	}
+
+	/**
+	 * Open street maps tile server.
+	 *
+	 * Works with any service that uses a address/zoom/x/y.format URL for tile access.
+	 */
+	class OpenStreetMapsProvider extends MapProvider 
+	{
+		/**
+		* Map server address.
+		*
+		* By default the open OSM tile server is used.
+		*/
+		address;
+
+		/**
+		* Map image tile format.
+		*/
+		format;
+
+		constructor(address = 'https://a.tile.openstreetmap.org/')
+		{
+			super();
+
+			this.address = address;
+			this.format = 'png';
+			this.maxZoom = 19;
+		}
+
+		fetchTile(zoom, x, y)
+		{
+			return new Promise<HTMLImageElement>((resolve, reject) => 
+			{
+				const image = document.createElement('img');
+				image.onload = function() 
+				{
+					resolve(image);
+				};
+				image.onerror = function() 
+				{
+					reject();
+				};
+				image.crossOrigin = 'Anonymous';
+				image.src = this.address + zoom + '/' + x + '/' + y + '.' + this.format;
+			});
+		}
+	}
+
+	/**
+	 * Contains utils to handle canvas element manipulation and common canvas operations.
+	 */
+	class CanvasUtils 
+	{
+		/**
+	     * Create a offscreen canvas, used to draw content that will not be displayed using DOM.
+	     * 
+	     * If OffscreenCanvas object is no available creates a regular DOM canvas object instead.
+	     * 
+	     * @param width - Width of the canvas in pixels.
+	     * @param height - Height of the canvas in pixels.
+	     */
+		static createOffscreenCanvas(width, height) 
+		{
+			if (typeof OffscreenCanvas !== 'undefined') 
+			{
+				return new OffscreenCanvas(width, height);
+			}
+			else 
+			{
+				let canvas = document.createElement('canvas');
+				canvas.width = width;
+				canvas.height = height;
+				return canvas;
+			}
+		}
+
+		static createImageData(image,imgWidth,imgHeight, targetWidth, targetHeight){
+			const canvas = CanvasUtils.createOffscreenCanvas(targetWidth, targetHeight); 
+
+			const context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			context.drawImage(image, 0, 0, imgWidth, imgHeight, 0, 0, canvas.width, canvas.height);
+
+			const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+			// var img = new Image();
+			// img.src = canvas.toDataURL();
+			// 这里返回OffscreenCanvas是因为threejs的Texture可以接受image和offscreenCanvas
+			return imageData;
+		}
+	}
+
+	/**
+	 * Utils for texture creation and manipulation.
+	 */
+	class TextureUtils 
+	{
+		/**
+	      * Create a new texture filled with a CSS style.
+	      * 
+	      * Can be color, gradient or pattern. Supports all options supported in the fillStyle of the canvas API.
+	      * 
+	      * @param color - Style to apply to the texture surface.
+	      * @param width - Width of the canvas in pixels.
+	      * @param height - Height of the canvas in pixels.
+	      */
+		static createFillTexture(color = '#FFFFFF', width = 1, height = 1)
+		{
+			const canvas = CanvasUtils.createOffscreenCanvas(width, height);
+
+			const context = canvas.getContext('2d');
+			context.fillStyle = color;
+			context.fillRect(0, 0, width, height);
+
+			const texture = new Texture(canvas);
+			texture.format = RGBAFormat;
+			texture.magFilter = LinearFilter;
+			texture.minFilter = LinearFilter;
+			texture.generateMipmaps = false;
+			texture.needsUpdate = true;
+	        
+			return texture;
+		}
+	}
+
+	/**
+	 * Geolocation is used to represent a position in earth using WGS84 Datum units.
+	 */
+	class Geolocation 
+	{
+		/**
+	     * Latitude in degrees. Range from -90° to 90°.
+		 * 维度
+	     */
+		latitude;
+
+		/**
+	     * longitude in degrees. Range from -180° to 180°.
+		 * 经度
+	     */
+		longitude;
+
+		constructor(latitude, longitude) 
+		{
+			this.latitude = latitude;
+			this.longitude = longitude;
+		}
+	}
+
+	/**
+	 * Units utils contains methods to convert data between representations.
+	 *
+	 * Multiple methods are used to reprent world coordinates based on the type of data being presented.
+	 * 
+	 * WGS84 is the most commonly used representation with (latitude, longitude, altitude).
+	 * 
+	 * EPSG:900913 is used for planar coordinates in (X, Y, Z)
+	 */
+	class UnitsUtils 
+	{
+		/**
+		 * Average radius of earth in meters. // 赤道平均半径
+		 */
+		static EARTH_RADIUS = 6371008;
+
+		/**
+		 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
+		 */
+		static EARTH_RADIUS_A = 6378137.0;
+
+		/**
+		 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
+		 */
+		static EARTH_RADIUS_B = 6356752.314245;
+
+		/**
+		 * Earth equator perimeter in meters.
+		 */
+		static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
+
+		/**
+		 * Earth equator perimeter in meters.
+		 */
+		static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
+
+			/**
+		 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
+		 */
+		static MERCATOR_MAX_EXTENT = 20037508.342789244;
+
+		static tileWidth(level){
+			return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
+		}
+
+		/**
+		 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
+		 *	经纬度转为世界坐标（x,y） 
+		 * @param latitude - Latitude value in degrees. 纬度
+		 * @param longitude - Longitude value in degrees. 经度
+		 */
+		static datumsToSpherical(latitude, longitude)
+		{
+			const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
+			let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
+
+			y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
+
+			return new Vector2(x, y);
+		}
+
+		/**
+		 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
+		 * 计算世界坐标(x,y)到经纬度(lat,lon)
+		 * @param x - X coordinate.
+		 * @param y - Y coordinate.
+		 */
+		static sphericalToDatums(x, y)
+		{
+			const longitude = x / UnitsUtils.EARTH_ORIGIN * 180.0;
+			let latitude = y / UnitsUtils.EARTH_ORIGIN * 180.0;
+
+			latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
+
+			return new Geolocation(latitude, longitude);
+		}
+
+		/**
+		 * Converts quad tree zoom/x/y to lat/lon in WGS84 Datum.
+		 * 
+		 * The X and Y start from 0 from the top/left corner of the quadtree up to (4^zoom - 1)
+		 *
+		 * @param zoom - Zoom level of the quad tree.
+		 * @param x - X coordinate.
+		 * @param y - Y coordinate.
+		 */
+		static quadtreeToDatums(zoom, x, y)
+		{
+			const n = Math.pow(2.0, zoom);
+			const longitude = x / n * 360.0 - 180.0;
+			const latitudeRad = Math.atan(Math.sinh(Math.PI * (1.0 - 2.0 * y / n)));
+			const latitude = 180.0 * (latitudeRad / Math.PI);
+
+			return new Geolocation(latitude, longitude);
+		}
+
+		/**
+		 * Direction vector to WGS84 coordinates.
+		 * 
+		 * Can be used to transform surface points of world sphere to coordinates.
+		 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
+		 * @param dir - Direction vector.
+		 * @returns WGS84 coordinates.
+		 */
+		static vectorToDatums(dir) 
+		{
+			const radToDeg = 180 / Math.PI;
+
+			const latitude = Math.atan2(dir.y, Math.sqrt(Math.pow(dir.x, 2) + Math.pow(-dir.z, 2))) * radToDeg;
+			const longitude = Math.atan2(-dir.z, dir.x) * radToDeg;
+
+			return new Geolocation(latitude, longitude);
+		}
+
+		
+		/**
+		 * Get a direction vector from WGS84 coordinates.
+		 * 
+		 * The vector obtained will be normalized.
+		 * 经纬度到空间内（x,y,z）的转换。
+		 * @param latitude - Latitude value in degrees.
+		 * @param longitude - Longitude value in degrees.
+		 * @returns Direction vector normalized.
+		 */
+		static datumsToVector(latitude, longitude) 
+		{
+			const degToRad = Math.PI / 180;
+			
+			const rotX = longitude * degToRad;
+			const rotY = latitude * degToRad;
+
+			var cos = Math.cos(rotY);
+			
+			return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
+		}
+
+		/**
+		 * Get altitude from RGB color for mapbox altitude encoding
+		 * 
+		 * https://docs.mapbox.com/data/tilesets/guides/access-elevation-data/~
+		 * 
+		 * @param color - Color of the pixel
+		 * @returns The altitude encoded in meters.
+		 */
+		static mapboxAltitude(color) 
+		{
+			return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
+		}
+		
+		/**
+		 * WGS84经纬度转平面xy坐标
+		 * @param {*} lat 维度
+		 * @param {*} lon 经度
+		 * @returns {Vector2}
+		 */
+		static latLonToXy(lat, lon){
+			let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
+			let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
+			return new Vector2(x, y);
+		}
+
+		/**
+		 * 平面xy坐标转WGS84经纬度
+		 * @param {*} x 
+		 * @param {*} y 
+		 * @returns {Geolocation}
+		 */
+		static xyToLatLon(x, y){
+		    let lat = y/UnitsUtils.EARTH_RADIUS_A *180 /Math.PI;
+			let lon = x/(UnitsUtils.EARTH_RADIUS_A * Math.cos(lat/180 *Math.PI))*180 /Math.PI;
+			return new Geolocation(lat, lon);
+		}
+
+		/**
+		 * @param {*} lat 维度 
+		 * @param {*} lng 经度
+		 * @returns {Vector2}
+		 */
+		static mecatorLL2XY(lat, lng){
+			let earthRad = UnitsUtils.EARTH_RADIUS_A;
+			let x = ((lng * Math.PI) / 180) * earthRad;
+			let a = (lat * Math.PI) / 180;
+			let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
+			return new Vector2(x, y)
+		}
+
+
+		/**
+		 * Get the size of a web mercator tile in mercator coordinates
+		 * 计算每个tile的大小，单位是米
+		 * 	 
+		 * @param zoom - the zoom level of the tile
+		 * @returns the size of the tile in mercator coordinates
+		 */
+		static getTileSize(zoom){
+			const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
+			const numTiles = Math.pow(2, zoom);
+			return 2 * maxExtent / numTiles;	
+		}
+
+		/**
+		 * Get the bounds of a web mercator tile in mercator coordinates
+		 * 	 x,y的起止， 和tilsize的大小。
+		 * @param zoom - the zoom level of the tile
+		 * @param x - the x coordinate of the tile
+		 * @param y - the y coordinate of the tile
+		 * @returns list of bounds - [startX, sizeX, startY, sizeY]
+		 */
+		static tileBounds(zoom, x, y){
+			const tileSize = UnitsUtils.getTileSize(zoom);
+			const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+			const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
+			return [minX, tileSize, minY, tileSize];
+		}
+
+		/**
+		 * Get the latitude value of a given mercator coordinate and zoom level
+		 * 
+		 * @param zoom - the zoom level of the coordinate
+		 * @param y - the y mercator coordinate
+		 * @returns - latitude of coordinate in radians
+		 */
+		static mercatorToLatitude(zoom, y) {
+			const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
+			return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS));
+		}
+
+		/**
+		 * Get the latitude value of a given mercator coordinate and zoom level
+		 * 
+		 * @param zoom - the zoom level of the coordinate
+		 * @param x - the x mercator coordinate
+		 * @returns - longitude of coordinate in radians
+		 */
+		static mercatorToLongitude(zoom, x) {
+			const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
+			return xMerc / UnitsUtils.EARTH_RADIUS;
+		}
+	}
+
+	/**
+	 * Constants to store quad-tree positions.
+	 */
+	class QuadTreePosition 
+	{
+		/**
+		 * Root node has no location.
+		 */
+		static root = -1;
+
+		/**
+		 * Index of top left quad-tree branch node.
+		 *
+		 * Can be used to navigate the children array looking for neighbors.
+		 */
+		static topLeft = 0;
+
+		/**
+		 * Index of top left quad-tree branch node.
+		 *
+		 * Can be used to navigate the children array looking for neighbors.
+		 */
+		static topRight = 1;
+
+		/**
+		 * Index of top left quad-tree branch node.
+		 *
+		 * Can be used to navigate the children array looking for neighbors.
+		 */
+		static bottomLeft = 2;
+
+		/**
+		 * Index of top left quad-tree branch node.
+		 *
+		 * Can be used to navigate the children array looking for neighbors.
+		 */
+		static bottomRight = 3;
+	}
+
+	/**
+	 * Represents a map tile node inside of the tiles quad-tree
+	 *
+	 * Each map node can be subdivided into other nodes.
+	 *
+	 * It is intended to be used as a base class for other map node implementations.
+	 */
+	class MapNode extends Mesh 
+	{
+		/**
+		 * Default texture used when texture fails to load.
+		 */
+		static defaultTexture = TextureUtils.createFillTexture();
+
+		/**
+		 * The map view object where the node is placed.
+		 */
+		mapView = null;
+
+		/**
+		 * Parent node (from an upper tile level).
+		 */
+		parentNode = null;
+
+		/**
+		 * Index of the map node in the quad-tree parent node.
+		 *
+		 * Position in the tree parent, can be topLeft, topRight, bottomLeft or bottomRight.
+		 */
+		location;
+
+		/**
+		 * Tile level of this node.
+		 */
+		level;
+
+		/**
+		 * Tile x position.
+		 */
+		x;
+
+		/**
+		 * Tile y position.
+		 */
+		y;
+
+
+
+		/**
+		 * Variable to check if the node is subdivided.
+		 *
+		 * To avoid bad visibility changes on node load.
+		 */
+		subdivided = false;
+
+		/**
+		 * Flag to indicate if the map node was disposed.
+		 * 
+		 * When a map node is disposed its resources are dealocated to save memory.
+		 */
+		disposed = false;
+
+		/**
+		 * Indicates how many children nodes are loaded.
+		 * 
+		 * The child on become visible once all of them are loaded.
+		 */
+		nodesLoaded = 0;
+
+		/**
+		 * Cache with the children objects created from subdivision.
+		 *
+		 * Used to avoid recreate object after simplification and subdivision.
+		 *
+		 * The default value is null. Only used if "cacheTiles" is set to true.
+		 */
+		childrenCache = null;
+
+		/**
+		 * Base geometry is attached to the map viewer object.
+		 *
+		 * It should have the full size of the world so that operations over the MapView bounding box/sphere work correctly.
+		 */
+		static baseGeometry = null;
+
+		/**
+		 * Base scale applied to the map viewer object.
+		 */
+		static baseScale = null;
+	 
+		/**
+		 * How many children each branch of the tree has.
+		 *
+		 * For a quad-tree this value is 4.
+		 */
+		static childrens = 4;
+
+		/**
+		 * Flag to check if the node is a mesh by the renderer.
+		 *
+		 * Used to toggle the visibility of the node. The renderer skips the node rendering if this is set false.
+		 */
+		// @ts-ignore
+		isMesh = true;
+
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
+		{
+			super(geometry, material);
+
+			this.mapView = mapView;
+			this.parentNode = parentNode;
+			this.disposed = false;
+
+			this.location = location;
+			this.level = level;
+			this.x = x;
+			this.y = y;
+			// this.transparent = mapView.transparent;
+			// this.opacity = mapView.opacity;
+
+			this.initialize();
+		}
+
+		/**
+		 * Initialize resources that require access to data from the MapView.
+		 *
+		 * Called automatically by the constructor for child nodes and MapView when a root node is attached to it.
+		 */
+		async initialize() {}
+		
+		/**
+		 * Create the child nodes to represent the next tree level.
+		 *
+		 * These nodes should be added to the object, and their transformations matrix should be updated.
+		 */
+		createChildNodes() {}
+
+		/**
+		 * Subdivide node,check the maximum depth allowed for the tile provider.
+		 *
+		 * Uses the createChildNodes() method to actually create the child nodes that represent the next tree level.
+		 */
+		subdivide()
+		{
+			const maxZoom = this.mapView.maxZoom();
+			// 先计算与，后计算或
+			// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂
+			if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
+			{
+				return;
+			}
+
+			if (this.mapView.cacheTiles && this.childrenCache !== null) 
+			{
+				// @ts-ignore
+				this.isMesh = false;
+				this.children = this.childrenCache;
+				this.nodesLoaded = this.childrenCache.length;
+			}
+			else 
+			{
+				this.createChildNodes();
+			}
+
+			this.subdivided = true;
+		}
+
+		/**
+		 * Simplify node, remove all children from node, store them in cache.
+		 *
+		 * Reset the subdivided flag and restore the visibility.
+		 * 分裂孩子的逆向调用
+		 * This base method assumes that the node implementation is based off Mesh and that the isMesh property is used to toggle visibility.
+		 */
+		simplify()
+		{
+			const minZoom = this.mapView.minZoom();
+			if (this.level - 1 < minZoom)
+			{
+				return;
+			}
+
+			if (this.mapView.cacheTiles) 
+			{
+				// Store current children in cache.
+				this.childrenCache = this.children;
+			}
+			else
+			{
+				// Dispose resources in use
+				for (let i = 0; i < this.children.length; i++) 
+				{
+					(this.children[i]).dispose();
+				}
+			}
+			
+			// Clear children and reset flags
+			this.subdivided = false;
+			this.isMesh = true;
+			this.children = [];
+			this.nodesLoaded = 0;
+		}
+
+		/**
+		 * Load tile texture from the server.
+		 * 加载材质
+		 * This base method assumes the existence of a material attribute with a map texture.
+		 */
+		async loadData()
+		{
+			if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// @ts-ignore
+				this.material.needsUpdate = true;
+				// this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				// this.material.opacity = 0;
+				return;
+			}
+			let materials = [];
+			for (let provider of this.mapView.providers){
+				let material = this.material.clone();
+				try 
+				{
+					let image = await provider.fetchTile(this.level, this.x, this.y, this.bbox);
+					if (this.disposed) 
+					{
+						return;
+					}
+					
+					const texture = new Texture(image);
+					texture.generateMipmaps = false;
+					texture.format = RGBAFormat;
+					texture.magFilter = LinearFilter;
+					texture.minFilter = LinearFilter;
+					texture.needsUpdate = true;
+					// texture.wrapS = RepeatWrapping;
+					// texture.wrapT = RepeatWrapping;
+					
+					// @ts-ignore
+					material.map = texture;
+					
+					// this.material.transparent = true;
+					material.alphaTest = 0.01;
+					// this.material.opacity = this.opacity;
+				}
+				catch (e) 
+				{
+					if (this.disposed) 
+					{
+						return;
+					}
+					
+					console.warn('Geo-Three: Failed to load node tile data.', this);
+
+					// @ts-ignore
+					this.material.map = MapNode.defaultTexture;
+					// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+					this.material.transparent = true;
+					// this.material.alphaTest = 0.01;
+					this.material.opacity = 0;
+				}
+
+			// @ts-ignore
+				material.needsUpdate = true;
+				materials.push(material);
+			}
+
+			
+			this.material = materials;
+			this.geometry.clearGroups();
+			for (let i = 0; i < materials.length; i++) {
+				this.geometry.addGroup(0, Infinity, i);
+			}
+		}
+
+
+
+		/**
+		 * Increment the child loaded counter.
+		 * 当所有子节点加载完毕后，调用此方法
+		 * 每个节点都有四个子节点
+		 * Should be called after a map node is ready for display.
+		 */
+		nodeReady()
+		{
+			if (this.disposed) 
+			{
+				console.warn('Geo-Three: nodeReady() called for disposed node.', this);
+				this.dispose();
+				return;
+			}
+
+			if (this.parentNode !== null) 
+			{
+				this.parentNode.nodesLoaded++;
+
+				if (this.parentNode.nodesLoaded === MapNode.childrens) 
+				{
+					if (this.parentNode.subdivided === true) 
+					{
+						// @ts-ignore
+						this.parentNode.isMesh = false;
+					}
+					
+					for (let i = 0; i < this.parentNode.children.length; i++) 
+					{
+						this.parentNode.children[i].visible = true;
+					}
+				}
+
+				if (this.parentNode.nodesLoaded > MapNode.childrens) 
+				{
+					console.error('Geo-Three: Loaded more children objects than expected.', this.parentNode.nodesLoaded, this);
+				}
+			}
+			// If its the root object just set visible
+			else
+			{
+				this.visible = true;
+			}
+		}
+
+		/**
+		 * Dispose the map node and its resources.
+		 * 
+		 * Should cancel all pending processing for the node.
+		 */
+		dispose() 
+		{
+			this.disposed = true;
+
+			const self = this;
+
+			try 
+			{
+				const material = self.material;
+				material.dispose();
+
+				// @ts-ignore
+				if (material.map && material.map !== MapNode.defaultTexture)
+				{
+					// @ts-ignore
+					material.map.dispose();
+				}
+			}
+			catch (e) {}
+			
+			try 
+			{
+				self.geometry.dispose();
+			}
+			catch (e) {}	
+		}
+	}
+
+	/**
+	 * Map node geometry is a geometry used to represent the map nodes.
+	 *
+	 * Consists of a XZ plane with normals facing +Y.
+	 * 
+	 * The geometry points start in XZ plane that can be manipulated for example for height adjustment.
+	 * 
+	 * Geometry can also include skirts to mask off missalignments between tiles.
+	 */
+	class MapNodeGeometry extends BufferGeometry
+	{
+		/**
+		 * Map node geometry constructor.
+		 *
+		 * @param width - Width of the node.
+		 * @param height - Height of the node.
+		 * @param widthSegments - Number of subdivisions along the width.
+		 * @param heightSegments - Number of subdivisions along the height.
+		 * @param skirt - Skirt around the plane to mask gaps between tiles. 非高程几何体，不带skirt
+		 */
+		constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0)
+		{
+			super();
+
+			// Buffers
+			const indices = []; // [0,2,1,2,3,1] 四边形分两个三角形进行绘制，顶点索引数组
+			const vertices = []; // 顶点数组，每个顶点的三维坐标
+			const normals = []; // 顶点法线数组，每个顶点的法线向量
+			const uvs = []; // 顶点纹理坐标数组，每个顶点的纹理坐标  [0,1,1,1,0,0,1,0]
+
+
+			// Build plane
+			MapNodeGeometry.buildPlane(width, height, widthSegments, heightSegments, indices, vertices, normals, uvs);
+
+			// Generate the skirt
+			if (skirt)
+			{
+				MapNodeGeometry.buildSkirt(width, height, widthSegments, heightSegments, skirtDepth, indices, vertices, normals, uvs);
+			}
+
+			this.setIndex(indices);
+			this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
+			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+		}
+
+		static buildPlane(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, indices=[], vertices=[], normals=[], uvs=[])
+		{
+			// Half width X  这里基本只能设置为1，和父节点的相对坐标有关系
+			// 以父节点横向和纵向中间点为坐标原点，（xy坐标），所以作为子节点，在拼接
+			// 的时候，xy坐标就限制在了-0.5到0.5之间，所以这里只能设置为1
+			const widthHalf = width / 2; 
+
+			// Half width Z
+			const heightHalf = height / 2;
+
+			// Size of the grid in X
+			const gridX = widthSegments + 1;
+
+			// Size of the grid in Z
+			const gridZ = heightSegments + 1;
+
+			// Width of each segment X
+			const segmentWidth = width / widthSegments;
+			
+			// Height of each segment Z
+			const segmentHeight = height / heightSegments;
+
+			// Generate vertices, normals and uvs
+			for (let iz = 0; iz < gridZ; iz++) 
+			{
+				const z = iz * segmentHeight - heightHalf;
+
+				for (let ix = 0; ix < gridX; ix++) 
+				{
+					const x = ix * segmentWidth - widthHalf;
+
+					vertices.push(x, 0, z);
+					normals.push(0, 1, 0);
+					uvs.push(ix / widthSegments, 1 - iz / heightSegments);
+				}
+			}
+
+			// Indices
+			for (let iz = 0; iz < heightSegments; iz++) 
+			{
+				for (let ix = 0; ix < widthSegments; ix++) 
+				{
+					const a = ix + gridX * iz;
+					const b = ix + gridX * (iz + 1);
+					const c = ix + 1 + gridX * (iz + 1);
+					const d = ix + 1 + gridX * iz;
+
+					// Faces
+					indices.push(a, b, d, b, c, d);
+				}
+			}
+		}
+		// skirts to mask off missalignments between tiles.
+		// 构建裙边以掩盖错位。 和let geom = new THREE.PlaneBufferGeometry(1, 1, 256, 256); 此处很像，当构建裙边以后就是256个段，否则就是255个段
+		// 该方法分别是向下构建一个裙边，不是上面一行代码，是横向平面构建裙边。
+		/**
+		 * 
+		 * @param {*} width 宽度单位，默认1
+		 * @param {*} height 宽度单位，默认1
+		 * @param {*} widthSegments 宽度段数，默认1
+		 * @param {*} heightSegments 高度段数，默认1
+		 * @param {*} skirtDepth 裙边深度
+		 * @param {*} indices 索引数组
+		 * @param {*} vertices 顶点数组
+		 * @param {*} normals 法线数组
+		 * @param {*} uvs 贴图坐标数组
+		 */
+		static buildSkirt(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirtDepth=10, indices=[], vertices=[], normals=[], uvs=[])
+		{
+			// Half width X，  0.5
+			const widthHalf = width / 2;
+
+			// Half width Z， 0.5
+			const heightHalf = height / 2;
+
+			// Size of the grid in X， 17
+			const gridX = widthSegments + 1;
+
+			// Size of the grid in Z, 17
+			const gridZ = heightSegments + 1;
+
+			// Width of each segment X， 1/16 = 0.0625
+			const segmentWidth = width / widthSegments;
+			
+			// Height of each segment Z, 1/16 = 0.0625
+			const segmentHeight = height / heightSegments;
+
+			let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
+
+			// Down X 负向x轴
+			for (let ix = 0; ix < gridX; ix++) 
+			{
+				const x = ix * segmentWidth - widthHalf;
+				const z = -heightHalf;
+				//vertices add values(x,z): [-0.5, -0.5], [-0.4375, -0.5], [-0.375, -0.5], [-0.3125, -0.5],[-0.25, -0.5]
+				vertices.push(x, -skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(ix / widthSegments, 1);
+				// uvs: [0, 1], [0.0625, 1], [0.125, 1], [0.1875, 1], [0.25, 1]
+			}
+
+			// Indices
+			for (let ix = 0; ix < widthSegments; ix++) 
+			{
+				const a = ix;
+				const d = ix + 1;
+				const b = ix + start;
+				const c = ix + start + 1;
+				indices.push(d, b, a, d, c, b);
+				// indices: [1, 289, 0, 1, 290, 289], [2, 290, 1, 2, 291, 290], [3, 291, 2, 3, 292, 291], [4, 292, 3, 4, 293, 292], [5, 293, 4, 5, 294, 293]
+			}
+			// 经过操作， start已经增加了gridx（17）个点 为306
+			start = vertices.length / 3;
+
+			// Up X 正向x轴
+			for (let ix = 0; ix < gridX; ix++) 
+			{
+				const x = ix * segmentWidth - widthHalf; //
+				const z = heightSegments * segmentHeight - heightHalf; // 0.5
+				//vertices add values(x,z): [-0.5, 0.5], [-0.4375, 0.5], [-0.375, 0.5], [-0.3125, 0.5],[-0.25, 0.5]
+				vertices.push(x, -skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(ix / widthSegments, 0);
+				// uvs: [0, 0], [0.0625, 0], [0.125, 0], [0.1875, 0], [0.25, 0]
+			}
+			
+			// Index of the beginning of the last X row
+			let offset = gridX * gridZ - widthSegments - 1; // 17*17-16-1=272
+
+			for (let ix = 0; ix < widthSegments; ix++) 
+			{
+				const a = offset + ix;
+				const d = offset + ix + 1;
+				const b = ix + start;
+				const c = ix + start + 1;
+				indices.push(a, b, d, b, c, d);
+				// indices: [272, 306, 273, 306, 307, 273], [273, 307, 274, 307, 308, 274], [274, 308, 275, 308, 309, 275]
+			}
+			// 经过上轮添加，再次增加了gridx（17）个点， 为306+17=323
+			start = vertices.length / 3;
+
+			// Down Z 负向z轴
+			for (let iz = 0; iz < gridZ; iz++) 
+			{
+				const z = iz * segmentHeight - heightHalf;
+				const x = - widthHalf;
+				//vertices add values(x,z): [-0.5, -0.5], [-0.5，-0.4375], [-0.5，-0.375], [-0.5，-0.3125],[-0.5，-0.25]
+				vertices.push(x, -skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(0, 1 - iz / heightSegments);
+				//uvs: [0, 1], [0, 0.9375], [0, 0.875], [0, 0.8125], [0, 0.75]
+			}
+
+			for (let iz = 0; iz < heightSegments; iz++) 
+			{
+				const a = iz * gridZ;
+				const d = (iz + 1) * gridZ;
+				const b = iz + start;
+				const c = iz + start + 1;
+
+				indices.push(a, b, d, b, c, d);
+				// indices: [0, 323, 17, 323, 324, 17], [17, 324, 34, 324, 325, 34], [34, 325, 51, 325, 326, 51]
+			}
+			// 经过上轮添加，再次增加了gridx（17*2）个点， 为323+17=340
+			start = vertices.length / 3;
+
+			// Up Z 正向z轴
+			for (let iz = 0; iz < gridZ; iz++) 
+			{
+				const z = iz * segmentHeight - heightHalf;
+				const x = widthSegments * segmentWidth - widthHalf;
+				//vertices add values(x,z): [0.5, -0.5], [0.5，-0.4375], [0.5，-0.375], [0.5，-0.3125],[0.5，-0.25]
+				vertices.push(x, -skirtDepth, z);
+				normals.push(0, 1, 0);
+
+				uvs.push(1.0, 1 - iz / heightSegments);
+				//uvs: [1, 1], [1, 0.9375], [1, 0.875], [1, 0.8125], [1, 0.75]
+			}
+
+			for (let iz = 0; iz < heightSegments; iz++) 
+			{
+				const a = iz * gridZ + heightSegments;
+				const d = (iz + 1) * gridZ + heightSegments;
+				const b = iz + start;
+				const c = iz + start + 1;
+				
+				indices.push(d, b, a, d, c, b);
+				// indices: [33, 340, 16, 33, 341, 340], [50, 341, 33, 50, 342, 341], [67, 342, 50, 67, 343, 342]
+			}
+		}
+	}
+
+	/*
+	 * @Author: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
+	 * @Date: 2024-03-28 17:43:14
+	 * @LastEditors: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
+	 * @LastEditTime: 2024-04-10 21:44:55
+	 * @FilePath: \we-geo\src\nodes\MapPlaneNode.js
+	 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+	 */
+	/**
+	 * Represents a basic plane tile node.
+	 */
+	class MapPlaneNode extends MapNode 
+	{
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
+		{
+			super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
+
+			this.matrixAutoUpdate = false;
+			this.isMesh = true;
+			this.visible = false;
+		}
+
+		/**
+		 * Map node plane geometry.
+		 */
+		static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
+
+		static baseGeometry = MapPlaneNode.geometry;
+
+		static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
+
+		async initialize()
+		{
+			super.initialize();
+			
+			await this.loadData();
+			
+			this.nodeReady();
+		}
+
+		createChildNodes()
+		{
+			const level = this.level + 1;
+			const x = this.x * 2;
+			const y = this.y * 2;
+
+			const Constructor = Object.getPrototypeOf(this).constructor;
+
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+			
+			
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+		}
+		
+
+		/**
+		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
+		 */
+		raycast(raycaster, intersects)
+		{
+			if (this.isMesh === true) 
+			{
+				super.raycast(raycaster, intersects);
+			}
+		}
+	}
+
+	class MapNodeHeightGeometry extends BufferGeometry
+	{
+		/**
+		 * Map node geometry constructor.
+		 *
+		 * @param width - Width of the node. 一个节点的宽度 1
+		 * @param height - Height of the node.	一个节点的高度 1
+		 * @param widthSegments - Number of subdivisions along the width. 一个节点在宽度方向上的分割数 16
+		 * @param heightSegments - Number of subdivisions along the height.	一个节点在高度方向上的分割数 16
+		 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是10，calculateNormals默认是true
+		 */
+		constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0, imageData = null, calculateNormals = true)
+		{
+			super();
+
+			// Buffers
+			const indices = [];
+			const vertices = [];
+			const normals = [];
+			const uvs = [];
+
+			// Build plane
+			MapNodeGeometry.buildPlane(width, height, widthSegments, heightSegments, indices, vertices, normals, uvs);
+
+			const data = imageData.data;
+			// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
+			for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) 
+			{
+				const r = data[i];
+				const g = data[i + 1];
+				const b = data[i + 2];
+
+				// The value will be composed of the bits RGB
+				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
+
+				vertices[j + 1] = value;
+			}
+
+			// Generate the skirt
+			// 设置裙边。
+			if (skirt)
+			{
+				MapNodeGeometry.buildSkirt(width, height, widthSegments, heightSegments, skirtDepth, indices, vertices, normals, uvs);
+			}
+
+			this.setIndex(indices);
+			this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
+			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+
+			if (calculateNormals)
+			{
+				this.computeNormals(widthSegments, heightSegments);
+			}
+		}
+
+		/**
+		 * Compute normals for the height geometry.
+		 * 计算法向量
+		 * Only computes normals for the surface of the map geometry. Skirts are not considered.
+		 * 
+		 * @param widthSegments - Number of segments in width.
+		 * @param heightSegments - Number of segments in height.
+		 */
+		computeNormals(widthSegments, heightSegments)
+		{
+			const positionAttribute = this.getAttribute('position');
+		
+			if (positionAttribute !== undefined)
+			{
+				// Reset existing normals to zero
+				let normalAttribute = this.getAttribute('normal');
+				const normalLength = heightSegments * widthSegments;
+				for (let i = 0; i < normalLength; i++)
+				{
+					normalAttribute.setXYZ(i, 0, 0, 0);
+				}
+
+				const pA = new Vector3(), pB = new Vector3(), pC = new Vector3();
+				const nA = new Vector3(), nB = new Vector3(), nC = new Vector3();
+				const cb = new Vector3(), ab = new Vector3();
+				
+				const indexLength = heightSegments * widthSegments * 6;
+				for (let i = 0; i < indexLength ; i += 3)
+				{
+					const vA = this.index.getX(i + 0);
+					const vB = this.index.getX(i + 1);
+					const vC = this.index.getX(i + 2);
+
+					pA.fromBufferAttribute(positionAttribute, vA);
+					pB.fromBufferAttribute(positionAttribute, vB);
+					pC.fromBufferAttribute(positionAttribute, vC);
+
+					cb.subVectors(pC, pB);
+					ab.subVectors(pA, pB);
+					cb.cross(ab);
+
+					nA.fromBufferAttribute(normalAttribute, vA);
+					nB.fromBufferAttribute(normalAttribute, vB);
+					nC.fromBufferAttribute(normalAttribute, vC);
+
+					nA.add(cb);
+					nB.add(cb);
+					nC.add(cb);
+
+					normalAttribute.setXYZ(vA, nA.x, nA.y, nA.z);
+					normalAttribute.setXYZ(vB, nB.x, nB.y, nB.z);
+					normalAttribute.setXYZ(vC, nC.x, nC.y, nC.z);
+				}
+
+				this.normalizeNormals();
+
+				normalAttribute.needsUpdate = true;
+			}
+		}
+	}
+
+	/**
+	 * Represents a height map tile node that can be subdivided into other height nodes.
+	 *
+	 * Its important to update match the height of the tile with the neighbors nodes edge heights to ensure proper continuity of the surface.
+	 *
+	 * The height node is designed to use MapBox elevation tile encoded data as described in https://www.mapbox.com/help/access-elevation-data/
+	 */
+	class MapHeightNode extends MapNode 
+	{
+		/**
+		 * Flag indicating if the tile height data was loaded.
+		 */
+		heightLoaded = false;
+
+		/**
+		 * Flag indicating if the tile texture was loaded.
+		 */
+		textureLoaded = false;
+
+		/**
+		 * Original tile size of the images retrieved from the height provider.
+		 */
+		static tileSize = 256;
+
+		/**
+		 * Size of the grid of the geometry displayed on the scene for each tile.
+		 */
+		geometrySize = 16;
+
+		/**
+		 * If true the tiles will compute their normals.
+		 */
+		geometryNormals = false;
+
+		/**
+		 * Map node plane geometry.
+		 */
+		static geometry = new MapNodeGeometry(1, 1, 1, 1);
+
+		/**
+		 * Base geometry shared across all the nodes.
+		 */
+		static baseGeometry = MapPlaneNode.geometry;
+
+		/**
+		 * Scale to apply to each node.
+		 */
+		static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
+
+		/**
+		 * Map height node constructor.
+		 *
+		 * @param parentNode - The parent node of this node.
+		 * @param mapView - Map view object where this node is placed.
+		 * @param location - Position in the node tree relative to the parent.
+		 * @param level - Zoom level in the tile tree of the node.
+		 * @param x - X position of the node in the tile tree.
+		 * @param y - Y position of the node in the tile tree.
+		 * @param material - Material used to render this height node.
+		 * @param geometry - Geometry used to render this height node.
+		 */
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+		{
+			super(parentNode, mapView, location, level, x, y, geometry, material);
+
+			this.isMesh = true;
+			this.visible = false;
+			this.matrixAutoUpdate = false;
+		}
+
+		async initialize()
+		{
+			super.initialize();
+			
+			await this.loadData();
+			await this.loadHeightGeometry();
+
+			this.nodeReady();
+		}
+
+		/**
+		 * Load tile texture from the server.
+		 *
+		 * Aditionally in this height node it loads elevation data from the height provider and generate the appropiate maps.
+		 */
+		async loadData() 
+		{
+			await super.loadData();
+			
+			this.textureLoaded = true;
+		}
+
+		/**
+		 * Load height texture from the server and create a geometry to match it.
+		 *
+		 * @returns Returns a promise indicating when the geometry generation has finished.
+		 */
+		async loadHeightGeometry() 
+		{
+			if (this.mapView.heightProvider === null) 
+			{
+				throw new Error('GeoThree: MapView.heightProvider provider is null.');
+			}
+	 
+			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				this.geometry = MapPlaneNode.baseGeometry;
+				return;
+			}
+
+			try 
+			{
+				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y, this.bbox);
+	 
+				if (this.disposed) 
+				{
+					return;
+				}
+
+				const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
+
+				const context = canvas.getContext('2d');
+				context.imageSmoothingEnabled = false;
+				context.drawImage(image, 0, 0, MapHeightNode.tileSize, MapHeightNode.tileSize, 0, 0, canvas.width, canvas.height);
+
+				const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+				this.geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				this.geometry = MapPlaneNode.baseGeometry;
+			}
+
+			this.heightLoaded = true;
+		}
+
+		createChildNodes() 
+		{
+			const level = this.level + 1;
+			const Constructor = Object.getPrototypeOf(this).constructor;
+			let bboxs = this.calculateChildLatLon();
+			const x = this.x * 2;
+			const y = this.y * 2;
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(-0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(0.25, 0, -0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(-0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(0.25, 0, 0.25);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+		}
+
+		/**
+		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
+		 */
+		raycast(raycaster, intersects)
+		{
+			if (this.isMesh === true) 
+			{
+				super.raycast(raycaster, intersects);
+			}
+		}
+	}
+
+	/**
+	 * Map node geometry is a geometry used to represent the spherical map nodes.
+	 */
+	class MapSphereNodeGeometry extends BufferGeometry 
+	{
+		/**
+		 * Map sphere geometry constructor.
+		 * 
+		 * @param radius - Radius of the sphere.
+		 * @param width - Width of the node.
+		 * @param height - Height of the node.
+		 * @param widthSegments - Number of subdivisions along the width.
+		 * @param heightSegments - Number of subdivisions along the height.
+		 */
+		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds) 
+		{
+			super();
+
+			const thetaEnd = thetaStart + thetaLength;
+			let index = 0;
+			const grid = [];
+			const vertex = new Vector3();
+			const normal = new Vector3();
+
+			// Buffers
+			const indices = [];
+			const vertices = [];
+			const normals = [];
+			const uvs = [];
+
+			// Generate vertices, normals and uvs
+			for (let iy = 0; iy <= heightSegments; iy++) 
+			{
+				const verticesRow = [];
+				const v = iy / heightSegments;
+
+				for (let ix = 0; ix <= widthSegments; ix++) 
+				{
+					const u = ix / widthSegments;
+
+					// Vertex
+					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
+					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+
+					vertices.push(vertex.x, vertex.y, vertex.z);
+
+					// Normal
+					normal.set(vertex.x, vertex.y, vertex.z).normalize();
+					normals.push(normal.x, normal.y, normal.z);
+
+					// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
+					// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
+				
+					// modify uv
+					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS);
+					
+					let len = this.distance(vertex); // length of the vertex, distance from the center
+					// let len = radius; // length of the vertex, distance from the center
+					let latitude = Math.asin(vertex.y/len); 
+					let longitude = Math.atan2(-vertex.z,vertex.x);
+					// let longitude = Math.atan(-vertex.z);
+					let mercator_x = len * longitude;
+					let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
+					let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+					let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+					uvs.push(x, y);
+					// modify uv end
+					
+					// let latitude = Math.acos(vertex.y);
+					// let longitude = Math.atan(-vertex.z, vertex.x);
+					// uvs.push(longitude, latitude);
+					// uvs.push(u, 1 - v);
+					verticesRow.push(index++);
+				}
+
+				grid.push(verticesRow);
+			}
+
+			// Indices
+			for (let iy = 0; iy < heightSegments; iy++) 
+			{
+				for (let ix = 0; ix < widthSegments; ix++) 
+				{
+					const a = grid[iy][ix + 1];
+					const b = grid[iy][ix];
+					const c = grid[iy + 1][ix];
+					const d = grid[iy + 1][ix + 1];
+
+					if (iy !== 0 || thetaStart > 0) 
+					{
+						indices.push(a, b, d);
+					}
+
+					if (iy !== heightSegments - 1 || thetaEnd < Math.PI) 
+					{
+						indices.push(b, c, d);
+					}
+				}
+			}
+
+			this.setIndex(indices);
+			this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+			this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
+			this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+		}
+
+		/**
+		 * 计算position的长度
+		 * @param {*} postion  
+		 */
+		distance(postion){
+			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
+			return distance;
+		}
+	}
+
+	/** 
+	 * Represents a map tile node.
+	 * 
+	 * A map node can be subdivided into other nodes (Quadtree).
+	 */
+	class MapSphereNode extends MapNode 
+	{	
+		/**
+		 * Base geometry contains the entire globe.
+		 * 
+		 * Individual geometries generated for the sphere nodes are not based on this base geometry.
+		 * 
+		 * Applied to the map view on initialization.
+		 */
+		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+
+		/**
+		 * Base scale of the node.
+		 * 
+		 * Applied to the map view on initialization.
+		 */
+		static baseScale = new Vector3(1, 1, 1);
+
+		/**
+		 * Number of segments per node geometry.
+		 * 
+		 * Can be configured globally and is applied to all nodes.
+		 */
+		static segments = 160;
+		// static segments = 64;
+
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
+		{
+			
+			
+			super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+			// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
+		
+			this.applyScaleNode();
+			this.matrixAutoUpdate = false;
+			this.isMesh = true;
+			this.visible = false;
+		}
+		
+		async initialize()
+		{
+			super.initialize();
+			
+			await this.loadData();
+			
+			this.nodeReady();
+		}
+
+		/**
+		 * Create a geometry for a sphere map node.
+		 *
+		 * @param zoom - Zoom level to generate the geometry for.
+		 * @param x - X tile position.
+		 * @param y - Y tile position.
+		 */
+		static createGeometry(zoom, x, y)
+		{
+			const range = Math.pow(2, zoom);
+			const max = 40;
+			const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
+
+
+		
+			// X
+			// const phiLength = 1 / range * 2 * Math.PI;
+			// const phiStart = x * phiLength;
+			
+			// // 经度
+			const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+			const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+			const phiStart = lon1;
+			const phiLength = lon2 - lon1;
+		
+			// Y
+			// const thetaLength = 1 / range * Math.PI;
+			// const thetaStart = y * thetaLength;
+			// 维度
+			const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+			const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+			const thetaLength = lat1 - lat2;
+			const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+			let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+
+			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
+		}
+		
+		/** 
+		 * Apply scale and offset position to the sphere node geometry.
+		 */
+		applyScaleNode()
+		{
+			this.geometry.computeBoundingBox();
+		
+			const box = this.geometry.boundingBox.clone();
+			const center = box.getCenter(new Vector3());
+		
+			const matrix = new Matrix4();
+			matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
+			this.geometry.applyMatrix4(matrix);
+			// 未赋值matrix的缘故？
+			// this.matrix = matrix;
+			this.position.copy(center);
+			
+			// var centerCopy = this.geometry.boundingBox.getCenter(new Vector3());
+		
+			this.updateMatrix();
+			this.updateMatrixWorld();
+		}
+		
+		updateMatrix()
+		{
+			this.matrix.setPosition(this.position);
+			this.matrixWorldNeedsUpdate = true;
+		}
+		
+		updateMatrixWorld(force = false)
+		{
+			if (this.matrixWorldNeedsUpdate || force) 
+			{
+				// var temp = this.matrix.clone().multiplyScalar(6371008);
+				// this.matrixWorld.copy(temp);
+				this.matrixWorld.copy(this.matrix);
+				this.matrixWorldNeedsUpdate = false;
+			}
+		}
+		
+		createChildNodes()
+		{
+			const level = this.level + 1;
+			const x = this.x * 2;
+			const y = this.y * 2;
+
+			const Constructor = Object.getPrototypeOf(this).constructor;
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			// return;
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+		}
+		/**
+		async loadData()
+		{
+			if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// @ts-ignore
+				this.material.needsUpdate = true;
+				return;
+			}
+
+			try 
+			{
+				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+				
+				if (this.disposed) 
+				{
+					return;
+				}
+							
+				const texture = new Texture(image);
+				texture.generateMipmaps = false;
+				texture.format = RGBAFormat;
+				texture.magFilter = LinearFilter;
+				texture.minFilter = LinearFilter;
+				texture.needsUpdate = true;
+				// @ts-ignore
+				this.material.map = texture;
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.warn('Geo-Three: Failed to load node tile data.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
+
+			// @ts-ignore
+			this.material.needsUpdate = true;
+		}
+		 */
+		
+		/**
+		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
+		 */
+		raycast(raycaster, intersects)
+		{
+			if (this.isMesh === true) 
+			{
+				super.raycast(raycaster, intersects);
+			}
+		}
+
+		shaderMaterial(level,x,y){
+			let bounds = UnitsUtils.tileBounds(level, x, y);
+			// Load shaders
+			const vertexShader = /* WGSL */`
+		varying vec3 vPosition;
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+			const fragmentShader =  /* WGSL */`
+		#define PI 3.141592653589
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 mercatorBounds;
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+			float mercator_x = radius * longitude;
+			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
+			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+			
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
+			
+			// Create shader material
+			let vBounds = new Vector4(...bounds);
+			const material = new ShaderMaterial({
+				uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
+				vertexShader: vertexShader,
+				fragmentShader: fragmentShader
+			});
+			return material;
+		}
+		static getGeometry(scale = 0){
+			let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+			return geometry;
+		}
+	}
+
+	/**
+	 * Map height node that uses GPU height calculation to generate the deformed plane mesh.
+	 *
+	 * This solution is faster if no mesh interaction is required since all trasnformations are done in the GPU the transformed mesh cannot be accessed for CPU operations (e.g. raycasting).
+	 *
+	 * @param parentNode - The parent node of this node.
+	 * @param mapView - Map view object where this node is placed.
+	 * @param location - Position in the node tree relative to the parent.
+	 * @param level - Zoom level in the tile tree of the node.
+	 * @param x - X position of the node in the tile tree.
+	 * @param y - Y position of the node in the tile tree.
+	 */
+	class MapHeightNodeShader extends MapHeightNode 
+	{
+		/**
+		 * Default height texture applied when tile load fails.
+		 * 
+		 * This tile sets the height to sea level where it is common for the data sources to be missing height data.
+		 */
+		static defaultHeightTexture = TextureUtils.createFillTexture('#0186C0');
+
+		/**
+		 * Size of the grid of the geometry displayed on the scene for each tile.
+		 */
+		static geometrySize = 256;
+
+		/**
+		 * Map node plane geometry.
+		 */
+		static geometry = new MapNodeGeometry(1.0, 1.0, MapHeightNodeShader.geometrySize, MapHeightNodeShader.geometrySize, true);
+
+		/**
+		 * Base geometry of the map node.
+		 */
+		static baseGeometry = MapPlaneNode.geometry;
+
+		/**
+		 * Base scale of the map node.
+		 */
+		static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
+		{
+			const material = MapHeightNodeShader.prepareMaterial(new MeshPhongMaterial({map: MapNode.defaultTexture, color: 0xFFFFFF}));
+
+			super(parentNode, mapView, location, level, x, y, MapHeightNodeShader.geometry, material);
+
+			this.frustumCulled = false;
+		}
+
+		/**
+		 * Prepare the three.js material to be used in the map tile.
+		 *
+		 * @param material - Material to be transformed.
+		 */
+		static prepareMaterial(material)
+		{
+			material.userData = {heightMap: {value: MapHeightNodeShader.defaultHeightTexture}};
+
+			material.onBeforeCompile = (shader) => 
+			{
+				// Pass uniforms from userData to the
+				for (const i in material.userData) 
+				{
+					shader.uniforms[i] = material.userData[i];
+				}
+
+				// Vertex variables
+				shader.vertexShader =
+					`
+			uniform sampler2D heightMap;
+			` + shader.vertexShader;
+
+				// Vertex depth logic
+				shader.vertexShader = shader.vertexShader.replace('#include <fog_vertex>', `
+			#include <fog_vertex>
+	
+			// Calculate height of the title
+			vec4 _theight = texture2D(heightMap, vUv);
+			float _height = ((_theight.r * 255.0 * 65536.0 + _theight.g * 255.0 * 256.0 + _theight.b * 255.0) * 0.1) - 10000.0;
+			vec3 _transformed = position + _height * normal;
+	
+			// Vertex position based on height
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(_transformed, 1.0);
+			`);
+			};
+
+			return material;
+		}
+
+		async loadData() 
+		{
+			await super.loadData();
+
+			this.textureLoaded = true;
+		}
+
+		async loadHeightGeometry() 
+		{
+			
+			if (this.mapView.heightProvider === null) 
+			{
+				throw new Error('GeoThree: MapView.heightProvider provider is null.');
+			}
+
+			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				// @ts-ignore
+				this.material.map = MapHeightNodeShader.defaultTexture;
+				// @ts-ignore
+				this.material.needsUpdate = true;
+				return;
+			}
+
+			try 
+			{
+				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				const texture = new Texture(image);
+				texture.generateMipmaps = false;
+				texture.format = RGBAFormat;
+				texture.magFilter = NearestFilter;
+				texture.minFilter = NearestFilter;
+				texture.needsUpdate = true;
+				
+				// @ts-ignore
+				this.material.userData.heightMap.value = texture;
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.error('Geo-Three: Failed to load node tile height data.', this);
+				
+				// Water level texture (assume that missing texture will be water level)
+				// @ts-ignore
+				this.material.userData.heightMap.value = MapHeightNodeShader.defaultHeightTexture;
+			}
+
+			// @ts-ignore
+			this.material.needsUpdate = true;
+
+			this.heightLoaded = true;
+		}
+
+		/**
+		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
+		 *
+		 * Switches the geometry for a simpler one for faster raycasting.
+		 */
+		raycast(raycaster, intersects)
+		{
+			if (this.isMesh === true) 
+			{
+				this.geometry = MapPlaneNode.geometry;
+
+				super.raycast(raycaster, intersects);
+
+				this.geometry = MapHeightNodeShader.geometry;
+			}
+		}
+
+		dispose()
+		{
+			super.dispose();
+
+			// @ts-ignore
+			if (this.material.userData.heightMap.value && this.material.userData.heightMap.value !== MapHeightNodeShader.defaultHeightTexture)
+			{
+				// @ts-ignore
+				this.material.userData.heightMap.value.dispose();
+			}
+		}
+	}
+
+	/**
+	 * LOD control objects define how the map tiles are subsivided or simplified.
+	 */
+	class LODControl 
+	{
+
+		constructor(){
+			
+		}
+		/**
+		 * Update LOD of the MapView and Camera position on the world.
+		 * 
+		 * @param view - Map view for wich the LOD will be updated.
+		 * @param camera - Camera used to view the scene.
+		 * @param renderer - Renderer object.
+		 * @param scene - Scene that compose the mapview.
+		 */
+		updateLOD(view, camera, renderer, scene){}
+	}
+
+	/**
+	 * Use random raycasting to randomly pick n objects to be tested on screen space.
+	 *
+	 * Overall the fastest solution but does not include out of screen objects.
+	 */
+	class LODRaycast extends LODControl 
+	{
+		/**
+		 * Number of rays used to test nodes and subdivide the map.
+		 *
+		 * N rays are cast each frame dependeing on this value to check distance to the visible map nodes. A single ray should be enough for must scenarios.
+		 */
+		subdivisionRays = 1;
+
+		/**
+		 * Threshold to subdivide the map tiles.
+		 *
+		 * Lower value will subdivide earlier (less zoom required to subdivide).
+		 */
+		thresholdUp = 0.6;
+
+		/**
+		 * Threshold to simplify the map tiles.
+		 *
+		 * Higher value will simplify earlier.
+		 */
+		thresholdDown = 0.15;
+
+		/**
+		 * Raycaster object used to cast rays into the world and check for hits.
+		 */
+		raycaster = new Raycaster();
+
+		/**
+		 * Normalized mouse coordinates.
+		 */
+		mouse = new Vector2();
+
+		/**
+		 * Consider the distance powered to level of the node.
+		 */
+		powerDistance = false;
+
+		/**
+		 * Consider the scale of the node when calculating the distance.
+		 * 
+		 * If distance is not considered threshold values should be absolute distances.
+		 */
+		scaleDistance = true;
+
+		constructor(){
+			super();
+		}
+
+		updateLOD(view, camera, renderer, scene)
+		{
+			const intersects = [];
+			
+			for (let t = 0; t < this.subdivisionRays; t++) 
+			{
+				// Generate random point in viewport
+				this.mouse.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
+
+				// Check intersection
+				this.raycaster.setFromCamera(this.mouse, camera);
+				this.raycaster.intersectObjects(view.children, true, intersects);
+			}
+
+			for (let i = 0; i < intersects.length; i++) 
+			{
+				const node = intersects[i].object;
+				let distance = intersects[i].distance;
+
+				if (this.powerDistance) 
+				{
+					distance = Math.pow(distance * 2, node.level);
+				}
+
+				if (this.scaleDistance) 
+				{
+					// Get scale from transformation matrix directly
+					const matrix = node.matrixWorld.elements;
+					const vector = new Vector3(matrix[0], matrix[1], matrix[2]);
+					distance = vector.length() / distance;
+				}
+
+				if (distance > this.thresholdUp) 
+				{
+					node.subdivide();
+				}
+				else if (distance < this.thresholdDown && node.parentNode) 
+				{
+					node.parentNode.simplify();
+				}
+			}
+		}
+	}
+
+	new Vector3();
+	new Vector3();
+
+	new Matrix4();
+	new Vector3();
+	new Frustum();
+	new Vector3();
+
+	/**
+	 * Martini mesh tile generator (Mapbox's Awesome Right-Triangulated Irregular Networks, Improved).
+	 * 
+	 * Represents a height map tile node using the RTIN method from the paper "Right Triangulated Irregular Networks".
+	 * 
+	 * Based off the library https://github.com/mapbox/martini.
+	 */
+	class Martini 
+	{
+		/**
+		 * Size of the grid to be generated.
+		 */
+		gridSize;
+
+		/**
+		 * Number of triangles to be used in the tile.
+		 */
+		numTriangles;
+
+		/**
+		 * Number of triangles in the parent node.
+		 */
+		numParentTriangles;
+
+		/**
+		 * Indices of the triangles faces.
+		 */
+		indices;
+
+		/**
+		 * Coordinates of the points composing the mesh.
+		 */
+		coords;
+
+		/**
+		 * Constructor for the generator.
+		 * 
+		 * @param gridSize - Size of the grid.
+		 */
+		constructor(gridSize = 257) 
+		{
+			this.gridSize = gridSize;
+			const tileSize = gridSize - 1;
+			
+			if (tileSize & tileSize - 1) 
+			{
+				throw new Error(`Expected grid size to be 2^n+1, got ${gridSize}.`);
+			}
+
+			this.numTriangles = tileSize * tileSize * 2 - 2;
+			this.numParentTriangles = this.numTriangles - tileSize * tileSize;
+
+			this.indices = new Uint32Array(this.gridSize * this.gridSize);
+
+			// coordinates for all possible triangles in an RTIN tile
+			this.coords = new Uint16Array(this.numTriangles * 4);
+
+			// get triangle coordinates from its index in an implicit binary tree
+			for (let i = 0; i < this.numTriangles; i++) 
+			{
+				let id = i + 2;
+				let ax = 0, ay = 0, bx = 0, by = 0, cx = 0, cy = 0;
+				if (id & 1) 
+				{
+					bx = by = cx = tileSize; // bottom-left triangle
+				}
+				else 
+				{
+					ax = ay = cy = tileSize; // top-right triangle
+				}
+				while ((id >>= 1) > 1) 
+				{
+					const mx = ax + bx >> 1;
+					const my = ay + by >> 1;
+
+					if (id & 1) 
+					{ // left half
+						bx = ax; by = ay;
+						ax = cx; ay = cy;
+					}
+					else 
+					{ // right half
+						ax = bx; ay = by;
+						bx = cx; by = cy;
+					}
+					cx = mx; cy = my;
+				}
+				const k = i * 4;
+				this.coords[k + 0] = ax;
+				this.coords[k + 1] = ay;
+				this.coords[k + 2] = bx;
+				this.coords[k + 3] = by;
+			}
+		}
+
+		createTile(terrain)
+		{
+			return new Tile(terrain, this);
+		}
+	}
+
+	/**
+	 * Class describes the generation of a tile using the Martini method.
+	 */
+	class Tile 
+	{
+		/**
+		 * Pointer to the martini generator object.
+		 */
+		martini;
+
+		/**
+		 * Terrain to generate the tile for.
+		 */
+		terrain;
+
+		/**
+		 * Errors detected while creating the tile.
+		 */
+		errors;
+
+		constructor(terrain, martini) 
+		{
+			const size = martini.gridSize;
+
+			if (terrain.length !== size * size) 
+			{
+				throw new Error(`Expected terrain data of length ${size * size} (${size} x ${size}), got ${terrain.length}.`);
+			}
+
+			this.terrain = terrain;
+			this.martini = martini;
+			this.errors = new Float32Array(terrain.length);
+			this.update();
+		}
+
+		update()
+		{
+			const {numTriangles, numParentTriangles, coords, gridSize: size} = this.martini;
+			const {terrain, errors} = this;
+
+			// iterate over all possible triangles, starting from the smallest level
+			for (let i = numTriangles - 1; i >= 0; i--) 
+			{
+				const k = i * 4;
+				const ax = coords[k + 0];
+				const ay = coords[k + 1];
+				const bx = coords[k + 2];
+				const by = coords[k + 3];
+				const mx = ax + bx >> 1;
+				const my = ay + by >> 1;
+				const cx = mx + my - ay;
+				const cy = my + ax - mx;
+
+				// calculate error in the middle of the long edge of the triangle
+				const interpolatedHeight = (terrain[ay * size + ax] + terrain[by * size + bx]) / 2;
+				const middleIndex = my * size + mx;
+				const middleError = Math.abs(interpolatedHeight - terrain[middleIndex]);
+
+				errors[middleIndex] = Math.max(errors[middleIndex], middleError);
+
+				if (i < numParentTriangles) 
+				{ // bigger triangles; accumulate error with children
+					const leftChildIndex = (ay + cy >> 1) * size + (ax + cx >> 1);
+					const rightChildIndex = (by + cy >> 1) * size + (bx + cx >> 1);
+					errors[middleIndex] = Math.max(errors[middleIndex], errors[leftChildIndex], errors[rightChildIndex]);
+				}
+			}
+		}
+
+		getMesh(maxError = 0, withSkirts = false)
+		{
+			const {gridSize: size, indices} = this.martini;
+			const {errors} = this;
+			let numVertices = 0;
+			let numTriangles = 0;
+			const max = size - 1;
+			let aIndex, bIndex, cIndex = 0;
+
+			// Skirt indices
+			const leftSkirtIndices = [];
+			const rightSkirtIndices = [];
+			const bottomSkirtIndices = [];
+			const topSkirtIndices = [];
+
+			// Use an index grid to keep track of vertices that were already used to avoid duplication
+			indices.fill(0);
+
+			// Retrieve mesh in two stages that both traverse the error map:
+			// - countElements: find used vertices (and assign each an index), and count triangles (for minimum allocation)
+			// - processTriangle: fill the allocated vertices & triangles typed arrays
+			function countElements(ax, ay, bx, by, cx, cy)
+			{
+				const mx = ax + bx >> 1;
+				const my = ay + by >> 1;
+
+				if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) 
+				{
+					countElements(cx, cy, ax, ay, mx, my);
+					countElements(bx, by, cx, cy, mx, my);
+				}
+				else 
+				{
+					aIndex = ay * size + ax;
+					bIndex = by * size + bx;
+					cIndex = cy * size + cx;
+
+					if (indices[aIndex] === 0) 
+					{
+						if (withSkirts) 
+						{
+							if (ax === 0) 
+							{
+								leftSkirtIndices.push(numVertices);
+							}
+							else if (ax === max)
+							{
+								rightSkirtIndices.push(numVertices);
+							} if (ay === 0) 
+							{
+								bottomSkirtIndices.push(numVertices);
+							}
+							else if (ay === max) 
+							{
+								topSkirtIndices.push(numVertices);
+							}
+						}
+	                    
+						indices[aIndex] = ++numVertices;
+					}
+					if (indices[bIndex] === 0) 
+					{
+						if (withSkirts) 
+						{
+							if (bx === 0) 
+							{
+								leftSkirtIndices.push(numVertices);
+							}
+							else if (bx === max) 
+							{
+								rightSkirtIndices.push(numVertices);
+							} if (by === 0) 
+							{
+								bottomSkirtIndices.push(numVertices);
+							}
+							else if (by === max) 
+							{
+								topSkirtIndices.push(numVertices);
+							}
+						}
+						indices[bIndex] = ++numVertices;
+					}
+					if (indices[cIndex] === 0) 
+					{
+						if (withSkirts) 
+						{
+							if (cx === 0) 
+							{
+								leftSkirtIndices.push(numVertices);
+							}
+							else if (cx === max) 
+							{
+								rightSkirtIndices.push(numVertices);
+							} if (cy === 0) 
+							{
+								bottomSkirtIndices.push(numVertices);
+							}
+							else if (cy === max) 
+							{
+								topSkirtIndices.push(numVertices);
+							}
+						}
+						indices[cIndex] = ++numVertices;
+					}
+					numTriangles++;
+				}
+			}
+
+			countElements(0, 0, max, max, max, 0);
+			countElements(max, max, 0, 0, 0, max);
+
+			let numTotalVertices =numVertices * 2;
+			let numTotalTriangles = numTriangles * 3;
+
+			if (withSkirts) 
+			{
+				numTotalVertices +=(leftSkirtIndices.length + rightSkirtIndices.length + bottomSkirtIndices.length + topSkirtIndices.length) * 2;
+				numTotalTriangles += ((leftSkirtIndices.length - 1) * 2 + (rightSkirtIndices.length - 1) * 2 + (bottomSkirtIndices.length - 1) * 2 + (topSkirtIndices.length - 1) * 2) * 3;
+			}
+
+			const vertices = new Uint16Array(numTotalVertices);
+			const triangles = new Uint32Array(numTotalTriangles);
+
+			let triIndex = 0;
+
+			function processTriangle(ax, ay, bx, by, cx, cy)
+			{
+				const mx = ax + bx >> 1;
+				const my = ay + by >> 1;
+
+				if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) 
+				{
+					// Triangle doesn't approximate the surface well enough; drill down further
+					processTriangle(cx, cy, ax, ay, mx, my);
+					processTriangle(bx, by, cx, cy, mx, my);
+
+				}
+				else 
+				{
+					// Add a triangle
+					const a = indices[ay * size + ax] - 1;
+					const b = indices[by * size + bx] - 1;
+					const c = indices[cy * size + cx] - 1;
+
+					vertices[2 * a] = ax;
+					vertices[2 * a + 1] = ay;
+
+					vertices[2 * b] = bx;
+					vertices[2 * b + 1] = by;
+
+					vertices[2 * c] = cx;
+					vertices[2 * c + 1] = cy;
+					triangles[triIndex++] = a;
+					triangles[triIndex++] = b;
+					triangles[triIndex++] = c;
+				}
+			}
+
+			processTriangle(0, 0, max, max, max, 0);
+			processTriangle(max, max, 0, 0, 0, max);
+
+			if (withSkirts) 
+			{
+				// Sort skirt indices to create adjacent triangles
+				leftSkirtIndices.sort((a, b) => {return vertices[2 * a + 1] - vertices[2 * b + 1];});
+
+				// Reverse (b - a) to match triangle winding
+				rightSkirtIndices.sort((a, b) => {return vertices[2 * b + 1] - vertices[2 * a + 1];});
+
+				bottomSkirtIndices.sort((a, b) => {return vertices[2 * b] - vertices[2 * a];});
+
+				// Reverse (b - a) to match triangle winding
+				topSkirtIndices.sort((a, b) => {return vertices[2 * a] - vertices[2 * b];});
+
+				let skirtIndex = numVertices * 2;
+
+				// Add skirt vertices from index of last mesh vertex
+				function constructSkirt(skirt)
+				{
+					const skirtLength = skirt.length;
+
+					// Loop through indices in groups of two to generate triangles
+					for (let i = 0; i < skirtLength - 1; i++) 
+					{
+						const currIndex = skirt[i];
+						const nextIndex = skirt[i + 1];
+						const currentSkirt = skirtIndex / 2;
+						const nextSkirt = (skirtIndex + 2) / 2;
+
+						vertices[skirtIndex++] = vertices[2 * currIndex];
+						vertices[skirtIndex++] = vertices[2 * currIndex + 1];
+
+						triangles[triIndex++] = currIndex;
+						triangles[triIndex++] = currentSkirt;
+						triangles[triIndex++] = nextIndex;
+
+						triangles[triIndex++] = currentSkirt;
+						triangles[triIndex++] = nextSkirt;
+						triangles[triIndex++] = nextIndex;
+					}
+
+					// Add vertices of last skirt not added above (i < skirtLength - 1)
+					vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1]];
+					vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1] + 1];
+				}
+
+				constructSkirt(leftSkirtIndices);
+				constructSkirt(rightSkirtIndices);
+				constructSkirt(bottomSkirtIndices);
+				constructSkirt(topSkirtIndices);
+			}
+
+			// Return vertices and triangles and index into vertices array where skirts start
+			return {vertices: vertices, triangles: triangles, numVerticesWithoutSkirts: numVertices};
+		}
+	}
+
+	/** 
+	 * Represents a height map tile node using the RTIN method from the paper "Right Triangulated Irregular Networks".
+	 * 
+	 * Based off the library https://github.com/mapbox/martini (Mapbox's Awesome Right-Triangulated Irregular Networks, Improved)
+	 *
+	 * @param parentNode - The parent node of this node.
+	 * @param mapView - Map view object where this node is placed.
+	 * @param location - Position in the node tree relative to the parent.
+	 * @param level - Zoom level in the tile tree of the node.
+	 * @param x - X position of the node in the tile tree.
+	 * @param y - Y position of the node in the tile tree.
+	 * @param material   -Material used to render this height node.
+	 * @param geometry - Geometry used to render this height node.
+	 */
+	class MapMartiniHeightNode extends MapHeightNode
+	{
+		/**
+		 * Geometry size to be used for each martini height node.
+		 */
+		static geometrySize = 16;
+
+		/**
+		 * Empty texture used as a placeholder for missing textures.
+		 */
+		static emptyTexture = new Texture();
+		
+		/**
+		 * Base geometry appied before any custom geometru is used.
+		 */
+		static geometry = new MapNodeGeometry(1, 1, 1, 1);
+
+		/**
+		 * Elevation decoder configuration.
+		 * 
+		 * Indicates how the pixels should be unpacked and transformed into height data.
+		 */
+		elevationDecoder = {
+			rScaler: 256,
+			gScaler: 1,
+			bScaler: 1 / 256,
+			offset: -32768
+		};
+
+		/**
+		 * Original tile size of the images retrieved from the height provider.
+		 */
+		static tileSize = 256;
+
+		/**
+		 * Exageration (scale) of the terrain height.
+		 */
+		exageration = 1.0;
+
+		/**
+		 * Max admissible error in the mesh generation.
+		 */
+		meshMaxError = 10;
+
+		material;
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, {elevationDecoder = null, meshMaxError = 10, exageration = 1} = {})
+		{
+			super(parentNode, mapView, location, level, x, y, MapMartiniHeightNode.geometry, MapMartiniHeightNode.prepareMaterial(new MeshPhongMaterial({
+				map: MapMartiniHeightNode.emptyTexture,
+				color: 0xFFFFFF,
+				side: DoubleSide
+			}), level, exageration));
+
+			
+			// Set elevation decoder method
+			if (elevationDecoder) 
+			{
+				this.elevationDecoder = elevationDecoder;
+			}
+
+			this.meshMaxError = meshMaxError;
+			this.exageration = exageration;
+			this.frustumCulled = false;
+		}
+
+		/**
+		 * Prepare materia for usage in the height node.
+		 * 
+		 * @param material - Material to be prepared for usage.
+		 * @param level - Depth of the tree.
+		 * @param exageration - Exageration to apply to the terrain.
+		 * @returns The material trasnformed.
+		 */
+		static prepareMaterial(material, level, exageration = 1.0) 
+		{
+			material.userData = {
+				heightMap: {value: MapMartiniHeightNode.emptyTexture},
+				drawNormals: {value: 0},
+				drawBlack: {value: 0},
+				zoomlevel: {value: level},
+				computeNormals: {value: 1},
+				drawTexture: {value: 1}
+			};
+
+			material.onBeforeCompile = (shader) => 
+			{
+				// Pass uniforms from userData to the
+				for (let i in material.userData) 
+				{
+					shader.uniforms[i] = material.userData[i];
+				}
+
+				// Vertex variables
+				shader.vertexShader =
+					`
+				uniform bool computeNormals;
+				uniform float zoomlevel;
+				uniform sampler2D heightMap;
+				` + shader.vertexShader;
+				
+				shader.fragmentShader =
+					`
+				uniform bool drawNormals;
+				uniform bool drawTexture;
+				uniform bool drawBlack;
+				` + shader.fragmentShader;
+
+				// Vertex depth logic
+				shader.fragmentShader = shader.fragmentShader.replace('#include <dithering_fragment>',
+					`
+				if(drawBlack) {
+					gl_FragColor = vec4( 0.0,0.0,0.0, 1.0 );
+				} else if(drawNormals) {
+					gl_FragColor = vec4( ( 0.5 * vNormal + 0.5 ), 1.0 );
+				} else if (!drawTexture) {
+					gl_FragColor = vec4( 0.0,0.0,0.0, 0.0 );
+				}`
+				);
+
+				shader.vertexShader = shader.vertexShader.replace('#include <fog_vertex>',
+					`
+				#include <fog_vertex>
+
+				// queried pixels:
+				// +-----------+
+				// |   |   |   |
+				// | a | b | c |
+				// |   |   |   |
+				// +-----------+
+				// |   |   |   |
+				// | d | e | f |
+				// |   |   |   |
+				// +-----------+
+				// |   |   |   |
+				// | g | h | i |
+				// |   |   |   |
+				// +-----------+
+
+				if (computeNormals) {
+					float e = getElevation(vUv, 0.0);
+					ivec2 size = textureSize(heightMap, 0);
+					float offset = 1.0 / float(size.x);
+					float a = getElevation(vUv + vec2(-offset, -offset), 0.0);
+					float b = getElevation(vUv + vec2(0, -offset), 0.0);
+					float c = getElevation(vUv + vec2(offset, -offset), 0.0);
+					float d = getElevation(vUv + vec2(-offset, 0), 0.0);
+					float f = getElevation(vUv + vec2(offset, 0), 0.0);
+					float g = getElevation(vUv + vec2(-offset, offset), 0.0);
+					float h = getElevation(vUv + vec2(0, offset), 0.0);
+					float i = getElevation(vUv + vec2(offset,offset), 0.0);
+
+
+					float normalLength = 500.0 / zoomlevel;
+
+					vec3 v0 = vec3(0.0, 0.0, 0.0);
+					vec3 v1 = vec3(0.0, normalLength, 0.0);
+					vec3 v2 = vec3(normalLength, 0.0, 0.0);
+					v0.z = (e + d + g + h) / 4.0;
+					v1.z = (e+ b + a + d) / 4.0;
+					v2.z = (e+ h + i + f) / 4.0;
+					vNormal = (normalize(cross(v2 - v0, v1 - v0))).rbg;
+				}
+				`
+				);
+			};
+
+			return material;
+		}
+		
+		/**
+		 * Get terrain points from image data.
+		 * 
+		 * @param imageData - Terrain data encoded as image.
+		 * @param tileSize - Tile size.
+		 * @param elevation - Elevation scale (r, g, b, offset) object.
+		 * @returns The terrain elevation as a Float32 array.
+		 */
+		static getTerrain(imageData, tileSize, elevation)
+		{
+			const {rScaler, bScaler, gScaler, offset} = elevation;
+			const gridSize = tileSize + 1;
+
+			// From Martini demo
+			// https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
+			const terrain = new Float32Array(gridSize * gridSize);
+
+			// Decode terrain values
+			for (let i = 0, y = 0; y < tileSize; y++) 
+			{
+				for (let x = 0; x < tileSize; x++, i++) 
+				{
+					const k = i * 4;
+					const r = imageData[k + 0];
+					const g = imageData[k + 1];
+					const b = imageData[k + 2];
+					terrain[i + y] = r * rScaler + g * gScaler + b * bScaler + offset;
+				}
+			}
+
+			// Backfill bottom border
+			for (let i = gridSize * (gridSize - 1), x = 0; x < gridSize - 1; x++, i++) 
+			{
+				terrain[i] = terrain[i - gridSize];
+			}
+
+			// Backfill right border
+			for (let i = gridSize - 1, y = 0; y < gridSize; y++, i += gridSize) 
+			{
+				terrain[i] = terrain[i - 1];
+			}
+
+			return terrain;
+		}
+		
+		/**
+		 * Get the attributes that compose the mesh.
+		 * 
+		 * @param vertices - Vertices.
+		 * @param terrain  - Terrain
+		 * @param tileSize - Size of each tile.
+		 * @param bounds - Array with the bound of the map.
+		 * @param exageration - Vertical exageration of the map scale.
+		 * @returns The position and UV coordinates of the mesh.
+		 */
+		static getMeshAttributes(vertices=[], terrain, tileSize, bounds=[], exageration)
+		{
+			const gridSize = tileSize + 1;
+			const numOfVerticies = vertices.length / 2;
+		
+			// vec3. x, y in pixels, z in meters
+			const positions = new Float32Array(numOfVerticies * 3);
+		
+			// vec2. 1 to 1 relationship with position. represents the uv on the texture image. 0,0 to 1,1.
+			const texCoords = new Float32Array(numOfVerticies * 2);
+
+			const [minX, minY, maxX, maxY] = bounds || [0, 0, tileSize, tileSize];
+			const xScale = (maxX - minX) / tileSize;
+			const yScale = (maxY - minY) / tileSize;
+
+			for (let i = 0; i < numOfVerticies; i++) 
+			{
+				const x = vertices[i * 2];
+				const y = vertices[i * 2 + 1];
+				const pixelIdx = y * gridSize + x;
+
+				positions[3 * i + 0] = x * xScale + minX;
+				positions[3 * i + 1] = -terrain[pixelIdx] * exageration;
+				positions[3 * i + 2] = -y * yScale + maxY;
+		
+				texCoords[2 * i + 0] = x / tileSize;
+				texCoords[2 * i + 1] = y / tileSize;
+			}
+
+			return {
+				position: {value: positions, size: 3},
+				uv: {value: texCoords, size: 2}
+			};
+		}	
+
+		/**
+		 * Process the height texture received from the tile data provider.
+		 * 
+		 * @param image - Image element received by the tile provider.
+		 */
+		async processHeight(image)
+		{
+			const tileSize = image.width;
+			const gridSize = tileSize + 1;
+			var canvas = CanvasUtils.createOffscreenCanvas(tileSize, tileSize);
+
+			var context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			context.drawImage(image, 0, 0, tileSize, tileSize, 0, 0, canvas.width, canvas.height);
+			
+			var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+			var data = imageData.data;
+
+			const terrain = MapMartiniHeightNode.getTerrain(data, tileSize, this.elevationDecoder);
+			const martini = new Martini(gridSize);
+			const tile = martini.createTile(terrain);
+			const {vertices, triangles} = tile.getMesh(typeof this.meshMaxError === 'function' ? this.meshMaxError(this.level) : this.meshMaxError);
+
+			const attributes = MapMartiniHeightNode.getMeshAttributes(vertices, terrain, tileSize, [-0.5, -0.5, 0.5, 0.5], this.exageration);
+
+			this.geometry = new BufferGeometry();
+			this.geometry.setIndex(new Uint32BufferAttribute(triangles, 1));
+			this.geometry.setAttribute('position', new Float32BufferAttribute( attributes.position.value, attributes.position.size));
+			this.geometry.setAttribute('uv', new Float32BufferAttribute( attributes.uv.value, attributes.uv.size));
+			this.geometry.rotateX(Math.PI);
+
+			var texture = new Texture(image);
+			texture.generateMipmaps = false;
+			texture.format = RGBAFormat;
+			texture.magFilter = NearestFilter;
+			texture.minFilter = NearestFilter;
+			texture.needsUpdate = true;
+
+			this.material.userData.heightMap.value = texture;
+			// @ts-ignore
+			this.material.map = texture;
+			// @ts-ignore
+			this.material.needsUpdate = true;
+		}
+		
+		/**
+		 * Load height texture from the server and create a geometry to match it.
+		 */
+		async loadHeightGeometry()
+		{
+			if (this.mapView.heightProvider === null) 
+			{
+				throw new Error('GeoThree: MapView.heightProvider provider is null.');
+			}
+
+			const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+
+			if (this.disposed) 
+			{
+				return;
+			}
+
+			this.processHeight(image);
+
+			this.heightLoaded = true;
+			this.nodeReady();
+		}
+	}
+
+	/**
+	 * Map viewer is used to read and display map tiles from a server.
+	 *
+	 * It was designed to work with a OpenMapTiles but can also be used with another map tiles.
+	 *
+	 * The map is drawn in plane map nodes using a quad tree that is subdivided as necessary to guaratee good map quality.
+	 */
+	class MapView extends Mesh 
+	{
+		/**
+		 * Planar map projection.
+		 */
+		static PLANAR = 200;
+
+		/**
+		 * Spherical map projection.
+		 */
+		static SPHERICAL = 201;
+
+		/**
+		 * Planar map projection with height deformation.
+		 */
+		static HEIGHT = 202;
+
+		/**
+		 * Planar map projection with height deformation using the GPU for height generation.
+		 */
+		static HEIGHT_SHADER = 203;
+
+		/**
+		 * RTIN map mode.
+		 */
+		static MARTINI = 204;
+
+		/**
+		 * Map of the map node types available.
+		 */
+		static mapModes = new Map([
+			[MapView.PLANAR, MapPlaneNode],
+			[MapView.SPHERICAL, MapSphereNode],
+			[MapView.HEIGHT, MapHeightNode],
+			[MapView.HEIGHT_SHADER, MapHeightNodeShader],
+			[MapView.MARTINI, MapMartiniHeightNode]
+		]);
+
+		/**
+		 * LOD control object used to defined how tiles are loaded in and out of memory.
+		 */
+		lod = null;
+
+		/**
+		 * Map tile color layer provider.
+		 */
+		providers = null;
+
+		/**
+		 * Map height (terrain elevation) layer provider.
+		 * 
+		 * Only used for HEIGHT, HEIGHT_SHADER and MARTINI map modes.
+		 */
+		heightProvider = null;
+
+		/**
+		 * Define the type of map node in use, defined how the map is presented.
+		 *
+		 * Should only be set on creation.
+		 */
+		root = null;
+
+		/**
+		 * Indicate if the nodes should cache its children when it is simplified. Nodes that are no longer in use should be kept in memory.
+		 * 
+		 * Usefull for fast moving scenarios to prevent reparsing data in fast moving scenes.
+		 * 
+		 * Should only be used if the child generation process is time consuming. Should be kept off unless required.
+		 */
+		cacheTiles = false;
+		
+
+
+		/**
+		 * Constructor for the map view objects.
+		 *
+		 * @param root - Map view node modes can be SPHERICAL, HEIGHT or PLANAR. PLANAR is used by default. Can also be a custom MapNode instance.
+		 * @param providers - Map color tile provider by default a OSM maps provider is used if none specified.
+		 * @param heightProvider - Map height tile provider, by default no height provider is used.
+		 */
+		constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+		{
+			super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
+
+			this.lod = new LODRaycast();
+			// this.lod = new LODRadial();
+			// this.lod = new LODFrustum();
+
+			this.providers = providers;
+			this.heightProvider = heightProvider;
+			// 设置根节点，准备开始分裂
+			this.setRoot(root, scale);
+			this.preSubdivide();
+		}
+
+		/**
+		 * Ajust node configuration depending on the camera distance.
+		 * 系统自动调用
+		 * Called everytime automatically before render by the renderer.
+		 */
+		onBeforeRender(renderer, scene, camera, geometry, material, group){
+			this.lod.updateLOD(this, camera, renderer, scene);
+		};
+
+		/**
+		 * Set the root of the map view.
+		 *
+		 * Is set by the constructor by default, can be changed in runtime.
+		 * 设置根节点，可以动态修改。
+		 * @param root - Map node to be used as root.
+		 */
+		setRoot(root, scale)
+		{
+			if (typeof root === 'number') 
+			{
+				if (!MapView.mapModes.has(root)) 
+				{
+					throw new Error('Map mode ' + root + ' does is not registered.');
+				}
+
+				const rootConstructor = MapView.mapModes.get(root);
+
+				// @ts-ignore
+				root = new rootConstructor(null, this);
+			}
+
+			// Remove old root
+			if (this.root !== null) 
+			{
+				this.remove(this.root);
+				this.root = null;
+			}
+
+			// @ts-ignore
+			this.root = root;
+
+			// Initialize root node
+			if (this.root !== null) 
+			{
+				// @ts-ignore
+				
+				// @ts-ignore
+				if (scale === null)
+					this.geometry = this.root.constructor.baseGeometry;
+				else
+					this.geometry = this.root.constructor.getGeometry(scale);
+				this.scale.copy(this.root.constructor.baseScale);
+				this.root.mapView = this;
+				this.add(this.root); // 将mapnode添加到mapview中
+				this.root.initialize(); // 将根mapnode初始化
+			}
+		}
+
+		/**
+		 * Pre-subdivide map tree to create nodes of levels not available in the provider.
+		 * 
+		 * Checks for the minimum zoom level in the providers attached to the map view.
+		 * 如果数据提供者最小zoom为1，则预分裂只需要分裂到level1，如果为2，则需要分裂到level2
+		 * 同理如果minzoom最小为5，则直接会分裂到level5
+		 */
+		preSubdivide()
+		{
+			function subdivide(node, depth) 
+			{
+				if (depth <= 0) 
+				{
+					return;
+				}
+
+				node.subdivide(); // 创建当前节点的子节点，如level1下的level2四个节点
+
+				for (let i = 0; i < node.children.length; i++) 
+				{
+					if (node.children[i] instanceof MapNode) 
+					{
+						const child = node.children[i];
+						subdivide(child, depth - 1);
+					}
+				}
+			}
+
+			const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
+			if (minZoom > 0) 
+			{
+				subdivide(this.root, minZoom);
+			}
+		}
+
+		/**
+		 * Change the map provider of this map view.
+		 * 
+		 * Will discard all the tiles already loaded using the old provider.
+		 * @deprecated
+		 */
+		setProvider(providers)
+		{
+			if (providers !== this.providers) 
+			{
+				this.providers = providers;
+				this.clear();
+			}
+		}
+		
+		/**
+		 * 添加一个数据提供器
+		 */
+		addProvider(provider){
+			this.providers.push(provider);
+		}
+
+		/**
+		 * 删除一个数据提供器
+		 * @param {*} index 数组索引
+		 */ 
+		removeProvider(index){
+		    // 删除index索引处的 provider
+			this.providers.splice(index, 1);
+		}
+
+		/**
+		 * Change the map height provider of this map view.
+		 *
+		 * Will discard all the tiles already loaded using the old provider.
+		 */
+		setHeightProvider(heightProvider)
+		{
+			if (heightProvider !== this.heightProvider) 
+			{
+				this.heightProvider = heightProvider;
+				this.clear();
+			}
+		}
+
+		/**
+		 * Clears all tiles from memory and reloads data. Used when changing the provider.
+		 *
+		 * Should be called manually if any changed to the provider are made without setting the provider.
+		 */
+		clear()
+		{
+			this.traverse(function(children)
+			{
+				// @ts-ignore
+				if (children.childrenCache) 
+				{
+					// @ts-ignore
+					children.childrenCache = null;
+				}
+
+				// @ts-ignore
+				if (children.initialize) 
+				{
+					// @ts-ignore
+					children.initialize();
+				}
+			});
+
+			return this;
+		}
+
+		/**
+		 * Get the minimum zoom level available in the providers attached to the map view.
+		 * 
+		 * @returns Minimum zoom level available.
+		 */
+		minZoom() 
+		{
+			return Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
+		}
+
+		/**
+		 * Get the maximum zoom level available in the providers attached to the map view.
+		 * 
+		 * @returns Maximum zoom level available.
+		 */
+		maxZoom() 
+		{
+			return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		}
+
+		/**
+		 * Get map meta data from server if supported.
+		 */
+		getMetaData()
+		{
+			this.providers[0].getMetaData();
+		}
+
+		raycast(raycaster, intersects)
+		{
+			return false;
+		}
+	}
+
+	new Vector3();
+	new Vector3();
+	/**
+	 * Use random raycasting to randomly pick n objects to be tested on screen space.
+	 *
+	 * Overall the fastest solution but does not include out of screen objects.
+	 */
+	class LODSphere extends LODControl 
+	{
+		/**
+		 * Number of rays used to test nodes and subdivide the map.
+		 *
+		 * N rays are cast each frame dependeing on this value to check distance to the visible map nodes. A single ray should be enough for must scenarios.
+		 */
+		subdivisionRays = 1;
+
+		/**
+		 * Raycaster object used to cast rays into the world and check for hits.
+		 */
+		raycaster = new Raycaster();
+
+		/**
+		 * Normalized mouse coordinates.
+		 */
+		mouse = new Vector2();
+
+
+		constructor(subdivideDistance = 120, simplifyDistance = 400){
+			super();
+	        this.subdivideDistance = subdivideDistance;
+			this.simplifyDistance = simplifyDistance;
+		}
+
+		updateLOD(view, camera, renderer, scene)
+		{
+			const intersects = [];
+			
+			for (let t = 0; t < this.subdivisionRays; t++) 
+			{
+				// Generate random point in viewport
+				this.mouse.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
+
+				// Check intersection
+				this.raycaster.setFromCamera(this.mouse, camera);
+				this.raycaster.intersectObjects(view.children, true, intersects);
+			}
+
+			for (let i = 0; i < intersects.length; i++) 
+			{
+				const node = intersects[i].object;
+				let distance = intersects[i].distance;
+
+				distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+
+				if (distance < this.subdivideDistance) 
+				{
+					node.subdivide();
+				}
+				else if (distance > this.simplifyDistance && node.parentNode) 
+				{
+					node.parentNode.simplify();
+				}
+			}
+		}
+	}
+
+	/**
+	 * XHR utils contains public static methods to allow easy access to services via XHR.
+	 */
+	class XHRUtils 
+	{
+		/**
+		 * Get file data from URL as text, using a XHR call.
+		 *
+		 * @param url - Target for the request.
+		 * @param onLoad - On load callback.
+		 * @param onError - On progress callback.
+		 */
+		static async get(url)
+		{
+			return new Promise(function(resolve, reject) 
+			{
+				const xhr = new XMLHttpRequest();
+				xhr.overrideMimeType('text/plain');
+				xhr.open('GET', url, true);
+
+				xhr.onload = function() 
+				{
+					resolve(xhr.response);
+				};
+
+				xhr.onerror = reject;
+				xhr.send(null);
+			});
+		}
+
+		/**
+		 * Get raw file data from URL, using a XHR call.
+		 *
+		 * @param url - Target for the request.
+		 * @param onLoad - On load callback.
+		 * @param onError - On progress callback.
+		 */
+		static async getRaw(url)
+		{
+			return new Promise(function(resolve, reject) 
+			{
+				var xhr = new XMLHttpRequest();
+				xhr.responseType = 'arraybuffer';
+				xhr.open('GET', url, true);
+
+				xhr.onload = function() 
+				{
+					resolve(xhr.response);
+				};
+
+				xhr.onerror = reject;
+				xhr.send(null);
+			});
+		}
+
+		/**
+		 * Perform a request with the specified configuration.
+		 *
+		 * Syncronous request should be avoided unless they are strictly necessary.
+		 *
+		 * @param url - Target for the request.
+		 * @param type - Resquest type (POST, GET, ...)
+		 * @param header - Object with data to be added to the request header.
+		 * @param body - Data to be sent in the resquest.
+		 * @param onLoad - On load callback, receives data (String or Object) and XHR as arguments.
+		 * @param onError - XHR onError callback.
+		 */
+		static request(url, type, header, body, onLoad, onError, onProgress) 
+		{
+			function parseResponse(response)
+			{
+				try 
+				{
+					return JSON.parse(response);
+				}
+				catch (e) 
+				{
+					return response;
+				}
+			}
+
+			const xhr = new XMLHttpRequest();
+			xhr.overrideMimeType('text/plain');
+			xhr.open(type, url, true);
+
+			// Fill header data from Object
+			if (header !== null && header !== undefined) 
+			{
+				for (const i in header) 
+				{
+					xhr.setRequestHeader(i, header[i]);
+				}
+			}
+
+			if (onLoad !== undefined) 
+			{
+				xhr.onload = function(event) 
+				{
+					onLoad(parseResponse(xhr.response), xhr);
+				};
+			}
+
+			if (onError !== undefined) 
+			{
+				// @ts-ignore
+				xhr.onerror = onError;
+			}
+
+			if (onProgress !== undefined) 
+			{
+				// @ts-ignore
+				xhr.onprogress = onProgress;
+			}
+
+			xhr.send(body !== undefined ? body : null);
+
+			return xhr;
+		}
+	}
+
+	class ErrorCode {
+	    static  UNKNOWN_ERROR = 'UNKNOWN_ERROR';
+	    static  INVALID_REQUEST = 'INVALID_REQUEST';
+	    // 不同类型的错误用不同的数字进行开头
+	    static  ImageConvert = '10001';
+	    static  ImageDownload = '10002';
+	}
+
+	/**
+	 * Bing maps tile provider.
+	 *
+	 * API Reference
+	 *  - https://msdn.microsoft.com/en-us/library/bb259689.aspx (Bing Maps Tile System)
+	 *  - https://msdn.microsoft.com/en-us/library/mt823633.aspx (Directly accessing the Bing Maps tiles)
+	 *  - https://www.bingmapsportal.com/
+	 */
+	class BingMapsProvider extends MapProvider 
+	{
+		/**
+		 * Base address of the bing map provider.
+		 */
+		static ADDRESS = 'https://dev.virtualearth.net';
+
+		/**
+		 * Maximum zoom level allowed by the provider.
+		 */
+		maxZoom = 19;
+
+		/**
+		 * Minimum zoom level allowed by the provider.
+		 */
+		minZoom = 1;
+
+		/**
+		 * Server API access token.
+		 */
+		apiKey;
+
+		/**
+		 * The type of the map used.
+		 */
+		type;
+
+		/**
+		 * Map image tile format, the formats available are:
+		 *  - gif: Use GIF image format.
+		 *  - jpeg: Use JPEG image format. JPEG format is the default for Road, Aerial and AerialWithLabels imagery.
+		 *  - png: Use PNG image format. PNG is the default format for OrdnanceSurvey imagery.
+		 */
+		format = 'jpeg';
+
+		/**
+		 * Size of the map tiles.
+		 */
+		tileSize = 256;
+
+		/**
+		 * Tile server subdomain.
+		 */
+		subdomain = 't1';
+
+		/**
+		 * Metadata of the provider.
+		 */
+		meta = null;
+
+		/**
+		 * @param apiKey - Bing API key.
+		 * @param type - Type provider.
+		 */
+		constructor(apiKey = '', type = BingMapsProvider.AERIAL) 
+		{
+			super();
+
+			this.apiKey = apiKey;
+			this.type = type;
+		}
+
+		/**
+		 * Display an aerial view of the map.
+		 */
+		static AERIAL = 'a';
+
+		/**
+		 * Display a road view of the map.
+		 */
+		static ROAD = 'r';
+
+		/**
+		 * Display an aerial view of the map with labels.
+		 */
+		static AERIAL_LABELS = 'h';
+
+		/**
+		 * Use this value to display a bird's eye (oblique) view of the map.
+		 */
+		static OBLIQUE = 'o';
+
+		/**
+		 * Display a bird's eye (oblique) with labels view of the map.
+		 */
+		static OBLIQUE_LABELS = 'b';
+
+		/**
+		 * Get the base URL for the map configuration requested.
+		 *
+		 * Uses the follwing format
+		 * 
+		 * http://ecn.\{subdomain\}.tiles.virtualearth.net/tiles/r\{quadkey\}.jpeg?g=129&mkt=\{culture\}&shading=hill&stl=H
+		 */
+		async getMetaData() 
+		{
+			const address = BingMapsProvider.ADDRESS + '/REST/V1/Imagery/Metadata/RoadOnDemand?output=json&include=ImageryProviders&key=' + this.apiKey;
+			const data = await XHRUtils.get(address);
+
+			this.meta = JSON.parse(data);
+		}
+
+		/**
+		 * Convert x, y, zoom quadtree to a bing maps specific quadkey.
+		 *
+		 * Adapted from original C# code at https://msdn.microsoft.com/en-us/library/bb259689.aspx.
+		 */
+		static quadKey(zoom, x, y)
+		{
+			let quad = '';
+
+			for (let i = zoom; i > 0; i--) 
+			{
+				const mask = 1 << i - 1;
+				let cell = 0;
+
+				if ((x & mask) !== 0) 
+				{
+					cell++;
+				}
+
+				if ((y & mask) !== 0) 
+				{
+					cell += 2;
+				}
+
+				quad += cell;
+			}
+
+			return quad;
+		}
+
+		static convert(image, resolve, reject){
+			let imageSize = 256;
+			const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
+			const context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			context.drawImage(image, 0, 0, imageSize, imageSize, 0, 0, imageSize, imageSize);
+
+			const imageData = context.getImageData(0, 0, imageSize, imageSize); // 图像变成17*17像素
+			const data = imageData.data;
+			for (let i = 0; i < data.length; i += 4) {
+			    let gray = (data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11);
+				data[i] = gray;
+				data[i+1] = gray;
+				data[i+2] = gray;	
+			}
+			// context.putImageData(imageData, 0, 0);
+			// 此处仅仅是修改了画布上的数据。
+			// 如何生成一个图片对象并返回。
+			var img = new Image();
+			img.onload = () => {
+			// 画图片
+				ctx.drawImage(img, 60, 0);
+				// toImage
+				var dataImg = new Image();
+				dataImg.src = canvas.toDataURL('image/png');
+				resolve(dataImg);
+			};
+			img.onerror = function() {
+					reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
+			};
+
+		}
+
+		fetchTile(zoom, x, y)
+		{
+			return new Promise((resolve, reject) => 
+			{
+				const image = document.createElement('img');
+				// imgage = new Image();
+				image.onload = function() 
+				{
+					// BingMapsProvider.convert(image);
+					// 这里这个convert先禁用。
+					resolve(image);
+				};
+				image.onerror = function() 
+				{
+					reject();
+				};
+				image.crossOrigin = 'Anonymous';
+				image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
+				// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
+				// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
+			});
+		}
+	}
+
+	/**
 	 * The Ease class provides a collection of easing functions for use with tween.js.
 	 */
 
-	var now$1 = function () { return performance.now(); };
+	var now = function () { return performance.now(); };
 
 	/**
 	 * Controlling groups of tweens
@@ -46676,7 +36490,7 @@
 	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
 	 * In these cases, you may want to create your own smaller groups of tween
 	 */
-	var Group$1 = /** @class */ (function () {
+	var Group = /** @class */ (function () {
 	    function Group() {
 	        this._tweens = {};
 	        this._tweensAddedDuringUpdate = {};
@@ -46699,7 +36513,7 @@
 	        delete this._tweensAddedDuringUpdate[tween.getId()];
 	    };
 	    Group.prototype.update = function (time, preserve) {
-	        if (time === void 0) { time = now$1(); }
+	        if (time === void 0) { time = now(); }
 	        if (preserve === void 0) { preserve = false; }
 	        var tweenIds = Object.keys(this._tweens);
 	        if (tweenIds.length === 0) {
@@ -46726,9878 +36540,23 @@
 	    return Group;
 	}());
 
-	var mainGroup$1 = new Group$1();
+	var mainGroup = new Group();
 	/**
 	 * Controlling groups of tweens
 	 *
 	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
 	 * In these cases, you may want to create your own smaller groups of tweens.
 	 */
-	var TWEEN$1 = mainGroup$1;
+	var TWEEN = mainGroup;
 	// This is the best way to export things in a way that's compatible with both ES
 	// Modules and CommonJS, without build hacks, and so as not to break the
 	// existing API.
 	// https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
-	TWEEN$1.getAll.bind(TWEEN$1);
-	TWEEN$1.removeAll.bind(TWEEN$1);
-	TWEEN$1.add.bind(TWEEN$1);
-	TWEEN$1.remove.bind(TWEEN$1);
-	TWEEN$1.update.bind(TWEEN$1);
-
-	// Helper for passes that need to fill the viewport with a single quad.
-
-	new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
-
-	// https://github.com/mrdoob/three.js/pull/21358
-
-	class FullscreenTriangleGeometry extends BufferGeometry {
-
-		constructor() {
-
-			super();
-
-			this.setAttribute( 'position', new Float32BufferAttribute( [ - 1, 3, 0, - 1, - 1, 0, 3, - 1, 0 ], 3 ) );
-			this.setAttribute( 'uv', new Float32BufferAttribute( [ 0, 2, 0, 0, 2, 0 ], 2 ) );
-
-		}
-
-	}
-
-	new FullscreenTriangleGeometry();
-
-	new Vector2( 1.0, 0.0 );
-	new Vector2( 0.0, 1.0 );
-
-	/**
-	 * NVIDIA FXAA by Timothy Lottes
-	 * https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
-	 * - WebGL port by @supereggbert
-	 * http://www.glge.org/demos/fxaa/
-	 * Further improved by Daniel Sturk
-	 */
-
-	({
-
-		name: 'FXAAShader',
-
-		uniforms: {
-
-			'tDiffuse': { value: null },
-			'resolution': { value: new Vector2( 1 / 1024, 1 / 512 ) }
-
-		},
-
-		vertexShader: /* glsl */`
-
-		varying vec2 vUv;
-
-		void main() {
-
-			vUv = uv;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-
-		}`,
-
-		fragmentShader: /* glsl */`
-		precision highp float;
-
-		uniform sampler2D tDiffuse;
-
-		uniform vec2 resolution;
-
-		varying vec2 vUv;
-
-		// FXAA 3.11 implementation by NVIDIA, ported to WebGL by Agost Biro (biro@archilogic.com)
-
-		//----------------------------------------------------------------------------------
-		// File:        es3-kepler\FXAA\assets\shaders/FXAA_DefaultES.frag
-		// SDK Version: v3.00
-		// Email:       gameworks@nvidia.com
-		// Site:        http://developer.nvidia.com/
-		//
-		// Copyright (c) 2014-2015, NVIDIA CORPORATION. All rights reserved.
-		//
-		// Redistribution and use in source and binary forms, with or without
-		// modification, are permitted provided that the following conditions
-		// are met:
-		//  * Redistributions of source code must retain the above copyright
-		//    notice, this list of conditions and the following disclaimer.
-		//  * Redistributions in binary form must reproduce the above copyright
-		//    notice, this list of conditions and the following disclaimer in the
-		//    documentation and/or other materials provided with the distribution.
-		//  * Neither the name of NVIDIA CORPORATION nor the names of its
-		//    contributors may be used to endorse or promote products derived
-		//    from this software without specific prior written permission.
-		//
-		// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-		// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-		// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-		// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-		// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-		// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-		// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-		// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-		// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-		// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-		// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-		//
-		//----------------------------------------------------------------------------------
-
-		#ifndef FXAA_DISCARD
-			//
-			// Only valid for PC OpenGL currently.
-			// Probably will not work when FXAA_GREEN_AS_LUMA = 1.
-			//
-			// 1 = Use discard on pixels which don't need AA.
-			//     For APIs which enable concurrent TEX+ROP from same surface.
-			// 0 = Return unchanged color on pixels which don't need AA.
-			//
-			#define FXAA_DISCARD 0
-		#endif
-
-		/*--------------------------------------------------------------------------*/
-		#define FxaaTexTop(t, p) texture2D(t, p, -100.0)
-		#define FxaaTexOff(t, p, o, r) texture2D(t, p + (o * r), -100.0)
-		/*--------------------------------------------------------------------------*/
-
-		#define NUM_SAMPLES 5
-
-		// assumes colors have premultipliedAlpha, so that the calculated color contrast is scaled by alpha
-		float contrast( vec4 a, vec4 b ) {
-			vec4 diff = abs( a - b );
-			return max( max( max( diff.r, diff.g ), diff.b ), diff.a );
-		}
-
-		/*============================================================================
-
-									FXAA3 QUALITY - PC
-
-		============================================================================*/
-
-		/*--------------------------------------------------------------------------*/
-		vec4 FxaaPixelShader(
-			vec2 posM,
-			sampler2D tex,
-			vec2 fxaaQualityRcpFrame,
-			float fxaaQualityEdgeThreshold,
-			float fxaaQualityinvEdgeThreshold
-		) {
-			vec4 rgbaM = FxaaTexTop(tex, posM);
-			vec4 rgbaS = FxaaTexOff(tex, posM, vec2( 0.0, 1.0), fxaaQualityRcpFrame.xy);
-			vec4 rgbaE = FxaaTexOff(tex, posM, vec2( 1.0, 0.0), fxaaQualityRcpFrame.xy);
-			vec4 rgbaN = FxaaTexOff(tex, posM, vec2( 0.0,-1.0), fxaaQualityRcpFrame.xy);
-			vec4 rgbaW = FxaaTexOff(tex, posM, vec2(-1.0, 0.0), fxaaQualityRcpFrame.xy);
-			// . S .
-			// W M E
-			// . N .
-
-			bool earlyExit = max( max( max(
-					contrast( rgbaM, rgbaN ),
-					contrast( rgbaM, rgbaS ) ),
-					contrast( rgbaM, rgbaE ) ),
-					contrast( rgbaM, rgbaW ) )
-					< fxaaQualityEdgeThreshold;
-			// . 0 .
-			// 0 0 0
-			// . 0 .
-
-			#if (FXAA_DISCARD == 1)
-				if(earlyExit) FxaaDiscard;
-			#else
-				if(earlyExit) return rgbaM;
-			#endif
-
-			float contrastN = contrast( rgbaM, rgbaN );
-			float contrastS = contrast( rgbaM, rgbaS );
-			float contrastE = contrast( rgbaM, rgbaE );
-			float contrastW = contrast( rgbaM, rgbaW );
-
-			float relativeVContrast = ( contrastN + contrastS ) - ( contrastE + contrastW );
-			relativeVContrast *= fxaaQualityinvEdgeThreshold;
-
-			bool horzSpan = relativeVContrast > 0.;
-			// . 1 .
-			// 0 0 0
-			// . 1 .
-
-			// 45 deg edge detection and corners of objects, aka V/H contrast is too similar
-			if( abs( relativeVContrast ) < .3 ) {
-				// locate the edge
-				vec2 dirToEdge;
-				dirToEdge.x = contrastE > contrastW ? 1. : -1.;
-				dirToEdge.y = contrastS > contrastN ? 1. : -1.;
-				// . 2 .      . 1 .
-				// 1 0 2  ~=  0 0 1
-				// . 1 .      . 0 .
-
-				// tap 2 pixels and see which ones are "outside" the edge, to
-				// determine if the edge is vertical or horizontal
-
-				vec4 rgbaAlongH = FxaaTexOff(tex, posM, vec2( dirToEdge.x, -dirToEdge.y ), fxaaQualityRcpFrame.xy);
-				float matchAlongH = contrast( rgbaM, rgbaAlongH );
-				// . 1 .
-				// 0 0 1
-				// . 0 H
-
-				vec4 rgbaAlongV = FxaaTexOff(tex, posM, vec2( -dirToEdge.x, dirToEdge.y ), fxaaQualityRcpFrame.xy);
-				float matchAlongV = contrast( rgbaM, rgbaAlongV );
-				// V 1 .
-				// 0 0 1
-				// . 0 .
-
-				relativeVContrast = matchAlongV - matchAlongH;
-				relativeVContrast *= fxaaQualityinvEdgeThreshold;
-
-				if( abs( relativeVContrast ) < .3 ) { // 45 deg edge
-					// 1 1 .
-					// 0 0 1
-					// . 0 1
-
-					// do a simple blur
-					return mix(
-						rgbaM,
-						(rgbaN + rgbaS + rgbaE + rgbaW) * .25,
-						.4
-					);
-				}
-
-				horzSpan = relativeVContrast > 0.;
-			}
-
-			if(!horzSpan) rgbaN = rgbaW;
-			if(!horzSpan) rgbaS = rgbaE;
-			// . 0 .      1
-			// 1 0 1  ->  0
-			// . 0 .      1
-
-			bool pairN = contrast( rgbaM, rgbaN ) > contrast( rgbaM, rgbaS );
-			if(!pairN) rgbaN = rgbaS;
-
-			vec2 offNP;
-			offNP.x = (!horzSpan) ? 0.0 : fxaaQualityRcpFrame.x;
-			offNP.y = ( horzSpan) ? 0.0 : fxaaQualityRcpFrame.y;
-
-			bool doneN = false;
-			bool doneP = false;
-
-			float nDist = 0.;
-			float pDist = 0.;
-
-			vec2 posN = posM;
-			vec2 posP = posM;
-
-			int iterationsUsed = 0;
-			int iterationsUsedN = 0;
-			int iterationsUsedP = 0;
-			for( int i = 0; i < NUM_SAMPLES; i++ ) {
-				iterationsUsed = i;
-
-				float increment = float(i + 1);
-
-				if(!doneN) {
-					nDist += increment;
-					posN = posM + offNP * nDist;
-					vec4 rgbaEndN = FxaaTexTop(tex, posN.xy);
-					doneN = contrast( rgbaEndN, rgbaM ) > contrast( rgbaEndN, rgbaN );
-					iterationsUsedN = i;
-				}
-
-				if(!doneP) {
-					pDist += increment;
-					posP = posM - offNP * pDist;
-					vec4 rgbaEndP = FxaaTexTop(tex, posP.xy);
-					doneP = contrast( rgbaEndP, rgbaM ) > contrast( rgbaEndP, rgbaN );
-					iterationsUsedP = i;
-				}
-
-				if(doneN || doneP) break;
-			}
-
-
-			if ( !doneP && !doneN ) return rgbaM; // failed to find end of edge
-
-			float dist = min(
-				doneN ? float( iterationsUsedN ) / float( NUM_SAMPLES - 1 ) : 1.,
-				doneP ? float( iterationsUsedP ) / float( NUM_SAMPLES - 1 ) : 1.
-			);
-
-			// hacky way of reduces blurriness of mostly diagonal edges
-			// but reduces AA quality
-			dist = pow(dist, .5);
-
-			dist = 1. - dist;
-
-			return mix(
-				rgbaM,
-				rgbaN,
-				dist * .5
-			);
-		}
-
-		void main() {
-			const float edgeDetectionQuality = .2;
-			const float invEdgeDetectionQuality = 1. / edgeDetectionQuality;
-
-			gl_FragColor = FxaaPixelShader(
-				vUv,
-				tDiffuse,
-				resolution,
-				edgeDetectionQuality, // [0,1] contrast needed, otherwise early discard
-				invEdgeDetectionQuality
-			);
-
-		}
-	`
-
-	});
-
-	/**
-	 * @param {BufferGeometry} geometry
-	 * @param {number} drawMode
-	 * @return {BufferGeometry}
-	 */
-	function toTrianglesDrawMode( geometry, drawMode ) {
-
-		if ( drawMode === TrianglesDrawMode ) {
-
-			console.warn( 'THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.' );
-			return geometry;
-
-		}
-
-		if ( drawMode === TriangleFanDrawMode || drawMode === TriangleStripDrawMode ) {
-
-			let index = geometry.getIndex();
-
-			// generate index if not present
-
-			if ( index === null ) {
-
-				const indices = [];
-
-				const position = geometry.getAttribute( 'position' );
-
-				if ( position !== undefined ) {
-
-					for ( let i = 0; i < position.count; i ++ ) {
-
-						indices.push( i );
-
-					}
-
-					geometry.setIndex( indices );
-					index = geometry.getIndex();
-
-				} else {
-
-					console.error( 'THREE.BufferGeometryUtils.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.' );
-					return geometry;
-
-				}
-
-			}
-
-			//
-
-			const numberOfTriangles = index.count - 2;
-			const newIndices = [];
-
-			if ( drawMode === TriangleFanDrawMode ) {
-
-				// gl.TRIANGLE_FAN
-
-				for ( let i = 1; i <= numberOfTriangles; i ++ ) {
-
-					newIndices.push( index.getX( 0 ) );
-					newIndices.push( index.getX( i ) );
-					newIndices.push( index.getX( i + 1 ) );
-
-				}
-
-			} else {
-
-				// gl.TRIANGLE_STRIP
-
-				for ( let i = 0; i < numberOfTriangles; i ++ ) {
-
-					if ( i % 2 === 0 ) {
-
-						newIndices.push( index.getX( i ) );
-						newIndices.push( index.getX( i + 1 ) );
-						newIndices.push( index.getX( i + 2 ) );
-
-					} else {
-
-						newIndices.push( index.getX( i + 2 ) );
-						newIndices.push( index.getX( i + 1 ) );
-						newIndices.push( index.getX( i ) );
-
-					}
-
-				}
-
-			}
-
-			if ( ( newIndices.length / 3 ) !== numberOfTriangles ) {
-
-				console.error( 'THREE.BufferGeometryUtils.toTrianglesDrawMode(): Unable to generate correct amount of triangles.' );
-
-			}
-
-			// build final geometry
-
-			const newGeometry = geometry.clone();
-			newGeometry.setIndex( newIndices );
-			newGeometry.clearGroups();
-
-			return newGeometry;
-
-		} else {
-
-			console.error( 'THREE.BufferGeometryUtils.toTrianglesDrawMode(): Unknown draw mode:', drawMode );
-			return geometry;
-
-		}
-
-	}
-
-	class GLTFLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-			this.dracoLoader = null;
-			this.ktx2Loader = null;
-			this.meshoptDecoder = null;
-
-			this.pluginCallbacks = [];
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsClearcoatExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFTextureBasisUExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFTextureWebPExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFTextureAVIFExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsSheenExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsTransmissionExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsVolumeExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsIorExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsEmissiveStrengthExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsSpecularExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsIridescenceExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsAnisotropyExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMaterialsBumpExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFLightsExtension( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMeshoptCompression( parser );
-
-			} );
-
-			this.register( function ( parser ) {
-
-				return new GLTFMeshGpuInstancing( parser );
-
-			} );
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			const scope = this;
-
-			let resourcePath;
-
-			if ( this.resourcePath !== '' ) {
-
-				resourcePath = this.resourcePath;
-
-			} else if ( this.path !== '' ) {
-
-				// If a base path is set, resources will be relative paths from that plus the relative path of the gltf file
-				// Example  path = 'https://my-cnd-server.com/', url = 'assets/models/model.gltf'
-				// resourcePath = 'https://my-cnd-server.com/assets/models/'
-				// referenced resource 'model.bin' will be loaded from 'https://my-cnd-server.com/assets/models/model.bin'
-				// referenced resource '../textures/texture.png' will be loaded from 'https://my-cnd-server.com/assets/textures/texture.png'
-				const relativeUrl = LoaderUtils.extractUrlBase( url );
-				resourcePath = LoaderUtils.resolveURL( relativeUrl, this.path );
-
-			} else {
-
-				resourcePath = LoaderUtils.extractUrlBase( url );
-
-			}
-
-			// Tells the LoadingManager to track an extra item, which resolves after
-			// the model is fully loaded. This means the count of items loaded will
-			// be incorrect, but ensures manager.onLoad() does not fire early.
-			this.manager.itemStart( url );
-
-			const _onError = function ( e ) {
-
-				if ( onError ) {
-
-					onError( e );
-
-				} else {
-
-					console.error( e );
-
-				}
-
-				scope.manager.itemError( url );
-				scope.manager.itemEnd( url );
-
-			};
-
-			const loader = new FileLoader( this.manager );
-
-			loader.setPath( this.path );
-			loader.setResponseType( 'arraybuffer' );
-			loader.setRequestHeader( this.requestHeader );
-			loader.setWithCredentials( this.withCredentials );
-
-			loader.load( url, function ( data ) {
-
-				try {
-
-					scope.parse( data, resourcePath, function ( gltf ) {
-
-						onLoad( gltf );
-
-						scope.manager.itemEnd( url );
-
-					}, _onError );
-
-				} catch ( e ) {
-
-					_onError( e );
-
-				}
-
-			}, onProgress, _onError );
-
-		}
-
-		setDRACOLoader( dracoLoader ) {
-
-			this.dracoLoader = dracoLoader;
-			return this;
-
-		}
-
-		setDDSLoader() {
-
-			throw new Error(
-
-				'THREE.GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".'
-
-			);
-
-		}
-
-		setKTX2Loader( ktx2Loader ) {
-
-			this.ktx2Loader = ktx2Loader;
-			return this;
-
-		}
-
-		setMeshoptDecoder( meshoptDecoder ) {
-
-			this.meshoptDecoder = meshoptDecoder;
-			return this;
-
-		}
-
-		register( callback ) {
-
-			if ( this.pluginCallbacks.indexOf( callback ) === - 1 ) {
-
-				this.pluginCallbacks.push( callback );
-
-			}
-
-			return this;
-
-		}
-
-		unregister( callback ) {
-
-			if ( this.pluginCallbacks.indexOf( callback ) !== - 1 ) {
-
-				this.pluginCallbacks.splice( this.pluginCallbacks.indexOf( callback ), 1 );
-
-			}
-
-			return this;
-
-		}
-
-		parse( data, path, onLoad, onError ) {
-
-			let json;
-			const extensions = {};
-			const plugins = {};
-			const textDecoder = new TextDecoder();
-
-			if ( typeof data === 'string' ) {
-
-				json = JSON.parse( data );
-
-			} else if ( data instanceof ArrayBuffer ) {
-
-				const magic = textDecoder.decode( new Uint8Array( data, 0, 4 ) );
-
-				if ( magic === BINARY_EXTENSION_HEADER_MAGIC ) {
-
-					try {
-
-						extensions[ EXTENSIONS.KHR_BINARY_GLTF ] = new GLTFBinaryExtension( data );
-
-					} catch ( error ) {
-
-						if ( onError ) onError( error );
-						return;
-
-					}
-
-					json = JSON.parse( extensions[ EXTENSIONS.KHR_BINARY_GLTF ].content );
-
-				} else {
-
-					json = JSON.parse( textDecoder.decode( data ) );
-
-				}
-
-			} else {
-
-				json = data;
-
-			}
-
-			if ( json.asset === undefined || json.asset.version[ 0 ] < 2 ) {
-
-				if ( onError ) onError( new Error( 'THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported.' ) );
-				return;
-
-			}
-
-			const parser = new GLTFParser( json, {
-
-				path: path || this.resourcePath || '',
-				crossOrigin: this.crossOrigin,
-				requestHeader: this.requestHeader,
-				manager: this.manager,
-				ktx2Loader: this.ktx2Loader,
-				meshoptDecoder: this.meshoptDecoder
-
-			} );
-
-			parser.fileLoader.setRequestHeader( this.requestHeader );
-
-			for ( let i = 0; i < this.pluginCallbacks.length; i ++ ) {
-
-				const plugin = this.pluginCallbacks[ i ]( parser );
-
-				if ( ! plugin.name ) console.error( 'THREE.GLTFLoader: Invalid plugin found: missing name' );
-
-				plugins[ plugin.name ] = plugin;
-
-				// Workaround to avoid determining as unknown extension
-				// in addUnknownExtensionsToUserData().
-				// Remove this workaround if we move all the existing
-				// extension handlers to plugin system
-				extensions[ plugin.name ] = true;
-
-			}
-
-			if ( json.extensionsUsed ) {
-
-				for ( let i = 0; i < json.extensionsUsed.length; ++ i ) {
-
-					const extensionName = json.extensionsUsed[ i ];
-					const extensionsRequired = json.extensionsRequired || [];
-
-					switch ( extensionName ) {
-
-						case EXTENSIONS.KHR_MATERIALS_UNLIT:
-							extensions[ extensionName ] = new GLTFMaterialsUnlitExtension();
-							break;
-
-						case EXTENSIONS.KHR_DRACO_MESH_COMPRESSION:
-							extensions[ extensionName ] = new GLTFDracoMeshCompressionExtension( json, this.dracoLoader );
-							break;
-
-						case EXTENSIONS.KHR_TEXTURE_TRANSFORM:
-							extensions[ extensionName ] = new GLTFTextureTransformExtension();
-							break;
-
-						case EXTENSIONS.KHR_MESH_QUANTIZATION:
-							extensions[ extensionName ] = new GLTFMeshQuantizationExtension();
-							break;
-
-						default:
-
-							if ( extensionsRequired.indexOf( extensionName ) >= 0 && plugins[ extensionName ] === undefined ) {
-
-								console.warn( 'THREE.GLTFLoader: Unknown extension "' + extensionName + '".' );
-
-							}
-
-					}
-
-				}
-
-			}
-
-			parser.setExtensions( extensions );
-			parser.setPlugins( plugins );
-			parser.parse( onLoad, onError );
-
-		}
-
-		parseAsync( data, path ) {
-
-			const scope = this;
-
-			return new Promise( function ( resolve, reject ) {
-
-				scope.parse( data, path, resolve, reject );
-
-			} );
-
-		}
-
-	}
-
-	/* GLTFREGISTRY */
-
-	function GLTFRegistry() {
-
-		let objects = {};
-
-		return	{
-
-			get: function ( key ) {
-
-				return objects[ key ];
-
-			},
-
-			add: function ( key, object ) {
-
-				objects[ key ] = object;
-
-			},
-
-			remove: function ( key ) {
-
-				delete objects[ key ];
-
-			},
-
-			removeAll: function () {
-
-				objects = {};
-
-			}
-
-		};
-
-	}
-
-	/*********************************/
-	/********** EXTENSIONS ***********/
-	/*********************************/
-
-	const EXTENSIONS = {
-		KHR_BINARY_GLTF: 'KHR_binary_glTF',
-		KHR_DRACO_MESH_COMPRESSION: 'KHR_draco_mesh_compression',
-		KHR_LIGHTS_PUNCTUAL: 'KHR_lights_punctual',
-		KHR_MATERIALS_CLEARCOAT: 'KHR_materials_clearcoat',
-		KHR_MATERIALS_IOR: 'KHR_materials_ior',
-		KHR_MATERIALS_SHEEN: 'KHR_materials_sheen',
-		KHR_MATERIALS_SPECULAR: 'KHR_materials_specular',
-		KHR_MATERIALS_TRANSMISSION: 'KHR_materials_transmission',
-		KHR_MATERIALS_IRIDESCENCE: 'KHR_materials_iridescence',
-		KHR_MATERIALS_ANISOTROPY: 'KHR_materials_anisotropy',
-		KHR_MATERIALS_UNLIT: 'KHR_materials_unlit',
-		KHR_MATERIALS_VOLUME: 'KHR_materials_volume',
-		KHR_TEXTURE_BASISU: 'KHR_texture_basisu',
-		KHR_TEXTURE_TRANSFORM: 'KHR_texture_transform',
-		KHR_MESH_QUANTIZATION: 'KHR_mesh_quantization',
-		KHR_MATERIALS_EMISSIVE_STRENGTH: 'KHR_materials_emissive_strength',
-		EXT_MATERIALS_BUMP: 'EXT_materials_bump',
-		EXT_TEXTURE_WEBP: 'EXT_texture_webp',
-		EXT_TEXTURE_AVIF: 'EXT_texture_avif',
-		EXT_MESHOPT_COMPRESSION: 'EXT_meshopt_compression',
-		EXT_MESH_GPU_INSTANCING: 'EXT_mesh_gpu_instancing'
-	};
-
-	/**
-	 * Punctual Lights Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_lights_punctual
-	 */
-	class GLTFLightsExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_LIGHTS_PUNCTUAL;
-
-			// Object3D instance caches
-			this.cache = { refs: {}, uses: {} };
-
-		}
-
-		_markDefs() {
-
-			const parser = this.parser;
-			const nodeDefs = this.parser.json.nodes || [];
-
-			for ( let nodeIndex = 0, nodeLength = nodeDefs.length; nodeIndex < nodeLength; nodeIndex ++ ) {
-
-				const nodeDef = nodeDefs[ nodeIndex ];
-
-				if ( nodeDef.extensions
-						&& nodeDef.extensions[ this.name ]
-						&& nodeDef.extensions[ this.name ].light !== undefined ) {
-
-					parser._addNodeRef( this.cache, nodeDef.extensions[ this.name ].light );
-
-				}
-
-			}
-
-		}
-
-		_loadLight( lightIndex ) {
-
-			const parser = this.parser;
-			const cacheKey = 'light:' + lightIndex;
-			let dependency = parser.cache.get( cacheKey );
-
-			if ( dependency ) return dependency;
-
-			const json = parser.json;
-			const extensions = ( json.extensions && json.extensions[ this.name ] ) || {};
-			const lightDefs = extensions.lights || [];
-			const lightDef = lightDefs[ lightIndex ];
-			let lightNode;
-
-			const color = new Color( 0xffffff );
-
-			if ( lightDef.color !== undefined ) color.setRGB( lightDef.color[ 0 ], lightDef.color[ 1 ], lightDef.color[ 2 ], LinearSRGBColorSpace );
-
-			const range = lightDef.range !== undefined ? lightDef.range : 0;
-
-			switch ( lightDef.type ) {
-
-				case 'directional':
-					lightNode = new DirectionalLight( color );
-					lightNode.target.position.set( 0, 0, - 1 );
-					lightNode.add( lightNode.target );
-					break;
-
-				case 'point':
-					lightNode = new PointLight( color );
-					lightNode.distance = range;
-					break;
-
-				case 'spot':
-					lightNode = new SpotLight( color );
-					lightNode.distance = range;
-					// Handle spotlight properties.
-					lightDef.spot = lightDef.spot || {};
-					lightDef.spot.innerConeAngle = lightDef.spot.innerConeAngle !== undefined ? lightDef.spot.innerConeAngle : 0;
-					lightDef.spot.outerConeAngle = lightDef.spot.outerConeAngle !== undefined ? lightDef.spot.outerConeAngle : Math.PI / 4.0;
-					lightNode.angle = lightDef.spot.outerConeAngle;
-					lightNode.penumbra = 1.0 - lightDef.spot.innerConeAngle / lightDef.spot.outerConeAngle;
-					lightNode.target.position.set( 0, 0, - 1 );
-					lightNode.add( lightNode.target );
-					break;
-
-				default:
-					throw new Error( 'THREE.GLTFLoader: Unexpected light type: ' + lightDef.type );
-
-			}
-
-			// Some lights (e.g. spot) default to a position other than the origin. Reset the position
-			// here, because node-level parsing will only override position if explicitly specified.
-			lightNode.position.set( 0, 0, 0 );
-
-			lightNode.decay = 2;
-
-			assignExtrasToUserData( lightNode, lightDef );
-
-			if ( lightDef.intensity !== undefined ) lightNode.intensity = lightDef.intensity;
-
-			lightNode.name = parser.createUniqueName( lightDef.name || ( 'light_' + lightIndex ) );
-
-			dependency = Promise.resolve( lightNode );
-
-			parser.cache.add( cacheKey, dependency );
-
-			return dependency;
-
-		}
-
-		getDependency( type, index ) {
-
-			if ( type !== 'light' ) return;
-
-			return this._loadLight( index );
-
-		}
-
-		createNodeAttachment( nodeIndex ) {
-
-			const self = this;
-			const parser = this.parser;
-			const json = parser.json;
-			const nodeDef = json.nodes[ nodeIndex ];
-			const lightDef = ( nodeDef.extensions && nodeDef.extensions[ this.name ] ) || {};
-			const lightIndex = lightDef.light;
-
-			if ( lightIndex === undefined ) return null;
-
-			return this._loadLight( lightIndex ).then( function ( light ) {
-
-				return parser._getNodeRef( self.cache, lightIndex, light );
-
-			} );
-
-		}
-
-	}
-
-	/**
-	 * Unlit Materials Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unlit
-	 */
-	class GLTFMaterialsUnlitExtension {
-
-		constructor() {
-
-			this.name = EXTENSIONS.KHR_MATERIALS_UNLIT;
-
-		}
-
-		getMaterialType() {
-
-			return MeshBasicMaterial;
-
-		}
-
-		extendParams( materialParams, materialDef, parser ) {
-
-			const pending = [];
-
-			materialParams.color = new Color( 1.0, 1.0, 1.0 );
-			materialParams.opacity = 1.0;
-
-			const metallicRoughness = materialDef.pbrMetallicRoughness;
-
-			if ( metallicRoughness ) {
-
-				if ( Array.isArray( metallicRoughness.baseColorFactor ) ) {
-
-					const array = metallicRoughness.baseColorFactor;
-
-					materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], LinearSRGBColorSpace );
-					materialParams.opacity = array[ 3 ];
-
-				}
-
-				if ( metallicRoughness.baseColorTexture !== undefined ) {
-
-					pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
-
-				}
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Materials Emissive Strength Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/blob/5768b3ce0ef32bc39cdf1bef10b948586635ead3/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
-	 */
-	class GLTFMaterialsEmissiveStrengthExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_EMISSIVE_STRENGTH;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const emissiveStrength = materialDef.extensions[ this.name ].emissiveStrength;
-
-			if ( emissiveStrength !== undefined ) {
-
-				materialParams.emissiveIntensity = emissiveStrength;
-
-			}
-
-			return Promise.resolve();
-
-		}
-
-	}
-
-	/**
-	 * Clearcoat Materials Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_clearcoat
-	 */
-	class GLTFMaterialsClearcoatExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_CLEARCOAT;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			if ( extension.clearcoatFactor !== undefined ) {
-
-				materialParams.clearcoat = extension.clearcoatFactor;
-
-			}
-
-			if ( extension.clearcoatTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'clearcoatMap', extension.clearcoatTexture ) );
-
-			}
-
-			if ( extension.clearcoatRoughnessFactor !== undefined ) {
-
-				materialParams.clearcoatRoughness = extension.clearcoatRoughnessFactor;
-
-			}
-
-			if ( extension.clearcoatRoughnessTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'clearcoatRoughnessMap', extension.clearcoatRoughnessTexture ) );
-
-			}
-
-			if ( extension.clearcoatNormalTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'clearcoatNormalMap', extension.clearcoatNormalTexture ) );
-
-				if ( extension.clearcoatNormalTexture.scale !== undefined ) {
-
-					const scale = extension.clearcoatNormalTexture.scale;
-
-					materialParams.clearcoatNormalScale = new Vector2( scale, scale );
-
-				}
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Iridescence Materials Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_iridescence
-	 */
-	class GLTFMaterialsIridescenceExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_IRIDESCENCE;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			if ( extension.iridescenceFactor !== undefined ) {
-
-				materialParams.iridescence = extension.iridescenceFactor;
-
-			}
-
-			if ( extension.iridescenceTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'iridescenceMap', extension.iridescenceTexture ) );
-
-			}
-
-			if ( extension.iridescenceIor !== undefined ) {
-
-				materialParams.iridescenceIOR = extension.iridescenceIor;
-
-			}
-
-			if ( materialParams.iridescenceThicknessRange === undefined ) {
-
-				materialParams.iridescenceThicknessRange = [ 100, 400 ];
-
-			}
-
-			if ( extension.iridescenceThicknessMinimum !== undefined ) {
-
-				materialParams.iridescenceThicknessRange[ 0 ] = extension.iridescenceThicknessMinimum;
-
-			}
-
-			if ( extension.iridescenceThicknessMaximum !== undefined ) {
-
-				materialParams.iridescenceThicknessRange[ 1 ] = extension.iridescenceThicknessMaximum;
-
-			}
-
-			if ( extension.iridescenceThicknessTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'iridescenceThicknessMap', extension.iridescenceThicknessTexture ) );
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Sheen Materials Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen
-	 */
-	class GLTFMaterialsSheenExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_SHEEN;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			materialParams.sheenColor = new Color( 0, 0, 0 );
-			materialParams.sheenRoughness = 0;
-			materialParams.sheen = 1;
-
-			const extension = materialDef.extensions[ this.name ];
-
-			if ( extension.sheenColorFactor !== undefined ) {
-
-				const colorFactor = extension.sheenColorFactor;
-				materialParams.sheenColor.setRGB( colorFactor[ 0 ], colorFactor[ 1 ], colorFactor[ 2 ], LinearSRGBColorSpace );
-
-			}
-
-			if ( extension.sheenRoughnessFactor !== undefined ) {
-
-				materialParams.sheenRoughness = extension.sheenRoughnessFactor;
-
-			}
-
-			if ( extension.sheenColorTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, SRGBColorSpace ) );
-
-			}
-
-			if ( extension.sheenRoughnessTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'sheenRoughnessMap', extension.sheenRoughnessTexture ) );
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Transmission Materials Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_transmission
-	 * Draft: https://github.com/KhronosGroup/glTF/pull/1698
-	 */
-	class GLTFMaterialsTransmissionExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_TRANSMISSION;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			if ( extension.transmissionFactor !== undefined ) {
-
-				materialParams.transmission = extension.transmissionFactor;
-
-			}
-
-			if ( extension.transmissionTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'transmissionMap', extension.transmissionTexture ) );
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Materials Volume Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_volume
-	 */
-	class GLTFMaterialsVolumeExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_VOLUME;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			materialParams.thickness = extension.thicknessFactor !== undefined ? extension.thicknessFactor : 0;
-
-			if ( extension.thicknessTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'thicknessMap', extension.thicknessTexture ) );
-
-			}
-
-			materialParams.attenuationDistance = extension.attenuationDistance || Infinity;
-
-			const colorArray = extension.attenuationColor || [ 1, 1, 1 ];
-			materialParams.attenuationColor = new Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], LinearSRGBColorSpace );
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Materials ior Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_ior
-	 */
-	class GLTFMaterialsIorExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_IOR;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const extension = materialDef.extensions[ this.name ];
-
-			materialParams.ior = extension.ior !== undefined ? extension.ior : 1.5;
-
-			return Promise.resolve();
-
-		}
-
-	}
-
-	/**
-	 * Materials specular Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_specular
-	 */
-	class GLTFMaterialsSpecularExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_SPECULAR;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			materialParams.specularIntensity = extension.specularFactor !== undefined ? extension.specularFactor : 1.0;
-
-			if ( extension.specularTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'specularIntensityMap', extension.specularTexture ) );
-
-			}
-
-			const colorArray = extension.specularColorFactor || [ 1, 1, 1 ];
-			materialParams.specularColor = new Color().setRGB( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ], LinearSRGBColorSpace );
-
-			if ( extension.specularColorTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, SRGBColorSpace ) );
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-
-	/**
-	 * Materials bump Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/EXT_materials_bump
-	 */
-	class GLTFMaterialsBumpExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.EXT_MATERIALS_BUMP;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			materialParams.bumpScale = extension.bumpFactor !== undefined ? extension.bumpFactor : 1.0;
-
-			if ( extension.bumpTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'bumpMap', extension.bumpTexture ) );
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * Materials anisotropy Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_anisotropy
-	 */
-	class GLTFMaterialsAnisotropyExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_MATERIALS_ANISOTROPY;
-
-		}
-
-		getMaterialType( materialIndex ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
-
-			return MeshPhysicalMaterial;
-
-		}
-
-		extendMaterialParams( materialIndex, materialParams ) {
-
-			const parser = this.parser;
-			const materialDef = parser.json.materials[ materialIndex ];
-
-			if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
-
-				return Promise.resolve();
-
-			}
-
-			const pending = [];
-
-			const extension = materialDef.extensions[ this.name ];
-
-			if ( extension.anisotropyStrength !== undefined ) {
-
-				materialParams.anisotropy = extension.anisotropyStrength;
-
-			}
-
-			if ( extension.anisotropyRotation !== undefined ) {
-
-				materialParams.anisotropyRotation = extension.anisotropyRotation;
-
-			}
-
-			if ( extension.anisotropyTexture !== undefined ) {
-
-				pending.push( parser.assignTexture( materialParams, 'anisotropyMap', extension.anisotropyTexture ) );
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-	}
-
-	/**
-	 * BasisU Texture Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_basisu
-	 */
-	class GLTFTextureBasisUExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.KHR_TEXTURE_BASISU;
-
-		}
-
-		loadTexture( textureIndex ) {
-
-			const parser = this.parser;
-			const json = parser.json;
-
-			const textureDef = json.textures[ textureIndex ];
-
-			if ( ! textureDef.extensions || ! textureDef.extensions[ this.name ] ) {
-
-				return null;
-
-			}
-
-			const extension = textureDef.extensions[ this.name ];
-			const loader = parser.options.ktx2Loader;
-
-			if ( ! loader ) {
-
-				if ( json.extensionsRequired && json.extensionsRequired.indexOf( this.name ) >= 0 ) {
-
-					throw new Error( 'THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures' );
-
-				} else {
-
-					// Assumes that the extension is optional and that a fallback texture is present
-					return null;
-
-				}
-
-			}
-
-			return parser.loadTextureImage( textureIndex, extension.source, loader );
-
-		}
-
-	}
-
-	/**
-	 * WebP Texture Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_texture_webp
-	 */
-	class GLTFTextureWebPExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.EXT_TEXTURE_WEBP;
-			this.isSupported = null;
-
-		}
-
-		loadTexture( textureIndex ) {
-
-			const name = this.name;
-			const parser = this.parser;
-			const json = parser.json;
-
-			const textureDef = json.textures[ textureIndex ];
-
-			if ( ! textureDef.extensions || ! textureDef.extensions[ name ] ) {
-
-				return null;
-
-			}
-
-			const extension = textureDef.extensions[ name ];
-			const source = json.images[ extension.source ];
-
-			let loader = parser.textureLoader;
-			if ( source.uri ) {
-
-				const handler = parser.options.manager.getHandler( source.uri );
-				if ( handler !== null ) loader = handler;
-
-			}
-
-			return this.detectSupport().then( function ( isSupported ) {
-
-				if ( isSupported ) return parser.loadTextureImage( textureIndex, extension.source, loader );
-
-				if ( json.extensionsRequired && json.extensionsRequired.indexOf( name ) >= 0 ) {
-
-					throw new Error( 'THREE.GLTFLoader: WebP required by asset but unsupported.' );
-
-				}
-
-				// Fall back to PNG or JPEG.
-				return parser.loadTexture( textureIndex );
-
-			} );
-
-		}
-
-		detectSupport() {
-
-			if ( ! this.isSupported ) {
-
-				this.isSupported = new Promise( function ( resolve ) {
-
-					const image = new Image();
-
-					// Lossy test image. Support for lossy images doesn't guarantee support for all
-					// WebP images, unfortunately.
-					image.src = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
-
-					image.onload = image.onerror = function () {
-
-						resolve( image.height === 1 );
-
-					};
-
-				} );
-
-			}
-
-			return this.isSupported;
-
-		}
-
-	}
-
-	/**
-	 * AVIF Texture Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_texture_avif
-	 */
-	class GLTFTextureAVIFExtension {
-
-		constructor( parser ) {
-
-			this.parser = parser;
-			this.name = EXTENSIONS.EXT_TEXTURE_AVIF;
-			this.isSupported = null;
-
-		}
-
-		loadTexture( textureIndex ) {
-
-			const name = this.name;
-			const parser = this.parser;
-			const json = parser.json;
-
-			const textureDef = json.textures[ textureIndex ];
-
-			if ( ! textureDef.extensions || ! textureDef.extensions[ name ] ) {
-
-				return null;
-
-			}
-
-			const extension = textureDef.extensions[ name ];
-			const source = json.images[ extension.source ];
-
-			let loader = parser.textureLoader;
-			if ( source.uri ) {
-
-				const handler = parser.options.manager.getHandler( source.uri );
-				if ( handler !== null ) loader = handler;
-
-			}
-
-			return this.detectSupport().then( function ( isSupported ) {
-
-				if ( isSupported ) return parser.loadTextureImage( textureIndex, extension.source, loader );
-
-				if ( json.extensionsRequired && json.extensionsRequired.indexOf( name ) >= 0 ) {
-
-					throw new Error( 'THREE.GLTFLoader: AVIF required by asset but unsupported.' );
-
-				}
-
-				// Fall back to PNG or JPEG.
-				return parser.loadTexture( textureIndex );
-
-			} );
-
-		}
-
-		detectSupport() {
-
-			if ( ! this.isSupported ) {
-
-				this.isSupported = new Promise( function ( resolve ) {
-
-					const image = new Image();
-
-					// Lossy test image.
-					image.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAABcAAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAEAAAABAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAAB9tZGF0EgAKCBgABogQEDQgMgkQAAAAB8dSLfI=';
-					image.onload = image.onerror = function () {
-
-						resolve( image.height === 1 );
-
-					};
-
-				} );
-
-			}
-
-			return this.isSupported;
-
-		}
-
-	}
-
-	/**
-	 * meshopt BufferView Compression Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_meshopt_compression
-	 */
-	class GLTFMeshoptCompression {
-
-		constructor( parser ) {
-
-			this.name = EXTENSIONS.EXT_MESHOPT_COMPRESSION;
-			this.parser = parser;
-
-		}
-
-		loadBufferView( index ) {
-
-			const json = this.parser.json;
-			const bufferView = json.bufferViews[ index ];
-
-			if ( bufferView.extensions && bufferView.extensions[ this.name ] ) {
-
-				const extensionDef = bufferView.extensions[ this.name ];
-
-				const buffer = this.parser.getDependency( 'buffer', extensionDef.buffer );
-				const decoder = this.parser.options.meshoptDecoder;
-
-				if ( ! decoder || ! decoder.supported ) {
-
-					if ( json.extensionsRequired && json.extensionsRequired.indexOf( this.name ) >= 0 ) {
-
-						throw new Error( 'THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files' );
-
-					} else {
-
-						// Assumes that the extension is optional and that fallback buffer data is present
-						return null;
-
-					}
-
-				}
-
-				return buffer.then( function ( res ) {
-
-					const byteOffset = extensionDef.byteOffset || 0;
-					const byteLength = extensionDef.byteLength || 0;
-
-					const count = extensionDef.count;
-					const stride = extensionDef.byteStride;
-
-					const source = new Uint8Array( res, byteOffset, byteLength );
-
-					if ( decoder.decodeGltfBufferAsync ) {
-
-						return decoder.decodeGltfBufferAsync( count, stride, source, extensionDef.mode, extensionDef.filter ).then( function ( res ) {
-
-							return res.buffer;
-
-						} );
-
-					} else {
-
-						// Support for MeshoptDecoder 0.18 or earlier, without decodeGltfBufferAsync
-						return decoder.ready.then( function () {
-
-							const result = new ArrayBuffer( count * stride );
-							decoder.decodeGltfBuffer( new Uint8Array( result ), count, stride, source, extensionDef.mode, extensionDef.filter );
-							return result;
-
-						} );
-
-					}
-
-				} );
-
-			} else {
-
-				return null;
-
-			}
-
-		}
-
-	}
-
-	/**
-	 * GPU Instancing Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_mesh_gpu_instancing
-	 *
-	 */
-	class GLTFMeshGpuInstancing {
-
-		constructor( parser ) {
-
-			this.name = EXTENSIONS.EXT_MESH_GPU_INSTANCING;
-			this.parser = parser;
-
-		}
-
-		createNodeMesh( nodeIndex ) {
-
-			const json = this.parser.json;
-			const nodeDef = json.nodes[ nodeIndex ];
-
-			if ( ! nodeDef.extensions || ! nodeDef.extensions[ this.name ] ||
-				nodeDef.mesh === undefined ) {
-
-				return null;
-
-			}
-
-			const meshDef = json.meshes[ nodeDef.mesh ];
-
-			// No Points or Lines + Instancing support yet
-
-			for ( const primitive of meshDef.primitives ) {
-
-				if ( primitive.mode !== WEBGL_CONSTANTS.TRIANGLES &&
-					 primitive.mode !== WEBGL_CONSTANTS.TRIANGLE_STRIP &&
-					 primitive.mode !== WEBGL_CONSTANTS.TRIANGLE_FAN &&
-					 primitive.mode !== undefined ) {
-
-					return null;
-
-				}
-
-			}
-
-			const extensionDef = nodeDef.extensions[ this.name ];
-			const attributesDef = extensionDef.attributes;
-
-			// @TODO: Can we support InstancedMesh + SkinnedMesh?
-
-			const pending = [];
-			const attributes = {};
-
-			for ( const key in attributesDef ) {
-
-				pending.push( this.parser.getDependency( 'accessor', attributesDef[ key ] ).then( accessor => {
-
-					attributes[ key ] = accessor;
-					return attributes[ key ];
-
-				} ) );
-
-			}
-
-			if ( pending.length < 1 ) {
-
-				return null;
-
-			}
-
-			pending.push( this.parser.createNodeMesh( nodeIndex ) );
-
-			return Promise.all( pending ).then( results => {
-
-				const nodeObject = results.pop();
-				const meshes = nodeObject.isGroup ? nodeObject.children : [ nodeObject ];
-				const count = results[ 0 ].count; // All attribute counts should be same
-				const instancedMeshes = [];
-
-				for ( const mesh of meshes ) {
-
-					// Temporal variables
-					const m = new Matrix4();
-					const p = new Vector3();
-					const q = new Quaternion();
-					const s = new Vector3( 1, 1, 1 );
-
-					const instancedMesh = new InstancedMesh( mesh.geometry, mesh.material, count );
-
-					for ( let i = 0; i < count; i ++ ) {
-
-						if ( attributes.TRANSLATION ) {
-
-							p.fromBufferAttribute( attributes.TRANSLATION, i );
-
-						}
-
-						if ( attributes.ROTATION ) {
-
-							q.fromBufferAttribute( attributes.ROTATION, i );
-
-						}
-
-						if ( attributes.SCALE ) {
-
-							s.fromBufferAttribute( attributes.SCALE, i );
-
-						}
-
-						instancedMesh.setMatrixAt( i, m.compose( p, q, s ) );
-
-					}
-
-					// Add instance attributes to the geometry, excluding TRS.
-					for ( const attributeName in attributes ) {
-
-						if ( attributeName === '_COLOR_0' ) {
-
-							const attr = attributes[ attributeName ];
-							instancedMesh.instanceColor = new InstancedBufferAttribute( attr.array, attr.itemSize, attr.normalized );
-
-						} else if ( attributeName !== 'TRANSLATION' &&
-							 attributeName !== 'ROTATION' &&
-							 attributeName !== 'SCALE' ) {
-
-							mesh.geometry.setAttribute( attributeName, attributes[ attributeName ] );
-
-						}
-
-					}
-
-					// Just in case
-					Object3D.prototype.copy.call( instancedMesh, mesh );
-
-					this.parser.assignFinalMaterial( instancedMesh );
-
-					instancedMeshes.push( instancedMesh );
-
-				}
-
-				if ( nodeObject.isGroup ) {
-
-					nodeObject.clear();
-
-					nodeObject.add( ... instancedMeshes );
-
-					return nodeObject;
-
-				}
-
-				return instancedMeshes[ 0 ];
-
-			} );
-
-		}
-
-	}
-
-	/* BINARY EXTENSION */
-	const BINARY_EXTENSION_HEADER_MAGIC = 'glTF';
-	const BINARY_EXTENSION_HEADER_LENGTH = 12;
-	const BINARY_EXTENSION_CHUNK_TYPES = { JSON: 0x4E4F534A, BIN: 0x004E4942 };
-
-	class GLTFBinaryExtension {
-
-		constructor( data ) {
-
-			this.name = EXTENSIONS.KHR_BINARY_GLTF;
-			this.content = null;
-			this.body = null;
-
-			const headerView = new DataView( data, 0, BINARY_EXTENSION_HEADER_LENGTH );
-			const textDecoder = new TextDecoder();
-
-			this.header = {
-				magic: textDecoder.decode( new Uint8Array( data.slice( 0, 4 ) ) ),
-				version: headerView.getUint32( 4, true ),
-				length: headerView.getUint32( 8, true )
-			};
-
-			if ( this.header.magic !== BINARY_EXTENSION_HEADER_MAGIC ) {
-
-				throw new Error( 'THREE.GLTFLoader: Unsupported glTF-Binary header.' );
-
-			} else if ( this.header.version < 2.0 ) {
-
-				throw new Error( 'THREE.GLTFLoader: Legacy binary file detected.' );
-
-			}
-
-			const chunkContentsLength = this.header.length - BINARY_EXTENSION_HEADER_LENGTH;
-			const chunkView = new DataView( data, BINARY_EXTENSION_HEADER_LENGTH );
-			let chunkIndex = 0;
-
-			while ( chunkIndex < chunkContentsLength ) {
-
-				const chunkLength = chunkView.getUint32( chunkIndex, true );
-				chunkIndex += 4;
-
-				const chunkType = chunkView.getUint32( chunkIndex, true );
-				chunkIndex += 4;
-
-				if ( chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON ) {
-
-					const contentArray = new Uint8Array( data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength );
-					this.content = textDecoder.decode( contentArray );
-
-				} else if ( chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN ) {
-
-					const byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex;
-					this.body = data.slice( byteOffset, byteOffset + chunkLength );
-
-				}
-
-				// Clients must ignore chunks with unknown types.
-
-				chunkIndex += chunkLength;
-
-			}
-
-			if ( this.content === null ) {
-
-				throw new Error( 'THREE.GLTFLoader: JSON content not found.' );
-
-			}
-
-		}
-
-	}
-
-	/**
-	 * DRACO Mesh Compression Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_draco_mesh_compression
-	 */
-	class GLTFDracoMeshCompressionExtension {
-
-		constructor( json, dracoLoader ) {
-
-			if ( ! dracoLoader ) {
-
-				throw new Error( 'THREE.GLTFLoader: No DRACOLoader instance provided.' );
-
-			}
-
-			this.name = EXTENSIONS.KHR_DRACO_MESH_COMPRESSION;
-			this.json = json;
-			this.dracoLoader = dracoLoader;
-			this.dracoLoader.preload();
-
-		}
-
-		decodePrimitive( primitive, parser ) {
-
-			const json = this.json;
-			const dracoLoader = this.dracoLoader;
-			const bufferViewIndex = primitive.extensions[ this.name ].bufferView;
-			const gltfAttributeMap = primitive.extensions[ this.name ].attributes;
-			const threeAttributeMap = {};
-			const attributeNormalizedMap = {};
-			const attributeTypeMap = {};
-
-			for ( const attributeName in gltfAttributeMap ) {
-
-				const threeAttributeName = ATTRIBUTES[ attributeName ] || attributeName.toLowerCase();
-
-				threeAttributeMap[ threeAttributeName ] = gltfAttributeMap[ attributeName ];
-
-			}
-
-			for ( const attributeName in primitive.attributes ) {
-
-				const threeAttributeName = ATTRIBUTES[ attributeName ] || attributeName.toLowerCase();
-
-				if ( gltfAttributeMap[ attributeName ] !== undefined ) {
-
-					const accessorDef = json.accessors[ primitive.attributes[ attributeName ] ];
-					const componentType = WEBGL_COMPONENT_TYPES[ accessorDef.componentType ];
-
-					attributeTypeMap[ threeAttributeName ] = componentType.name;
-					attributeNormalizedMap[ threeAttributeName ] = accessorDef.normalized === true;
-
-				}
-
-			}
-
-			return parser.getDependency( 'bufferView', bufferViewIndex ).then( function ( bufferView ) {
-
-				return new Promise( function ( resolve, reject ) {
-
-					dracoLoader.decodeDracoFile( bufferView, function ( geometry ) {
-
-						for ( const attributeName in geometry.attributes ) {
-
-							const attribute = geometry.attributes[ attributeName ];
-							const normalized = attributeNormalizedMap[ attributeName ];
-
-							if ( normalized !== undefined ) attribute.normalized = normalized;
-
-						}
-
-						resolve( geometry );
-
-					}, threeAttributeMap, attributeTypeMap, LinearSRGBColorSpace, reject );
-
-				} );
-
-			} );
-
-		}
-
-	}
-
-	/**
-	 * Texture Transform Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_transform
-	 */
-	class GLTFTextureTransformExtension {
-
-		constructor() {
-
-			this.name = EXTENSIONS.KHR_TEXTURE_TRANSFORM;
-
-		}
-
-		extendTexture( texture, transform ) {
-
-			if ( ( transform.texCoord === undefined || transform.texCoord === texture.channel )
-				&& transform.offset === undefined
-				&& transform.rotation === undefined
-				&& transform.scale === undefined ) {
-
-				// See https://github.com/mrdoob/three.js/issues/21819.
-				return texture;
-
-			}
-
-			texture = texture.clone();
-
-			if ( transform.texCoord !== undefined ) {
-
-				texture.channel = transform.texCoord;
-
-			}
-
-			if ( transform.offset !== undefined ) {
-
-				texture.offset.fromArray( transform.offset );
-
-			}
-
-			if ( transform.rotation !== undefined ) {
-
-				texture.rotation = transform.rotation;
-
-			}
-
-			if ( transform.scale !== undefined ) {
-
-				texture.repeat.fromArray( transform.scale );
-
-			}
-
-			texture.needsUpdate = true;
-
-			return texture;
-
-		}
-
-	}
-
-	/**
-	 * Mesh Quantization Extension
-	 *
-	 * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_mesh_quantization
-	 */
-	class GLTFMeshQuantizationExtension {
-
-		constructor() {
-
-			this.name = EXTENSIONS.KHR_MESH_QUANTIZATION;
-
-		}
-
-	}
-
-	/*********************************/
-	/********** INTERPOLATION ********/
-	/*********************************/
-
-	// Spline Interpolation
-	// Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
-	class GLTFCubicSplineInterpolant extends Interpolant {
-
-		constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
-
-			super( parameterPositions, sampleValues, sampleSize, resultBuffer );
-
-		}
-
-		copySampleValue_( index ) {
-
-			// Copies a sample value to the result buffer. See description of glTF
-			// CUBICSPLINE values layout in interpolate_() function below.
-
-			const result = this.resultBuffer,
-				values = this.sampleValues,
-				valueSize = this.valueSize,
-				offset = index * valueSize * 3 + valueSize;
-
-			for ( let i = 0; i !== valueSize; i ++ ) {
-
-				result[ i ] = values[ offset + i ];
-
-			}
-
-			return result;
-
-		}
-
-		interpolate_( i1, t0, t, t1 ) {
-
-			const result = this.resultBuffer;
-			const values = this.sampleValues;
-			const stride = this.valueSize;
-
-			const stride2 = stride * 2;
-			const stride3 = stride * 3;
-
-			const td = t1 - t0;
-
-			const p = ( t - t0 ) / td;
-			const pp = p * p;
-			const ppp = pp * p;
-
-			const offset1 = i1 * stride3;
-			const offset0 = offset1 - stride3;
-
-			const s2 = - 2 * ppp + 3 * pp;
-			const s3 = ppp - pp;
-			const s0 = 1 - s2;
-			const s1 = s3 - pp + p;
-
-			// Layout of keyframe output values for CUBICSPLINE animations:
-			//   [ inTangent_1, splineVertex_1, outTangent_1, inTangent_2, splineVertex_2, ... ]
-			for ( let i = 0; i !== stride; i ++ ) {
-
-				const p0 = values[ offset0 + i + stride ]; // splineVertex_k
-				const m0 = values[ offset0 + i + stride2 ] * td; // outTangent_k * (t_k+1 - t_k)
-				const p1 = values[ offset1 + i + stride ]; // splineVertex_k+1
-				const m1 = values[ offset1 + i ] * td; // inTangent_k+1 * (t_k+1 - t_k)
-
-				result[ i ] = s0 * p0 + s1 * m0 + s2 * p1 + s3 * m1;
-
-			}
-
-			return result;
-
-		}
-
-	}
-
-	const _q = new Quaternion();
-
-	class GLTFCubicSplineQuaternionInterpolant extends GLTFCubicSplineInterpolant {
-
-		interpolate_( i1, t0, t, t1 ) {
-
-			const result = super.interpolate_( i1, t0, t, t1 );
-
-			_q.fromArray( result ).normalize().toArray( result );
-
-			return result;
-
-		}
-
-	}
-
-
-	/*********************************/
-	/********** INTERNALS ************/
-	/*********************************/
-
-	/* CONSTANTS */
-
-	const WEBGL_CONSTANTS = {
-		FLOAT: 5126,
-		//FLOAT_MAT2: 35674,
-		FLOAT_MAT3: 35675,
-		FLOAT_MAT4: 35676,
-		FLOAT_VEC2: 35664,
-		FLOAT_VEC3: 35665,
-		FLOAT_VEC4: 35666,
-		LINEAR: 9729,
-		REPEAT: 10497,
-		SAMPLER_2D: 35678,
-		POINTS: 0,
-		LINES: 1,
-		LINE_LOOP: 2,
-		LINE_STRIP: 3,
-		TRIANGLES: 4,
-		TRIANGLE_STRIP: 5,
-		TRIANGLE_FAN: 6,
-		UNSIGNED_BYTE: 5121,
-		UNSIGNED_SHORT: 5123
-	};
-
-	const WEBGL_COMPONENT_TYPES = {
-		5120: Int8Array,
-		5121: Uint8Array,
-		5122: Int16Array,
-		5123: Uint16Array,
-		5125: Uint32Array,
-		5126: Float32Array
-	};
-
-	const WEBGL_FILTERS = {
-		9728: NearestFilter,
-		9729: LinearFilter,
-		9984: NearestMipmapNearestFilter,
-		9985: LinearMipmapNearestFilter,
-		9986: NearestMipmapLinearFilter,
-		9987: LinearMipmapLinearFilter
-	};
-
-	const WEBGL_WRAPPINGS = {
-		33071: ClampToEdgeWrapping,
-		33648: MirroredRepeatWrapping,
-		10497: RepeatWrapping
-	};
-
-	const WEBGL_TYPE_SIZES = {
-		'SCALAR': 1,
-		'VEC2': 2,
-		'VEC3': 3,
-		'VEC4': 4,
-		'MAT2': 4,
-		'MAT3': 9,
-		'MAT4': 16
-	};
-
-	const ATTRIBUTES = {
-		POSITION: 'position',
-		NORMAL: 'normal',
-		TANGENT: 'tangent',
-		TEXCOORD_0: 'uv',
-		TEXCOORD_1: 'uv1',
-		TEXCOORD_2: 'uv2',
-		TEXCOORD_3: 'uv3',
-		COLOR_0: 'color',
-		WEIGHTS_0: 'skinWeight',
-		JOINTS_0: 'skinIndex',
-	};
-
-	const PATH_PROPERTIES = {
-		scale: 'scale',
-		translation: 'position',
-		rotation: 'quaternion',
-		weights: 'morphTargetInfluences'
-	};
-
-	const INTERPOLATION = {
-		CUBICSPLINE: undefined, // We use a custom interpolant (GLTFCubicSplineInterpolation) for CUBICSPLINE tracks. Each
-			                        // keyframe track will be initialized with a default interpolation type, then modified.
-		LINEAR: InterpolateLinear,
-		STEP: InterpolateDiscrete
-	};
-
-	const ALPHA_MODES = {
-		OPAQUE: 'OPAQUE',
-		MASK: 'MASK',
-		BLEND: 'BLEND'
-	};
-
-	/**
-	 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#default-material
-	 */
-	function createDefaultMaterial( cache ) {
-
-		if ( cache[ 'DefaultMaterial' ] === undefined ) {
-
-			cache[ 'DefaultMaterial' ] = new MeshStandardMaterial( {
-				color: 0xFFFFFF,
-				emissive: 0x000000,
-				metalness: 1,
-				roughness: 1,
-				transparent: false,
-				depthTest: true,
-				side: FrontSide
-			} );
-
-		}
-
-		return cache[ 'DefaultMaterial' ];
-
-	}
-
-	function addUnknownExtensionsToUserData( knownExtensions, object, objectDef ) {
-
-		// Add unknown glTF extensions to an object's userData.
-
-		for ( const name in objectDef.extensions ) {
-
-			if ( knownExtensions[ name ] === undefined ) {
-
-				object.userData.gltfExtensions = object.userData.gltfExtensions || {};
-				object.userData.gltfExtensions[ name ] = objectDef.extensions[ name ];
-
-			}
-
-		}
-
-	}
-
-	/**
-	 * @param {Object3D|Material|BufferGeometry} object
-	 * @param {GLTF.definition} gltfDef
-	 */
-	function assignExtrasToUserData( object, gltfDef ) {
-
-		if ( gltfDef.extras !== undefined ) {
-
-			if ( typeof gltfDef.extras === 'object' ) {
-
-				Object.assign( object.userData, gltfDef.extras );
-
-			} else {
-
-				console.warn( 'THREE.GLTFLoader: Ignoring primitive type .extras, ' + gltfDef.extras );
-
-			}
-
-		}
-
-	}
-
-	/**
-	 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#morph-targets
-	 *
-	 * @param {BufferGeometry} geometry
-	 * @param {Array<GLTF.Target>} targets
-	 * @param {GLTFParser} parser
-	 * @return {Promise<BufferGeometry>}
-	 */
-	function addMorphTargets( geometry, targets, parser ) {
-
-		let hasMorphPosition = false;
-		let hasMorphNormal = false;
-		let hasMorphColor = false;
-
-		for ( let i = 0, il = targets.length; i < il; i ++ ) {
-
-			const target = targets[ i ];
-
-			if ( target.POSITION !== undefined ) hasMorphPosition = true;
-			if ( target.NORMAL !== undefined ) hasMorphNormal = true;
-			if ( target.COLOR_0 !== undefined ) hasMorphColor = true;
-
-			if ( hasMorphPosition && hasMorphNormal && hasMorphColor ) break;
-
-		}
-
-		if ( ! hasMorphPosition && ! hasMorphNormal && ! hasMorphColor ) return Promise.resolve( geometry );
-
-		const pendingPositionAccessors = [];
-		const pendingNormalAccessors = [];
-		const pendingColorAccessors = [];
-
-		for ( let i = 0, il = targets.length; i < il; i ++ ) {
-
-			const target = targets[ i ];
-
-			if ( hasMorphPosition ) {
-
-				const pendingAccessor = target.POSITION !== undefined
-					? parser.getDependency( 'accessor', target.POSITION )
-					: geometry.attributes.position;
-
-				pendingPositionAccessors.push( pendingAccessor );
-
-			}
-
-			if ( hasMorphNormal ) {
-
-				const pendingAccessor = target.NORMAL !== undefined
-					? parser.getDependency( 'accessor', target.NORMAL )
-					: geometry.attributes.normal;
-
-				pendingNormalAccessors.push( pendingAccessor );
-
-			}
-
-			if ( hasMorphColor ) {
-
-				const pendingAccessor = target.COLOR_0 !== undefined
-					? parser.getDependency( 'accessor', target.COLOR_0 )
-					: geometry.attributes.color;
-
-				pendingColorAccessors.push( pendingAccessor );
-
-			}
-
-		}
-
-		return Promise.all( [
-			Promise.all( pendingPositionAccessors ),
-			Promise.all( pendingNormalAccessors ),
-			Promise.all( pendingColorAccessors )
-		] ).then( function ( accessors ) {
-
-			const morphPositions = accessors[ 0 ];
-			const morphNormals = accessors[ 1 ];
-			const morphColors = accessors[ 2 ];
-
-			if ( hasMorphPosition ) geometry.morphAttributes.position = morphPositions;
-			if ( hasMorphNormal ) geometry.morphAttributes.normal = morphNormals;
-			if ( hasMorphColor ) geometry.morphAttributes.color = morphColors;
-			geometry.morphTargetsRelative = true;
-
-			return geometry;
-
-		} );
-
-	}
-
-	/**
-	 * @param {Mesh} mesh
-	 * @param {GLTF.Mesh} meshDef
-	 */
-	function updateMorphTargets( mesh, meshDef ) {
-
-		mesh.updateMorphTargets();
-
-		if ( meshDef.weights !== undefined ) {
-
-			for ( let i = 0, il = meshDef.weights.length; i < il; i ++ ) {
-
-				mesh.morphTargetInfluences[ i ] = meshDef.weights[ i ];
-
-			}
-
-		}
-
-		// .extras has user-defined data, so check that .extras.targetNames is an array.
-		if ( meshDef.extras && Array.isArray( meshDef.extras.targetNames ) ) {
-
-			const targetNames = meshDef.extras.targetNames;
-
-			if ( mesh.morphTargetInfluences.length === targetNames.length ) {
-
-				mesh.morphTargetDictionary = {};
-
-				for ( let i = 0, il = targetNames.length; i < il; i ++ ) {
-
-					mesh.morphTargetDictionary[ targetNames[ i ] ] = i;
-
-				}
-
-			} else {
-
-				console.warn( 'THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.' );
-
-			}
-
-		}
-
-	}
-
-	function createPrimitiveKey( primitiveDef ) {
-
-		let geometryKey;
-
-		const dracoExtension = primitiveDef.extensions && primitiveDef.extensions[ EXTENSIONS.KHR_DRACO_MESH_COMPRESSION ];
-
-		if ( dracoExtension ) {
-
-			geometryKey = 'draco:' + dracoExtension.bufferView
-					+ ':' + dracoExtension.indices
-					+ ':' + createAttributesKey( dracoExtension.attributes );
-
-		} else {
-
-			geometryKey = primitiveDef.indices + ':' + createAttributesKey( primitiveDef.attributes ) + ':' + primitiveDef.mode;
-
-		}
-
-		if ( primitiveDef.targets !== undefined ) {
-
-			for ( let i = 0, il = primitiveDef.targets.length; i < il; i ++ ) {
-
-				geometryKey += ':' + createAttributesKey( primitiveDef.targets[ i ] );
-
-			}
-
-		}
-
-		return geometryKey;
-
-	}
-
-	function createAttributesKey( attributes ) {
-
-		let attributesKey = '';
-
-		const keys = Object.keys( attributes ).sort();
-
-		for ( let i = 0, il = keys.length; i < il; i ++ ) {
-
-			attributesKey += keys[ i ] + ':' + attributes[ keys[ i ] ] + ';';
-
-		}
-
-		return attributesKey;
-
-	}
-
-	function getNormalizedComponentScale( constructor ) {
-
-		// Reference:
-		// https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_mesh_quantization#encoding-quantized-data
-
-		switch ( constructor ) {
-
-			case Int8Array:
-				return 1 / 127;
-
-			case Uint8Array:
-				return 1 / 255;
-
-			case Int16Array:
-				return 1 / 32767;
-
-			case Uint16Array:
-				return 1 / 65535;
-
-			default:
-				throw new Error( 'THREE.GLTFLoader: Unsupported normalized accessor component type.' );
-
-		}
-
-	}
-
-	function getImageURIMimeType( uri ) {
-
-		if ( uri.search( /\.jpe?g($|\?)/i ) > 0 || uri.search( /^data\:image\/jpeg/ ) === 0 ) return 'image/jpeg';
-		if ( uri.search( /\.webp($|\?)/i ) > 0 || uri.search( /^data\:image\/webp/ ) === 0 ) return 'image/webp';
-
-		return 'image/png';
-
-	}
-
-	const _identityMatrix = new Matrix4();
-
-	/* GLTF PARSER */
-
-	class GLTFParser {
-
-		constructor( json = {}, options = {} ) {
-
-			this.json = json;
-			this.extensions = {};
-			this.plugins = {};
-			this.options = options;
-
-			// loader object cache
-			this.cache = new GLTFRegistry();
-
-			// associations between Three.js objects and glTF elements
-			this.associations = new Map();
-
-			// BufferGeometry caching
-			this.primitiveCache = {};
-
-			// Node cache
-			this.nodeCache = {};
-
-			// Object3D instance caches
-			this.meshCache = { refs: {}, uses: {} };
-			this.cameraCache = { refs: {}, uses: {} };
-			this.lightCache = { refs: {}, uses: {} };
-
-			this.sourceCache = {};
-			this.textureCache = {};
-
-			// Track node names, to ensure no duplicates
-			this.nodeNamesUsed = {};
-
-			// Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
-			// expensive work of uploading a texture to the GPU off the main thread.
-
-			let isSafari = false;
-			let isFirefox = false;
-			let firefoxVersion = - 1;
-
-			if ( typeof navigator !== 'undefined' ) {
-
-				isSafari = /^((?!chrome|android).)*safari/i.test( navigator.userAgent ) === true;
-				isFirefox = navigator.userAgent.indexOf( 'Firefox' ) > - 1;
-				firefoxVersion = isFirefox ? navigator.userAgent.match( /Firefox\/([0-9]+)\./ )[ 1 ] : - 1;
-
-			}
-
-			if ( typeof createImageBitmap === 'undefined' || isSafari || ( isFirefox && firefoxVersion < 98 ) ) {
-
-				this.textureLoader = new TextureLoader( this.options.manager );
-
-			} else {
-
-				this.textureLoader = new ImageBitmapLoader( this.options.manager );
-
-			}
-
-			this.textureLoader.setCrossOrigin( this.options.crossOrigin );
-			this.textureLoader.setRequestHeader( this.options.requestHeader );
-
-			this.fileLoader = new FileLoader( this.options.manager );
-			this.fileLoader.setResponseType( 'arraybuffer' );
-
-			if ( this.options.crossOrigin === 'use-credentials' ) {
-
-				this.fileLoader.setWithCredentials( true );
-
-			}
-
-		}
-
-		setExtensions( extensions ) {
-
-			this.extensions = extensions;
-
-		}
-
-		setPlugins( plugins ) {
-
-			this.plugins = plugins;
-
-		}
-
-		parse( onLoad, onError ) {
-
-			const parser = this;
-			const json = this.json;
-			const extensions = this.extensions;
-
-			// Clear the loader cache
-			this.cache.removeAll();
-			this.nodeCache = {};
-
-			// Mark the special nodes/meshes in json for efficient parse
-			this._invokeAll( function ( ext ) {
-
-				return ext._markDefs && ext._markDefs();
-
-			} );
-
-			Promise.all( this._invokeAll( function ( ext ) {
-
-				return ext.beforeRoot && ext.beforeRoot();
-
-			} ) ).then( function () {
-
-				return Promise.all( [
-
-					parser.getDependencies( 'scene' ),
-					parser.getDependencies( 'animation' ),
-					parser.getDependencies( 'camera' ),
-
-				] );
-
-			} ).then( function ( dependencies ) {
-
-				const result = {
-					scene: dependencies[ 0 ][ json.scene || 0 ],
-					scenes: dependencies[ 0 ],
-					animations: dependencies[ 1 ],
-					cameras: dependencies[ 2 ],
-					asset: json.asset,
-					parser: parser,
-					userData: {}
-				};
-
-				addUnknownExtensionsToUserData( extensions, result, json );
-
-				assignExtrasToUserData( result, json );
-
-				return Promise.all( parser._invokeAll( function ( ext ) {
-
-					return ext.afterRoot && ext.afterRoot( result );
-
-				} ) ).then( function () {
-
-					onLoad( result );
-
-				} );
-
-			} ).catch( onError );
-
-		}
-
-		/**
-		 * Marks the special nodes/meshes in json for efficient parse.
-		 */
-		_markDefs() {
-
-			const nodeDefs = this.json.nodes || [];
-			const skinDefs = this.json.skins || [];
-			const meshDefs = this.json.meshes || [];
-
-			// Nothing in the node definition indicates whether it is a Bone or an
-			// Object3D. Use the skins' joint references to mark bones.
-			for ( let skinIndex = 0, skinLength = skinDefs.length; skinIndex < skinLength; skinIndex ++ ) {
-
-				const joints = skinDefs[ skinIndex ].joints;
-
-				for ( let i = 0, il = joints.length; i < il; i ++ ) {
-
-					nodeDefs[ joints[ i ] ].isBone = true;
-
-				}
-
-			}
-
-			// Iterate over all nodes, marking references to shared resources,
-			// as well as skeleton joints.
-			for ( let nodeIndex = 0, nodeLength = nodeDefs.length; nodeIndex < nodeLength; nodeIndex ++ ) {
-
-				const nodeDef = nodeDefs[ nodeIndex ];
-
-				if ( nodeDef.mesh !== undefined ) {
-
-					this._addNodeRef( this.meshCache, nodeDef.mesh );
-
-					// Nothing in the mesh definition indicates whether it is
-					// a SkinnedMesh or Mesh. Use the node's mesh reference
-					// to mark SkinnedMesh if node has skin.
-					if ( nodeDef.skin !== undefined ) {
-
-						meshDefs[ nodeDef.mesh ].isSkinnedMesh = true;
-
-					}
-
-				}
-
-				if ( nodeDef.camera !== undefined ) {
-
-					this._addNodeRef( this.cameraCache, nodeDef.camera );
-
-				}
-
-			}
-
-		}
-
-		/**
-		 * Counts references to shared node / Object3D resources. These resources
-		 * can be reused, or "instantiated", at multiple nodes in the scene
-		 * hierarchy. Mesh, Camera, and Light instances are instantiated and must
-		 * be marked. Non-scenegraph resources (like Materials, Geometries, and
-		 * Textures) can be reused directly and are not marked here.
-		 *
-		 * Example: CesiumMilkTruck sample model reuses "Wheel" meshes.
-		 */
-		_addNodeRef( cache, index ) {
-
-			if ( index === undefined ) return;
-
-			if ( cache.refs[ index ] === undefined ) {
-
-				cache.refs[ index ] = cache.uses[ index ] = 0;
-
-			}
-
-			cache.refs[ index ] ++;
-
-		}
-
-		/** Returns a reference to a shared resource, cloning it if necessary. */
-		_getNodeRef( cache, index, object ) {
-
-			if ( cache.refs[ index ] <= 1 ) return object;
-
-			const ref = object.clone();
-
-			// Propagates mappings to the cloned object, prevents mappings on the
-			// original object from being lost.
-			const updateMappings = ( original, clone ) => {
-
-				const mappings = this.associations.get( original );
-				if ( mappings != null ) {
-
-					this.associations.set( clone, mappings );
-
-				}
-
-				for ( const [ i, child ] of original.children.entries() ) {
-
-					updateMappings( child, clone.children[ i ] );
-
-				}
-
-			};
-
-			updateMappings( object, ref );
-
-			ref.name += '_instance_' + ( cache.uses[ index ] ++ );
-
-			return ref;
-
-		}
-
-		_invokeOne( func ) {
-
-			const extensions = Object.values( this.plugins );
-			extensions.push( this );
-
-			for ( let i = 0; i < extensions.length; i ++ ) {
-
-				const result = func( extensions[ i ] );
-
-				if ( result ) return result;
-
-			}
-
-			return null;
-
-		}
-
-		_invokeAll( func ) {
-
-			const extensions = Object.values( this.plugins );
-			extensions.unshift( this );
-
-			const pending = [];
-
-			for ( let i = 0; i < extensions.length; i ++ ) {
-
-				const result = func( extensions[ i ] );
-
-				if ( result ) pending.push( result );
-
-			}
-
-			return pending;
-
-		}
-
-		/**
-		 * Requests the specified dependency asynchronously, with caching.
-		 * @param {string} type
-		 * @param {number} index
-		 * @return {Promise<Object3D|Material|THREE.Texture|AnimationClip|ArrayBuffer|Object>}
-		 */
-		getDependency( type, index ) {
-
-			const cacheKey = type + ':' + index;
-			let dependency = this.cache.get( cacheKey );
-
-			if ( ! dependency ) {
-
-				switch ( type ) {
-
-					case 'scene':
-						dependency = this.loadScene( index );
-						break;
-
-					case 'node':
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext.loadNode && ext.loadNode( index );
-
-						} );
-						break;
-
-					case 'mesh':
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext.loadMesh && ext.loadMesh( index );
-
-						} );
-						break;
-
-					case 'accessor':
-						dependency = this.loadAccessor( index );
-						break;
-
-					case 'bufferView':
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext.loadBufferView && ext.loadBufferView( index );
-
-						} );
-						break;
-
-					case 'buffer':
-						dependency = this.loadBuffer( index );
-						break;
-
-					case 'material':
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext.loadMaterial && ext.loadMaterial( index );
-
-						} );
-						break;
-
-					case 'texture':
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext.loadTexture && ext.loadTexture( index );
-
-						} );
-						break;
-
-					case 'skin':
-						dependency = this.loadSkin( index );
-						break;
-
-					case 'animation':
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext.loadAnimation && ext.loadAnimation( index );
-
-						} );
-						break;
-
-					case 'camera':
-						dependency = this.loadCamera( index );
-						break;
-
-					default:
-						dependency = this._invokeOne( function ( ext ) {
-
-							return ext != this && ext.getDependency && ext.getDependency( type, index );
-
-						} );
-
-						if ( ! dependency ) {
-
-							throw new Error( 'Unknown type: ' + type );
-
-						}
-
-						break;
-
-				}
-
-				this.cache.add( cacheKey, dependency );
-
-			}
-
-			return dependency;
-
-		}
-
-		/**
-		 * Requests all dependencies of the specified type asynchronously, with caching.
-		 * @param {string} type
-		 * @return {Promise<Array<Object>>}
-		 */
-		getDependencies( type ) {
-
-			let dependencies = this.cache.get( type );
-
-			if ( ! dependencies ) {
-
-				const parser = this;
-				const defs = this.json[ type + ( type === 'mesh' ? 'es' : 's' ) ] || [];
-
-				dependencies = Promise.all( defs.map( function ( def, index ) {
-
-					return parser.getDependency( type, index );
-
-				} ) );
-
-				this.cache.add( type, dependencies );
-
-			}
-
-			return dependencies;
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#buffers-and-buffer-views
-		 * @param {number} bufferIndex
-		 * @return {Promise<ArrayBuffer>}
-		 */
-		loadBuffer( bufferIndex ) {
-
-			const bufferDef = this.json.buffers[ bufferIndex ];
-			const loader = this.fileLoader;
-
-			if ( bufferDef.type && bufferDef.type !== 'arraybuffer' ) {
-
-				throw new Error( 'THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.' );
-
-			}
-
-			// If present, GLB container is required to be the first buffer.
-			if ( bufferDef.uri === undefined && bufferIndex === 0 ) {
-
-				return Promise.resolve( this.extensions[ EXTENSIONS.KHR_BINARY_GLTF ].body );
-
-			}
-
-			const options = this.options;
-
-			return new Promise( function ( resolve, reject ) {
-
-				loader.load( LoaderUtils.resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
-
-					reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
-
-				} );
-
-			} );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#buffers-and-buffer-views
-		 * @param {number} bufferViewIndex
-		 * @return {Promise<ArrayBuffer>}
-		 */
-		loadBufferView( bufferViewIndex ) {
-
-			const bufferViewDef = this.json.bufferViews[ bufferViewIndex ];
-
-			return this.getDependency( 'buffer', bufferViewDef.buffer ).then( function ( buffer ) {
-
-				const byteLength = bufferViewDef.byteLength || 0;
-				const byteOffset = bufferViewDef.byteOffset || 0;
-				return buffer.slice( byteOffset, byteOffset + byteLength );
-
-			} );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#accessors
-		 * @param {number} accessorIndex
-		 * @return {Promise<BufferAttribute|InterleavedBufferAttribute>}
-		 */
-		loadAccessor( accessorIndex ) {
-
-			const parser = this;
-			const json = this.json;
-
-			const accessorDef = this.json.accessors[ accessorIndex ];
-
-			if ( accessorDef.bufferView === undefined && accessorDef.sparse === undefined ) {
-
-				const itemSize = WEBGL_TYPE_SIZES[ accessorDef.type ];
-				const TypedArray = WEBGL_COMPONENT_TYPES[ accessorDef.componentType ];
-				const normalized = accessorDef.normalized === true;
-
-				const array = new TypedArray( accessorDef.count * itemSize );
-				return Promise.resolve( new BufferAttribute( array, itemSize, normalized ) );
-
-			}
-
-			const pendingBufferViews = [];
-
-			if ( accessorDef.bufferView !== undefined ) {
-
-				pendingBufferViews.push( this.getDependency( 'bufferView', accessorDef.bufferView ) );
-
-			} else {
-
-				pendingBufferViews.push( null );
-
-			}
-
-			if ( accessorDef.sparse !== undefined ) {
-
-				pendingBufferViews.push( this.getDependency( 'bufferView', accessorDef.sparse.indices.bufferView ) );
-				pendingBufferViews.push( this.getDependency( 'bufferView', accessorDef.sparse.values.bufferView ) );
-
-			}
-
-			return Promise.all( pendingBufferViews ).then( function ( bufferViews ) {
-
-				const bufferView = bufferViews[ 0 ];
-
-				const itemSize = WEBGL_TYPE_SIZES[ accessorDef.type ];
-				const TypedArray = WEBGL_COMPONENT_TYPES[ accessorDef.componentType ];
-
-				// For VEC3: itemSize is 3, elementBytes is 4, itemBytes is 12.
-				const elementBytes = TypedArray.BYTES_PER_ELEMENT;
-				const itemBytes = elementBytes * itemSize;
-				const byteOffset = accessorDef.byteOffset || 0;
-				const byteStride = accessorDef.bufferView !== undefined ? json.bufferViews[ accessorDef.bufferView ].byteStride : undefined;
-				const normalized = accessorDef.normalized === true;
-				let array, bufferAttribute;
-
-				// The buffer is not interleaved if the stride is the item size in bytes.
-				if ( byteStride && byteStride !== itemBytes ) {
-
-					// Each "slice" of the buffer, as defined by 'count' elements of 'byteStride' bytes, gets its own InterleavedBuffer
-					// This makes sure that IBA.count reflects accessor.count properly
-					const ibSlice = Math.floor( byteOffset / byteStride );
-					const ibCacheKey = 'InterleavedBuffer:' + accessorDef.bufferView + ':' + accessorDef.componentType + ':' + ibSlice + ':' + accessorDef.count;
-					let ib = parser.cache.get( ibCacheKey );
-
-					if ( ! ib ) {
-
-						array = new TypedArray( bufferView, ibSlice * byteStride, accessorDef.count * byteStride / elementBytes );
-
-						// Integer parameters to IB/IBA are in array elements, not bytes.
-						ib = new InterleavedBuffer( array, byteStride / elementBytes );
-
-						parser.cache.add( ibCacheKey, ib );
-
-					}
-
-					bufferAttribute = new InterleavedBufferAttribute( ib, itemSize, ( byteOffset % byteStride ) / elementBytes, normalized );
-
-				} else {
-
-					if ( bufferView === null ) {
-
-						array = new TypedArray( accessorDef.count * itemSize );
-
-					} else {
-
-						array = new TypedArray( bufferView, byteOffset, accessorDef.count * itemSize );
-
-					}
-
-					bufferAttribute = new BufferAttribute( array, itemSize, normalized );
-
-				}
-
-				// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#sparse-accessors
-				if ( accessorDef.sparse !== undefined ) {
-
-					const itemSizeIndices = WEBGL_TYPE_SIZES.SCALAR;
-					const TypedArrayIndices = WEBGL_COMPONENT_TYPES[ accessorDef.sparse.indices.componentType ];
-
-					const byteOffsetIndices = accessorDef.sparse.indices.byteOffset || 0;
-					const byteOffsetValues = accessorDef.sparse.values.byteOffset || 0;
-
-					const sparseIndices = new TypedArrayIndices( bufferViews[ 1 ], byteOffsetIndices, accessorDef.sparse.count * itemSizeIndices );
-					const sparseValues = new TypedArray( bufferViews[ 2 ], byteOffsetValues, accessorDef.sparse.count * itemSize );
-
-					if ( bufferView !== null ) {
-
-						// Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
-						bufferAttribute = new BufferAttribute( bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized );
-
-					}
-
-					for ( let i = 0, il = sparseIndices.length; i < il; i ++ ) {
-
-						const index = sparseIndices[ i ];
-
-						bufferAttribute.setX( index, sparseValues[ i * itemSize ] );
-						if ( itemSize >= 2 ) bufferAttribute.setY( index, sparseValues[ i * itemSize + 1 ] );
-						if ( itemSize >= 3 ) bufferAttribute.setZ( index, sparseValues[ i * itemSize + 2 ] );
-						if ( itemSize >= 4 ) bufferAttribute.setW( index, sparseValues[ i * itemSize + 3 ] );
-						if ( itemSize >= 5 ) throw new Error( 'THREE.GLTFLoader: Unsupported itemSize in sparse BufferAttribute.' );
-
-					}
-
-				}
-
-				return bufferAttribute;
-
-			} );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#textures
-		 * @param {number} textureIndex
-		 * @return {Promise<THREE.Texture|null>}
-		 */
-		loadTexture( textureIndex ) {
-
-			const json = this.json;
-			const options = this.options;
-			const textureDef = json.textures[ textureIndex ];
-			const sourceIndex = textureDef.source;
-			const sourceDef = json.images[ sourceIndex ];
-
-			let loader = this.textureLoader;
-
-			if ( sourceDef.uri ) {
-
-				const handler = options.manager.getHandler( sourceDef.uri );
-				if ( handler !== null ) loader = handler;
-
-			}
-
-			return this.loadTextureImage( textureIndex, sourceIndex, loader );
-
-		}
-
-		loadTextureImage( textureIndex, sourceIndex, loader ) {
-
-			const parser = this;
-			const json = this.json;
-
-			const textureDef = json.textures[ textureIndex ];
-			const sourceDef = json.images[ sourceIndex ];
-
-			const cacheKey = ( sourceDef.uri || sourceDef.bufferView ) + ':' + textureDef.sampler;
-
-			if ( this.textureCache[ cacheKey ] ) {
-
-				// See https://github.com/mrdoob/three.js/issues/21559.
-				return this.textureCache[ cacheKey ];
-
-			}
-
-			const promise = this.loadImageSource( sourceIndex, loader ).then( function ( texture ) {
-
-				texture.flipY = false;
-
-				texture.name = textureDef.name || sourceDef.name || '';
-
-				if ( texture.name === '' && typeof sourceDef.uri === 'string' && sourceDef.uri.startsWith( 'data:image/' ) === false ) {
-
-					texture.name = sourceDef.uri;
-
-				}
-
-				const samplers = json.samplers || {};
-				const sampler = samplers[ textureDef.sampler ] || {};
-
-				texture.magFilter = WEBGL_FILTERS[ sampler.magFilter ] || LinearFilter;
-				texture.minFilter = WEBGL_FILTERS[ sampler.minFilter ] || LinearMipmapLinearFilter;
-				texture.wrapS = WEBGL_WRAPPINGS[ sampler.wrapS ] || RepeatWrapping;
-				texture.wrapT = WEBGL_WRAPPINGS[ sampler.wrapT ] || RepeatWrapping;
-
-				parser.associations.set( texture, { textures: textureIndex } );
-
-				return texture;
-
-			} ).catch( function () {
-
-				return null;
-
-			} );
-
-			this.textureCache[ cacheKey ] = promise;
-
-			return promise;
-
-		}
-
-		loadImageSource( sourceIndex, loader ) {
-
-			const parser = this;
-			const json = this.json;
-			const options = this.options;
-
-			if ( this.sourceCache[ sourceIndex ] !== undefined ) {
-
-				return this.sourceCache[ sourceIndex ].then( ( texture ) => texture.clone() );
-
-			}
-
-			const sourceDef = json.images[ sourceIndex ];
-
-			const URL = self.URL || self.webkitURL;
-
-			let sourceURI = sourceDef.uri || '';
-			let isObjectURL = false;
-
-			if ( sourceDef.bufferView !== undefined ) {
-
-				// Load binary image data from bufferView, if provided.
-
-				sourceURI = parser.getDependency( 'bufferView', sourceDef.bufferView ).then( function ( bufferView ) {
-
-					isObjectURL = true;
-					const blob = new Blob( [ bufferView ], { type: sourceDef.mimeType } );
-					sourceURI = URL.createObjectURL( blob );
-					return sourceURI;
-
-				} );
-
-			} else if ( sourceDef.uri === undefined ) {
-
-				throw new Error( 'THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView' );
-
-			}
-
-			const promise = Promise.resolve( sourceURI ).then( function ( sourceURI ) {
-
-				return new Promise( function ( resolve, reject ) {
-
-					let onLoad = resolve;
-
-					if ( loader.isImageBitmapLoader === true ) {
-
-						onLoad = function ( imageBitmap ) {
-
-							const texture = new Texture( imageBitmap );
-							texture.needsUpdate = true;
-
-							resolve( texture );
-
-						};
-
-					}
-
-					loader.load( LoaderUtils.resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
-
-				} );
-
-			} ).then( function ( texture ) {
-
-				// Clean up resources and configure Texture.
-
-				if ( isObjectURL === true ) {
-
-					URL.revokeObjectURL( sourceURI );
-
-				}
-
-				texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType( sourceDef.uri );
-
-				return texture;
-
-			} ).catch( function ( error ) {
-
-				console.error( 'THREE.GLTFLoader: Couldn\'t load texture', sourceURI );
-				throw error;
-
-			} );
-
-			this.sourceCache[ sourceIndex ] = promise;
-			return promise;
-
-		}
-
-		/**
-		 * Asynchronously assigns a texture to the given material parameters.
-		 * @param {Object} materialParams
-		 * @param {string} mapName
-		 * @param {Object} mapDef
-		 * @return {Promise<Texture>}
-		 */
-		assignTexture( materialParams, mapName, mapDef, colorSpace ) {
-
-			const parser = this;
-
-			return this.getDependency( 'texture', mapDef.index ).then( function ( texture ) {
-
-				if ( ! texture ) return null;
-
-				if ( mapDef.texCoord !== undefined && mapDef.texCoord > 0 ) {
-
-					texture = texture.clone();
-					texture.channel = mapDef.texCoord;
-
-				}
-
-				if ( parser.extensions[ EXTENSIONS.KHR_TEXTURE_TRANSFORM ] ) {
-
-					const transform = mapDef.extensions !== undefined ? mapDef.extensions[ EXTENSIONS.KHR_TEXTURE_TRANSFORM ] : undefined;
-
-					if ( transform ) {
-
-						const gltfReference = parser.associations.get( texture );
-						texture = parser.extensions[ EXTENSIONS.KHR_TEXTURE_TRANSFORM ].extendTexture( texture, transform );
-						parser.associations.set( texture, gltfReference );
-
-					}
-
-				}
-
-				if ( colorSpace !== undefined ) {
-
-					texture.colorSpace = colorSpace;
-
-				}
-
-				materialParams[ mapName ] = texture;
-
-				return texture;
-
-			} );
-
-		}
-
-		/**
-		 * Assigns final material to a Mesh, Line, or Points instance. The instance
-		 * already has a material (generated from the glTF material options alone)
-		 * but reuse of the same glTF material may require multiple threejs materials
-		 * to accommodate different primitive types, defines, etc. New materials will
-		 * be created if necessary, and reused from a cache.
-		 * @param  {Object3D} mesh Mesh, Line, or Points instance.
-		 */
-		assignFinalMaterial( mesh ) {
-
-			const geometry = mesh.geometry;
-			let material = mesh.material;
-
-			const useDerivativeTangents = geometry.attributes.tangent === undefined;
-			const useVertexColors = geometry.attributes.color !== undefined;
-			const useFlatShading = geometry.attributes.normal === undefined;
-
-			if ( mesh.isPoints ) {
-
-				const cacheKey = 'PointsMaterial:' + material.uuid;
-
-				let pointsMaterial = this.cache.get( cacheKey );
-
-				if ( ! pointsMaterial ) {
-
-					pointsMaterial = new PointsMaterial();
-					Material.prototype.copy.call( pointsMaterial, material );
-					pointsMaterial.color.copy( material.color );
-					pointsMaterial.map = material.map;
-					pointsMaterial.sizeAttenuation = false; // glTF spec says points should be 1px
-
-					this.cache.add( cacheKey, pointsMaterial );
-
-				}
-
-				material = pointsMaterial;
-
-			} else if ( mesh.isLine ) {
-
-				const cacheKey = 'LineBasicMaterial:' + material.uuid;
-
-				let lineMaterial = this.cache.get( cacheKey );
-
-				if ( ! lineMaterial ) {
-
-					lineMaterial = new LineBasicMaterial();
-					Material.prototype.copy.call( lineMaterial, material );
-					lineMaterial.color.copy( material.color );
-					lineMaterial.map = material.map;
-
-					this.cache.add( cacheKey, lineMaterial );
-
-				}
-
-				material = lineMaterial;
-
-			}
-
-			// Clone the material if it will be modified
-			if ( useDerivativeTangents || useVertexColors || useFlatShading ) {
-
-				let cacheKey = 'ClonedMaterial:' + material.uuid + ':';
-
-				if ( useDerivativeTangents ) cacheKey += 'derivative-tangents:';
-				if ( useVertexColors ) cacheKey += 'vertex-colors:';
-				if ( useFlatShading ) cacheKey += 'flat-shading:';
-
-				let cachedMaterial = this.cache.get( cacheKey );
-
-				if ( ! cachedMaterial ) {
-
-					cachedMaterial = material.clone();
-
-					if ( useVertexColors ) cachedMaterial.vertexColors = true;
-					if ( useFlatShading ) cachedMaterial.flatShading = true;
-
-					if ( useDerivativeTangents ) {
-
-						// https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
-						if ( cachedMaterial.normalScale ) cachedMaterial.normalScale.y *= - 1;
-						if ( cachedMaterial.clearcoatNormalScale ) cachedMaterial.clearcoatNormalScale.y *= - 1;
-
-					}
-
-					this.cache.add( cacheKey, cachedMaterial );
-
-					this.associations.set( cachedMaterial, this.associations.get( material ) );
-
-				}
-
-				material = cachedMaterial;
-
-			}
-
-			mesh.material = material;
-
-		}
-
-		getMaterialType( /* materialIndex */ ) {
-
-			return MeshStandardMaterial;
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#materials
-		 * @param {number} materialIndex
-		 * @return {Promise<Material>}
-		 */
-		loadMaterial( materialIndex ) {
-
-			const parser = this;
-			const json = this.json;
-			const extensions = this.extensions;
-			const materialDef = json.materials[ materialIndex ];
-
-			let materialType;
-			const materialParams = {};
-			const materialExtensions = materialDef.extensions || {};
-
-			const pending = [];
-
-			if ( materialExtensions[ EXTENSIONS.KHR_MATERIALS_UNLIT ] ) {
-
-				const kmuExtension = extensions[ EXTENSIONS.KHR_MATERIALS_UNLIT ];
-				materialType = kmuExtension.getMaterialType();
-				pending.push( kmuExtension.extendParams( materialParams, materialDef, parser ) );
-
-			} else {
-
-				// Specification:
-				// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#metallic-roughness-material
-
-				const metallicRoughness = materialDef.pbrMetallicRoughness || {};
-
-				materialParams.color = new Color( 1.0, 1.0, 1.0 );
-				materialParams.opacity = 1.0;
-
-				if ( Array.isArray( metallicRoughness.baseColorFactor ) ) {
-
-					const array = metallicRoughness.baseColorFactor;
-
-					materialParams.color.setRGB( array[ 0 ], array[ 1 ], array[ 2 ], LinearSRGBColorSpace );
-					materialParams.opacity = array[ 3 ];
-
-				}
-
-				if ( metallicRoughness.baseColorTexture !== undefined ) {
-
-					pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
-
-				}
-
-				materialParams.metalness = metallicRoughness.metallicFactor !== undefined ? metallicRoughness.metallicFactor : 1.0;
-				materialParams.roughness = metallicRoughness.roughnessFactor !== undefined ? metallicRoughness.roughnessFactor : 1.0;
-
-				if ( metallicRoughness.metallicRoughnessTexture !== undefined ) {
-
-					pending.push( parser.assignTexture( materialParams, 'metalnessMap', metallicRoughness.metallicRoughnessTexture ) );
-					pending.push( parser.assignTexture( materialParams, 'roughnessMap', metallicRoughness.metallicRoughnessTexture ) );
-
-				}
-
-				materialType = this._invokeOne( function ( ext ) {
-
-					return ext.getMaterialType && ext.getMaterialType( materialIndex );
-
-				} );
-
-				pending.push( Promise.all( this._invokeAll( function ( ext ) {
-
-					return ext.extendMaterialParams && ext.extendMaterialParams( materialIndex, materialParams );
-
-				} ) ) );
-
-			}
-
-			if ( materialDef.doubleSided === true ) {
-
-				materialParams.side = DoubleSide;
-
-			}
-
-			const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE;
-
-			if ( alphaMode === ALPHA_MODES.BLEND ) {
-
-				materialParams.transparent = true;
-
-				// See: https://github.com/mrdoob/three.js/issues/17706
-				materialParams.depthWrite = false;
-
-			} else {
-
-				materialParams.transparent = false;
-
-				if ( alphaMode === ALPHA_MODES.MASK ) {
-
-					materialParams.alphaTest = materialDef.alphaCutoff !== undefined ? materialDef.alphaCutoff : 0.5;
-
-				}
-
-			}
-
-			if ( materialDef.normalTexture !== undefined && materialType !== MeshBasicMaterial ) {
-
-				pending.push( parser.assignTexture( materialParams, 'normalMap', materialDef.normalTexture ) );
-
-				materialParams.normalScale = new Vector2( 1, 1 );
-
-				if ( materialDef.normalTexture.scale !== undefined ) {
-
-					const scale = materialDef.normalTexture.scale;
-
-					materialParams.normalScale.set( scale, scale );
-
-				}
-
-			}
-
-			if ( materialDef.occlusionTexture !== undefined && materialType !== MeshBasicMaterial ) {
-
-				pending.push( parser.assignTexture( materialParams, 'aoMap', materialDef.occlusionTexture ) );
-
-				if ( materialDef.occlusionTexture.strength !== undefined ) {
-
-					materialParams.aoMapIntensity = materialDef.occlusionTexture.strength;
-
-				}
-
-			}
-
-			if ( materialDef.emissiveFactor !== undefined && materialType !== MeshBasicMaterial ) {
-
-				const emissiveFactor = materialDef.emissiveFactor;
-				materialParams.emissive = new Color().setRGB( emissiveFactor[ 0 ], emissiveFactor[ 1 ], emissiveFactor[ 2 ], LinearSRGBColorSpace );
-
-			}
-
-			if ( materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial ) {
-
-				pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, SRGBColorSpace ) );
-
-			}
-
-			return Promise.all( pending ).then( function () {
-
-				const material = new materialType( materialParams );
-
-				if ( materialDef.name ) material.name = materialDef.name;
-
-				assignExtrasToUserData( material, materialDef );
-
-				parser.associations.set( material, { materials: materialIndex } );
-
-				if ( materialDef.extensions ) addUnknownExtensionsToUserData( extensions, material, materialDef );
-
-				return material;
-
-			} );
-
-		}
-
-		/** When Object3D instances are targeted by animation, they need unique names. */
-		createUniqueName( originalName ) {
-
-			const sanitizedName = PropertyBinding.sanitizeNodeName( originalName || '' );
-
-			if ( sanitizedName in this.nodeNamesUsed ) {
-
-				return sanitizedName + '_' + ( ++ this.nodeNamesUsed[ sanitizedName ] );
-
-			} else {
-
-				this.nodeNamesUsed[ sanitizedName ] = 0;
-
-				return sanitizedName;
-
-			}
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#geometry
-		 *
-		 * Creates BufferGeometries from primitives.
-		 *
-		 * @param {Array<GLTF.Primitive>} primitives
-		 * @return {Promise<Array<BufferGeometry>>}
-		 */
-		loadGeometries( primitives ) {
-
-			const parser = this;
-			const extensions = this.extensions;
-			const cache = this.primitiveCache;
-
-			function createDracoPrimitive( primitive ) {
-
-				return extensions[ EXTENSIONS.KHR_DRACO_MESH_COMPRESSION ]
-					.decodePrimitive( primitive, parser )
-					.then( function ( geometry ) {
-
-						return addPrimitiveAttributes( geometry, primitive, parser );
-
-					} );
-
-			}
-
-			const pending = [];
-
-			for ( let i = 0, il = primitives.length; i < il; i ++ ) {
-
-				const primitive = primitives[ i ];
-				const cacheKey = createPrimitiveKey( primitive );
-
-				// See if we've already created this geometry
-				const cached = cache[ cacheKey ];
-
-				if ( cached ) {
-
-					// Use the cached geometry if it exists
-					pending.push( cached.promise );
-
-				} else {
-
-					let geometryPromise;
-
-					if ( primitive.extensions && primitive.extensions[ EXTENSIONS.KHR_DRACO_MESH_COMPRESSION ] ) {
-
-						// Use DRACO geometry if available
-						geometryPromise = createDracoPrimitive( primitive );
-
-					} else {
-
-						// Otherwise create a new geometry
-						geometryPromise = addPrimitiveAttributes( new BufferGeometry(), primitive, parser );
-
-					}
-
-					// Cache this geometry
-					cache[ cacheKey ] = { primitive: primitive, promise: geometryPromise };
-
-					pending.push( geometryPromise );
-
-				}
-
-			}
-
-			return Promise.all( pending );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#meshes
-		 * @param {number} meshIndex
-		 * @return {Promise<Group|Mesh|SkinnedMesh>}
-		 */
-		loadMesh( meshIndex ) {
-
-			const parser = this;
-			const json = this.json;
-			const extensions = this.extensions;
-
-			const meshDef = json.meshes[ meshIndex ];
-			const primitives = meshDef.primitives;
-
-			const pending = [];
-
-			for ( let i = 0, il = primitives.length; i < il; i ++ ) {
-
-				const material = primitives[ i ].material === undefined
-					? createDefaultMaterial( this.cache )
-					: this.getDependency( 'material', primitives[ i ].material );
-
-				pending.push( material );
-
-			}
-
-			pending.push( parser.loadGeometries( primitives ) );
-
-			return Promise.all( pending ).then( function ( results ) {
-
-				const materials = results.slice( 0, results.length - 1 );
-				const geometries = results[ results.length - 1 ];
-
-				const meshes = [];
-
-				for ( let i = 0, il = geometries.length; i < il; i ++ ) {
-
-					const geometry = geometries[ i ];
-					const primitive = primitives[ i ];
-
-					// 1. create Mesh
-
-					let mesh;
-
-					const material = materials[ i ];
-
-					if ( primitive.mode === WEBGL_CONSTANTS.TRIANGLES ||
-							primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP ||
-							primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN ||
-							primitive.mode === undefined ) {
-
-						// .isSkinnedMesh isn't in glTF spec. See ._markDefs()
-						mesh = meshDef.isSkinnedMesh === true
-							? new SkinnedMesh( geometry, material )
-							: new Mesh( geometry, material );
-
-						if ( mesh.isSkinnedMesh === true ) {
-
-							// normalize skin weights to fix malformed assets (see #15319)
-							mesh.normalizeSkinWeights();
-
-						}
-
-						if ( primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP ) {
-
-							mesh.geometry = toTrianglesDrawMode( mesh.geometry, TriangleStripDrawMode );
-
-						} else if ( primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN ) {
-
-							mesh.geometry = toTrianglesDrawMode( mesh.geometry, TriangleFanDrawMode );
-
-						}
-
-					} else if ( primitive.mode === WEBGL_CONSTANTS.LINES ) {
-
-						mesh = new LineSegments( geometry, material );
-
-					} else if ( primitive.mode === WEBGL_CONSTANTS.LINE_STRIP ) {
-
-						mesh = new Line( geometry, material );
-
-					} else if ( primitive.mode === WEBGL_CONSTANTS.LINE_LOOP ) {
-
-						mesh = new LineLoop( geometry, material );
-
-					} else if ( primitive.mode === WEBGL_CONSTANTS.POINTS ) {
-
-						mesh = new Points( geometry, material );
-
-					} else {
-
-						throw new Error( 'THREE.GLTFLoader: Primitive mode unsupported: ' + primitive.mode );
-
-					}
-
-					if ( Object.keys( mesh.geometry.morphAttributes ).length > 0 ) {
-
-						updateMorphTargets( mesh, meshDef );
-
-					}
-
-					mesh.name = parser.createUniqueName( meshDef.name || ( 'mesh_' + meshIndex ) );
-
-					assignExtrasToUserData( mesh, meshDef );
-
-					if ( primitive.extensions ) addUnknownExtensionsToUserData( extensions, mesh, primitive );
-
-					parser.assignFinalMaterial( mesh );
-
-					meshes.push( mesh );
-
-				}
-
-				for ( let i = 0, il = meshes.length; i < il; i ++ ) {
-
-					parser.associations.set( meshes[ i ], {
-						meshes: meshIndex,
-						primitives: i
-					} );
-
-				}
-
-				if ( meshes.length === 1 ) {
-
-					if ( meshDef.extensions ) addUnknownExtensionsToUserData( extensions, meshes[ 0 ], meshDef );
-
-					return meshes[ 0 ];
-
-				}
-
-				const group = new Group$2();
-
-				if ( meshDef.extensions ) addUnknownExtensionsToUserData( extensions, group, meshDef );
-
-				parser.associations.set( group, { meshes: meshIndex } );
-
-				for ( let i = 0, il = meshes.length; i < il; i ++ ) {
-
-					group.add( meshes[ i ] );
-
-				}
-
-				return group;
-
-			} );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#cameras
-		 * @param {number} cameraIndex
-		 * @return {Promise<THREE.Camera>}
-		 */
-		loadCamera( cameraIndex ) {
-
-			let camera;
-			const cameraDef = this.json.cameras[ cameraIndex ];
-			const params = cameraDef[ cameraDef.type ];
-
-			if ( ! params ) {
-
-				console.warn( 'THREE.GLTFLoader: Missing camera parameters.' );
-				return;
-
-			}
-
-			if ( cameraDef.type === 'perspective' ) {
-
-				camera = new PerspectiveCamera( MathUtils.radToDeg( params.yfov ), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6 );
-
-			} else if ( cameraDef.type === 'orthographic' ) {
-
-				camera = new OrthographicCamera( - params.xmag, params.xmag, params.ymag, - params.ymag, params.znear, params.zfar );
-
-			}
-
-			if ( cameraDef.name ) camera.name = this.createUniqueName( cameraDef.name );
-
-			assignExtrasToUserData( camera, cameraDef );
-
-			return Promise.resolve( camera );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#skins
-		 * @param {number} skinIndex
-		 * @return {Promise<Skeleton>}
-		 */
-		loadSkin( skinIndex ) {
-
-			const skinDef = this.json.skins[ skinIndex ];
-
-			const pending = [];
-
-			for ( let i = 0, il = skinDef.joints.length; i < il; i ++ ) {
-
-				pending.push( this._loadNodeShallow( skinDef.joints[ i ] ) );
-
-			}
-
-			if ( skinDef.inverseBindMatrices !== undefined ) {
-
-				pending.push( this.getDependency( 'accessor', skinDef.inverseBindMatrices ) );
-
-			} else {
-
-				pending.push( null );
-
-			}
-
-			return Promise.all( pending ).then( function ( results ) {
-
-				const inverseBindMatrices = results.pop();
-				const jointNodes = results;
-
-				// Note that bones (joint nodes) may or may not be in the
-				// scene graph at this time.
-
-				const bones = [];
-				const boneInverses = [];
-
-				for ( let i = 0, il = jointNodes.length; i < il; i ++ ) {
-
-					const jointNode = jointNodes[ i ];
-
-					if ( jointNode ) {
-
-						bones.push( jointNode );
-
-						const mat = new Matrix4();
-
-						if ( inverseBindMatrices !== null ) {
-
-							mat.fromArray( inverseBindMatrices.array, i * 16 );
-
-						}
-
-						boneInverses.push( mat );
-
-					} else {
-
-						console.warn( 'THREE.GLTFLoader: Joint "%s" could not be found.', skinDef.joints[ i ] );
-
-					}
-
-				}
-
-				return new Skeleton( bones, boneInverses );
-
-			} );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#animations
-		 * @param {number} animationIndex
-		 * @return {Promise<AnimationClip>}
-		 */
-		loadAnimation( animationIndex ) {
-
-			const json = this.json;
-			const parser = this;
-
-			const animationDef = json.animations[ animationIndex ];
-			const animationName = animationDef.name ? animationDef.name : 'animation_' + animationIndex;
-
-			const pendingNodes = [];
-			const pendingInputAccessors = [];
-			const pendingOutputAccessors = [];
-			const pendingSamplers = [];
-			const pendingTargets = [];
-
-			for ( let i = 0, il = animationDef.channels.length; i < il; i ++ ) {
-
-				const channel = animationDef.channels[ i ];
-				const sampler = animationDef.samplers[ channel.sampler ];
-				const target = channel.target;
-				const name = target.node;
-				const input = animationDef.parameters !== undefined ? animationDef.parameters[ sampler.input ] : sampler.input;
-				const output = animationDef.parameters !== undefined ? animationDef.parameters[ sampler.output ] : sampler.output;
-
-				if ( target.node === undefined ) continue;
-
-				pendingNodes.push( this.getDependency( 'node', name ) );
-				pendingInputAccessors.push( this.getDependency( 'accessor', input ) );
-				pendingOutputAccessors.push( this.getDependency( 'accessor', output ) );
-				pendingSamplers.push( sampler );
-				pendingTargets.push( target );
-
-			}
-
-			return Promise.all( [
-
-				Promise.all( pendingNodes ),
-				Promise.all( pendingInputAccessors ),
-				Promise.all( pendingOutputAccessors ),
-				Promise.all( pendingSamplers ),
-				Promise.all( pendingTargets )
-
-			] ).then( function ( dependencies ) {
-
-				const nodes = dependencies[ 0 ];
-				const inputAccessors = dependencies[ 1 ];
-				const outputAccessors = dependencies[ 2 ];
-				const samplers = dependencies[ 3 ];
-				const targets = dependencies[ 4 ];
-
-				const tracks = [];
-
-				for ( let i = 0, il = nodes.length; i < il; i ++ ) {
-
-					const node = nodes[ i ];
-					const inputAccessor = inputAccessors[ i ];
-					const outputAccessor = outputAccessors[ i ];
-					const sampler = samplers[ i ];
-					const target = targets[ i ];
-
-					if ( node === undefined ) continue;
-
-					if ( node.updateMatrix ) {
-
-						node.updateMatrix();
-
-					}
-
-					const createdTracks = parser._createAnimationTracks( node, inputAccessor, outputAccessor, sampler, target );
-
-					if ( createdTracks ) {
-
-						for ( let k = 0; k < createdTracks.length; k ++ ) {
-
-							tracks.push( createdTracks[ k ] );
-
-						}
-
-					}
-
-				}
-
-				return new AnimationClip( animationName, undefined, tracks );
-
-			} );
-
-		}
-
-		createNodeMesh( nodeIndex ) {
-
-			const json = this.json;
-			const parser = this;
-			const nodeDef = json.nodes[ nodeIndex ];
-
-			if ( nodeDef.mesh === undefined ) return null;
-
-			return parser.getDependency( 'mesh', nodeDef.mesh ).then( function ( mesh ) {
-
-				const node = parser._getNodeRef( parser.meshCache, nodeDef.mesh, mesh );
-
-				// if weights are provided on the node, override weights on the mesh.
-				if ( nodeDef.weights !== undefined ) {
-
-					node.traverse( function ( o ) {
-
-						if ( ! o.isMesh ) return;
-
-						for ( let i = 0, il = nodeDef.weights.length; i < il; i ++ ) {
-
-							o.morphTargetInfluences[ i ] = nodeDef.weights[ i ];
-
-						}
-
-					} );
-
-				}
-
-				return node;
-
-			} );
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#nodes-and-hierarchy
-		 * @param {number} nodeIndex
-		 * @return {Promise<Object3D>}
-		 */
-		loadNode( nodeIndex ) {
-
-			const json = this.json;
-			const parser = this;
-
-			const nodeDef = json.nodes[ nodeIndex ];
-
-			const nodePending = parser._loadNodeShallow( nodeIndex );
-
-			const childPending = [];
-			const childrenDef = nodeDef.children || [];
-
-			for ( let i = 0, il = childrenDef.length; i < il; i ++ ) {
-
-				childPending.push( parser.getDependency( 'node', childrenDef[ i ] ) );
-
-			}
-
-			const skeletonPending = nodeDef.skin === undefined
-				? Promise.resolve( null )
-				: parser.getDependency( 'skin', nodeDef.skin );
-
-			return Promise.all( [
-				nodePending,
-				Promise.all( childPending ),
-				skeletonPending
-			] ).then( function ( results ) {
-
-				const node = results[ 0 ];
-				const children = results[ 1 ];
-				const skeleton = results[ 2 ];
-
-				if ( skeleton !== null ) {
-
-					// This full traverse should be fine because
-					// child glTF nodes have not been added to this node yet.
-					node.traverse( function ( mesh ) {
-
-						if ( ! mesh.isSkinnedMesh ) return;
-
-						mesh.bind( skeleton, _identityMatrix );
-
-					} );
-
-				}
-
-				for ( let i = 0, il = children.length; i < il; i ++ ) {
-
-					node.add( children[ i ] );
-
-				}
-
-				return node;
-
-			} );
-
-		}
-
-		// ._loadNodeShallow() parses a single node.
-		// skin and child nodes are created and added in .loadNode() (no '_' prefix).
-		_loadNodeShallow( nodeIndex ) {
-
-			const json = this.json;
-			const extensions = this.extensions;
-			const parser = this;
-
-			// This method is called from .loadNode() and .loadSkin().
-			// Cache a node to avoid duplication.
-
-			if ( this.nodeCache[ nodeIndex ] !== undefined ) {
-
-				return this.nodeCache[ nodeIndex ];
-
-			}
-
-			const nodeDef = json.nodes[ nodeIndex ];
-
-			// reserve node's name before its dependencies, so the root has the intended name.
-			const nodeName = nodeDef.name ? parser.createUniqueName( nodeDef.name ) : '';
-
-			const pending = [];
-
-			const meshPromise = parser._invokeOne( function ( ext ) {
-
-				return ext.createNodeMesh && ext.createNodeMesh( nodeIndex );
-
-			} );
-
-			if ( meshPromise ) {
-
-				pending.push( meshPromise );
-
-			}
-
-			if ( nodeDef.camera !== undefined ) {
-
-				pending.push( parser.getDependency( 'camera', nodeDef.camera ).then( function ( camera ) {
-
-					return parser._getNodeRef( parser.cameraCache, nodeDef.camera, camera );
-
-				} ) );
-
-			}
-
-			parser._invokeAll( function ( ext ) {
-
-				return ext.createNodeAttachment && ext.createNodeAttachment( nodeIndex );
-
-			} ).forEach( function ( promise ) {
-
-				pending.push( promise );
-
-			} );
-
-			this.nodeCache[ nodeIndex ] = Promise.all( pending ).then( function ( objects ) {
-
-				let node;
-
-				// .isBone isn't in glTF spec. See ._markDefs
-				if ( nodeDef.isBone === true ) {
-
-					node = new Bone();
-
-				} else if ( objects.length > 1 ) {
-
-					node = new Group$2();
-
-				} else if ( objects.length === 1 ) {
-
-					node = objects[ 0 ];
-
-				} else {
-
-					node = new Object3D();
-
-				}
-
-				if ( node !== objects[ 0 ] ) {
-
-					for ( let i = 0, il = objects.length; i < il; i ++ ) {
-
-						node.add( objects[ i ] );
-
-					}
-
-				}
-
-				if ( nodeDef.name ) {
-
-					node.userData.name = nodeDef.name;
-					node.name = nodeName;
-
-				}
-
-				assignExtrasToUserData( node, nodeDef );
-
-				if ( nodeDef.extensions ) addUnknownExtensionsToUserData( extensions, node, nodeDef );
-
-				if ( nodeDef.matrix !== undefined ) {
-
-					const matrix = new Matrix4();
-					matrix.fromArray( nodeDef.matrix );
-					node.applyMatrix4( matrix );
-
-				} else {
-
-					if ( nodeDef.translation !== undefined ) {
-
-						node.position.fromArray( nodeDef.translation );
-
-					}
-
-					if ( nodeDef.rotation !== undefined ) {
-
-						node.quaternion.fromArray( nodeDef.rotation );
-
-					}
-
-					if ( nodeDef.scale !== undefined ) {
-
-						node.scale.fromArray( nodeDef.scale );
-
-					}
-
-				}
-
-				if ( ! parser.associations.has( node ) ) {
-
-					parser.associations.set( node, {} );
-
-				}
-
-				parser.associations.get( node ).nodes = nodeIndex;
-
-				return node;
-
-			} );
-
-			return this.nodeCache[ nodeIndex ];
-
-		}
-
-		/**
-		 * Specification: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#scenes
-		 * @param {number} sceneIndex
-		 * @return {Promise<Group>}
-		 */
-		loadScene( sceneIndex ) {
-
-			const extensions = this.extensions;
-			const sceneDef = this.json.scenes[ sceneIndex ];
-			const parser = this;
-
-			// Loader returns Group, not Scene.
-			// See: https://github.com/mrdoob/three.js/issues/18342#issuecomment-578981172
-			const scene = new Group$2();
-			if ( sceneDef.name ) scene.name = parser.createUniqueName( sceneDef.name );
-
-			assignExtrasToUserData( scene, sceneDef );
-
-			if ( sceneDef.extensions ) addUnknownExtensionsToUserData( extensions, scene, sceneDef );
-
-			const nodeIds = sceneDef.nodes || [];
-
-			const pending = [];
-
-			for ( let i = 0, il = nodeIds.length; i < il; i ++ ) {
-
-				pending.push( parser.getDependency( 'node', nodeIds[ i ] ) );
-
-			}
-
-			return Promise.all( pending ).then( function ( nodes ) {
-
-				for ( let i = 0, il = nodes.length; i < il; i ++ ) {
-
-					scene.add( nodes[ i ] );
-
-				}
-
-				// Removes dangling associations, associations that reference a node that
-				// didn't make it into the scene.
-				const reduceAssociations = ( node ) => {
-
-					const reducedAssociations = new Map();
-
-					for ( const [ key, value ] of parser.associations ) {
-
-						if ( key instanceof Material || key instanceof Texture ) {
-
-							reducedAssociations.set( key, value );
-
-						}
-
-					}
-
-					node.traverse( ( node ) => {
-
-						const mappings = parser.associations.get( node );
-
-						if ( mappings != null ) {
-
-							reducedAssociations.set( node, mappings );
-
-						}
-
-					} );
-
-					return reducedAssociations;
-
-				};
-
-				parser.associations = reduceAssociations( scene );
-
-				return scene;
-
-			} );
-
-		}
-
-		_createAnimationTracks( node, inputAccessor, outputAccessor, sampler, target ) {
-
-			const tracks = [];
-
-			const targetName = node.name ? node.name : node.uuid;
-			const targetNames = [];
-
-			if ( PATH_PROPERTIES[ target.path ] === PATH_PROPERTIES.weights ) {
-
-				node.traverse( function ( object ) {
-
-					if ( object.morphTargetInfluences ) {
-
-						targetNames.push( object.name ? object.name : object.uuid );
-
-					}
-
-				} );
-
-			} else {
-
-				targetNames.push( targetName );
-
-			}
-
-			let TypedKeyframeTrack;
-
-			switch ( PATH_PROPERTIES[ target.path ] ) {
-
-				case PATH_PROPERTIES.weights:
-
-					TypedKeyframeTrack = NumberKeyframeTrack;
-					break;
-
-				case PATH_PROPERTIES.rotation:
-
-					TypedKeyframeTrack = QuaternionKeyframeTrack;
-					break;
-
-				case PATH_PROPERTIES.position:
-				case PATH_PROPERTIES.scale:
-
-					TypedKeyframeTrack = VectorKeyframeTrack;
-					break;
-
-				default:
-
-					switch ( outputAccessor.itemSize ) {
-
-						case 1:
-							TypedKeyframeTrack = NumberKeyframeTrack;
-							break;
-						case 2:
-						case 3:
-						default:
-							TypedKeyframeTrack = VectorKeyframeTrack;
-							break;
-
-					}
-
-					break;
-
-			}
-
-			const interpolation = sampler.interpolation !== undefined ? INTERPOLATION[ sampler.interpolation ] : InterpolateLinear;
-
-
-			const outputArray = this._getArrayFromAccessor( outputAccessor );
-
-			for ( let j = 0, jl = targetNames.length; j < jl; j ++ ) {
-
-				const track = new TypedKeyframeTrack(
-					targetNames[ j ] + '.' + PATH_PROPERTIES[ target.path ],
-					inputAccessor.array,
-					outputArray,
-					interpolation
-				);
-
-				// Override interpolation with custom factory method.
-				if ( sampler.interpolation === 'CUBICSPLINE' ) {
-
-					this._createCubicSplineTrackInterpolant( track );
-
-				}
-
-				tracks.push( track );
-
-			}
-
-			return tracks;
-
-		}
-
-		_getArrayFromAccessor( accessor ) {
-
-			let outputArray = accessor.array;
-
-			if ( accessor.normalized ) {
-
-				const scale = getNormalizedComponentScale( outputArray.constructor );
-				const scaled = new Float32Array( outputArray.length );
-
-				for ( let j = 0, jl = outputArray.length; j < jl; j ++ ) {
-
-					scaled[ j ] = outputArray[ j ] * scale;
-
-				}
-
-				outputArray = scaled;
-
-			}
-
-			return outputArray;
-
-		}
-
-		_createCubicSplineTrackInterpolant( track ) {
-
-			track.createInterpolant = function InterpolantFactoryMethodGLTFCubicSpline( result ) {
-
-				// A CUBICSPLINE keyframe in glTF has three output values for each input value,
-				// representing inTangent, splineVertex, and outTangent. As a result, track.getValueSize()
-				// must be divided by three to get the interpolant's sampleSize argument.
-
-				const interpolantType = ( this instanceof QuaternionKeyframeTrack ) ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
-
-				return new interpolantType( this.times, this.values, this.getValueSize() / 3, result );
-
-			};
-
-			// Mark as CUBICSPLINE. `track.getInterpolation()` doesn't support custom interpolants.
-			track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true;
-
-		}
-
-	}
-
-	/**
-	 * @param {BufferGeometry} geometry
-	 * @param {GLTF.Primitive} primitiveDef
-	 * @param {GLTFParser} parser
-	 */
-	function computeBounds( geometry, primitiveDef, parser ) {
-
-		const attributes = primitiveDef.attributes;
-
-		const box = new Box3();
-
-		if ( attributes.POSITION !== undefined ) {
-
-			const accessor = parser.json.accessors[ attributes.POSITION ];
-
-			const min = accessor.min;
-			const max = accessor.max;
-
-			// glTF requires 'min' and 'max', but VRM (which extends glTF) currently ignores that requirement.
-
-			if ( min !== undefined && max !== undefined ) {
-
-				box.set(
-					new Vector3( min[ 0 ], min[ 1 ], min[ 2 ] ),
-					new Vector3( max[ 0 ], max[ 1 ], max[ 2 ] )
-				);
-
-				if ( accessor.normalized ) {
-
-					const boxScale = getNormalizedComponentScale( WEBGL_COMPONENT_TYPES[ accessor.componentType ] );
-					box.min.multiplyScalar( boxScale );
-					box.max.multiplyScalar( boxScale );
-
-				}
-
-			} else {
-
-				console.warn( 'THREE.GLTFLoader: Missing min/max properties for accessor POSITION.' );
-
-				return;
-
-			}
-
-		} else {
-
-			return;
-
-		}
-
-		const targets = primitiveDef.targets;
-
-		if ( targets !== undefined ) {
-
-			const maxDisplacement = new Vector3();
-			const vector = new Vector3();
-
-			for ( let i = 0, il = targets.length; i < il; i ++ ) {
-
-				const target = targets[ i ];
-
-				if ( target.POSITION !== undefined ) {
-
-					const accessor = parser.json.accessors[ target.POSITION ];
-					const min = accessor.min;
-					const max = accessor.max;
-
-					// glTF requires 'min' and 'max', but VRM (which extends glTF) currently ignores that requirement.
-
-					if ( min !== undefined && max !== undefined ) {
-
-						// we need to get max of absolute components because target weight is [-1,1]
-						vector.setX( Math.max( Math.abs( min[ 0 ] ), Math.abs( max[ 0 ] ) ) );
-						vector.setY( Math.max( Math.abs( min[ 1 ] ), Math.abs( max[ 1 ] ) ) );
-						vector.setZ( Math.max( Math.abs( min[ 2 ] ), Math.abs( max[ 2 ] ) ) );
-
-
-						if ( accessor.normalized ) {
-
-							const boxScale = getNormalizedComponentScale( WEBGL_COMPONENT_TYPES[ accessor.componentType ] );
-							vector.multiplyScalar( boxScale );
-
-						}
-
-						// Note: this assumes that the sum of all weights is at most 1. This isn't quite correct - it's more conservative
-						// to assume that each target can have a max weight of 1. However, for some use cases - notably, when morph targets
-						// are used to implement key-frame animations and as such only two are active at a time - this results in very large
-						// boxes. So for now we make a box that's sometimes a touch too small but is hopefully mostly of reasonable size.
-						maxDisplacement.max( vector );
-
-					} else {
-
-						console.warn( 'THREE.GLTFLoader: Missing min/max properties for accessor POSITION.' );
-
-					}
-
-				}
-
-			}
-
-			// As per comment above this box isn't conservative, but has a reasonable size for a very large number of morph targets.
-			box.expandByVector( maxDisplacement );
-
-		}
-
-		geometry.boundingBox = box;
-
-		const sphere = new Sphere();
-
-		box.getCenter( sphere.center );
-		sphere.radius = box.min.distanceTo( box.max ) / 2;
-
-		geometry.boundingSphere = sphere;
-
-	}
-
-	/**
-	 * @param {BufferGeometry} geometry
-	 * @param {GLTF.Primitive} primitiveDef
-	 * @param {GLTFParser} parser
-	 * @return {Promise<BufferGeometry>}
-	 */
-	function addPrimitiveAttributes( geometry, primitiveDef, parser ) {
-
-		const attributes = primitiveDef.attributes;
-
-		const pending = [];
-
-		function assignAttributeAccessor( accessorIndex, attributeName ) {
-
-			return parser.getDependency( 'accessor', accessorIndex )
-				.then( function ( accessor ) {
-
-					geometry.setAttribute( attributeName, accessor );
-
-				} );
-
-		}
-
-		for ( const gltfAttributeName in attributes ) {
-
-			const threeAttributeName = ATTRIBUTES[ gltfAttributeName ] || gltfAttributeName.toLowerCase();
-
-			// Skip attributes already provided by e.g. Draco extension.
-			if ( threeAttributeName in geometry.attributes ) continue;
-
-			pending.push( assignAttributeAccessor( attributes[ gltfAttributeName ], threeAttributeName ) );
-
-		}
-
-		if ( primitiveDef.indices !== undefined && ! geometry.index ) {
-
-			const accessor = parser.getDependency( 'accessor', primitiveDef.indices ).then( function ( accessor ) {
-
-				geometry.setIndex( accessor );
-
-			} );
-
-			pending.push( accessor );
-
-		}
-
-		if ( ColorManagement.workingColorSpace !== LinearSRGBColorSpace && 'COLOR_0' in attributes ) {
-
-			console.warn( `THREE.GLTFLoader: Converting vertex colors from "srgb-linear" to "${ColorManagement.workingColorSpace}" not supported.` );
-
-		}
-
-		assignExtrasToUserData( geometry, primitiveDef );
-
-		computeBounds( geometry, primitiveDef, parser );
-
-		return Promise.all( pending ).then( function () {
-
-			return primitiveDef.targets !== undefined
-				? addMorphTargets( geometry, primitiveDef.targets, parser )
-				: geometry;
-
-		} );
-
-	}
-
-	const _taskCache = new WeakMap();
-
-	class DRACOLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-			this.decoderPath = '';
-			this.decoderConfig = {};
-			this.decoderBinary = null;
-			this.decoderPending = null;
-
-			this.workerLimit = 4;
-			this.workerPool = [];
-			this.workerNextTaskID = 1;
-			this.workerSourceURL = '';
-
-			this.defaultAttributeIDs = {
-				position: 'POSITION',
-				normal: 'NORMAL',
-				color: 'COLOR',
-				uv: 'TEX_COORD'
-			};
-			this.defaultAttributeTypes = {
-				position: 'Float32Array',
-				normal: 'Float32Array',
-				color: 'Float32Array',
-				uv: 'Float32Array'
-			};
-
-		}
-
-		setDecoderPath( path ) {
-
-			this.decoderPath = path;
-
-			return this;
-
-		}
-
-		setDecoderConfig( config ) {
-
-			this.decoderConfig = config;
-
-			return this;
-
-		}
-
-		setWorkerLimit( workerLimit ) {
-
-			this.workerLimit = workerLimit;
-
-			return this;
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			const loader = new FileLoader( this.manager );
-
-			loader.setPath( this.path );
-			loader.setResponseType( 'arraybuffer' );
-			loader.setRequestHeader( this.requestHeader );
-			loader.setWithCredentials( this.withCredentials );
-
-			loader.load( url, ( buffer ) => {
-
-				this.parse( buffer, onLoad, onError );
-
-			}, onProgress, onError );
-
-		}
-
-
-		parse( buffer, onLoad, onError = ()=>{} ) {
-
-			this.decodeDracoFile( buffer, onLoad, null, null, SRGBColorSpace ).catch( onError );
-
-		}
-
-		decodeDracoFile( buffer, callback, attributeIDs, attributeTypes, vertexColorSpace = LinearSRGBColorSpace, onError = () => {} ) {
-
-			const taskConfig = {
-				attributeIDs: attributeIDs || this.defaultAttributeIDs,
-				attributeTypes: attributeTypes || this.defaultAttributeTypes,
-				useUniqueIDs: !! attributeIDs,
-				vertexColorSpace: vertexColorSpace,
-			};
-
-			return this.decodeGeometry( buffer, taskConfig ).then( callback ).catch( onError );
-
-		}
-
-		decodeGeometry( buffer, taskConfig ) {
-
-			const taskKey = JSON.stringify( taskConfig );
-
-			// Check for an existing task using this buffer. A transferred buffer cannot be transferred
-			// again from this thread.
-			if ( _taskCache.has( buffer ) ) {
-
-				const cachedTask = _taskCache.get( buffer );
-
-				if ( cachedTask.key === taskKey ) {
-
-					return cachedTask.promise;
-
-				} else if ( buffer.byteLength === 0 ) {
-
-					// Technically, it would be possible to wait for the previous task to complete,
-					// transfer the buffer back, and decode again with the second configuration. That
-					// is complex, and I don't know of any reason to decode a Draco buffer twice in
-					// different ways, so this is left unimplemented.
-					throw new Error(
-
-						'THREE.DRACOLoader: Unable to re-decode a buffer with different ' +
-						'settings. Buffer has already been transferred.'
-
-					);
-
-				}
-
-			}
-
-			//
-
-			let worker;
-			const taskID = this.workerNextTaskID ++;
-			const taskCost = buffer.byteLength;
-
-			// Obtain a worker and assign a task, and construct a geometry instance
-			// when the task completes.
-			const geometryPending = this._getWorker( taskID, taskCost )
-				.then( ( _worker ) => {
-
-					worker = _worker;
-
-					return new Promise( ( resolve, reject ) => {
-
-						worker._callbacks[ taskID ] = { resolve, reject };
-
-						worker.postMessage( { type: 'decode', id: taskID, taskConfig, buffer }, [ buffer ] );
-
-						// this.debug();
-
-					} );
-
-				} )
-				.then( ( message ) => this._createGeometry( message.geometry ) );
-
-			// Remove task from the task list.
-			// Note: replaced '.finally()' with '.catch().then()' block - iOS 11 support (#19416)
-			geometryPending
-				.catch( () => true )
-				.then( () => {
-
-					if ( worker && taskID ) {
-
-						this._releaseTask( worker, taskID );
-
-						// this.debug();
-
-					}
-
-				} );
-
-			// Cache the task result.
-			_taskCache.set( buffer, {
-
-				key: taskKey,
-				promise: geometryPending
-
-			} );
-
-			return geometryPending;
-
-		}
-
-		_createGeometry( geometryData ) {
-
-			const geometry = new BufferGeometry();
-
-			if ( geometryData.index ) {
-
-				geometry.setIndex( new BufferAttribute( geometryData.index.array, 1 ) );
-
-			}
-
-			for ( let i = 0; i < geometryData.attributes.length; i ++ ) {
-
-				const result = geometryData.attributes[ i ];
-				const name = result.name;
-				const array = result.array;
-				const itemSize = result.itemSize;
-
-				const attribute = new BufferAttribute( array, itemSize );
-
-				if ( name === 'color' ) {
-
-					this._assignVertexColorSpace( attribute, result.vertexColorSpace );
-
-					attribute.normalized = ( array instanceof Float32Array ) === false;
-
-				}
-
-				geometry.setAttribute( name, attribute );
-
-			}
-
-			return geometry;
-
-		}
-
-		_assignVertexColorSpace( attribute, inputColorSpace ) {
-
-			// While .drc files do not specify colorspace, the only 'official' tooling
-			// is PLY and OBJ converters, which use sRGB. We'll assume sRGB when a .drc
-			// file is passed into .load() or .parse(). GLTFLoader uses internal APIs
-			// to decode geometry, and vertex colors are already Linear-sRGB in there.
-
-			if ( inputColorSpace !== SRGBColorSpace ) return;
-
-			const _color = new Color();
-
-			for ( let i = 0, il = attribute.count; i < il; i ++ ) {
-
-				_color.fromBufferAttribute( attribute, i ).convertSRGBToLinear();
-				attribute.setXYZ( i, _color.r, _color.g, _color.b );
-
-			}
-
-		}
-
-		_loadLibrary( url, responseType ) {
-
-			const loader = new FileLoader( this.manager );
-			loader.setPath( this.decoderPath );
-			loader.setResponseType( responseType );
-			loader.setWithCredentials( this.withCredentials );
-
-			return new Promise( ( resolve, reject ) => {
-
-				loader.load( url, resolve, undefined, reject );
-
-			} );
-
-		}
-
-		preload() {
-
-			this._initDecoder();
-
-			return this;
-
-		}
-
-		_initDecoder() {
-
-			if ( this.decoderPending ) return this.decoderPending;
-
-			const useJS = typeof WebAssembly !== 'object' || this.decoderConfig.type === 'js';
-			const librariesPending = [];
-
-			if ( useJS ) {
-
-				librariesPending.push( this._loadLibrary( 'draco_decoder.js', 'text' ) );
-
-			} else {
-
-				librariesPending.push( this._loadLibrary( 'draco_wasm_wrapper.js', 'text' ) );
-				librariesPending.push( this._loadLibrary( 'draco_decoder.wasm', 'arraybuffer' ) );
-
-			}
-
-			this.decoderPending = Promise.all( librariesPending )
-				.then( ( libraries ) => {
-
-					const jsContent = libraries[ 0 ];
-
-					if ( ! useJS ) {
-
-						this.decoderConfig.wasmBinary = libraries[ 1 ];
-
-					}
-
-					const fn = DRACOWorker.toString();
-
-					const body = [
-						'/* draco decoder */',
-						jsContent,
-						'',
-						'/* worker */',
-						fn.substring( fn.indexOf( '{' ) + 1, fn.lastIndexOf( '}' ) )
-					].join( '\n' );
-
-					this.workerSourceURL = URL.createObjectURL( new Blob( [ body ] ) );
-
-				} );
-
-			return this.decoderPending;
-
-		}
-
-		_getWorker( taskID, taskCost ) {
-
-			return this._initDecoder().then( () => {
-
-				if ( this.workerPool.length < this.workerLimit ) {
-
-					const worker = new Worker( this.workerSourceURL );
-
-					worker._callbacks = {};
-					worker._taskCosts = {};
-					worker._taskLoad = 0;
-
-					worker.postMessage( { type: 'init', decoderConfig: this.decoderConfig } );
-
-					worker.onmessage = function ( e ) {
-
-						const message = e.data;
-
-						switch ( message.type ) {
-
-							case 'decode':
-								worker._callbacks[ message.id ].resolve( message );
-								break;
-
-							case 'error':
-								worker._callbacks[ message.id ].reject( message );
-								break;
-
-							default:
-								console.error( 'THREE.DRACOLoader: Unexpected message, "' + message.type + '"' );
-
-						}
-
-					};
-
-					this.workerPool.push( worker );
-
-				} else {
-
-					this.workerPool.sort( function ( a, b ) {
-
-						return a._taskLoad > b._taskLoad ? - 1 : 1;
-
-					} );
-
-				}
-
-				const worker = this.workerPool[ this.workerPool.length - 1 ];
-				worker._taskCosts[ taskID ] = taskCost;
-				worker._taskLoad += taskCost;
-				return worker;
-
-			} );
-
-		}
-
-		_releaseTask( worker, taskID ) {
-
-			worker._taskLoad -= worker._taskCosts[ taskID ];
-			delete worker._callbacks[ taskID ];
-			delete worker._taskCosts[ taskID ];
-
-		}
-
-		debug() {
-
-			console.log( 'Task load: ', this.workerPool.map( ( worker ) => worker._taskLoad ) );
-
-		}
-
-		dispose() {
-
-			for ( let i = 0; i < this.workerPool.length; ++ i ) {
-
-				this.workerPool[ i ].terminate();
-
-			}
-
-			this.workerPool.length = 0;
-
-			if ( this.workerSourceURL !== '' ) {
-
-				URL.revokeObjectURL( this.workerSourceURL );
-
-			}
-
-			return this;
-
-		}
-
-	}
-
-	/* WEB WORKER */
-
-	function DRACOWorker() {
-
-		let decoderConfig;
-		let decoderPending;
-
-		onmessage = function ( e ) {
-
-			const message = e.data;
-
-			switch ( message.type ) {
-
-				case 'init':
-					decoderConfig = message.decoderConfig;
-					decoderPending = new Promise( function ( resolve/*, reject*/ ) {
-
-						decoderConfig.onModuleLoaded = function ( draco ) {
-
-							// Module is Promise-like. Wrap before resolving to avoid loop.
-							resolve( { draco: draco } );
-
-						};
-
-						DracoDecoderModule( decoderConfig ); // eslint-disable-line no-undef
-
-					} );
-					break;
-
-				case 'decode':
-					const buffer = message.buffer;
-					const taskConfig = message.taskConfig;
-					decoderPending.then( ( module ) => {
-
-						const draco = module.draco;
-						const decoder = new draco.Decoder();
-
-						try {
-
-							const geometry = decodeGeometry( draco, decoder, new Int8Array( buffer ), taskConfig );
-
-							const buffers = geometry.attributes.map( ( attr ) => attr.array.buffer );
-
-							if ( geometry.index ) buffers.push( geometry.index.array.buffer );
-
-							self.postMessage( { type: 'decode', id: message.id, geometry }, buffers );
-
-						} catch ( error ) {
-
-							console.error( error );
-
-							self.postMessage( { type: 'error', id: message.id, error: error.message } );
-
-						} finally {
-
-							draco.destroy( decoder );
-
-						}
-
-					} );
-					break;
-
-			}
-
-		};
-
-		function decodeGeometry( draco, decoder, array, taskConfig ) {
-
-			const attributeIDs = taskConfig.attributeIDs;
-			const attributeTypes = taskConfig.attributeTypes;
-
-			let dracoGeometry;
-			let decodingStatus;
-
-			const geometryType = decoder.GetEncodedGeometryType( array );
-
-			if ( geometryType === draco.TRIANGULAR_MESH ) {
-
-				dracoGeometry = new draco.Mesh();
-				decodingStatus = decoder.DecodeArrayToMesh( array, array.byteLength, dracoGeometry );
-
-			} else if ( geometryType === draco.POINT_CLOUD ) {
-
-				dracoGeometry = new draco.PointCloud();
-				decodingStatus = decoder.DecodeArrayToPointCloud( array, array.byteLength, dracoGeometry );
-
-			} else {
-
-				throw new Error( 'THREE.DRACOLoader: Unexpected geometry type.' );
-
-			}
-
-			if ( ! decodingStatus.ok() || dracoGeometry.ptr === 0 ) {
-
-				throw new Error( 'THREE.DRACOLoader: Decoding failed: ' + decodingStatus.error_msg() );
-
-			}
-
-			const geometry = { index: null, attributes: [] };
-
-			// Gather all vertex attributes.
-			for ( const attributeName in attributeIDs ) {
-
-				const attributeType = self[ attributeTypes[ attributeName ] ];
-
-				let attribute;
-				let attributeID;
-
-				// A Draco file may be created with default vertex attributes, whose attribute IDs
-				// are mapped 1:1 from their semantic name (POSITION, NORMAL, ...). Alternatively,
-				// a Draco file may contain a custom set of attributes, identified by known unique
-				// IDs. glTF files always do the latter, and `.drc` files typically do the former.
-				if ( taskConfig.useUniqueIDs ) {
-
-					attributeID = attributeIDs[ attributeName ];
-					attribute = decoder.GetAttributeByUniqueId( dracoGeometry, attributeID );
-
-				} else {
-
-					attributeID = decoder.GetAttributeId( dracoGeometry, draco[ attributeIDs[ attributeName ] ] );
-
-					if ( attributeID === - 1 ) continue;
-
-					attribute = decoder.GetAttribute( dracoGeometry, attributeID );
-
-				}
-
-				const attributeResult = decodeAttribute( draco, decoder, dracoGeometry, attributeName, attributeType, attribute );
-
-				if ( attributeName === 'color' ) {
-
-					attributeResult.vertexColorSpace = taskConfig.vertexColorSpace;
-
-				}
-
-				geometry.attributes.push( attributeResult );
-
-			}
-
-			// Add index.
-			if ( geometryType === draco.TRIANGULAR_MESH ) {
-
-				geometry.index = decodeIndex( draco, decoder, dracoGeometry );
-
-			}
-
-			draco.destroy( dracoGeometry );
-
-			return geometry;
-
-		}
-
-		function decodeIndex( draco, decoder, dracoGeometry ) {
-
-			const numFaces = dracoGeometry.num_faces();
-			const numIndices = numFaces * 3;
-			const byteLength = numIndices * 4;
-
-			const ptr = draco._malloc( byteLength );
-			decoder.GetTrianglesUInt32Array( dracoGeometry, byteLength, ptr );
-			const index = new Uint32Array( draco.HEAPF32.buffer, ptr, numIndices ).slice();
-			draco._free( ptr );
-
-			return { array: index, itemSize: 1 };
-
-		}
-
-		function decodeAttribute( draco, decoder, dracoGeometry, attributeName, attributeType, attribute ) {
-
-			const numComponents = attribute.num_components();
-			const numPoints = dracoGeometry.num_points();
-			const numValues = numPoints * numComponents;
-			const byteLength = numValues * attributeType.BYTES_PER_ELEMENT;
-			const dataType = getDracoDataType( draco, attributeType );
-
-			const ptr = draco._malloc( byteLength );
-			decoder.GetAttributeDataArrayForAllPoints( dracoGeometry, attribute, dataType, byteLength, ptr );
-			const array = new attributeType( draco.HEAPF32.buffer, ptr, numValues ).slice();
-			draco._free( ptr );
-
-			return {
-				name: attributeName,
-				array: array,
-				itemSize: numComponents
-			};
-
-		}
-
-		function getDracoDataType( draco, attributeType ) {
-
-			switch ( attributeType ) {
-
-				case Float32Array: return draco.DT_FLOAT32;
-				case Int8Array: return draco.DT_INT8;
-				case Int16Array: return draco.DT_INT16;
-				case Int32Array: return draco.DT_INT32;
-				case Uint8Array: return draco.DT_UINT8;
-				case Uint16Array: return draco.DT_UINT16;
-				case Uint32Array: return draco.DT_UINT32;
-
-			}
-
-		}
-
-	}
-
-	// o object_name | g group_name
-	const _object_pattern = /^[og]\s*(.+)?/;
-	// mtllib file_reference
-	const _material_library_pattern = /^mtllib /;
-	// usemtl material_name
-	const _material_use_pattern = /^usemtl /;
-	// usemap map_name
-	const _map_use_pattern = /^usemap /;
-	const _face_vertex_data_separator_pattern = /\s+/;
-
-	const _vA = new Vector3();
-	const _vB = new Vector3();
-	const _vC = new Vector3();
-
-	const _ab = new Vector3();
-	const _cb = new Vector3();
-
-	const _color = new Color();
-
-	function ParserState() {
-
-		const state = {
-			objects: [],
-			object: {},
-
-			vertices: [],
-			normals: [],
-			colors: [],
-			uvs: [],
-
-			materials: {},
-			materialLibraries: [],
-
-			startObject: function ( name, fromDeclaration ) {
-
-				// If the current object (initial from reset) is not from a g/o declaration in the parsed
-				// file. We need to use it for the first parsed g/o to keep things in sync.
-				if ( this.object && this.object.fromDeclaration === false ) {
-
-					this.object.name = name;
-					this.object.fromDeclaration = ( fromDeclaration !== false );
-					return;
-
-				}
-
-				const previousMaterial = ( this.object && typeof this.object.currentMaterial === 'function' ? this.object.currentMaterial() : undefined );
-
-				if ( this.object && typeof this.object._finalize === 'function' ) {
-
-					this.object._finalize( true );
-
-				}
-
-				this.object = {
-					name: name || '',
-					fromDeclaration: ( fromDeclaration !== false ),
-
-					geometry: {
-						vertices: [],
-						normals: [],
-						colors: [],
-						uvs: [],
-						hasUVIndices: false
-					},
-					materials: [],
-					smooth: true,
-
-					startMaterial: function ( name, libraries ) {
-
-						const previous = this._finalize( false );
-
-						// New usemtl declaration overwrites an inherited material, except if faces were declared
-						// after the material, then it must be preserved for proper MultiMaterial continuation.
-						if ( previous && ( previous.inherited || previous.groupCount <= 0 ) ) {
-
-							this.materials.splice( previous.index, 1 );
-
-						}
-
-						const material = {
-							index: this.materials.length,
-							name: name || '',
-							mtllib: ( Array.isArray( libraries ) && libraries.length > 0 ? libraries[ libraries.length - 1 ] : '' ),
-							smooth: ( previous !== undefined ? previous.smooth : this.smooth ),
-							groupStart: ( previous !== undefined ? previous.groupEnd : 0 ),
-							groupEnd: - 1,
-							groupCount: - 1,
-							inherited: false,
-
-							clone: function ( index ) {
-
-								const cloned = {
-									index: ( typeof index === 'number' ? index : this.index ),
-									name: this.name,
-									mtllib: this.mtllib,
-									smooth: this.smooth,
-									groupStart: 0,
-									groupEnd: - 1,
-									groupCount: - 1,
-									inherited: false
-								};
-								cloned.clone = this.clone.bind( cloned );
-								return cloned;
-
-							}
-						};
-
-						this.materials.push( material );
-
-						return material;
-
-					},
-
-					currentMaterial: function () {
-
-						if ( this.materials.length > 0 ) {
-
-							return this.materials[ this.materials.length - 1 ];
-
-						}
-
-						return undefined;
-
-					},
-
-					_finalize: function ( end ) {
-
-						const lastMultiMaterial = this.currentMaterial();
-						if ( lastMultiMaterial && lastMultiMaterial.groupEnd === - 1 ) {
-
-							lastMultiMaterial.groupEnd = this.geometry.vertices.length / 3;
-							lastMultiMaterial.groupCount = lastMultiMaterial.groupEnd - lastMultiMaterial.groupStart;
-							lastMultiMaterial.inherited = false;
-
-						}
-
-						// Ignore objects tail materials if no face declarations followed them before a new o/g started.
-						if ( end && this.materials.length > 1 ) {
-
-							for ( let mi = this.materials.length - 1; mi >= 0; mi -- ) {
-
-								if ( this.materials[ mi ].groupCount <= 0 ) {
-
-									this.materials.splice( mi, 1 );
-
-								}
-
-							}
-
-						}
-
-						// Guarantee at least one empty material, this makes the creation later more straight forward.
-						if ( end && this.materials.length === 0 ) {
-
-							this.materials.push( {
-								name: '',
-								smooth: this.smooth
-							} );
-
-						}
-
-						return lastMultiMaterial;
-
-					}
-				};
-
-				// Inherit previous objects material.
-				// Spec tells us that a declared material must be set to all objects until a new material is declared.
-				// If a usemtl declaration is encountered while this new object is being parsed, it will
-				// overwrite the inherited material. Exception being that there was already face declarations
-				// to the inherited material, then it will be preserved for proper MultiMaterial continuation.
-
-				if ( previousMaterial && previousMaterial.name && typeof previousMaterial.clone === 'function' ) {
-
-					const declared = previousMaterial.clone( 0 );
-					declared.inherited = true;
-					this.object.materials.push( declared );
-
-				}
-
-				this.objects.push( this.object );
-
-			},
-
-			finalize: function () {
-
-				if ( this.object && typeof this.object._finalize === 'function' ) {
-
-					this.object._finalize( true );
-
-				}
-
-			},
-
-			parseVertexIndex: function ( value, len ) {
-
-				const index = parseInt( value, 10 );
-				return ( index >= 0 ? index - 1 : index + len / 3 ) * 3;
-
-			},
-
-			parseNormalIndex: function ( value, len ) {
-
-				const index = parseInt( value, 10 );
-				return ( index >= 0 ? index - 1 : index + len / 3 ) * 3;
-
-			},
-
-			parseUVIndex: function ( value, len ) {
-
-				const index = parseInt( value, 10 );
-				return ( index >= 0 ? index - 1 : index + len / 2 ) * 2;
-
-			},
-
-			addVertex: function ( a, b, c ) {
-
-				const src = this.vertices;
-				const dst = this.object.geometry.vertices;
-
-				dst.push( src[ a + 0 ], src[ a + 1 ], src[ a + 2 ] );
-				dst.push( src[ b + 0 ], src[ b + 1 ], src[ b + 2 ] );
-				dst.push( src[ c + 0 ], src[ c + 1 ], src[ c + 2 ] );
-
-			},
-
-			addVertexPoint: function ( a ) {
-
-				const src = this.vertices;
-				const dst = this.object.geometry.vertices;
-
-				dst.push( src[ a + 0 ], src[ a + 1 ], src[ a + 2 ] );
-
-			},
-
-			addVertexLine: function ( a ) {
-
-				const src = this.vertices;
-				const dst = this.object.geometry.vertices;
-
-				dst.push( src[ a + 0 ], src[ a + 1 ], src[ a + 2 ] );
-
-			},
-
-			addNormal: function ( a, b, c ) {
-
-				const src = this.normals;
-				const dst = this.object.geometry.normals;
-
-				dst.push( src[ a + 0 ], src[ a + 1 ], src[ a + 2 ] );
-				dst.push( src[ b + 0 ], src[ b + 1 ], src[ b + 2 ] );
-				dst.push( src[ c + 0 ], src[ c + 1 ], src[ c + 2 ] );
-
-			},
-
-			addFaceNormal: function ( a, b, c ) {
-
-				const src = this.vertices;
-				const dst = this.object.geometry.normals;
-
-				_vA.fromArray( src, a );
-				_vB.fromArray( src, b );
-				_vC.fromArray( src, c );
-
-				_cb.subVectors( _vC, _vB );
-				_ab.subVectors( _vA, _vB );
-				_cb.cross( _ab );
-
-				_cb.normalize();
-
-				dst.push( _cb.x, _cb.y, _cb.z );
-				dst.push( _cb.x, _cb.y, _cb.z );
-				dst.push( _cb.x, _cb.y, _cb.z );
-
-			},
-
-			addColor: function ( a, b, c ) {
-
-				const src = this.colors;
-				const dst = this.object.geometry.colors;
-
-				if ( src[ a ] !== undefined ) dst.push( src[ a + 0 ], src[ a + 1 ], src[ a + 2 ] );
-				if ( src[ b ] !== undefined ) dst.push( src[ b + 0 ], src[ b + 1 ], src[ b + 2 ] );
-				if ( src[ c ] !== undefined ) dst.push( src[ c + 0 ], src[ c + 1 ], src[ c + 2 ] );
-
-			},
-
-			addUV: function ( a, b, c ) {
-
-				const src = this.uvs;
-				const dst = this.object.geometry.uvs;
-
-				dst.push( src[ a + 0 ], src[ a + 1 ] );
-				dst.push( src[ b + 0 ], src[ b + 1 ] );
-				dst.push( src[ c + 0 ], src[ c + 1 ] );
-
-			},
-
-			addDefaultUV: function () {
-
-				const dst = this.object.geometry.uvs;
-
-				dst.push( 0, 0 );
-				dst.push( 0, 0 );
-				dst.push( 0, 0 );
-
-			},
-
-			addUVLine: function ( a ) {
-
-				const src = this.uvs;
-				const dst = this.object.geometry.uvs;
-
-				dst.push( src[ a + 0 ], src[ a + 1 ] );
-
-			},
-
-			addFace: function ( a, b, c, ua, ub, uc, na, nb, nc ) {
-
-				const vLen = this.vertices.length;
-
-				let ia = this.parseVertexIndex( a, vLen );
-				let ib = this.parseVertexIndex( b, vLen );
-				let ic = this.parseVertexIndex( c, vLen );
-
-				this.addVertex( ia, ib, ic );
-				this.addColor( ia, ib, ic );
-
-				// normals
-
-				if ( na !== undefined && na !== '' ) {
-
-					const nLen = this.normals.length;
-
-					ia = this.parseNormalIndex( na, nLen );
-					ib = this.parseNormalIndex( nb, nLen );
-					ic = this.parseNormalIndex( nc, nLen );
-
-					this.addNormal( ia, ib, ic );
-
-				} else {
-
-					this.addFaceNormal( ia, ib, ic );
-
-				}
-
-				// uvs
-
-				if ( ua !== undefined && ua !== '' ) {
-
-					const uvLen = this.uvs.length;
-
-					ia = this.parseUVIndex( ua, uvLen );
-					ib = this.parseUVIndex( ub, uvLen );
-					ic = this.parseUVIndex( uc, uvLen );
-
-					this.addUV( ia, ib, ic );
-
-					this.object.geometry.hasUVIndices = true;
-
-				} else {
-
-					// add placeholder values (for inconsistent face definitions)
-
-					this.addDefaultUV();
-
-				}
-
-			},
-
-			addPointGeometry: function ( vertices ) {
-
-				this.object.geometry.type = 'Points';
-
-				const vLen = this.vertices.length;
-
-				for ( let vi = 0, l = vertices.length; vi < l; vi ++ ) {
-
-					const index = this.parseVertexIndex( vertices[ vi ], vLen );
-
-					this.addVertexPoint( index );
-					this.addColor( index );
-
-				}
-
-			},
-
-			addLineGeometry: function ( vertices, uvs ) {
-
-				this.object.geometry.type = 'Line';
-
-				const vLen = this.vertices.length;
-				const uvLen = this.uvs.length;
-
-				for ( let vi = 0, l = vertices.length; vi < l; vi ++ ) {
-
-					this.addVertexLine( this.parseVertexIndex( vertices[ vi ], vLen ) );
-
-				}
-
-				for ( let uvi = 0, l = uvs.length; uvi < l; uvi ++ ) {
-
-					this.addUVLine( this.parseUVIndex( uvs[ uvi ], uvLen ) );
-
-				}
-
-			}
-
-		};
-
-		state.startObject( '', false );
-
-		return state;
-
-	}
-
-	//
-
-	class OBJLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-			this.materials = null;
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			const scope = this;
-
-			const loader = new FileLoader( this.manager );
-			loader.setPath( this.path );
-			loader.setRequestHeader( this.requestHeader );
-			loader.setWithCredentials( this.withCredentials );
-			loader.load( url, function ( text ) {
-
-				try {
-
-					onLoad( scope.parse( text ) );
-
-				} catch ( e ) {
-
-					if ( onError ) {
-
-						onError( e );
-
-					} else {
-
-						console.error( e );
-
-					}
-
-					scope.manager.itemError( url );
-
-				}
-
-			}, onProgress, onError );
-
-		}
-
-		setMaterials( materials ) {
-
-			this.materials = materials;
-
-			return this;
-
-		}
-
-		parse( text ) {
-
-			const state = new ParserState();
-
-			if ( text.indexOf( '\r\n' ) !== - 1 ) {
-
-				// This is faster than String.split with regex that splits on both
-				text = text.replace( /\r\n/g, '\n' );
-
-			}
-
-			if ( text.indexOf( '\\\n' ) !== - 1 ) {
-
-				// join lines separated by a line continuation character (\)
-				text = text.replace( /\\\n/g, '' );
-
-			}
-
-			const lines = text.split( '\n' );
-			let result = [];
-
-			for ( let i = 0, l = lines.length; i < l; i ++ ) {
-
-				const line = lines[ i ].trimStart();
-
-				if ( line.length === 0 ) continue;
-
-				const lineFirstChar = line.charAt( 0 );
-
-				// @todo invoke passed in handler if any
-				if ( lineFirstChar === '#' ) continue; // skip comments
-
-				if ( lineFirstChar === 'v' ) {
-
-					const data = line.split( _face_vertex_data_separator_pattern );
-
-					switch ( data[ 0 ] ) {
-
-						case 'v':
-							state.vertices.push(
-								parseFloat( data[ 1 ] ),
-								parseFloat( data[ 2 ] ),
-								parseFloat( data[ 3 ] )
-							);
-							if ( data.length >= 7 ) {
-
-								_color.setRGB(
-									parseFloat( data[ 4 ] ),
-									parseFloat( data[ 5 ] ),
-									parseFloat( data[ 6 ] )
-								).convertSRGBToLinear();
-
-								state.colors.push( _color.r, _color.g, _color.b );
-
-							} else {
-
-								// if no colors are defined, add placeholders so color and vertex indices match
-
-								state.colors.push( undefined, undefined, undefined );
-
-							}
-
-							break;
-						case 'vn':
-							state.normals.push(
-								parseFloat( data[ 1 ] ),
-								parseFloat( data[ 2 ] ),
-								parseFloat( data[ 3 ] )
-							);
-							break;
-						case 'vt':
-							state.uvs.push(
-								parseFloat( data[ 1 ] ),
-								parseFloat( data[ 2 ] )
-							);
-							break;
-
-					}
-
-				} else if ( lineFirstChar === 'f' ) {
-
-					const lineData = line.slice( 1 ).trim();
-					const vertexData = lineData.split( _face_vertex_data_separator_pattern );
-					const faceVertices = [];
-
-					// Parse the face vertex data into an easy to work with format
-
-					for ( let j = 0, jl = vertexData.length; j < jl; j ++ ) {
-
-						const vertex = vertexData[ j ];
-
-						if ( vertex.length > 0 ) {
-
-							const vertexParts = vertex.split( '/' );
-							faceVertices.push( vertexParts );
-
-						}
-
-					}
-
-					// Draw an edge between the first vertex and all subsequent vertices to form an n-gon
-
-					const v1 = faceVertices[ 0 ];
-
-					for ( let j = 1, jl = faceVertices.length - 1; j < jl; j ++ ) {
-
-						const v2 = faceVertices[ j ];
-						const v3 = faceVertices[ j + 1 ];
-
-						state.addFace(
-							v1[ 0 ], v2[ 0 ], v3[ 0 ],
-							v1[ 1 ], v2[ 1 ], v3[ 1 ],
-							v1[ 2 ], v2[ 2 ], v3[ 2 ]
-						);
-
-					}
-
-				} else if ( lineFirstChar === 'l' ) {
-
-					const lineParts = line.substring( 1 ).trim().split( ' ' );
-					let lineVertices = [];
-					const lineUVs = [];
-
-					if ( line.indexOf( '/' ) === - 1 ) {
-
-						lineVertices = lineParts;
-
-					} else {
-
-						for ( let li = 0, llen = lineParts.length; li < llen; li ++ ) {
-
-							const parts = lineParts[ li ].split( '/' );
-
-							if ( parts[ 0 ] !== '' ) lineVertices.push( parts[ 0 ] );
-							if ( parts[ 1 ] !== '' ) lineUVs.push( parts[ 1 ] );
-
-						}
-
-					}
-
-					state.addLineGeometry( lineVertices, lineUVs );
-
-				} else if ( lineFirstChar === 'p' ) {
-
-					const lineData = line.slice( 1 ).trim();
-					const pointData = lineData.split( ' ' );
-
-					state.addPointGeometry( pointData );
-
-				} else if ( ( result = _object_pattern.exec( line ) ) !== null ) {
-
-					// o object_name
-					// or
-					// g group_name
-
-					// WORKAROUND: https://bugs.chromium.org/p/v8/issues/detail?id=2869
-					// let name = result[ 0 ].slice( 1 ).trim();
-					const name = ( ' ' + result[ 0 ].slice( 1 ).trim() ).slice( 1 );
-
-					state.startObject( name );
-
-				} else if ( _material_use_pattern.test( line ) ) {
-
-					// material
-
-					state.object.startMaterial( line.substring( 7 ).trim(), state.materialLibraries );
-
-				} else if ( _material_library_pattern.test( line ) ) {
-
-					// mtl file
-
-					state.materialLibraries.push( line.substring( 7 ).trim() );
-
-				} else if ( _map_use_pattern.test( line ) ) {
-
-					// the line is parsed but ignored since the loader assumes textures are defined MTL files
-					// (according to https://www.okino.com/conv/imp_wave.htm, 'usemap' is the old-style Wavefront texture reference method)
-
-					console.warn( 'THREE.OBJLoader: Rendering identifier "usemap" not supported. Textures must be defined in MTL files.' );
-
-				} else if ( lineFirstChar === 's' ) {
-
-					result = line.split( ' ' );
-
-					// smooth shading
-
-					// @todo Handle files that have varying smooth values for a set of faces inside one geometry,
-					// but does not define a usemtl for each face set.
-					// This should be detected and a dummy material created (later MultiMaterial and geometry groups).
-					// This requires some care to not create extra material on each smooth value for "normal" obj files.
-					// where explicit usemtl defines geometry groups.
-					// Example asset: examples/models/obj/cerberus/Cerberus.obj
-
-					/*
-						 * http://paulbourke.net/dataformats/obj/
-						 *
-						 * From chapter "Grouping" Syntax explanation "s group_number":
-						 * "group_number is the smoothing group number. To turn off smoothing groups, use a value of 0 or off.
-						 * Polygonal elements use group numbers to put elements in different smoothing groups. For free-form
-						 * surfaces, smoothing groups are either turned on or off; there is no difference between values greater
-						 * than 0."
-						 */
-					if ( result.length > 1 ) {
-
-						const value = result[ 1 ].trim().toLowerCase();
-						state.object.smooth = ( value !== '0' && value !== 'off' );
-
-					} else {
-
-						// ZBrush can produce "s" lines #11707
-						state.object.smooth = true;
-
-					}
-
-					const material = state.object.currentMaterial();
-					if ( material ) material.smooth = state.object.smooth;
-
-				} else {
-
-					// Handle null terminated files without exception
-					if ( line === '\0' ) continue;
-
-					console.warn( 'THREE.OBJLoader: Unexpected line: "' + line + '"' );
-
-				}
-
-			}
-
-			state.finalize();
-
-			const container = new Group$2();
-			container.materialLibraries = [].concat( state.materialLibraries );
-
-			const hasPrimitives = ! ( state.objects.length === 1 && state.objects[ 0 ].geometry.vertices.length === 0 );
-
-			if ( hasPrimitives === true ) {
-
-				for ( let i = 0, l = state.objects.length; i < l; i ++ ) {
-
-					const object = state.objects[ i ];
-					const geometry = object.geometry;
-					const materials = object.materials;
-					const isLine = ( geometry.type === 'Line' );
-					const isPoints = ( geometry.type === 'Points' );
-					let hasVertexColors = false;
-
-					// Skip o/g line declarations that did not follow with any faces
-					if ( geometry.vertices.length === 0 ) continue;
-
-					const buffergeometry = new BufferGeometry();
-
-					buffergeometry.setAttribute( 'position', new Float32BufferAttribute( geometry.vertices, 3 ) );
-
-					if ( geometry.normals.length > 0 ) {
-
-						buffergeometry.setAttribute( 'normal', new Float32BufferAttribute( geometry.normals, 3 ) );
-
-					}
-
-					if ( geometry.colors.length > 0 ) {
-
-						hasVertexColors = true;
-						buffergeometry.setAttribute( 'color', new Float32BufferAttribute( geometry.colors, 3 ) );
-
-					}
-
-					if ( geometry.hasUVIndices === true ) {
-
-						buffergeometry.setAttribute( 'uv', new Float32BufferAttribute( geometry.uvs, 2 ) );
-
-					}
-
-					// Create materials
-
-					const createdMaterials = [];
-
-					for ( let mi = 0, miLen = materials.length; mi < miLen; mi ++ ) {
-
-						const sourceMaterial = materials[ mi ];
-						const materialHash = sourceMaterial.name + '_' + sourceMaterial.smooth + '_' + hasVertexColors;
-						let material = state.materials[ materialHash ];
-
-						if ( this.materials !== null ) {
-
-							material = this.materials.create( sourceMaterial.name );
-
-							// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
-							if ( isLine && material && ! ( material instanceof LineBasicMaterial ) ) {
-
-								const materialLine = new LineBasicMaterial();
-								Material.prototype.copy.call( materialLine, material );
-								materialLine.color.copy( material.color );
-								material = materialLine;
-
-							} else if ( isPoints && material && ! ( material instanceof PointsMaterial ) ) {
-
-								const materialPoints = new PointsMaterial( { size: 10, sizeAttenuation: false } );
-								Material.prototype.copy.call( materialPoints, material );
-								materialPoints.color.copy( material.color );
-								materialPoints.map = material.map;
-								material = materialPoints;
-
-							}
-
-						}
-
-						if ( material === undefined ) {
-
-							if ( isLine ) {
-
-								material = new LineBasicMaterial();
-
-							} else if ( isPoints ) {
-
-								material = new PointsMaterial( { size: 1, sizeAttenuation: false } );
-
-							} else {
-
-								material = new MeshPhongMaterial();
-
-							}
-
-							material.name = sourceMaterial.name;
-							material.flatShading = sourceMaterial.smooth ? false : true;
-							material.vertexColors = hasVertexColors;
-
-							state.materials[ materialHash ] = material;
-
-						}
-
-						createdMaterials.push( material );
-
-					}
-
-					// Create mesh
-
-					let mesh;
-
-					if ( createdMaterials.length > 1 ) {
-
-						for ( let mi = 0, miLen = materials.length; mi < miLen; mi ++ ) {
-
-							const sourceMaterial = materials[ mi ];
-							buffergeometry.addGroup( sourceMaterial.groupStart, sourceMaterial.groupCount, mi );
-
-						}
-
-						if ( isLine ) {
-
-							mesh = new LineSegments( buffergeometry, createdMaterials );
-
-						} else if ( isPoints ) {
-
-							mesh = new Points( buffergeometry, createdMaterials );
-
-						} else {
-
-							mesh = new Mesh( buffergeometry, createdMaterials );
-
-						}
-
-					} else {
-
-						if ( isLine ) {
-
-							mesh = new LineSegments( buffergeometry, createdMaterials[ 0 ] );
-
-						} else if ( isPoints ) {
-
-							mesh = new Points( buffergeometry, createdMaterials[ 0 ] );
-
-						} else {
-
-							mesh = new Mesh( buffergeometry, createdMaterials[ 0 ] );
-
-						}
-
-					}
-
-					mesh.name = object.name;
-
-					container.add( mesh );
-
-				}
-
-			} else {
-
-				// if there is only the default parser state object with no geometry data, interpret data as point cloud
-
-				if ( state.vertices.length > 0 ) {
-
-					const material = new PointsMaterial( { size: 1, sizeAttenuation: false } );
-
-					const buffergeometry = new BufferGeometry();
-
-					buffergeometry.setAttribute( 'position', new Float32BufferAttribute( state.vertices, 3 ) );
-
-					if ( state.colors.length > 0 && state.colors[ 0 ] !== undefined ) {
-
-						buffergeometry.setAttribute( 'color', new Float32BufferAttribute( state.colors, 3 ) );
-						material.vertexColors = true;
-
-					}
-
-					const points = new Points( buffergeometry, material );
-					container.add( points );
-
-				}
-
-			}
-
-			return container;
-
-		}
-
-	}
-
-	const COLOR_SPACE_SVG = SRGBColorSpace;
-
-	class SVGLoader extends Loader {
-
-		constructor( manager ) {
-
-			super( manager );
-
-			// Default dots per inch
-			this.defaultDPI = 90;
-
-			// Accepted units: 'mm', 'cm', 'in', 'pt', 'pc', 'px'
-			this.defaultUnit = 'px';
-
-		}
-
-		load( url, onLoad, onProgress, onError ) {
-
-			const scope = this;
-
-			const loader = new FileLoader( scope.manager );
-			loader.setPath( scope.path );
-			loader.setRequestHeader( scope.requestHeader );
-			loader.setWithCredentials( scope.withCredentials );
-			loader.load( url, function ( text ) {
-
-				try {
-
-					onLoad( scope.parse( text ) );
-
-				} catch ( e ) {
-
-					if ( onError ) {
-
-						onError( e );
-
-					} else {
-
-						console.error( e );
-
-					}
-
-					scope.manager.itemError( url );
-
-				}
-
-			}, onProgress, onError );
-
-		}
-
-		parse( text ) {
-
-			const scope = this;
-
-			function parseNode( node, style ) {
-
-				if ( node.nodeType !== 1 ) return;
-
-				const transform = getNodeTransform( node );
-
-				let isDefsNode = false;
-
-				let path = null;
-
-				switch ( node.nodeName ) {
-
-					case 'svg':
-						style = parseStyle( node, style );
-						break;
-
-					case 'style':
-						parseCSSStylesheet( node );
-						break;
-
-					case 'g':
-						style = parseStyle( node, style );
-						break;
-
-					case 'path':
-						style = parseStyle( node, style );
-						if ( node.hasAttribute( 'd' ) ) path = parsePathNode( node );
-						break;
-
-					case 'rect':
-						style = parseStyle( node, style );
-						path = parseRectNode( node );
-						break;
-
-					case 'polygon':
-						style = parseStyle( node, style );
-						path = parsePolygonNode( node );
-						break;
-
-					case 'polyline':
-						style = parseStyle( node, style );
-						path = parsePolylineNode( node );
-						break;
-
-					case 'circle':
-						style = parseStyle( node, style );
-						path = parseCircleNode( node );
-						break;
-
-					case 'ellipse':
-						style = parseStyle( node, style );
-						path = parseEllipseNode( node );
-						break;
-
-					case 'line':
-						style = parseStyle( node, style );
-						path = parseLineNode( node );
-						break;
-
-					case 'defs':
-						isDefsNode = true;
-						break;
-
-					case 'use':
-						style = parseStyle( node, style );
-
-						const href = node.getAttributeNS( 'http://www.w3.org/1999/xlink', 'href' ) || '';
-						const usedNodeId = href.substring( 1 );
-						const usedNode = node.viewportElement.getElementById( usedNodeId );
-						if ( usedNode ) {
-
-							parseNode( usedNode, style );
-
-						} else {
-
-							console.warn( 'SVGLoader: \'use node\' references non-existent node id: ' + usedNodeId );
-
-						}
-
-						break;
-						// console.log( node );
-
-				}
-
-				if ( path ) {
-
-					if ( style.fill !== undefined && style.fill !== 'none' ) {
-
-						path.color.setStyle( style.fill, COLOR_SPACE_SVG );
-
-					}
-
-					transformPath( path, currentTransform );
-
-					paths.push( path );
-
-					path.userData = { node: node, style: style };
-
-				}
-
-				const childNodes = node.childNodes;
-
-				for ( let i = 0; i < childNodes.length; i ++ ) {
-
-					const node = childNodes[ i ];
-
-					if ( isDefsNode && node.nodeName !== 'style' && node.nodeName !== 'defs' ) {
-
-						// Ignore everything in defs except CSS style definitions
-						// and nested defs, because it is OK by the standard to have
-						// <style/> there.
-						continue;
-
-					}
-
-					parseNode( node, style );
-
-				}
-
-
-				if ( transform ) {
-
-					transformStack.pop();
-
-					if ( transformStack.length > 0 ) {
-
-						currentTransform.copy( transformStack[ transformStack.length - 1 ] );
-
-					} else {
-
-						currentTransform.identity();
-
-					}
-
-				}
-
-			}
-
-			function parsePathNode( node ) {
-
-				const path = new ShapePath();
-
-				const point = new Vector2();
-				const control = new Vector2();
-
-				const firstPoint = new Vector2();
-				let isFirstPoint = true;
-				let doSetFirstPoint = false;
-
-				const d = node.getAttribute( 'd' );
-
-				if ( d === '' || d === 'none' ) return null;
-
-				// console.log( d );
-
-				const commands = d.match( /[a-df-z][^a-df-z]*/ig );
-
-				for ( let i = 0, l = commands.length; i < l; i ++ ) {
-
-					const command = commands[ i ];
-
-					const type = command.charAt( 0 );
-					const data = command.slice( 1 ).trim();
-
-					if ( isFirstPoint === true ) {
-
-						doSetFirstPoint = true;
-						isFirstPoint = false;
-
-					}
-
-					let numbers;
-
-					switch ( type ) {
-
-						case 'M':
-							numbers = parseFloats( data );
-							for ( let j = 0, jl = numbers.length; j < jl; j += 2 ) {
-
-								point.x = numbers[ j + 0 ];
-								point.y = numbers[ j + 1 ];
-								control.x = point.x;
-								control.y = point.y;
-
-								if ( j === 0 ) {
-
-									path.moveTo( point.x, point.y );
-
-								} else {
-
-									path.lineTo( point.x, point.y );
-
-								}
-
-								if ( j === 0 ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'H':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j ++ ) {
-
-								point.x = numbers[ j ];
-								control.x = point.x;
-								control.y = point.y;
-								path.lineTo( point.x, point.y );
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'V':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j ++ ) {
-
-								point.y = numbers[ j ];
-								control.x = point.x;
-								control.y = point.y;
-								path.lineTo( point.x, point.y );
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'L':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 2 ) {
-
-								point.x = numbers[ j + 0 ];
-								point.y = numbers[ j + 1 ];
-								control.x = point.x;
-								control.y = point.y;
-								path.lineTo( point.x, point.y );
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'C':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 6 ) {
-
-								path.bezierCurveTo(
-									numbers[ j + 0 ],
-									numbers[ j + 1 ],
-									numbers[ j + 2 ],
-									numbers[ j + 3 ],
-									numbers[ j + 4 ],
-									numbers[ j + 5 ]
-								);
-								control.x = numbers[ j + 2 ];
-								control.y = numbers[ j + 3 ];
-								point.x = numbers[ j + 4 ];
-								point.y = numbers[ j + 5 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'S':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 4 ) {
-
-								path.bezierCurveTo(
-									getReflection( point.x, control.x ),
-									getReflection( point.y, control.y ),
-									numbers[ j + 0 ],
-									numbers[ j + 1 ],
-									numbers[ j + 2 ],
-									numbers[ j + 3 ]
-								);
-								control.x = numbers[ j + 0 ];
-								control.y = numbers[ j + 1 ];
-								point.x = numbers[ j + 2 ];
-								point.y = numbers[ j + 3 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'Q':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 4 ) {
-
-								path.quadraticCurveTo(
-									numbers[ j + 0 ],
-									numbers[ j + 1 ],
-									numbers[ j + 2 ],
-									numbers[ j + 3 ]
-								);
-								control.x = numbers[ j + 0 ];
-								control.y = numbers[ j + 1 ];
-								point.x = numbers[ j + 2 ];
-								point.y = numbers[ j + 3 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'T':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 2 ) {
-
-								const rx = getReflection( point.x, control.x );
-								const ry = getReflection( point.y, control.y );
-								path.quadraticCurveTo(
-									rx,
-									ry,
-									numbers[ j + 0 ],
-									numbers[ j + 1 ]
-								);
-								control.x = rx;
-								control.y = ry;
-								point.x = numbers[ j + 0 ];
-								point.y = numbers[ j + 1 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'A':
-							numbers = parseFloats( data, [ 3, 4 ], 7 );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 7 ) {
-
-								// skip command if start point == end point
-								if ( numbers[ j + 5 ] == point.x && numbers[ j + 6 ] == point.y ) continue;
-
-								const start = point.clone();
-								point.x = numbers[ j + 5 ];
-								point.y = numbers[ j + 6 ];
-								control.x = point.x;
-								control.y = point.y;
-								parseArcCommand(
-									path, numbers[ j ], numbers[ j + 1 ], numbers[ j + 2 ], numbers[ j + 3 ], numbers[ j + 4 ], start, point
-								);
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'm':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 2 ) {
-
-								point.x += numbers[ j + 0 ];
-								point.y += numbers[ j + 1 ];
-								control.x = point.x;
-								control.y = point.y;
-
-								if ( j === 0 ) {
-
-									path.moveTo( point.x, point.y );
-
-								} else {
-
-									path.lineTo( point.x, point.y );
-
-								}
-
-								if ( j === 0 ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'h':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j ++ ) {
-
-								point.x += numbers[ j ];
-								control.x = point.x;
-								control.y = point.y;
-								path.lineTo( point.x, point.y );
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'v':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j ++ ) {
-
-								point.y += numbers[ j ];
-								control.x = point.x;
-								control.y = point.y;
-								path.lineTo( point.x, point.y );
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'l':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 2 ) {
-
-								point.x += numbers[ j + 0 ];
-								point.y += numbers[ j + 1 ];
-								control.x = point.x;
-								control.y = point.y;
-								path.lineTo( point.x, point.y );
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'c':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 6 ) {
-
-								path.bezierCurveTo(
-									point.x + numbers[ j + 0 ],
-									point.y + numbers[ j + 1 ],
-									point.x + numbers[ j + 2 ],
-									point.y + numbers[ j + 3 ],
-									point.x + numbers[ j + 4 ],
-									point.y + numbers[ j + 5 ]
-								);
-								control.x = point.x + numbers[ j + 2 ];
-								control.y = point.y + numbers[ j + 3 ];
-								point.x += numbers[ j + 4 ];
-								point.y += numbers[ j + 5 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 's':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 4 ) {
-
-								path.bezierCurveTo(
-									getReflection( point.x, control.x ),
-									getReflection( point.y, control.y ),
-									point.x + numbers[ j + 0 ],
-									point.y + numbers[ j + 1 ],
-									point.x + numbers[ j + 2 ],
-									point.y + numbers[ j + 3 ]
-								);
-								control.x = point.x + numbers[ j + 0 ];
-								control.y = point.y + numbers[ j + 1 ];
-								point.x += numbers[ j + 2 ];
-								point.y += numbers[ j + 3 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'q':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 4 ) {
-
-								path.quadraticCurveTo(
-									point.x + numbers[ j + 0 ],
-									point.y + numbers[ j + 1 ],
-									point.x + numbers[ j + 2 ],
-									point.y + numbers[ j + 3 ]
-								);
-								control.x = point.x + numbers[ j + 0 ];
-								control.y = point.y + numbers[ j + 1 ];
-								point.x += numbers[ j + 2 ];
-								point.y += numbers[ j + 3 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 't':
-							numbers = parseFloats( data );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 2 ) {
-
-								const rx = getReflection( point.x, control.x );
-								const ry = getReflection( point.y, control.y );
-								path.quadraticCurveTo(
-									rx,
-									ry,
-									point.x + numbers[ j + 0 ],
-									point.y + numbers[ j + 1 ]
-								);
-								control.x = rx;
-								control.y = ry;
-								point.x = point.x + numbers[ j + 0 ];
-								point.y = point.y + numbers[ j + 1 ];
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'a':
-							numbers = parseFloats( data, [ 3, 4 ], 7 );
-
-							for ( let j = 0, jl = numbers.length; j < jl; j += 7 ) {
-
-								// skip command if no displacement
-								if ( numbers[ j + 5 ] == 0 && numbers[ j + 6 ] == 0 ) continue;
-
-								const start = point.clone();
-								point.x += numbers[ j + 5 ];
-								point.y += numbers[ j + 6 ];
-								control.x = point.x;
-								control.y = point.y;
-								parseArcCommand(
-									path, numbers[ j ], numbers[ j + 1 ], numbers[ j + 2 ], numbers[ j + 3 ], numbers[ j + 4 ], start, point
-								);
-
-								if ( j === 0 && doSetFirstPoint === true ) firstPoint.copy( point );
-
-							}
-
-							break;
-
-						case 'Z':
-						case 'z':
-							path.currentPath.autoClose = true;
-
-							if ( path.currentPath.curves.length > 0 ) {
-
-								// Reset point to beginning of Path
-								point.copy( firstPoint );
-								path.currentPath.currentPoint.copy( point );
-								isFirstPoint = true;
-
-							}
-
-							break;
-
-						default:
-							console.warn( command );
-
-					}
-
-					// console.log( type, parseFloats( data ), parseFloats( data ).length  )
-
-					doSetFirstPoint = false;
-
-				}
-
-				return path;
-
-			}
-
-			function parseCSSStylesheet( node ) {
-
-				if ( ! node.sheet || ! node.sheet.cssRules || ! node.sheet.cssRules.length ) return;
-
-				for ( let i = 0; i < node.sheet.cssRules.length; i ++ ) {
-
-					const stylesheet = node.sheet.cssRules[ i ];
-
-					if ( stylesheet.type !== 1 ) continue;
-
-					const selectorList = stylesheet.selectorText
-						.split( /,/gm )
-						.filter( Boolean )
-						.map( i => i.trim() );
-
-					for ( let j = 0; j < selectorList.length; j ++ ) {
-
-						// Remove empty rules
-						const definitions = Object.fromEntries(
-							Object.entries( stylesheet.style ).filter( ( [ , v ] ) => v !== '' )
-						);
-
-						stylesheets[ selectorList[ j ] ] = Object.assign(
-							stylesheets[ selectorList[ j ] ] || {},
-							definitions
-						);
-
-					}
-
-				}
-
-			}
-
-			/**
-			 * https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
-			 * https://mortoray.com/2017/02/16/rendering-an-svg-elliptical-arc-as-bezier-curves/ Appendix: Endpoint to center arc conversion
-			 * From
-			 * rx ry x-axis-rotation large-arc-flag sweep-flag x y
-			 * To
-			 * aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation
-			 */
-
-			function parseArcCommand( path, rx, ry, x_axis_rotation, large_arc_flag, sweep_flag, start, end ) {
-
-				if ( rx == 0 || ry == 0 ) {
-
-					// draw a line if either of the radii == 0
-					path.lineTo( end.x, end.y );
-					return;
-
-				}
-
-				x_axis_rotation = x_axis_rotation * Math.PI / 180;
-
-				// Ensure radii are positive
-				rx = Math.abs( rx );
-				ry = Math.abs( ry );
-
-				// Compute (x1', y1')
-				const dx2 = ( start.x - end.x ) / 2.0;
-				const dy2 = ( start.y - end.y ) / 2.0;
-				const x1p = Math.cos( x_axis_rotation ) * dx2 + Math.sin( x_axis_rotation ) * dy2;
-				const y1p = - Math.sin( x_axis_rotation ) * dx2 + Math.cos( x_axis_rotation ) * dy2;
-
-				// Compute (cx', cy')
-				let rxs = rx * rx;
-				let rys = ry * ry;
-				const x1ps = x1p * x1p;
-				const y1ps = y1p * y1p;
-
-				// Ensure radii are large enough
-				const cr = x1ps / rxs + y1ps / rys;
-
-				if ( cr > 1 ) {
-
-					// scale up rx,ry equally so cr == 1
-					const s = Math.sqrt( cr );
-					rx = s * rx;
-					ry = s * ry;
-					rxs = rx * rx;
-					rys = ry * ry;
-
-				}
-
-				const dq = ( rxs * y1ps + rys * x1ps );
-				const pq = ( rxs * rys - dq ) / dq;
-				let q = Math.sqrt( Math.max( 0, pq ) );
-				if ( large_arc_flag === sweep_flag ) q = - q;
-				const cxp = q * rx * y1p / ry;
-				const cyp = - q * ry * x1p / rx;
-
-				// Step 3: Compute (cx, cy) from (cx', cy')
-				const cx = Math.cos( x_axis_rotation ) * cxp - Math.sin( x_axis_rotation ) * cyp + ( start.x + end.x ) / 2;
-				const cy = Math.sin( x_axis_rotation ) * cxp + Math.cos( x_axis_rotation ) * cyp + ( start.y + end.y ) / 2;
-
-				// Step 4: Compute θ1 and Δθ
-				const theta = svgAngle( 1, 0, ( x1p - cxp ) / rx, ( y1p - cyp ) / ry );
-				const delta = svgAngle( ( x1p - cxp ) / rx, ( y1p - cyp ) / ry, ( - x1p - cxp ) / rx, ( - y1p - cyp ) / ry ) % ( Math.PI * 2 );
-
-				path.currentPath.absellipse( cx, cy, rx, ry, theta, theta + delta, sweep_flag === 0, x_axis_rotation );
-
-			}
-
-			function svgAngle( ux, uy, vx, vy ) {
-
-				const dot = ux * vx + uy * vy;
-				const len = Math.sqrt( ux * ux + uy * uy ) * Math.sqrt( vx * vx + vy * vy );
-				let ang = Math.acos( Math.max( - 1, Math.min( 1, dot / len ) ) ); // floating point precision, slightly over values appear
-				if ( ( ux * vy - uy * vx ) < 0 ) ang = - ang;
-				return ang;
-
-			}
-
-			/*
-			* According to https://www.w3.org/TR/SVG/shapes.html#RectElementRXAttribute
-			* rounded corner should be rendered to elliptical arc, but bezier curve does the job well enough
-			*/
-			function parseRectNode( node ) {
-
-				const x = parseFloatWithUnits( node.getAttribute( 'x' ) || 0 );
-				const y = parseFloatWithUnits( node.getAttribute( 'y' ) || 0 );
-				const rx = parseFloatWithUnits( node.getAttribute( 'rx' ) || node.getAttribute( 'ry' ) || 0 );
-				const ry = parseFloatWithUnits( node.getAttribute( 'ry' ) || node.getAttribute( 'rx' ) || 0 );
-				const w = parseFloatWithUnits( node.getAttribute( 'width' ) );
-				const h = parseFloatWithUnits( node.getAttribute( 'height' ) );
-
-				// Ellipse arc to Bezier approximation Coefficient (Inversed). See:
-				// https://spencermortensen.com/articles/bezier-circle/
-				const bci = 1 - 0.551915024494;
-
-				const path = new ShapePath();
-
-				// top left
-				path.moveTo( x + rx, y );
-
-				// top right
-				path.lineTo( x + w - rx, y );
-				if ( rx !== 0 || ry !== 0 ) {
-
-					path.bezierCurveTo(
-						x + w - rx * bci,
-						y,
-						x + w,
-						y + ry * bci,
-						x + w,
-						y + ry
-					);
-
-				}
-
-				// bottom right
-				path.lineTo( x + w, y + h - ry );
-				if ( rx !== 0 || ry !== 0 ) {
-
-					path.bezierCurveTo(
-						x + w,
-						y + h - ry * bci,
-						x + w - rx * bci,
-						y + h,
-						x + w - rx,
-						y + h
-					);
-
-				}
-
-				// bottom left
-				path.lineTo( x + rx, y + h );
-				if ( rx !== 0 || ry !== 0 ) {
-
-					path.bezierCurveTo(
-						x + rx * bci,
-						y + h,
-						x,
-						y + h - ry * bci,
-						x,
-						y + h - ry
-					);
-
-				}
-
-				// back to top left
-				path.lineTo( x, y + ry );
-				if ( rx !== 0 || ry !== 0 ) {
-
-					path.bezierCurveTo( x, y + ry * bci, x + rx * bci, y, x + rx, y );
-
-				}
-
-				return path;
-
-			}
-
-			function parsePolygonNode( node ) {
-
-				function iterator( match, a, b ) {
-
-					const x = parseFloatWithUnits( a );
-					const y = parseFloatWithUnits( b );
-
-					if ( index === 0 ) {
-
-						path.moveTo( x, y );
-
-					} else {
-
-						path.lineTo( x, y );
-
-					}
-
-					index ++;
-
-				}
-
-				const regex = /([+-]?\d*\.?\d+(?:e[+-]?\d+)?)(?:,|\s)([+-]?\d*\.?\d+(?:e[+-]?\d+)?)/g;
-
-				const path = new ShapePath();
-
-				let index = 0;
-
-				node.getAttribute( 'points' ).replace( regex, iterator );
-
-				path.currentPath.autoClose = true;
-
-				return path;
-
-			}
-
-			function parsePolylineNode( node ) {
-
-				function iterator( match, a, b ) {
-
-					const x = parseFloatWithUnits( a );
-					const y = parseFloatWithUnits( b );
-
-					if ( index === 0 ) {
-
-						path.moveTo( x, y );
-
-					} else {
-
-						path.lineTo( x, y );
-
-					}
-
-					index ++;
-
-				}
-
-				const regex = /([+-]?\d*\.?\d+(?:e[+-]?\d+)?)(?:,|\s)([+-]?\d*\.?\d+(?:e[+-]?\d+)?)/g;
-
-				const path = new ShapePath();
-
-				let index = 0;
-
-				node.getAttribute( 'points' ).replace( regex, iterator );
-
-				path.currentPath.autoClose = false;
-
-				return path;
-
-			}
-
-			function parseCircleNode( node ) {
-
-				const x = parseFloatWithUnits( node.getAttribute( 'cx' ) || 0 );
-				const y = parseFloatWithUnits( node.getAttribute( 'cy' ) || 0 );
-				const r = parseFloatWithUnits( node.getAttribute( 'r' ) || 0 );
-
-				const subpath = new Path();
-				subpath.absarc( x, y, r, 0, Math.PI * 2 );
-
-				const path = new ShapePath();
-				path.subPaths.push( subpath );
-
-				return path;
-
-			}
-
-			function parseEllipseNode( node ) {
-
-				const x = parseFloatWithUnits( node.getAttribute( 'cx' ) || 0 );
-				const y = parseFloatWithUnits( node.getAttribute( 'cy' ) || 0 );
-				const rx = parseFloatWithUnits( node.getAttribute( 'rx' ) || 0 );
-				const ry = parseFloatWithUnits( node.getAttribute( 'ry' ) || 0 );
-
-				const subpath = new Path();
-				subpath.absellipse( x, y, rx, ry, 0, Math.PI * 2 );
-
-				const path = new ShapePath();
-				path.subPaths.push( subpath );
-
-				return path;
-
-			}
-
-			function parseLineNode( node ) {
-
-				const x1 = parseFloatWithUnits( node.getAttribute( 'x1' ) || 0 );
-				const y1 = parseFloatWithUnits( node.getAttribute( 'y1' ) || 0 );
-				const x2 = parseFloatWithUnits( node.getAttribute( 'x2' ) || 0 );
-				const y2 = parseFloatWithUnits( node.getAttribute( 'y2' ) || 0 );
-
-				const path = new ShapePath();
-				path.moveTo( x1, y1 );
-				path.lineTo( x2, y2 );
-				path.currentPath.autoClose = false;
-
-				return path;
-
-			}
-
-			//
-
-			function parseStyle( node, style ) {
-
-				style = Object.assign( {}, style ); // clone style
-
-				let stylesheetStyles = {};
-
-				if ( node.hasAttribute( 'class' ) ) {
-
-					const classSelectors = node.getAttribute( 'class' )
-						.split( /\s/ )
-						.filter( Boolean )
-						.map( i => i.trim() );
-
-					for ( let i = 0; i < classSelectors.length; i ++ ) {
-
-						stylesheetStyles = Object.assign( stylesheetStyles, stylesheets[ '.' + classSelectors[ i ] ] );
-
-					}
-
-				}
-
-				if ( node.hasAttribute( 'id' ) ) {
-
-					stylesheetStyles = Object.assign( stylesheetStyles, stylesheets[ '#' + node.getAttribute( 'id' ) ] );
-
-				}
-
-				function addStyle( svgName, jsName, adjustFunction ) {
-
-					if ( adjustFunction === undefined ) adjustFunction = function copy( v ) {
-
-						if ( v.startsWith( 'url' ) ) console.warn( 'SVGLoader: url access in attributes is not implemented.' );
-
-						return v;
-
-					};
-
-					if ( node.hasAttribute( svgName ) ) style[ jsName ] = adjustFunction( node.getAttribute( svgName ) );
-					if ( stylesheetStyles[ svgName ] ) style[ jsName ] = adjustFunction( stylesheetStyles[ svgName ] );
-					if ( node.style && node.style[ svgName ] !== '' ) style[ jsName ] = adjustFunction( node.style[ svgName ] );
-
-				}
-
-				function clamp( v ) {
-
-					return Math.max( 0, Math.min( 1, parseFloatWithUnits( v ) ) );
-
-				}
-
-				function positive( v ) {
-
-					return Math.max( 0, parseFloatWithUnits( v ) );
-
-				}
-
-				addStyle( 'fill', 'fill' );
-				addStyle( 'fill-opacity', 'fillOpacity', clamp );
-				addStyle( 'fill-rule', 'fillRule' );
-				addStyle( 'opacity', 'opacity', clamp );
-				addStyle( 'stroke', 'stroke' );
-				addStyle( 'stroke-opacity', 'strokeOpacity', clamp );
-				addStyle( 'stroke-width', 'strokeWidth', positive );
-				addStyle( 'stroke-linejoin', 'strokeLineJoin' );
-				addStyle( 'stroke-linecap', 'strokeLineCap' );
-				addStyle( 'stroke-miterlimit', 'strokeMiterLimit', positive );
-				addStyle( 'visibility', 'visibility' );
-
-				return style;
-
-			}
-
-			// http://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
-
-			function getReflection( a, b ) {
-
-				return a - ( b - a );
-
-			}
-
-			// from https://github.com/ppvg/svg-numbers (MIT License)
-
-			function parseFloats( input, flags, stride ) {
-
-				if ( typeof input !== 'string' ) {
-
-					throw new TypeError( 'Invalid input: ' + typeof input );
-
-				}
-
-				// Character groups
-				const RE = {
-					SEPARATOR: /[ \t\r\n\,.\-+]/,
-					WHITESPACE: /[ \t\r\n]/,
-					DIGIT: /[\d]/,
-					SIGN: /[-+]/,
-					POINT: /\./,
-					COMMA: /,/,
-					EXP: /e/i,
-					FLAGS: /[01]/
-				};
-
-				// States
-				const SEP = 0;
-				const INT = 1;
-				const FLOAT = 2;
-				const EXP = 3;
-
-				let state = SEP;
-				let seenComma = true;
-				let number = '', exponent = '';
-				const result = [];
-
-				function throwSyntaxError( current, i, partial ) {
-
-					const error = new SyntaxError( 'Unexpected character "' + current + '" at index ' + i + '.' );
-					error.partial = partial;
-					throw error;
-
-				}
-
-				function newNumber() {
-
-					if ( number !== '' ) {
-
-						if ( exponent === '' ) result.push( Number( number ) );
-						else result.push( Number( number ) * Math.pow( 10, Number( exponent ) ) );
-
-					}
-
-					number = '';
-					exponent = '';
-
-				}
-
-				let current;
-				const length = input.length;
-
-				for ( let i = 0; i < length; i ++ ) {
-
-					current = input[ i ];
-
-					// check for flags
-					if ( Array.isArray( flags ) && flags.includes( result.length % stride ) && RE.FLAGS.test( current ) ) {
-
-						state = INT;
-						number = current;
-						newNumber();
-						continue;
-
-					}
-
-					// parse until next number
-					if ( state === SEP ) {
-
-						// eat whitespace
-						if ( RE.WHITESPACE.test( current ) ) {
-
-							continue;
-
-						}
-
-						// start new number
-						if ( RE.DIGIT.test( current ) || RE.SIGN.test( current ) ) {
-
-							state = INT;
-							number = current;
-							continue;
-
-						}
-
-						if ( RE.POINT.test( current ) ) {
-
-							state = FLOAT;
-							number = current;
-							continue;
-
-						}
-
-						// throw on double commas (e.g. "1, , 2")
-						if ( RE.COMMA.test( current ) ) {
-
-							if ( seenComma ) {
-
-								throwSyntaxError( current, i, result );
-
-							}
-
-							seenComma = true;
-
-						}
-
-					}
-
-					// parse integer part
-					if ( state === INT ) {
-
-						if ( RE.DIGIT.test( current ) ) {
-
-							number += current;
-							continue;
-
-						}
-
-						if ( RE.POINT.test( current ) ) {
-
-							number += current;
-							state = FLOAT;
-							continue;
-
-						}
-
-						if ( RE.EXP.test( current ) ) {
-
-							state = EXP;
-							continue;
-
-						}
-
-						// throw on double signs ("-+1"), but not on sign as separator ("-1-2")
-						if ( RE.SIGN.test( current )
-								&& number.length === 1
-								&& RE.SIGN.test( number[ 0 ] ) ) {
-
-							throwSyntaxError( current, i, result );
-
-						}
-
-					}
-
-					// parse decimal part
-					if ( state === FLOAT ) {
-
-						if ( RE.DIGIT.test( current ) ) {
-
-							number += current;
-							continue;
-
-						}
-
-						if ( RE.EXP.test( current ) ) {
-
-							state = EXP;
-							continue;
-
-						}
-
-						// throw on double decimal points (e.g. "1..2")
-						if ( RE.POINT.test( current ) && number[ number.length - 1 ] === '.' ) {
-
-							throwSyntaxError( current, i, result );
-
-						}
-
-					}
-
-					// parse exponent part
-					if ( state === EXP ) {
-
-						if ( RE.DIGIT.test( current ) ) {
-
-							exponent += current;
-							continue;
-
-						}
-
-						if ( RE.SIGN.test( current ) ) {
-
-							if ( exponent === '' ) {
-
-								exponent += current;
-								continue;
-
-							}
-
-							if ( exponent.length === 1 && RE.SIGN.test( exponent ) ) {
-
-								throwSyntaxError( current, i, result );
-
-							}
-
-						}
-
-					}
-
-
-					// end of number
-					if ( RE.WHITESPACE.test( current ) ) {
-
-						newNumber();
-						state = SEP;
-						seenComma = false;
-
-					} else if ( RE.COMMA.test( current ) ) {
-
-						newNumber();
-						state = SEP;
-						seenComma = true;
-
-					} else if ( RE.SIGN.test( current ) ) {
-
-						newNumber();
-						state = INT;
-						number = current;
-
-					} else if ( RE.POINT.test( current ) ) {
-
-						newNumber();
-						state = FLOAT;
-						number = current;
-
-					} else {
-
-						throwSyntaxError( current, i, result );
-
-					}
-
-				}
-
-				// add the last number found (if any)
-				newNumber();
-
-				return result;
-
-			}
-
-			// Units
-
-			const units = [ 'mm', 'cm', 'in', 'pt', 'pc', 'px' ];
-
-			// Conversion: [ fromUnit ][ toUnit ] (-1 means dpi dependent)
-			const unitConversion = {
-
-				'mm': {
-					'mm': 1,
-					'cm': 0.1,
-					'in': 1 / 25.4,
-					'pt': 72 / 25.4,
-					'pc': 6 / 25.4,
-					'px': - 1
-				},
-				'cm': {
-					'mm': 10,
-					'cm': 1,
-					'in': 1 / 2.54,
-					'pt': 72 / 2.54,
-					'pc': 6 / 2.54,
-					'px': - 1
-				},
-				'in': {
-					'mm': 25.4,
-					'cm': 2.54,
-					'in': 1,
-					'pt': 72,
-					'pc': 6,
-					'px': - 1
-				},
-				'pt': {
-					'mm': 25.4 / 72,
-					'cm': 2.54 / 72,
-					'in': 1 / 72,
-					'pt': 1,
-					'pc': 6 / 72,
-					'px': - 1
-				},
-				'pc': {
-					'mm': 25.4 / 6,
-					'cm': 2.54 / 6,
-					'in': 1 / 6,
-					'pt': 72 / 6,
-					'pc': 1,
-					'px': - 1
-				},
-				'px': {
-					'px': 1
-				}
-
-			};
-
-			function parseFloatWithUnits( string ) {
-
-				let theUnit = 'px';
-
-				if ( typeof string === 'string' || string instanceof String ) {
-
-					for ( let i = 0, n = units.length; i < n; i ++ ) {
-
-						const u = units[ i ];
-
-						if ( string.endsWith( u ) ) {
-
-							theUnit = u;
-							string = string.substring( 0, string.length - u.length );
-							break;
-
-						}
-
-					}
-
-				}
-
-				let scale = undefined;
-
-				if ( theUnit === 'px' && scope.defaultUnit !== 'px' ) {
-
-					// Conversion scale from  pixels to inches, then to default units
-
-					scale = unitConversion[ 'in' ][ scope.defaultUnit ] / scope.defaultDPI;
-
-				} else {
-
-					scale = unitConversion[ theUnit ][ scope.defaultUnit ];
-
-					if ( scale < 0 ) {
-
-						// Conversion scale to pixels
-
-						scale = unitConversion[ theUnit ][ 'in' ] * scope.defaultDPI;
-
-					}
-
-				}
-
-				return scale * parseFloat( string );
-
-			}
-
-			// Transforms
-
-			function getNodeTransform( node ) {
-
-				if ( ! ( node.hasAttribute( 'transform' ) || ( node.nodeName === 'use' && ( node.hasAttribute( 'x' ) || node.hasAttribute( 'y' ) ) ) ) ) {
-
-					return null;
-
-				}
-
-				const transform = parseNodeTransform( node );
-
-				if ( transformStack.length > 0 ) {
-
-					transform.premultiply( transformStack[ transformStack.length - 1 ] );
-
-				}
-
-				currentTransform.copy( transform );
-				transformStack.push( transform );
-
-				return transform;
-
-			}
-
-			function parseNodeTransform( node ) {
-
-				const transform = new Matrix3();
-				const currentTransform = tempTransform0;
-
-				if ( node.nodeName === 'use' && ( node.hasAttribute( 'x' ) || node.hasAttribute( 'y' ) ) ) {
-
-					const tx = parseFloatWithUnits( node.getAttribute( 'x' ) );
-					const ty = parseFloatWithUnits( node.getAttribute( 'y' ) );
-
-					transform.translate( tx, ty );
-
-				}
-
-				if ( node.hasAttribute( 'transform' ) ) {
-
-					const transformsTexts = node.getAttribute( 'transform' ).split( ')' );
-
-					for ( let tIndex = transformsTexts.length - 1; tIndex >= 0; tIndex -- ) {
-
-						const transformText = transformsTexts[ tIndex ].trim();
-
-						if ( transformText === '' ) continue;
-
-						const openParPos = transformText.indexOf( '(' );
-						const closeParPos = transformText.length;
-
-						if ( openParPos > 0 && openParPos < closeParPos ) {
-
-							const transformType = transformText.slice( 0, openParPos );
-
-							const array = parseFloats( transformText.slice( openParPos + 1 ) );
-
-							currentTransform.identity();
-
-							switch ( transformType ) {
-
-								case 'translate':
-
-									if ( array.length >= 1 ) {
-
-										const tx = array[ 0 ];
-										let ty = 0;
-
-										if ( array.length >= 2 ) {
-
-											ty = array[ 1 ];
-
-										}
-
-										currentTransform.translate( tx, ty );
-
-									}
-
-									break;
-
-								case 'rotate':
-
-									if ( array.length >= 1 ) {
-
-										let angle = 0;
-										let cx = 0;
-										let cy = 0;
-
-										// Angle
-										angle = array[ 0 ] * Math.PI / 180;
-
-										if ( array.length >= 3 ) {
-
-											// Center x, y
-											cx = array[ 1 ];
-											cy = array[ 2 ];
-
-										}
-
-										// Rotate around center (cx, cy)
-										tempTransform1.makeTranslation( - cx, - cy );
-										tempTransform2.makeRotation( angle );
-										tempTransform3.multiplyMatrices( tempTransform2, tempTransform1 );
-										tempTransform1.makeTranslation( cx, cy );
-										currentTransform.multiplyMatrices( tempTransform1, tempTransform3 );
-
-									}
-
-									break;
-
-								case 'scale':
-
-									if ( array.length >= 1 ) {
-
-										const scaleX = array[ 0 ];
-										let scaleY = scaleX;
-
-										if ( array.length >= 2 ) {
-
-											scaleY = array[ 1 ];
-
-										}
-
-										currentTransform.scale( scaleX, scaleY );
-
-									}
-
-									break;
-
-								case 'skewX':
-
-									if ( array.length === 1 ) {
-
-										currentTransform.set(
-											1, Math.tan( array[ 0 ] * Math.PI / 180 ), 0,
-											0, 1, 0,
-											0, 0, 1
-										);
-
-									}
-
-									break;
-
-								case 'skewY':
-
-									if ( array.length === 1 ) {
-
-										currentTransform.set(
-											1, 0, 0,
-											Math.tan( array[ 0 ] * Math.PI / 180 ), 1, 0,
-											0, 0, 1
-										);
-
-									}
-
-									break;
-
-								case 'matrix':
-
-									if ( array.length === 6 ) {
-
-										currentTransform.set(
-											array[ 0 ], array[ 2 ], array[ 4 ],
-											array[ 1 ], array[ 3 ], array[ 5 ],
-											0, 0, 1
-										);
-
-									}
-
-									break;
-
-							}
-
-						}
-
-						transform.premultiply( currentTransform );
-
-					}
-
-				}
-
-				return transform;
-
-			}
-
-			function transformPath( path, m ) {
-
-				function transfVec2( v2 ) {
-
-					tempV3.set( v2.x, v2.y, 1 ).applyMatrix3( m );
-
-					v2.set( tempV3.x, tempV3.y );
-
-				}
-
-				function transfEllipseGeneric( curve ) {
-
-					// For math description see:
-					// https://math.stackexchange.com/questions/4544164
-
-					const a = curve.xRadius;
-					const b = curve.yRadius;
-
-					const cosTheta = Math.cos( curve.aRotation );
-					const sinTheta = Math.sin( curve.aRotation );
-
-					const v1 = new Vector3( a * cosTheta, a * sinTheta, 0 );
-					const v2 = new Vector3( - b * sinTheta, b * cosTheta, 0 );
-
-					const f1 = v1.applyMatrix3( m );
-					const f2 = v2.applyMatrix3( m );
-
-					const mF = tempTransform0.set(
-						f1.x, f2.x, 0,
-						f1.y, f2.y, 0,
-						0, 0, 1,
-					);
-
-					const mFInv = tempTransform1.copy( mF ).invert();
-					const mFInvT = tempTransform2.copy( mFInv ).transpose();
-					const mQ = mFInvT.multiply( mFInv );
-					const mQe = mQ.elements;
-
-					const ed = eigenDecomposition( mQe[ 0 ], mQe[ 1 ], mQe[ 4 ] );
-					const rt1sqrt = Math.sqrt( ed.rt1 );
-					const rt2sqrt = Math.sqrt( ed.rt2 );
-
-					curve.xRadius = 1 / rt1sqrt;
-					curve.yRadius = 1 / rt2sqrt;
-					curve.aRotation = Math.atan2( ed.sn, ed.cs );
-
-					const isFullEllipse =
-						( curve.aEndAngle - curve.aStartAngle ) % ( 2 * Math.PI ) < Number.EPSILON;
-
-					// Do not touch angles of a full ellipse because after transformation they
-					// would converge to a sinle value effectively removing the whole curve
-
-					if ( ! isFullEllipse ) {
-
-						const mDsqrt = tempTransform1.set(
-							rt1sqrt, 0, 0,
-							0, rt2sqrt, 0,
-							0, 0, 1,
-						);
-
-						const mRT = tempTransform2.set(
-							ed.cs, ed.sn, 0,
-							- ed.sn, ed.cs, 0,
-							0, 0, 1,
-						);
-
-						const mDRF = mDsqrt.multiply( mRT ).multiply( mF );
-
-						const transformAngle = phi => {
-
-							const { x: cosR, y: sinR } =
-								new Vector3( Math.cos( phi ), Math.sin( phi ), 0 ).applyMatrix3( mDRF );
-
-							return Math.atan2( sinR, cosR );
-
-						};
-
-						curve.aStartAngle = transformAngle( curve.aStartAngle );
-						curve.aEndAngle = transformAngle( curve.aEndAngle );
-
-						if ( isTransformFlipped( m ) ) {
-
-							curve.aClockwise = ! curve.aClockwise;
-
-						}
-
-					}
-
-				}
-
-				function transfEllipseNoSkew( curve ) {
-
-					// Faster shortcut if no skew is applied
-					// (e.g, a euclidean transform of a group containing the ellipse)
-
-					const sx = getTransformScaleX( m );
-					const sy = getTransformScaleY( m );
-
-					curve.xRadius *= sx;
-					curve.yRadius *= sy;
-
-					// Extract rotation angle from the matrix of form:
-					//
-					//  | cosθ sx   -sinθ sy |
-					//  | sinθ sx    cosθ sy |
-					//
-					// Remembering that tanθ = sinθ / cosθ; and that
-					// `sx`, `sy`, or both might be zero.
-					const theta =
-						sx > Number.EPSILON
-							? Math.atan2( m.elements[ 1 ], m.elements[ 0 ] )
-							: Math.atan2( - m.elements[ 3 ], m.elements[ 4 ] );
-
-					curve.aRotation += theta;
-
-					if ( isTransformFlipped( m ) ) {
-
-						curve.aStartAngle *= - 1;
-						curve.aEndAngle *= - 1;
-						curve.aClockwise = ! curve.aClockwise;
-
-					}
-
-				}
-
-				const subPaths = path.subPaths;
-
-				for ( let i = 0, n = subPaths.length; i < n; i ++ ) {
-
-					const subPath = subPaths[ i ];
-					const curves = subPath.curves;
-
-					for ( let j = 0; j < curves.length; j ++ ) {
-
-						const curve = curves[ j ];
-
-						if ( curve.isLineCurve ) {
-
-							transfVec2( curve.v1 );
-							transfVec2( curve.v2 );
-
-						} else if ( curve.isCubicBezierCurve ) {
-
-							transfVec2( curve.v0 );
-							transfVec2( curve.v1 );
-							transfVec2( curve.v2 );
-							transfVec2( curve.v3 );
-
-						} else if ( curve.isQuadraticBezierCurve ) {
-
-							transfVec2( curve.v0 );
-							transfVec2( curve.v1 );
-							transfVec2( curve.v2 );
-
-						} else if ( curve.isEllipseCurve ) {
-
-							// Transform ellipse center point
-
-							tempV2.set( curve.aX, curve.aY );
-							transfVec2( tempV2 );
-							curve.aX = tempV2.x;
-							curve.aY = tempV2.y;
-
-							// Transform ellipse shape parameters
-
-							if ( isTransformSkewed( m ) ) {
-
-								transfEllipseGeneric( curve );
-
-							} else {
-
-								transfEllipseNoSkew( curve );
-
-							}
-
-						}
-
-					}
-
-				}
-
-			}
-
-			function isTransformFlipped( m ) {
-
-				const te = m.elements;
-				return te[ 0 ] * te[ 4 ] - te[ 1 ] * te[ 3 ] < 0;
-
-			}
-
-			function isTransformSkewed( m ) {
-
-				const te = m.elements;
-				const basisDot = te[ 0 ] * te[ 3 ] + te[ 1 ] * te[ 4 ];
-
-				// Shortcut for trivial rotations and transformations
-				if ( basisDot === 0 ) return false;
-
-				const sx = getTransformScaleX( m );
-				const sy = getTransformScaleY( m );
-
-				return Math.abs( basisDot / ( sx * sy ) ) > Number.EPSILON;
-
-			}
-
-			function getTransformScaleX( m ) {
-
-				const te = m.elements;
-				return Math.sqrt( te[ 0 ] * te[ 0 ] + te[ 1 ] * te[ 1 ] );
-
-			}
-
-			function getTransformScaleY( m ) {
-
-				const te = m.elements;
-				return Math.sqrt( te[ 3 ] * te[ 3 ] + te[ 4 ] * te[ 4 ] );
-
-			}
-
-			// Calculates the eigensystem of a real symmetric 2x2 matrix
-			//    [ A  B ]
-			//    [ B  C ]
-			// in the form
-			//    [ A  B ]  =  [ cs  -sn ] [ rt1   0  ] [  cs  sn ]
-			//    [ B  C ]     [ sn   cs ] [  0   rt2 ] [ -sn  cs ]
-			// where rt1 >= rt2.
-			//
-			// Adapted from: https://www.mpi-hd.mpg.de/personalhomes/globes/3x3/index.html
-			// -> Algorithms for real symmetric matrices -> Analytical (2x2 symmetric)
-			function eigenDecomposition( A, B, C ) {
-
-				let rt1, rt2, cs, sn, t;
-				const sm = A + C;
-				const df = A - C;
-				const rt = Math.sqrt( df * df + 4 * B * B );
-
-				if ( sm > 0 ) {
-
-					rt1 = 0.5 * ( sm + rt );
-					t = 1 / rt1;
-					rt2 = A * t * C - B * t * B;
-
-				} else if ( sm < 0 ) {
-
-					rt2 = 0.5 * ( sm - rt );
-
-				} else {
-
-					// This case needs to be treated separately to avoid div by 0
-
-					rt1 = 0.5 * rt;
-					rt2 = - 0.5 * rt;
-
-				}
-
-				// Calculate eigenvectors
-
-				if ( df > 0 ) {
-
-					cs = df + rt;
-
-				} else {
-
-					cs = df - rt;
-
-				}
-
-				if ( Math.abs( cs ) > 2 * Math.abs( B ) ) {
-
-					t = - 2 * B / cs;
-					sn = 1 / Math.sqrt( 1 + t * t );
-					cs = t * sn;
-
-				} else if ( Math.abs( B ) === 0 ) {
-
-					cs = 1;
-					sn = 0;
-
-				} else {
-
-					t = - 0.5 * cs / B;
-					cs = 1 / Math.sqrt( 1 + t * t );
-					sn = t * cs;
-
-				}
-
-				if ( df > 0 ) {
-
-					t = cs;
-					cs = - sn;
-					sn = t;
-
-				}
-
-				return { rt1, rt2, cs, sn };
-
-			}
-
-			//
-
-			const paths = [];
-			const stylesheets = {};
-
-			const transformStack = [];
-
-			const tempTransform0 = new Matrix3();
-			const tempTransform1 = new Matrix3();
-			const tempTransform2 = new Matrix3();
-			const tempTransform3 = new Matrix3();
-			const tempV2 = new Vector2();
-			const tempV3 = new Vector3();
-
-			const currentTransform = new Matrix3();
-
-			const xml = new DOMParser().parseFromString( text, 'image/svg+xml' ); // application/xml
-
-			parseNode( xml.documentElement, {
-				fill: '#000',
-				fillOpacity: 1,
-				strokeOpacity: 1,
-				strokeWidth: 1,
-				strokeLineJoin: 'miter',
-				strokeLineCap: 'butt',
-				strokeMiterLimit: 4
-			} );
-
-			const data = { paths: paths, xml: xml.documentElement };
-
-			// console.log( paths );
-			return data;
-
-		}
-
-		static createShapes( shapePath ) {
-
-			// Param shapePath: a shapepath as returned by the parse function of this class
-			// Returns Shape object
-
-			const BIGNUMBER = 999999999;
-
-			const IntersectionLocationType = {
-				ORIGIN: 0,
-				DESTINATION: 1,
-				BETWEEN: 2,
-				LEFT: 3,
-				RIGHT: 4,
-				BEHIND: 5,
-				BEYOND: 6
-			};
-
-			const classifyResult = {
-				loc: IntersectionLocationType.ORIGIN,
-				t: 0
-			};
-
-			function findEdgeIntersection( a0, a1, b0, b1 ) {
-
-				const x1 = a0.x;
-				const x2 = a1.x;
-				const x3 = b0.x;
-				const x4 = b1.x;
-				const y1 = a0.y;
-				const y2 = a1.y;
-				const y3 = b0.y;
-				const y4 = b1.y;
-				const nom1 = ( x4 - x3 ) * ( y1 - y3 ) - ( y4 - y3 ) * ( x1 - x3 );
-				const nom2 = ( x2 - x1 ) * ( y1 - y3 ) - ( y2 - y1 ) * ( x1 - x3 );
-				const denom = ( y4 - y3 ) * ( x2 - x1 ) - ( x4 - x3 ) * ( y2 - y1 );
-				const t1 = nom1 / denom;
-				const t2 = nom2 / denom;
-
-				if ( ( ( denom === 0 ) && ( nom1 !== 0 ) ) || ( t1 <= 0 ) || ( t1 >= 1 ) || ( t2 < 0 ) || ( t2 > 1 ) ) {
-
-					//1. lines are parallel or edges don't intersect
-
-					return null;
-
-				} else if ( ( nom1 === 0 ) && ( denom === 0 ) ) {
-
-					//2. lines are colinear
-
-					//check if endpoints of edge2 (b0-b1) lies on edge1 (a0-a1)
-					for ( let i = 0; i < 2; i ++ ) {
-
-						classifyPoint( i === 0 ? b0 : b1, a0, a1 );
-						//find position of this endpoints relatively to edge1
-						if ( classifyResult.loc == IntersectionLocationType.ORIGIN ) {
-
-							const point = ( i === 0 ? b0 : b1 );
-							return { x: point.x, y: point.y, t: classifyResult.t };
-
-						} else if ( classifyResult.loc == IntersectionLocationType.BETWEEN ) {
-
-							const x = + ( ( x1 + classifyResult.t * ( x2 - x1 ) ).toPrecision( 10 ) );
-							const y = + ( ( y1 + classifyResult.t * ( y2 - y1 ) ).toPrecision( 10 ) );
-							return { x: x, y: y, t: classifyResult.t, };
-
-						}
-
-					}
-
-					return null;
-
-				} else {
-
-					//3. edges intersect
-
-					for ( let i = 0; i < 2; i ++ ) {
-
-						classifyPoint( i === 0 ? b0 : b1, a0, a1 );
-
-						if ( classifyResult.loc == IntersectionLocationType.ORIGIN ) {
-
-							const point = ( i === 0 ? b0 : b1 );
-							return { x: point.x, y: point.y, t: classifyResult.t };
-
-						}
-
-					}
-
-					const x = + ( ( x1 + t1 * ( x2 - x1 ) ).toPrecision( 10 ) );
-					const y = + ( ( y1 + t1 * ( y2 - y1 ) ).toPrecision( 10 ) );
-					return { x: x, y: y, t: t1 };
-
-				}
-
-			}
-
-			function classifyPoint( p, edgeStart, edgeEnd ) {
-
-				const ax = edgeEnd.x - edgeStart.x;
-				const ay = edgeEnd.y - edgeStart.y;
-				const bx = p.x - edgeStart.x;
-				const by = p.y - edgeStart.y;
-				const sa = ax * by - bx * ay;
-
-				if ( ( p.x === edgeStart.x ) && ( p.y === edgeStart.y ) ) {
-
-					classifyResult.loc = IntersectionLocationType.ORIGIN;
-					classifyResult.t = 0;
-					return;
-
-				}
-
-				if ( ( p.x === edgeEnd.x ) && ( p.y === edgeEnd.y ) ) {
-
-					classifyResult.loc = IntersectionLocationType.DESTINATION;
-					classifyResult.t = 1;
-					return;
-
-				}
-
-				if ( sa < - Number.EPSILON ) {
-
-					classifyResult.loc = IntersectionLocationType.LEFT;
-					return;
-
-				}
-
-				if ( sa > Number.EPSILON ) {
-
-					classifyResult.loc = IntersectionLocationType.RIGHT;
-					return;
-
-
-				}
-
-				if ( ( ( ax * bx ) < 0 ) || ( ( ay * by ) < 0 ) ) {
-
-					classifyResult.loc = IntersectionLocationType.BEHIND;
-					return;
-
-				}
-
-				if ( ( Math.sqrt( ax * ax + ay * ay ) ) < ( Math.sqrt( bx * bx + by * by ) ) ) {
-
-					classifyResult.loc = IntersectionLocationType.BEYOND;
-					return;
-
-				}
-
-				let t;
-
-				if ( ax !== 0 ) {
-
-					t = bx / ax;
-
-				} else {
-
-					t = by / ay;
-
-				}
-
-				classifyResult.loc = IntersectionLocationType.BETWEEN;
-				classifyResult.t = t;
-
-			}
-
-			function getIntersections( path1, path2 ) {
-
-				const intersectionsRaw = [];
-				const intersections = [];
-
-				for ( let index = 1; index < path1.length; index ++ ) {
-
-					const path1EdgeStart = path1[ index - 1 ];
-					const path1EdgeEnd = path1[ index ];
-
-					for ( let index2 = 1; index2 < path2.length; index2 ++ ) {
-
-						const path2EdgeStart = path2[ index2 - 1 ];
-						const path2EdgeEnd = path2[ index2 ];
-
-						const intersection = findEdgeIntersection( path1EdgeStart, path1EdgeEnd, path2EdgeStart, path2EdgeEnd );
-
-						if ( intersection !== null && intersectionsRaw.find( i => i.t <= intersection.t + Number.EPSILON && i.t >= intersection.t - Number.EPSILON ) === undefined ) {
-
-							intersectionsRaw.push( intersection );
-							intersections.push( new Vector2( intersection.x, intersection.y ) );
-
-						}
-
-					}
-
-				}
-
-				return intersections;
-
-			}
-
-			function getScanlineIntersections( scanline, boundingBox, paths ) {
-
-				const center = new Vector2();
-				boundingBox.getCenter( center );
-
-				const allIntersections = [];
-
-				paths.forEach( path => {
-
-					// check if the center of the bounding box is in the bounding box of the paths.
-					// this is a pruning method to limit the search of intersections in paths that can't envelop of the current path.
-					// if a path envelops another path. The center of that oter path, has to be inside the bounding box of the enveloping path.
-					if ( path.boundingBox.containsPoint( center ) ) {
-
-						const intersections = getIntersections( scanline, path.points );
-
-						intersections.forEach( p => {
-
-							allIntersections.push( { identifier: path.identifier, isCW: path.isCW, point: p } );
-
-						} );
-
-					}
-
-				} );
-
-				allIntersections.sort( ( i1, i2 ) => {
-
-					return i1.point.x - i2.point.x;
-
-				} );
-
-				return allIntersections;
-
-			}
-
-			function isHoleTo( simplePath, allPaths, scanlineMinX, scanlineMaxX, _fillRule ) {
-
-				if ( _fillRule === null || _fillRule === undefined || _fillRule === '' ) {
-
-					_fillRule = 'nonzero';
-
-				}
-
-				const centerBoundingBox = new Vector2();
-				simplePath.boundingBox.getCenter( centerBoundingBox );
-
-				const scanline = [ new Vector2( scanlineMinX, centerBoundingBox.y ), new Vector2( scanlineMaxX, centerBoundingBox.y ) ];
-
-				const scanlineIntersections = getScanlineIntersections( scanline, simplePath.boundingBox, allPaths );
-
-				scanlineIntersections.sort( ( i1, i2 ) => {
-
-					return i1.point.x - i2.point.x;
-
-				} );
-
-				const baseIntersections = [];
-				const otherIntersections = [];
-
-				scanlineIntersections.forEach( i => {
-
-					if ( i.identifier === simplePath.identifier ) {
-
-						baseIntersections.push( i );
-
-					} else {
-
-						otherIntersections.push( i );
-
-					}
-
-				} );
-
-				const firstXOfPath = baseIntersections[ 0 ].point.x;
-
-				// build up the path hierarchy
-				const stack = [];
-				let i = 0;
-
-				while ( i < otherIntersections.length && otherIntersections[ i ].point.x < firstXOfPath ) {
-
-					if ( stack.length > 0 && stack[ stack.length - 1 ] === otherIntersections[ i ].identifier ) {
-
-						stack.pop();
-
-					} else {
-
-						stack.push( otherIntersections[ i ].identifier );
-
-					}
-
-					i ++;
-
-				}
-
-				stack.push( simplePath.identifier );
-
-				if ( _fillRule === 'evenodd' ) {
-
-					const isHole = stack.length % 2 === 0 ? true : false;
-					const isHoleFor = stack[ stack.length - 2 ];
-
-					return { identifier: simplePath.identifier, isHole: isHole, for: isHoleFor };
-
-				} else if ( _fillRule === 'nonzero' ) {
-
-					// check if path is a hole by counting the amount of paths with alternating rotations it has to cross.
-					let isHole = true;
-					let isHoleFor = null;
-					let lastCWValue = null;
-
-					for ( let i = 0; i < stack.length; i ++ ) {
-
-						const identifier = stack[ i ];
-						if ( isHole ) {
-
-							lastCWValue = allPaths[ identifier ].isCW;
-							isHole = false;
-							isHoleFor = identifier;
-
-						} else if ( lastCWValue !== allPaths[ identifier ].isCW ) {
-
-							lastCWValue = allPaths[ identifier ].isCW;
-							isHole = true;
-
-						}
-
-					}
-
-					return { identifier: simplePath.identifier, isHole: isHole, for: isHoleFor };
-
-				} else {
-
-					console.warn( 'fill-rule: "' + _fillRule + '" is currently not implemented.' );
-
-				}
-
-			}
-
-			// check for self intersecting paths
-			// TODO
-
-			// check intersecting paths
-			// TODO
-
-			// prepare paths for hole detection
-			let scanlineMinX = BIGNUMBER;
-			let scanlineMaxX = - BIGNUMBER;
-
-			let simplePaths = shapePath.subPaths.map( p => {
-
-				const points = p.getPoints();
-				let maxY = - BIGNUMBER;
-				let minY = BIGNUMBER;
-				let maxX = - BIGNUMBER;
-				let minX = BIGNUMBER;
-
-		      	//points.forEach(p => p.y *= -1);
-
-				for ( let i = 0; i < points.length; i ++ ) {
-
-					const p = points[ i ];
-
-					if ( p.y > maxY ) {
-
-						maxY = p.y;
-
-					}
-
-					if ( p.y < minY ) {
-
-						minY = p.y;
-
-					}
-
-					if ( p.x > maxX ) {
-
-						maxX = p.x;
-
-					}
-
-					if ( p.x < minX ) {
-
-						minX = p.x;
-
-					}
-
-				}
-
-				//
-				if ( scanlineMaxX <= maxX ) {
-
-					scanlineMaxX = maxX + 1;
-
-				}
-
-				if ( scanlineMinX >= minX ) {
-
-					scanlineMinX = minX - 1;
-
-				}
-
-				return { curves: p.curves, points: points, isCW: ShapeUtils.isClockWise( points ), identifier: - 1, boundingBox: new Box2( new Vector2( minX, minY ), new Vector2( maxX, maxY ) ) };
-
-			} );
-
-			simplePaths = simplePaths.filter( sp => sp.points.length > 1 );
-
-			for ( let identifier = 0; identifier < simplePaths.length; identifier ++ ) {
-
-				simplePaths[ identifier ].identifier = identifier;
-
-			}
-
-			// check if path is solid or a hole
-			const isAHole = simplePaths.map( p => isHoleTo( p, simplePaths, scanlineMinX, scanlineMaxX, ( shapePath.userData ? shapePath.userData.style.fillRule : undefined ) ) );
-
-
-			const shapesToReturn = [];
-			simplePaths.forEach( p => {
-
-				const amIAHole = isAHole[ p.identifier ];
-
-				if ( ! amIAHole.isHole ) {
-
-					const shape = new Shape();
-					shape.curves = p.curves;
-					const holes = isAHole.filter( h => h.isHole && h.for === p.identifier );
-					holes.forEach( h => {
-
-						const hole = simplePaths[ h.identifier ];
-						const path = new Path();
-						path.curves = hole.curves;
-						shape.holes.push( path );
-
-					} );
-					shapesToReturn.push( shape );
-
-				}
-
-			} );
-
-			return shapesToReturn;
-
-		}
-
-		static getStrokeStyle( width, color, lineJoin, lineCap, miterLimit ) {
-
-			// Param width: Stroke width
-			// Param color: As returned by THREE.Color.getStyle()
-			// Param lineJoin: One of "round", "bevel", "miter" or "miter-limit"
-			// Param lineCap: One of "round", "square" or "butt"
-			// Param miterLimit: Maximum join length, in multiples of the "width" parameter (join is truncated if it exceeds that distance)
-			// Returns style object
-
-			width = width !== undefined ? width : 1;
-			color = color !== undefined ? color : '#000';
-			lineJoin = lineJoin !== undefined ? lineJoin : 'miter';
-			lineCap = lineCap !== undefined ? lineCap : 'butt';
-			miterLimit = miterLimit !== undefined ? miterLimit : 4;
-
-			return {
-				strokeColor: color,
-				strokeWidth: width,
-				strokeLineJoin: lineJoin,
-				strokeLineCap: lineCap,
-				strokeMiterLimit: miterLimit
-			};
-
-		}
-
-		static pointsToStroke( points, style, arcDivisions, minDistance ) {
-
-			// Generates a stroke with some width around the given path.
-			// The path can be open or closed (last point equals to first point)
-			// Param points: Array of Vector2D (the path). Minimum 2 points.
-			// Param style: Object with SVG properties as returned by SVGLoader.getStrokeStyle(), or SVGLoader.parse() in the path.userData.style object
-			// Params arcDivisions: Arc divisions for round joins and endcaps. (Optional)
-			// Param minDistance: Points closer to this distance will be merged. (Optional)
-			// Returns BufferGeometry with stroke triangles (In plane z = 0). UV coordinates are generated ('u' along path. 'v' across it, from left to right)
-
-			const vertices = [];
-			const normals = [];
-			const uvs = [];
-
-			if ( SVGLoader.pointsToStrokeWithBuffers( points, style, arcDivisions, minDistance, vertices, normals, uvs ) === 0 ) {
-
-				return null;
-
-			}
-
-			const geometry = new BufferGeometry();
-			geometry.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
-			geometry.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
-			geometry.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
-
-			return geometry;
-
-		}
-
-		static pointsToStrokeWithBuffers( points, style, arcDivisions, minDistance, vertices, normals, uvs, vertexOffset ) {
-
-			// This function can be called to update existing arrays or buffers.
-			// Accepts same parameters as pointsToStroke, plus the buffers and optional offset.
-			// Param vertexOffset: Offset vertices to start writing in the buffers (3 elements/vertex for vertices and normals, and 2 elements/vertex for uvs)
-			// Returns number of written vertices / normals / uvs pairs
-			// if 'vertices' parameter is undefined no triangles will be generated, but the returned vertices count will still be valid (useful to preallocate the buffers)
-			// 'normals' and 'uvs' buffers are optional
-
-			const tempV2_1 = new Vector2();
-			const tempV2_2 = new Vector2();
-			const tempV2_3 = new Vector2();
-			const tempV2_4 = new Vector2();
-			const tempV2_5 = new Vector2();
-			const tempV2_6 = new Vector2();
-			const tempV2_7 = new Vector2();
-			const lastPointL = new Vector2();
-			const lastPointR = new Vector2();
-			const point0L = new Vector2();
-			const point0R = new Vector2();
-			const currentPointL = new Vector2();
-			const currentPointR = new Vector2();
-			const nextPointL = new Vector2();
-			const nextPointR = new Vector2();
-			const innerPoint = new Vector2();
-			const outerPoint = new Vector2();
-
-			arcDivisions = arcDivisions !== undefined ? arcDivisions : 12;
-			minDistance = minDistance !== undefined ? minDistance : 0.001;
-			vertexOffset = vertexOffset !== undefined ? vertexOffset : 0;
-
-			// First ensure there are no duplicated points
-			points = removeDuplicatedPoints( points );
-
-			const numPoints = points.length;
-
-			if ( numPoints < 2 ) return 0;
-
-			const isClosed = points[ 0 ].equals( points[ numPoints - 1 ] );
-
-			let currentPoint;
-			let previousPoint = points[ 0 ];
-			let nextPoint;
-
-			const strokeWidth2 = style.strokeWidth / 2;
-
-			const deltaU = 1 / ( numPoints - 1 );
-			let u0 = 0, u1;
-
-			let innerSideModified;
-			let joinIsOnLeftSide;
-			let isMiter;
-			let initialJoinIsOnLeftSide = false;
-
-			let numVertices = 0;
-			let currentCoordinate = vertexOffset * 3;
-			let currentCoordinateUV = vertexOffset * 2;
-
-			// Get initial left and right stroke points
-			getNormal( points[ 0 ], points[ 1 ], tempV2_1 ).multiplyScalar( strokeWidth2 );
-			lastPointL.copy( points[ 0 ] ).sub( tempV2_1 );
-			lastPointR.copy( points[ 0 ] ).add( tempV2_1 );
-			point0L.copy( lastPointL );
-			point0R.copy( lastPointR );
-
-			for ( let iPoint = 1; iPoint < numPoints; iPoint ++ ) {
-
-				currentPoint = points[ iPoint ];
-
-				// Get next point
-				if ( iPoint === numPoints - 1 ) {
-
-					if ( isClosed ) {
-
-						// Skip duplicated initial point
-						nextPoint = points[ 1 ];
-
-					} else nextPoint = undefined;
-
-				} else {
-
-					nextPoint = points[ iPoint + 1 ];
-
-				}
-
-				// Normal of previous segment in tempV2_1
-				const normal1 = tempV2_1;
-				getNormal( previousPoint, currentPoint, normal1 );
-
-				tempV2_3.copy( normal1 ).multiplyScalar( strokeWidth2 );
-				currentPointL.copy( currentPoint ).sub( tempV2_3 );
-				currentPointR.copy( currentPoint ).add( tempV2_3 );
-
-				u1 = u0 + deltaU;
-
-				innerSideModified = false;
-
-				if ( nextPoint !== undefined ) {
-
-					// Normal of next segment in tempV2_2
-					getNormal( currentPoint, nextPoint, tempV2_2 );
-
-					tempV2_3.copy( tempV2_2 ).multiplyScalar( strokeWidth2 );
-					nextPointL.copy( currentPoint ).sub( tempV2_3 );
-					nextPointR.copy( currentPoint ).add( tempV2_3 );
-
-					joinIsOnLeftSide = true;
-					tempV2_3.subVectors( nextPoint, previousPoint );
-					if ( normal1.dot( tempV2_3 ) < 0 ) {
-
-						joinIsOnLeftSide = false;
-
-					}
-
-					if ( iPoint === 1 ) initialJoinIsOnLeftSide = joinIsOnLeftSide;
-
-					tempV2_3.subVectors( nextPoint, currentPoint );
-					tempV2_3.normalize();
-					const dot = Math.abs( normal1.dot( tempV2_3 ) );
-
-					// If path is straight, don't create join
-					if ( dot > Number.EPSILON ) {
-
-						// Compute inner and outer segment intersections
-						const miterSide = strokeWidth2 / dot;
-						tempV2_3.multiplyScalar( - miterSide );
-						tempV2_4.subVectors( currentPoint, previousPoint );
-						tempV2_5.copy( tempV2_4 ).setLength( miterSide ).add( tempV2_3 );
-						innerPoint.copy( tempV2_5 ).negate();
-						const miterLength2 = tempV2_5.length();
-						const segmentLengthPrev = tempV2_4.length();
-						tempV2_4.divideScalar( segmentLengthPrev );
-						tempV2_6.subVectors( nextPoint, currentPoint );
-						const segmentLengthNext = tempV2_6.length();
-						tempV2_6.divideScalar( segmentLengthNext );
-						// Check that previous and next segments doesn't overlap with the innerPoint of intersection
-						if ( tempV2_4.dot( innerPoint ) < segmentLengthPrev && tempV2_6.dot( innerPoint ) < segmentLengthNext ) {
-
-							innerSideModified = true;
-
-						}
-
-						outerPoint.copy( tempV2_5 ).add( currentPoint );
-						innerPoint.add( currentPoint );
-
-						isMiter = false;
-
-						if ( innerSideModified ) {
-
-							if ( joinIsOnLeftSide ) {
-
-								nextPointR.copy( innerPoint );
-								currentPointR.copy( innerPoint );
-
-							} else {
-
-								nextPointL.copy( innerPoint );
-								currentPointL.copy( innerPoint );
-
-							}
-
-						} else {
-
-							// The segment triangles are generated here if there was overlapping
-
-							makeSegmentTriangles();
-
-						}
-
-						switch ( style.strokeLineJoin ) {
-
-							case 'bevel':
-
-								makeSegmentWithBevelJoin( joinIsOnLeftSide, innerSideModified, u1 );
-
-								break;
-
-							case 'round':
-
-								// Segment triangles
-
-								createSegmentTrianglesWithMiddleSection( joinIsOnLeftSide, innerSideModified );
-
-								// Join triangles
-
-								if ( joinIsOnLeftSide ) {
-
-									makeCircularSector( currentPoint, currentPointL, nextPointL, u1, 0 );
-
-								} else {
-
-									makeCircularSector( currentPoint, nextPointR, currentPointR, u1, 1 );
-
-								}
-
-								break;
-
-							case 'miter':
-							case 'miter-clip':
-							default:
-
-								const miterFraction = ( strokeWidth2 * style.strokeMiterLimit ) / miterLength2;
-
-								if ( miterFraction < 1 ) {
-
-									// The join miter length exceeds the miter limit
-
-									if ( style.strokeLineJoin !== 'miter-clip' ) {
-
-										makeSegmentWithBevelJoin( joinIsOnLeftSide, innerSideModified, u1 );
-										break;
-
-									} else {
-
-										// Segment triangles
-
-										createSegmentTrianglesWithMiddleSection( joinIsOnLeftSide, innerSideModified );
-
-										// Miter-clip join triangles
-
-										if ( joinIsOnLeftSide ) {
-
-											tempV2_6.subVectors( outerPoint, currentPointL ).multiplyScalar( miterFraction ).add( currentPointL );
-											tempV2_7.subVectors( outerPoint, nextPointL ).multiplyScalar( miterFraction ).add( nextPointL );
-
-											addVertex( currentPointL, u1, 0 );
-											addVertex( tempV2_6, u1, 0 );
-											addVertex( currentPoint, u1, 0.5 );
-
-											addVertex( currentPoint, u1, 0.5 );
-											addVertex( tempV2_6, u1, 0 );
-											addVertex( tempV2_7, u1, 0 );
-
-											addVertex( currentPoint, u1, 0.5 );
-											addVertex( tempV2_7, u1, 0 );
-											addVertex( nextPointL, u1, 0 );
-
-										} else {
-
-											tempV2_6.subVectors( outerPoint, currentPointR ).multiplyScalar( miterFraction ).add( currentPointR );
-											tempV2_7.subVectors( outerPoint, nextPointR ).multiplyScalar( miterFraction ).add( nextPointR );
-
-											addVertex( currentPointR, u1, 1 );
-											addVertex( tempV2_6, u1, 1 );
-											addVertex( currentPoint, u1, 0.5 );
-
-											addVertex( currentPoint, u1, 0.5 );
-											addVertex( tempV2_6, u1, 1 );
-											addVertex( tempV2_7, u1, 1 );
-
-											addVertex( currentPoint, u1, 0.5 );
-											addVertex( tempV2_7, u1, 1 );
-											addVertex( nextPointR, u1, 1 );
-
-										}
-
-									}
-
-								} else {
-
-									// Miter join segment triangles
-
-									if ( innerSideModified ) {
-
-										// Optimized segment + join triangles
-
-										if ( joinIsOnLeftSide ) {
-
-											addVertex( lastPointR, u0, 1 );
-											addVertex( lastPointL, u0, 0 );
-											addVertex( outerPoint, u1, 0 );
-
-											addVertex( lastPointR, u0, 1 );
-											addVertex( outerPoint, u1, 0 );
-											addVertex( innerPoint, u1, 1 );
-
-										} else {
-
-											addVertex( lastPointR, u0, 1 );
-											addVertex( lastPointL, u0, 0 );
-											addVertex( outerPoint, u1, 1 );
-
-											addVertex( lastPointL, u0, 0 );
-											addVertex( innerPoint, u1, 0 );
-											addVertex( outerPoint, u1, 1 );
-
-										}
-
-
-										if ( joinIsOnLeftSide ) {
-
-											nextPointL.copy( outerPoint );
-
-										} else {
-
-											nextPointR.copy( outerPoint );
-
-										}
-
-
-									} else {
-
-										// Add extra miter join triangles
-
-										if ( joinIsOnLeftSide ) {
-
-											addVertex( currentPointL, u1, 0 );
-											addVertex( outerPoint, u1, 0 );
-											addVertex( currentPoint, u1, 0.5 );
-
-											addVertex( currentPoint, u1, 0.5 );
-											addVertex( outerPoint, u1, 0 );
-											addVertex( nextPointL, u1, 0 );
-
-										} else {
-
-											addVertex( currentPointR, u1, 1 );
-											addVertex( outerPoint, u1, 1 );
-											addVertex( currentPoint, u1, 0.5 );
-
-											addVertex( currentPoint, u1, 0.5 );
-											addVertex( outerPoint, u1, 1 );
-											addVertex( nextPointR, u1, 1 );
-
-										}
-
-									}
-
-									isMiter = true;
-
-								}
-
-								break;
-
-						}
-
-					} else {
-
-						// The segment triangles are generated here when two consecutive points are collinear
-
-						makeSegmentTriangles();
-
-					}
-
-				} else {
-
-					// The segment triangles are generated here if it is the ending segment
-
-					makeSegmentTriangles();
-
-				}
-
-				if ( ! isClosed && iPoint === numPoints - 1 ) {
-
-					// Start line endcap
-					addCapGeometry( points[ 0 ], point0L, point0R, joinIsOnLeftSide, true, u0 );
-
-				}
-
-				// Increment loop variables
-
-				u0 = u1;
-
-				previousPoint = currentPoint;
-
-				lastPointL.copy( nextPointL );
-				lastPointR.copy( nextPointR );
-
-			}
-
-			if ( ! isClosed ) {
-
-				// Ending line endcap
-				addCapGeometry( currentPoint, currentPointL, currentPointR, joinIsOnLeftSide, false, u1 );
-
-			} else if ( innerSideModified && vertices ) {
-
-				// Modify path first segment vertices to adjust to the segments inner and outer intersections
-
-				let lastOuter = outerPoint;
-				let lastInner = innerPoint;
-
-				if ( initialJoinIsOnLeftSide !== joinIsOnLeftSide ) {
-
-					lastOuter = innerPoint;
-					lastInner = outerPoint;
-
-				}
-
-				if ( joinIsOnLeftSide ) {
-
-					if ( isMiter || initialJoinIsOnLeftSide ) {
-
-						lastInner.toArray( vertices, 0 * 3 );
-						lastInner.toArray( vertices, 3 * 3 );
-
-						if ( isMiter ) {
-
-							lastOuter.toArray( vertices, 1 * 3 );
-
-						}
-
-					}
-
-				} else {
-
-					if ( isMiter || ! initialJoinIsOnLeftSide ) {
-
-						lastInner.toArray( vertices, 1 * 3 );
-						lastInner.toArray( vertices, 3 * 3 );
-
-						if ( isMiter ) {
-
-							lastOuter.toArray( vertices, 0 * 3 );
-
-						}
-
-					}
-
-				}
-
-			}
-
-			return numVertices;
-
-			// -- End of algorithm
-
-			// -- Functions
-
-			function getNormal( p1, p2, result ) {
-
-				result.subVectors( p2, p1 );
-				return result.set( - result.y, result.x ).normalize();
-
-			}
-
-			function addVertex( position, u, v ) {
-
-				if ( vertices ) {
-
-					vertices[ currentCoordinate ] = position.x;
-					vertices[ currentCoordinate + 1 ] = position.y;
-					vertices[ currentCoordinate + 2 ] = 0;
-
-					if ( normals ) {
-
-						normals[ currentCoordinate ] = 0;
-						normals[ currentCoordinate + 1 ] = 0;
-						normals[ currentCoordinate + 2 ] = 1;
-
-					}
-
-					currentCoordinate += 3;
-
-					if ( uvs ) {
-
-						uvs[ currentCoordinateUV ] = u;
-						uvs[ currentCoordinateUV + 1 ] = v;
-
-						currentCoordinateUV += 2;
-
-					}
-
-				}
-
-				numVertices += 3;
-
-			}
-
-			function makeCircularSector( center, p1, p2, u, v ) {
-
-				// param p1, p2: Points in the circle arc.
-				// p1 and p2 are in clockwise direction.
-
-				tempV2_1.copy( p1 ).sub( center ).normalize();
-				tempV2_2.copy( p2 ).sub( center ).normalize();
-
-				let angle = Math.PI;
-				const dot = tempV2_1.dot( tempV2_2 );
-				if ( Math.abs( dot ) < 1 ) angle = Math.abs( Math.acos( dot ) );
-
-				angle /= arcDivisions;
-
-				tempV2_3.copy( p1 );
-
-				for ( let i = 0, il = arcDivisions - 1; i < il; i ++ ) {
-
-					tempV2_4.copy( tempV2_3 ).rotateAround( center, angle );
-
-					addVertex( tempV2_3, u, v );
-					addVertex( tempV2_4, u, v );
-					addVertex( center, u, 0.5 );
-
-					tempV2_3.copy( tempV2_4 );
-
-				}
-
-				addVertex( tempV2_4, u, v );
-				addVertex( p2, u, v );
-				addVertex( center, u, 0.5 );
-
-			}
-
-			function makeSegmentTriangles() {
-
-				addVertex( lastPointR, u0, 1 );
-				addVertex( lastPointL, u0, 0 );
-				addVertex( currentPointL, u1, 0 );
-
-				addVertex( lastPointR, u0, 1 );
-				addVertex( currentPointL, u1, 1 );
-				addVertex( currentPointR, u1, 0 );
-
-			}
-
-			function makeSegmentWithBevelJoin( joinIsOnLeftSide, innerSideModified, u ) {
-
-				if ( innerSideModified ) {
-
-					// Optimized segment + bevel triangles
-
-					if ( joinIsOnLeftSide ) {
-
-						// Path segments triangles
-
-						addVertex( lastPointR, u0, 1 );
-						addVertex( lastPointL, u0, 0 );
-						addVertex( currentPointL, u1, 0 );
-
-						addVertex( lastPointR, u0, 1 );
-						addVertex( currentPointL, u1, 0 );
-						addVertex( innerPoint, u1, 1 );
-
-						// Bevel join triangle
-
-						addVertex( currentPointL, u, 0 );
-						addVertex( nextPointL, u, 0 );
-						addVertex( innerPoint, u, 0.5 );
-
-					} else {
-
-						// Path segments triangles
-
-						addVertex( lastPointR, u0, 1 );
-						addVertex( lastPointL, u0, 0 );
-						addVertex( currentPointR, u1, 1 );
-
-						addVertex( lastPointL, u0, 0 );
-						addVertex( innerPoint, u1, 0 );
-						addVertex( currentPointR, u1, 1 );
-
-						// Bevel join triangle
-
-						addVertex( currentPointR, u, 1 );
-						addVertex( innerPoint, u, 0 );
-						addVertex( nextPointR, u, 1 );
-
-					}
-
-				} else {
-
-					// Bevel join triangle. The segment triangles are done in the main loop
-
-					if ( joinIsOnLeftSide ) {
-
-						addVertex( currentPointL, u, 0 );
-						addVertex( nextPointL, u, 0 );
-						addVertex( currentPoint, u, 0.5 );
-
-					} else {
-
-						addVertex( currentPointR, u, 1 );
-						addVertex( nextPointR, u, 0 );
-						addVertex( currentPoint, u, 0.5 );
-
-					}
-
-				}
-
-			}
-
-			function createSegmentTrianglesWithMiddleSection( joinIsOnLeftSide, innerSideModified ) {
-
-				if ( innerSideModified ) {
-
-					if ( joinIsOnLeftSide ) {
-
-						addVertex( lastPointR, u0, 1 );
-						addVertex( lastPointL, u0, 0 );
-						addVertex( currentPointL, u1, 0 );
-
-						addVertex( lastPointR, u0, 1 );
-						addVertex( currentPointL, u1, 0 );
-						addVertex( innerPoint, u1, 1 );
-
-						addVertex( currentPointL, u0, 0 );
-						addVertex( currentPoint, u1, 0.5 );
-						addVertex( innerPoint, u1, 1 );
-
-						addVertex( currentPoint, u1, 0.5 );
-						addVertex( nextPointL, u0, 0 );
-						addVertex( innerPoint, u1, 1 );
-
-					} else {
-
-						addVertex( lastPointR, u0, 1 );
-						addVertex( lastPointL, u0, 0 );
-						addVertex( currentPointR, u1, 1 );
-
-						addVertex( lastPointL, u0, 0 );
-						addVertex( innerPoint, u1, 0 );
-						addVertex( currentPointR, u1, 1 );
-
-						addVertex( currentPointR, u0, 1 );
-						addVertex( innerPoint, u1, 0 );
-						addVertex( currentPoint, u1, 0.5 );
-
-						addVertex( currentPoint, u1, 0.5 );
-						addVertex( innerPoint, u1, 0 );
-						addVertex( nextPointR, u0, 1 );
-
-					}
-
-				}
-
-			}
-
-			function addCapGeometry( center, p1, p2, joinIsOnLeftSide, start, u ) {
-
-				// param center: End point of the path
-				// param p1, p2: Left and right cap points
-
-				switch ( style.strokeLineCap ) {
-
-					case 'round':
-
-						if ( start ) {
-
-							makeCircularSector( center, p2, p1, u, 0.5 );
-
-						} else {
-
-							makeCircularSector( center, p1, p2, u, 0.5 );
-
-						}
-
-						break;
-
-					case 'square':
-
-						if ( start ) {
-
-							tempV2_1.subVectors( p1, center );
-							tempV2_2.set( tempV2_1.y, - tempV2_1.x );
-
-							tempV2_3.addVectors( tempV2_1, tempV2_2 ).add( center );
-							tempV2_4.subVectors( tempV2_2, tempV2_1 ).add( center );
-
-							// Modify already existing vertices
-							if ( joinIsOnLeftSide ) {
-
-								tempV2_3.toArray( vertices, 1 * 3 );
-								tempV2_4.toArray( vertices, 0 * 3 );
-								tempV2_4.toArray( vertices, 3 * 3 );
-
-							} else {
-
-								tempV2_3.toArray( vertices, 1 * 3 );
-								tempV2_3.toArray( vertices, 3 * 3 );
-								tempV2_4.toArray( vertices, 0 * 3 );
-
-							}
-
-						} else {
-
-							tempV2_1.subVectors( p2, center );
-							tempV2_2.set( tempV2_1.y, - tempV2_1.x );
-
-							tempV2_3.addVectors( tempV2_1, tempV2_2 ).add( center );
-							tempV2_4.subVectors( tempV2_2, tempV2_1 ).add( center );
-
-							const vl = vertices.length;
-
-							// Modify already existing vertices
-							if ( joinIsOnLeftSide ) {
-
-								tempV2_3.toArray( vertices, vl - 1 * 3 );
-								tempV2_4.toArray( vertices, vl - 2 * 3 );
-								tempV2_4.toArray( vertices, vl - 4 * 3 );
-
-							} else {
-
-								tempV2_4.toArray( vertices, vl - 2 * 3 );
-								tempV2_3.toArray( vertices, vl - 1 * 3 );
-								tempV2_4.toArray( vertices, vl - 4 * 3 );
-
-							}
-
-						}
-
-						break;
-
-				}
-
-			}
-
-			function removeDuplicatedPoints( points ) {
-
-				// Creates a new array if necessary with duplicated points removed.
-				// This does not remove duplicated initial and ending points of a closed path.
-
-				let dupPoints = false;
-				for ( let i = 1, n = points.length - 1; i < n; i ++ ) {
-
-					if ( points[ i ].distanceTo( points[ i + 1 ] ) < minDistance ) {
-
-						dupPoints = true;
-						break;
-
-					}
-
-				}
-
-				if ( ! dupPoints ) return points;
-
-				const newPoints = [];
-				newPoints.push( points[ 0 ] );
-
-				for ( let i = 1, n = points.length - 1; i < n; i ++ ) {
-
-					if ( points[ i ].distanceTo( points[ i + 1 ] ) >= minDistance ) {
-
-						newPoints.push( points[ i ] );
-
-					}
-
-				}
-
-				newPoints.push( points[ points.length - 1 ] );
-
-				return newPoints;
-
-			}
-
-		}
-
-
-	}
-
-	/**
-	 * Based on "A Practical Analytic Model for Daylight"
-	 * aka The Preetham Model, the de facto standard analytic skydome model
-	 * https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
-	 *
-	 * First implemented by Simon Wallner
-	 * http://simonwallner.at/project/atmospheric-scattering/
-	 *
-	 * Improved by Martin Upitis
-	 * http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
-	 *
-	 * Three.js integration by zz85 http://twitter.com/blurspline
-	*/
-
-	class Sky extends Mesh {
-
-		constructor() {
-
-			const shader = Sky.SkyShader;
-
-			const material = new ShaderMaterial( {
-				name: shader.name,
-				uniforms: UniformsUtils.clone( shader.uniforms ),
-				vertexShader: shader.vertexShader,
-				fragmentShader: shader.fragmentShader,
-				side: BackSide,
-				depthWrite: false
-			} );
-
-			super( new BoxGeometry( 1, 1, 1 ), material );
-
-			this.isSky = true;
-
-		}
-
-	}
-
-	Sky.SkyShader = {
-
-		name: 'SkyShader',
-
-		uniforms: {
-			'turbidity': { value: 2 },
-			'rayleigh': { value: 1 },
-			'mieCoefficient': { value: 0.005 },
-			'mieDirectionalG': { value: 0.8 },
-			'sunPosition': { value: new Vector3() },
-			'up': { value: new Vector3( 0, 1, 0 ) }
-		},
-
-		vertexShader: /* glsl */`
-		uniform vec3 sunPosition;
-		uniform float rayleigh;
-		uniform float turbidity;
-		uniform float mieCoefficient;
-		uniform vec3 up;
-
-		varying vec3 vWorldPosition;
-		varying vec3 vSunDirection;
-		varying float vSunfade;
-		varying vec3 vBetaR;
-		varying vec3 vBetaM;
-		varying float vSunE;
-
-		// constants for atmospheric scattering
-		const float e = 2.71828182845904523536028747135266249775724709369995957;
-		const float pi = 3.141592653589793238462643383279502884197169;
-
-		// wavelength of used primaries, according to preetham
-		const vec3 lambda = vec3( 680E-9, 550E-9, 450E-9 );
-		// this pre-calcuation replaces older TotalRayleigh(vec3 lambda) function:
-		// (8.0 * pow(pi, 3.0) * pow(pow(n, 2.0) - 1.0, 2.0) * (6.0 + 3.0 * pn)) / (3.0 * N * pow(lambda, vec3(4.0)) * (6.0 - 7.0 * pn))
-		const vec3 totalRayleigh = vec3( 5.804542996261093E-6, 1.3562911419845635E-5, 3.0265902468824876E-5 );
-
-		// mie stuff
-		// K coefficient for the primaries
-		const float v = 4.0;
-		const vec3 K = vec3( 0.686, 0.678, 0.666 );
-		// MieConst = pi * pow( ( 2.0 * pi ) / lambda, vec3( v - 2.0 ) ) * K
-		const vec3 MieConst = vec3( 1.8399918514433978E14, 2.7798023919660528E14, 4.0790479543861094E14 );
-
-		// earth shadow hack
-		// cutoffAngle = pi / 1.95;
-		const float cutoffAngle = 1.6110731556870734;
-		const float steepness = 1.5;
-		const float EE = 1000.0;
-
-		float sunIntensity( float zenithAngleCos ) {
-			zenithAngleCos = clamp( zenithAngleCos, -1.0, 1.0 );
-			return EE * max( 0.0, 1.0 - pow( e, -( ( cutoffAngle - acos( zenithAngleCos ) ) / steepness ) ) );
-		}
-
-		vec3 totalMie( float T ) {
-			float c = ( 0.2 * T ) * 10E-18;
-			return 0.434 * c * MieConst;
-		}
-
-		void main() {
-
-			vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-			vWorldPosition = worldPosition.xyz;
-
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-			gl_Position.z = gl_Position.w; // set z to camera.far
-
-			vSunDirection = normalize( sunPosition );
-
-			vSunE = sunIntensity( dot( vSunDirection, up ) );
-
-			vSunfade = 1.0 - clamp( 1.0 - exp( ( sunPosition.y / 450000.0 ) ), 0.0, 1.0 );
-
-			float rayleighCoefficient = rayleigh - ( 1.0 * ( 1.0 - vSunfade ) );
-
-			// extinction (absorbtion + out scattering)
-			// rayleigh coefficients
-			vBetaR = totalRayleigh * rayleighCoefficient;
-
-			// mie coefficients
-			vBetaM = totalMie( turbidity ) * mieCoefficient;
-
-		}`,
-
-		fragmentShader: /* glsl */`
-		varying vec3 vWorldPosition;
-		varying vec3 vSunDirection;
-		varying float vSunfade;
-		varying vec3 vBetaR;
-		varying vec3 vBetaM;
-		varying float vSunE;
-
-		uniform float mieDirectionalG;
-		uniform vec3 up;
-
-		// constants for atmospheric scattering
-		const float pi = 3.141592653589793238462643383279502884197169;
-
-		const float n = 1.0003; // refractive index of air
-		const float N = 2.545E25; // number of molecules per unit volume for air at 288.15K and 1013mb (sea level -45 celsius)
-
-		// optical length at zenith for molecules
-		const float rayleighZenithLength = 8.4E3;
-		const float mieZenithLength = 1.25E3;
-		// 66 arc seconds -> degrees, and the cosine of that
-		const float sunAngularDiameterCos = 0.999956676946448443553574619906976478926848692873900859324;
-
-		// 3.0 / ( 16.0 * pi )
-		const float THREE_OVER_SIXTEENPI = 0.05968310365946075;
-		// 1.0 / ( 4.0 * pi )
-		const float ONE_OVER_FOURPI = 0.07957747154594767;
-
-		float rayleighPhase( float cosTheta ) {
-			return THREE_OVER_SIXTEENPI * ( 1.0 + pow( cosTheta, 2.0 ) );
-		}
-
-		float hgPhase( float cosTheta, float g ) {
-			float g2 = pow( g, 2.0 );
-			float inverse = 1.0 / pow( 1.0 - 2.0 * g * cosTheta + g2, 1.5 );
-			return ONE_OVER_FOURPI * ( ( 1.0 - g2 ) * inverse );
-		}
-
-		void main() {
-
-			vec3 direction = normalize( vWorldPosition - cameraPosition );
-
-			// optical length
-			// cutoff angle at 90 to avoid singularity in next formula.
-			float zenithAngle = acos( max( 0.0, dot( up, direction ) ) );
-			float inverse = 1.0 / ( cos( zenithAngle ) + 0.15 * pow( 93.885 - ( ( zenithAngle * 180.0 ) / pi ), -1.253 ) );
-			float sR = rayleighZenithLength * inverse;
-			float sM = mieZenithLength * inverse;
-
-			// combined extinction factor
-			vec3 Fex = exp( -( vBetaR * sR + vBetaM * sM ) );
-
-			// in scattering
-			float cosTheta = dot( direction, vSunDirection );
-
-			float rPhase = rayleighPhase( cosTheta * 0.5 + 0.5 );
-			vec3 betaRTheta = vBetaR * rPhase;
-
-			float mPhase = hgPhase( cosTheta, mieDirectionalG );
-			vec3 betaMTheta = vBetaM * mPhase;
-
-			vec3 Lin = pow( vSunE * ( ( betaRTheta + betaMTheta ) / ( vBetaR + vBetaM ) ) * ( 1.0 - Fex ), vec3( 1.5 ) );
-			Lin *= mix( vec3( 1.0 ), pow( vSunE * ( ( betaRTheta + betaMTheta ) / ( vBetaR + vBetaM ) ) * Fex, vec3( 1.0 / 2.0 ) ), clamp( pow( 1.0 - dot( up, vSunDirection ), 5.0 ), 0.0, 1.0 ) );
-
-			// nightsky
-			float theta = acos( direction.y ); // elevation --> y-axis, [-pi/2, pi/2]
-			float phi = atan( direction.z, direction.x ); // azimuth --> x-axis [-pi/2, pi/2]
-			vec2 uv = vec2( phi, theta ) / vec2( 2.0 * pi, pi ) + vec2( 0.5, 0.0 );
-			vec3 L0 = vec3( 0.1 ) * Fex;
-
-			// composition + solar disc
-			float sundisk = smoothstep( sunAngularDiameterCos, sunAngularDiameterCos + 0.00002, cosTheta );
-			L0 += ( vSunE * 19000.0 * Fex ) * sundisk;
-
-			vec3 texColor = ( Lin + L0 ) * 0.04 + vec3( 0.0, 0.0003, 0.00075 );
-
-			vec3 retColor = pow( texColor, vec3( 1.0 / ( 1.2 + ( 1.2 * vSunfade ) ) ) );
-
-			gl_FragColor = vec4( retColor, 1.0 );
-
-			#include <tonemapping_fragment>
-			#include <colorspace_fragment>
-
-		}`
-
-	};
+	TWEEN.getAll.bind(TWEEN);
+	TWEEN.removeAll.bind(TWEEN);
+	TWEEN.add.bind(TWEEN);
+	TWEEN.remove.bind(TWEEN);
+	var update = TWEEN.update.bind(TWEEN);
 
 	async function Ke(e, t, n, s) {
 	  return s._parse(e, t, n, s);
@@ -65821,323 +45780,6 @@
 	  collectAttributions: !1
 	});
 
-	/**
-	 * Work based on :
-	 * https://github.com/Slayvin: Flat mirror for three.js
-	 * https://home.adelphi.edu/~stemkoski/ : An implementation of water shader based on the flat mirror
-	 * http://29a.ch/ && http://29a.ch/slides/2012/webglwater/ : Water shader explanations in WebGL
-	 */
-
-	let Water$1 = class Water extends Mesh {
-
-		constructor( geometry, options = {} ) {
-
-			super( geometry );
-
-			this.isWater = true;
-
-			const scope = this;
-
-			const textureWidth = options.textureWidth !== undefined ? options.textureWidth : 512;
-			const textureHeight = options.textureHeight !== undefined ? options.textureHeight : 512;
-
-			const clipBias = options.clipBias !== undefined ? options.clipBias : 0.0;
-			const alpha = options.alpha !== undefined ? options.alpha : 1.0;
-			const time = options.time !== undefined ? options.time : 0.0;
-			const normalSampler = options.waterNormals !== undefined ? options.waterNormals : null;
-			const sunDirection = options.sunDirection !== undefined ? options.sunDirection : new Vector3( 0.70707, 0.70707, 0.0 );
-			const sunColor = new Color( options.sunColor !== undefined ? options.sunColor : 0xffffff );
-			const waterColor = new Color( options.waterColor !== undefined ? options.waterColor : 0x7F7F7F );
-			const eye = options.eye !== undefined ? options.eye : new Vector3( 0, 0, 0 );
-			const distortionScale = options.distortionScale !== undefined ? options.distortionScale : 20.0;
-			const side = options.side !== undefined ? options.side : FrontSide;
-			const fog = options.fog !== undefined ? options.fog : false;
-
-			//
-
-			const mirrorPlane = new Plane();
-			const normal = new Vector3();
-			const mirrorWorldPosition = new Vector3();
-			const cameraWorldPosition = new Vector3();
-			const rotationMatrix = new Matrix4();
-			const lookAtPosition = new Vector3( 0, 0, - 1 );
-			const clipPlane = new Vector4();
-
-			const view = new Vector3();
-			const target = new Vector3();
-			const q = new Vector4();
-
-			const textureMatrix = new Matrix4();
-
-			const mirrorCamera = new PerspectiveCamera();
-
-			const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight );
-
-			const mirrorShader = {
-
-				name: 'MirrorShader',
-
-				uniforms: UniformsUtils.merge( [
-					UniformsLib[ 'fog' ],
-					UniformsLib[ 'lights' ],
-					{
-						'normalSampler': { value: null },
-						'mirrorSampler': { value: null },
-						'alpha': { value: 1.0 },
-						'time': { value: 0.0 },
-						'size': { value: 1.0 },
-						'distortionScale': { value: 20.0 },
-						'textureMatrix': { value: new Matrix4() },
-						'sunColor': { value: new Color( 0x7F7F7F ) },
-						'sunDirection': { value: new Vector3( 0.70707, 0.70707, 0 ) },
-						'eye': { value: new Vector3() },
-						'waterColor': { value: new Color( 0x555555 ) }
-					}
-				] ),
-
-				vertexShader: /* glsl */`
-				uniform mat4 textureMatrix;
-				uniform float time;
-
-				varying vec4 mirrorCoord;
-				varying vec4 worldPosition;
-
-				#include <common>
-				#include <fog_pars_vertex>
-				#include <shadowmap_pars_vertex>
-				#include <logdepthbuf_pars_vertex>
-
-				void main() {
-					mirrorCoord = modelMatrix * vec4( position, 1.0 );
-					worldPosition = mirrorCoord.xyzw;
-					mirrorCoord = textureMatrix * mirrorCoord;
-					vec4 mvPosition =  modelViewMatrix * vec4( position, 1.0 );
-					gl_Position = projectionMatrix * mvPosition;
-
-				#include <beginnormal_vertex>
-				#include <defaultnormal_vertex>
-				#include <logdepthbuf_vertex>
-				#include <fog_vertex>
-				#include <shadowmap_vertex>
-			}`,
-
-				fragmentShader: /* glsl */`
-				uniform sampler2D mirrorSampler;
-				uniform float alpha;
-				uniform float time;
-				uniform float size;
-				uniform float distortionScale;
-				uniform sampler2D normalSampler;
-				uniform vec3 sunColor;
-				uniform vec3 sunDirection;
-				uniform vec3 eye;
-				uniform vec3 waterColor;
-
-				varying vec4 mirrorCoord;
-				varying vec4 worldPosition;
-
-				vec4 getNoise( vec2 uv ) {
-					vec2 uv0 = ( uv / 103.0 ) + vec2(time / 17.0, time / 29.0);
-					vec2 uv1 = uv / 107.0-vec2( time / -19.0, time / 31.0 );
-					vec2 uv2 = uv / vec2( 8907.0, 9803.0 ) + vec2( time / 101.0, time / 97.0 );
-					vec2 uv3 = uv / vec2( 1091.0, 1027.0 ) - vec2( time / 109.0, time / -113.0 );
-					vec4 noise = texture2D( normalSampler, uv0 ) +
-						texture2D( normalSampler, uv1 ) +
-						texture2D( normalSampler, uv2 ) +
-						texture2D( normalSampler, uv3 );
-					return noise * 0.5 - 1.0;
-				}
-
-				void sunLight( const vec3 surfaceNormal, const vec3 eyeDirection, float shiny, float spec, float diffuse, inout vec3 diffuseColor, inout vec3 specularColor ) {
-					vec3 reflection = normalize( reflect( -sunDirection, surfaceNormal ) );
-					float direction = max( 0.0, dot( eyeDirection, reflection ) );
-					specularColor += pow( direction, shiny ) * sunColor * spec;
-					diffuseColor += max( dot( sunDirection, surfaceNormal ), 0.0 ) * sunColor * diffuse;
-				}
-
-				#include <common>
-				#include <packing>
-				#include <bsdfs>
-				#include <fog_pars_fragment>
-				#include <logdepthbuf_pars_fragment>
-				#include <lights_pars_begin>
-				#include <shadowmap_pars_fragment>
-				#include <shadowmask_pars_fragment>
-
-				void main() {
-
-					#include <logdepthbuf_fragment>
-					vec4 noise = getNoise( worldPosition.xz * size );
-					vec3 surfaceNormal = normalize( noise.xzy * vec3( 1.5, 1.0, 1.5 ) );
-
-					vec3 diffuseLight = vec3(0.0);
-					vec3 specularLight = vec3(0.0);
-
-					vec3 worldToEye = eye-worldPosition.xyz;
-					vec3 eyeDirection = normalize( worldToEye );
-					sunLight( surfaceNormal, eyeDirection, 100.0, 2.0, 0.5, diffuseLight, specularLight );
-
-					float distance = length(worldToEye);
-
-					vec2 distortion = surfaceNormal.xz * ( 0.001 + 1.0 / distance ) * distortionScale;
-					vec3 reflectionSample = vec3( texture2D( mirrorSampler, mirrorCoord.xy / mirrorCoord.w + distortion ) );
-
-					float theta = max( dot( eyeDirection, surfaceNormal ), 0.0 );
-					float rf0 = 0.3;
-					float reflectance = rf0 + ( 1.0 - rf0 ) * pow( ( 1.0 - theta ), 5.0 );
-					vec3 scatter = max( 0.0, dot( surfaceNormal, eyeDirection ) ) * waterColor;
-					vec3 albedo = mix( ( sunColor * diffuseLight * 0.3 + scatter ) * getShadowMask(), ( vec3( 0.1 ) + reflectionSample * 0.9 + reflectionSample * specularLight ), reflectance);
-					vec3 outgoingLight = albedo;
-					gl_FragColor = vec4( outgoingLight, alpha );
-
-					#include <tonemapping_fragment>
-					#include <colorspace_fragment>
-					#include <fog_fragment>	
-				}`
-
-			};
-
-			const material = new ShaderMaterial( {
-				name: mirrorShader.name,
-				uniforms: UniformsUtils.clone( mirrorShader.uniforms ),
-				vertexShader: mirrorShader.vertexShader,
-				fragmentShader: mirrorShader.fragmentShader,
-				lights: true,
-				side: side,
-				fog: fog
-			} );
-
-			material.uniforms[ 'mirrorSampler' ].value = renderTarget.texture;
-			material.uniforms[ 'textureMatrix' ].value = textureMatrix;
-			material.uniforms[ 'alpha' ].value = alpha;
-			material.uniforms[ 'time' ].value = time;
-			material.uniforms[ 'normalSampler' ].value = normalSampler;
-			material.uniforms[ 'sunColor' ].value = sunColor;
-			material.uniforms[ 'waterColor' ].value = waterColor;
-			material.uniforms[ 'sunDirection' ].value = sunDirection;
-			material.uniforms[ 'distortionScale' ].value = distortionScale;
-
-			material.uniforms[ 'eye' ].value = eye;
-
-			scope.material = material;
-
-			scope.onBeforeRender = function ( renderer, scene, camera ) {
-
-				mirrorWorldPosition.setFromMatrixPosition( scope.matrixWorld );
-				cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
-
-				rotationMatrix.extractRotation( scope.matrixWorld );
-
-				normal.set( 0, 0, 1 );
-				normal.applyMatrix4( rotationMatrix );
-
-				view.subVectors( mirrorWorldPosition, cameraWorldPosition );
-
-				// Avoid rendering when mirror is facing away
-
-				if ( view.dot( normal ) > 0 ) return;
-
-				view.reflect( normal ).negate();
-				view.add( mirrorWorldPosition );
-
-				rotationMatrix.extractRotation( camera.matrixWorld );
-
-				lookAtPosition.set( 0, 0, - 1 );
-				lookAtPosition.applyMatrix4( rotationMatrix );
-				lookAtPosition.add( cameraWorldPosition );
-
-				target.subVectors( mirrorWorldPosition, lookAtPosition );
-				target.reflect( normal ).negate();
-				target.add( mirrorWorldPosition );
-
-				mirrorCamera.position.copy( view );
-				mirrorCamera.up.set( 0, 1, 0 );
-				mirrorCamera.up.applyMatrix4( rotationMatrix );
-				mirrorCamera.up.reflect( normal );
-				mirrorCamera.lookAt( target );
-
-				mirrorCamera.far = camera.far; // Used in WebGLBackground
-
-				mirrorCamera.updateMatrixWorld();
-				mirrorCamera.projectionMatrix.copy( camera.projectionMatrix );
-
-				// Update the texture matrix
-				textureMatrix.set(
-					0.5, 0.0, 0.0, 0.5,
-					0.0, 0.5, 0.0, 0.5,
-					0.0, 0.0, 0.5, 0.5,
-					0.0, 0.0, 0.0, 1.0
-				);
-				textureMatrix.multiply( mirrorCamera.projectionMatrix );
-				textureMatrix.multiply( mirrorCamera.matrixWorldInverse );
-
-				// Now update projection matrix with new clip plane, implementing code from: http://www.terathon.com/code/oblique.html
-				// Paper explaining this technique: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
-				mirrorPlane.setFromNormalAndCoplanarPoint( normal, mirrorWorldPosition );
-				mirrorPlane.applyMatrix4( mirrorCamera.matrixWorldInverse );
-
-				clipPlane.set( mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.constant );
-
-				const projectionMatrix = mirrorCamera.projectionMatrix;
-
-				q.x = ( Math.sign( clipPlane.x ) + projectionMatrix.elements[ 8 ] ) / projectionMatrix.elements[ 0 ];
-				q.y = ( Math.sign( clipPlane.y ) + projectionMatrix.elements[ 9 ] ) / projectionMatrix.elements[ 5 ];
-				q.z = - 1.0;
-				q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
-
-				// Calculate the scaled plane vector
-				clipPlane.multiplyScalar( 2.0 / clipPlane.dot( q ) );
-
-				// Replacing the third row of the projection matrix
-				projectionMatrix.elements[ 2 ] = clipPlane.x;
-				projectionMatrix.elements[ 6 ] = clipPlane.y;
-				projectionMatrix.elements[ 10 ] = clipPlane.z + 1.0 - clipBias;
-				projectionMatrix.elements[ 14 ] = clipPlane.w;
-
-				eye.setFromMatrixPosition( camera.matrixWorld );
-
-				// Render
-
-				const currentRenderTarget = renderer.getRenderTarget();
-
-				const currentXrEnabled = renderer.xr.enabled;
-				const currentShadowAutoUpdate = renderer.shadowMap.autoUpdate;
-
-				scope.visible = false;
-
-				renderer.xr.enabled = false; // Avoid camera modification and recursion
-				renderer.shadowMap.autoUpdate = false; // Avoid re-computing shadows
-
-				renderer.setRenderTarget( renderTarget );
-
-				renderer.state.buffers.depth.setMask( true ); // make sure the depth buffer is writable so it can be properly cleared, see #18897
-
-				if ( renderer.autoClear === false ) renderer.clear();
-				renderer.render( scene, mirrorCamera );
-
-				scope.visible = true;
-
-				renderer.xr.enabled = currentXrEnabled;
-				renderer.shadowMap.autoUpdate = currentShadowAutoUpdate;
-
-				renderer.setRenderTarget( currentRenderTarget );
-
-				// Restore viewport
-
-				const viewport = camera.viewport;
-
-				if ( viewport !== undefined ) {
-
-					renderer.state.viewport( viewport );
-
-				}
-
-			};
-
-		}
-
-	};
-
 	class Reflector extends Mesh {
 
 		constructor( geometry, options = {} ) {
@@ -67046,12 +46688,12 @@
 
 	    loadSkyBox(scale) {
 			var aCubeMap = new CubeTextureLoader().load([
-			  'png/sky/px.jpg',
-			  'png/sky/nx.jpg',
-			  'png/sky/py.jpg',
-			  'png/sky/ny.jpg',
-			  'png/sky/pz.jpg',
-			  'png/sky/nz.jpg'
+			  '/examples/png/sky/px.jpg',
+			  '/examples/png/sky/nx.jpg',
+			  '/examples/png/sky/py.jpg',
+			  '/examples/png/sky/ny.jpg',
+			  '/examples/png/sky/pz.jpg',
+			  '/examples/png/sky/nz.jpg'
 			]);
 			aCubeMap.format = RGBAFormat;
 
@@ -67074,96 +46716,16 @@
 		}
 		loadBox(){
 			var cube = new CubeTextureLoader().load([
-			  'png/sky/px.jpg',
-			  'png/sky/nx.jpg',
-			  'png/sky/py.jpg',
-			  'png/sky/ny.jpg',
-			  'png/sky/pz.jpg',	
-			  'png/sky/nz.jpg'	
+			  '/examples/png/sky/px.jpg',
+			  '/examples/png/sky/nx.jpg',
+			  '/examples/png/sky/py.jpg',
+			  '/examples/png/sky/ny.jpg',
+			  '/examples/png/sky/pz.jpg',	
+			  '/examples/png/sky/nz.jpg'	
 			]);
 			return cube;
 		}
 	}
-
-	/**
-	 * The Ease class provides a collection of easing functions for use with tween.js.
-	 */
-
-	var now = function () { return performance.now(); };
-
-	/**
-	 * Controlling groups of tweens
-	 *
-	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
-	 * In these cases, you may want to create your own smaller groups of tween
-	 */
-	var Group = /** @class */ (function () {
-	    function Group() {
-	        this._tweens = {};
-	        this._tweensAddedDuringUpdate = {};
-	    }
-	    Group.prototype.getAll = function () {
-	        var _this = this;
-	        return Object.keys(this._tweens).map(function (tweenId) {
-	            return _this._tweens[tweenId];
-	        });
-	    };
-	    Group.prototype.removeAll = function () {
-	        this._tweens = {};
-	    };
-	    Group.prototype.add = function (tween) {
-	        this._tweens[tween.getId()] = tween;
-	        this._tweensAddedDuringUpdate[tween.getId()] = tween;
-	    };
-	    Group.prototype.remove = function (tween) {
-	        delete this._tweens[tween.getId()];
-	        delete this._tweensAddedDuringUpdate[tween.getId()];
-	    };
-	    Group.prototype.update = function (time, preserve) {
-	        if (time === void 0) { time = now(); }
-	        if (preserve === void 0) { preserve = false; }
-	        var tweenIds = Object.keys(this._tweens);
-	        if (tweenIds.length === 0) {
-	            return false;
-	        }
-	        // Tweens are updated in "batches". If you add a new tween during an
-	        // update, then the new tween will be updated in the next batch.
-	        // If you remove a tween during an update, it may or may not be updated.
-	        // However, if the removed tween was added during the current batch,
-	        // then it will not be updated.
-	        while (tweenIds.length > 0) {
-	            this._tweensAddedDuringUpdate = {};
-	            for (var i = 0; i < tweenIds.length; i++) {
-	                var tween = this._tweens[tweenIds[i]];
-	                var autoStart = !preserve;
-	                if (tween && tween.update(time, autoStart) === false && !preserve) {
-	                    delete this._tweens[tweenIds[i]];
-	                }
-	            }
-	            tweenIds = Object.keys(this._tweensAddedDuringUpdate);
-	        }
-	        return true;
-	    };
-	    return Group;
-	}());
-
-	var mainGroup = new Group();
-	/**
-	 * Controlling groups of tweens
-	 *
-	 * Using the TWEEN singleton to manage your tweens can cause issues in large apps with many components.
-	 * In these cases, you may want to create your own smaller groups of tweens.
-	 */
-	var TWEEN = mainGroup;
-	// This is the best way to export things in a way that's compatible with both ES
-	// Modules and CommonJS, without build hacks, and so as not to break the
-	// existing API.
-	// https://github.com/rollup/rollup/issues/1961#issuecomment-423037881
-	TWEEN.getAll.bind(TWEEN);
-	TWEEN.removeAll.bind(TWEEN);
-	TWEEN.add.bind(TWEEN);
-	TWEEN.remove.bind(TWEEN);
-	var update = TWEEN.update.bind(TWEEN);
 
 	// @ts-nocheck
 
@@ -67195,14 +46757,13 @@
 	map.updateMatrixWorld(true);
 	var camera = new PerspectiveCamera(60, 1, 0.01, 1e8);
 
-	var controls = new OrbitControls$1(camera, canvas);
+	var controls = new OrbitControls(camera, canvas);
 	controls.minDistance = UnitsUtils.EARTH_RADIUS + 2;
 	controls.maxDistance = UnitsUtils.EARTH_RADIUS * 1e1;
 	controls.enablePan = false;
 
 	controls.addEventListener('change', function(event){
 	    let distance = camera.position.distanceTo(new Vector3(0,0,0));
-		// console.log(distance);
 		if(distance > UnitsUtils.EARTH_RADIUS *2.5){
 			distance = UnitsUtils.EARTH_RADIUS *2.5;
 		}
@@ -67210,7 +46771,6 @@
 		controls.zoomSpeed = thirdPow;
 		controls.rotateSpeed = thirdPow * 0.2;
 		controls.panSpeed = thirdPow;
-		// console.log("ratio:",ratio, " distance:", distance, " thirdPow:", thirdPow);
 	});
 	controls.mouseButtons = {
 		LEFT: MOUSE.ROTATE,

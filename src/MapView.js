@@ -98,7 +98,7 @@ export class MapView extends Mesh
 	 * @param providers - Map color tile provider by default a OSM maps provider is used if none specified.
 	 * @param heightProvider - Map height tile provider, by default no height provider is used.
 	 */
-	constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null, scale= null) 
+	constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null) 
 	{
 		super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
@@ -109,7 +109,7 @@ export class MapView extends Mesh
 		this.providers = providers;
 		this.heightProvider = heightProvider;
 		// 设置根节点，准备开始分裂
-		this.setRoot(root, scale);
+		this.setRoot(root);
 		this.preSubdivide();
 	}
 
@@ -129,7 +129,7 @@ export class MapView extends Mesh
 	 * 设置根节点，可以动态修改。
 	 * @param root - Map node to be used as root.
 	 */
-	setRoot(root, scale)
+	setRoot(root)
 	{
 		if (typeof root === 'number') 
 		{
@@ -160,10 +160,9 @@ export class MapView extends Mesh
 			// @ts-ignore
 			
 			// @ts-ignore
-			if (scale === null)
-				this.geometry = this.root.constructor.baseGeometry;
-			else
-				this.geometry = this.root.constructor.getGeometry(scale);
+			
+			this.geometry = this.root.constructor.baseGeometry;
+			
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中

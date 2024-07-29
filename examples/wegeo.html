@@ -41,17 +41,16 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils,  UnitsUtils} from 'Geo';
 		import * as THREE from 'three';
 		import * as THREEi from 'THREEi';
 		let provider = new BingMapsProvider();
 		// 地名服务
-		// let nameprovider = new TianDiTuProvider({
-		// 	service:'cva_w',
+		// let provider = new TianDiTuProvider({
+		// 	service:'img_w',
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 
-		// // map.addView(provider);
 		// let edgeprovider = new TianDiTuProvider({
 		// 	service:'ibo_w',
 		// 	token: '588e61bc464868465169f209fe694dd0'
@@ -117,13 +116,36 @@
 		const mesh = new THREE.Mesh( g, material );
 		material.transparent = true;
 		material.opacity = 0.5;
-		map.baseMap.add( mesh );
+		// map.baseMap.add( mesh );
 		let scale =0.995;
 		// let scale =0.9939;
 		// let scale =0.99385;
 		mesh.scale.set( scale,scale,scale );
 		
-		
+		let{model, runtime} = await map.baseMap.loadTiles({
+			jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
+		});
+		// map.baseMap.camera.position.set(model.position.x, model.position.y, model.position.z);
+		// let direction = UnitsUtils.datumsToVector( 45.993553258799736+ 0.04, 90.14134050768502+0.10085);
+		// let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+100);
+		// map.baseMap.camera.position.copy(location);
+		let lat = 34.752467; // 郑州二七地铁站
+		let lon = 113.67;
+		lon = 121.499349,lat = 31.239930; // 东方明珠
+		lon = 113.943569, lat = 22.300204 // 香港某岛屿
+		lon = 116.397469, lat = 39.908635 // 北京天安门
+		map.moveToByLL(lat, lon,500);
+		console.log(map.baseMap.camera.position);
+
+		map.fromDegrees(34.752467, 113.67,100);
+		console.log(map.baseMap.camera.position);
+
+
+
+		const axesHelper = new THREE.AxesHelper( 6371008*2);
+		axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
+		map.baseMap.add( axesHelper );
+
 // map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
 	</script>
 </body>

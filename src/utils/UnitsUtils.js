@@ -16,7 +16,16 @@ export class UnitsUtils
 	 * Average radius of earth in meters. // 赤道平均半径
 	 */
 	static EARTH_RADIUS = 6371008;
+	// static EARTH_RADIUS = 6377800.0;
 
+	/**
+	 * WGS84 earth radius vector
+	 * 
+	 * todo 现在定位仍然是有一点点的便宜，大概在100到200米左右，在维度较低地区相对较好。
+	 * 经过观察cesium的写法，就是采用赤道地区采用6378137的平均半径，极柱反向采用短半轴长度6356752.314245，然后再计算数据。
+	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试
+	 */
+	static EARTH_RADIUS_V = new Vector3(6378137.0, 6356752.314245, 6378137.0);
 	/**
 	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
 	 */
@@ -41,6 +50,13 @@ export class UnitsUtils
 	 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
 	 */
 	static MERCATOR_MAX_EXTENT = 20037508.342789244;
+
+	static _ellipsoidRadiiSquared = new Vector3(
+		6378137.0 * 6378137.0,
+		// 6356752.3142451793 * 6356752.3142451793,
+		6378137.0 * 6378137.0,
+		6378137.0 * 6378137.0
+	  );
 
 	static tileWidth(level){
 		return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
@@ -137,6 +153,22 @@ export class UnitsUtils
 		return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
 	}
 
+	
+	static datumsToVector2(latitude, longitude){
+		const degToRad = Math.PI / 180;
+		
+		const rotX = (longitude+90) * degToRad;
+		const rotY = latitude * degToRad;
+
+		var cos = Math.cos(rotY);
+		let result = new Vector3();
+		result.x = Math.sin(rotX) * cos;
+		result.y =  Math.sin(rotY);
+		result.z = Math.cos(rotX) * cos;
+		result.normalize();
+		return result;
+	}
+
 	/**
 	 * Get altitude from RGB color for mapbox altitude encoding
 	 * 
@@ -225,7 +257,7 @@ export class UnitsUtils
 	 */
 	static mercatorToLatitude(zoom, y) {
 		const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
-		return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS));
+		return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS_A));
 	}
 
 	/**
@@ -237,6 +269,49 @@ export class UnitsUtils
 	 */
 	static mercatorToLongitude(zoom, x) {
 		const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
-		return xMerc / UnitsUtils.EARTH_RADIUS;
+		return xMerc / UnitsUtils.EARTH_RADIUS_A;
 	}
+	/**
+	 * 角度转弧度值
+	 * @param {number} degrees 角度值
+	 * @returns 
+	 */
+	static toRadians(degrees){
+		return degrees * Math.PI / 180.0;
+	}
+
+	/**
+	 * 弧度转角度值
+	 * @param {number} radians 
+	 * @returns 
+	 */
+	static toDegrees(radians){
+		return radians * 180.0/Math.PI;
+	}
+
+	static fromDegrees(latitude,longitude,height){
+		
+		
+		return UnitsUtils.fromRadians(latitude, longitude, height);
+	}
+
+	static fromRadians(latitude, longitude,height=0.0){
+		let scratchN = new Vector3();
+		let scratchK = new Vector3();
+		longitude = UnitsUtils.toRadians(longitude+90);
+		latitude = UnitsUtils.toRadians(latitude);
+		
+		var cos = Math.cos(latitude);
+		
+		scratchN.x = Math.sin(longitude) * cos;
+		scratchN.y = Math.sin(latitude);
+		scratchN.z = Math.cos(longitude) * cos;
+		scratchN.normalize();
+		scratchK = UnitsUtils._ellipsoidRadiiSquared.multiply(scratchN);
+		const grama = Math.sqrt(scratchK.dot(scratchN));
+		scratchK.divideScalar(grama);
+		scratchN.multiplyScalar(height);
+		return scratchK.add(scratchN);
+	}
+	
 }

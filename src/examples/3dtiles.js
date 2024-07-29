@@ -76,6 +76,11 @@ controls.update();
     const result = await Loader3DTiles.load(
       {
         url: path,
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          devicePixelRatio: window.devicePixelRatio
+          },
         renderer: renderer,
         options: {
           dracoDecoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco',
@@ -121,7 +126,7 @@ controls.update();
     const dt = clock.getDelta()
     controls.update(t);
     if (tilesRuntime) {
-      tilesRuntime.update(dt, viewportSize, camera);
+      tilesRuntime.update(dt, camera);
     }
     renderer.render(scene, camera);
     threeJsStats.update();

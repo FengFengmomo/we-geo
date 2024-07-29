@@ -3,7 +3,6 @@ import {Matrix4, MeshBasicMaterial, Quaternion, Vector3, Raycaster, Texture, Rep
 import {MapNode, QuadTreePosition} from './MapNode';
 import {MapSphereNodeGeometry} from '../geometries/MapSphereNodeGeometry';
 import {UnitsUtils} from '../utils/UnitsUtils';
-import { CanvasUtils } from '../utils/CanvasUtils';
 
 /** 
  * Represents a map tile node.
@@ -19,7 +18,7 @@ export class MapSphereNode extends MapNode
 	 * 
 	 * Applied to the map view on initialization.
 	 */
-	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+	static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS, 64, 64, 0, 2 * Math.PI, 0, Math.PI);
 
 	/**
 	 * Base scale of the node.
@@ -33,15 +32,56 @@ export class MapSphereNode extends MapNode
 	 * 
 	 * Can be configured globally and is applied to all nodes.
 	 */
-	static segments = 160;
+	static segments = 80;
 	// static segments = 64;
 
 
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 	{
+		let bounds = UnitsUtils.tileBounds(level, x, y);
+
+		// Load shaders
+		const vertexShader = `
+		varying vec3 vPosition;
+
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+		const fragmentShader = `
+		#define PI 3.1415926538
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 webMercatorBounds;
+
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+
+			float web_mercator_x = radius * longitude;
+			float web_mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float y = (web_mercator_y - webMercatorBounds.z) / webMercatorBounds.w;
+			float x = (web_mercator_x - webMercatorBounds.x) / webMercatorBounds.y;
+
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
 		
+		// Create shader material
+		let vBounds = new Vector4(...bounds);
+		const material = new ShaderMaterial({
+			uniforms: {uTexture: {value: new Texture()}, webMercatorBounds: {value: vBounds}},
+			vertexShader: vertexShader,
+			fragmentShader: fragmentShader
+		});
 		
-		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 	
 		this.applyScaleNode();
@@ -72,29 +112,20 @@ export class MapSphereNode extends MapNode
 		const max = 40;
 		const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
 
-
-	
-		// X
-		// const phiLength = 1 / range * 2 * Math.PI;
-		// const phiStart = x * phiLength;
 		
-		// // 经度
+		// 经度
 		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
 		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
 		const phiStart = lon1;
 		const phiLength = lon2 - lon1;
 	
-		// Y
-		// const thetaLength = 1 / range * Math.PI;
-		// const thetaStart = y * thetaLength;
 		// 维度
 		const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
 		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
 		const thetaLength = lat1 - lat2;
 		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
-		let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
 
-		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
+		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength);
 	}
 	
 	/** 
@@ -108,7 +139,7 @@ export class MapSphereNode extends MapNode
 		const center = box.getCenter(new Vector3());
 	
 		const matrix = new Matrix4();
-		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
+		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS, UnitsUtils.EARTH_RADIUS));
 		this.geometry.applyMatrix4(matrix);
 		// 未赋值matrix的缘故？
 		// this.matrix = matrix;
@@ -161,10 +192,10 @@ export class MapSphereNode extends MapNode
 		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}
-	/**
+	
 	async loadData()
 	{
-		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
 		{
 			console.warn('Geo-Three: Loading tile outside of provider range.', this);
 
@@ -174,46 +205,54 @@ export class MapSphereNode extends MapNode
 			this.material.needsUpdate = true;
 			return;
 		}
-
-		try 
-		{
-			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
-			
-			if (this.disposed) 
+		let materials = [];
+		for (let provider of this.mapView.providers){
+			// let material = this.material.clone();
+			try 
 			{
-				return;
+				let image = await provider.fetchTile(this.level, this.x, this.y);
+				
+				if (this.disposed) 
+				{
+					return;
+				}
+							
+				const textureLoader = new TextureLoader();
+				const texture = textureLoader.load(image.src, function() {});
+				// @ts-ignore
+				this.material.uniforms.uTexture.value = texture;
+				// @ts-ignore
+				this.material.uniforms.uTexture.needsUpdate = true;
 			}
-						
-			const texture = new Texture(image);
-			texture.generateMipmaps = false;
-			texture.format = RGBAFormat;
-			texture.magFilter = LinearFilter;
-			texture.minFilter = LinearFilter;
-			texture.needsUpdate = true;
-			// @ts-ignore
-			this.material.map = texture;
-		}
-		catch (e) 
-		{
-			if (this.disposed) 
+			catch (e) 
 			{
-				return;
-			}
-			
-			console.warn('Geo-Three: Failed to load node tile data.', this);
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.warn('Geo-Three: Failed to load node tile data.', this);
 
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-			this.material.transparent = true;
-			// this.material.alphaTest = 0.01;
-			this.material.opacity = 0;
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
+			this.material.needsUpdate = true;
+			// materials.push(material);
+			// this.material = material;
 		}
 
 		// @ts-ignore
-		this.material.needsUpdate = true;
+		
+		
+		// this.geometry.clearGroups();
+		// for (let i = 0; i < materials.length; i++) {
+		// 	this.geometry.addGroup(0, Infinity, i);
+		// }
 	}
-	 */
 	
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
@@ -226,49 +265,8 @@ export class MapSphereNode extends MapNode
 		}
 	}
 
-	shaderMaterial(level,x,y){
-		let bounds = UnitsUtils.tileBounds(level, x, y);
-		// Load shaders
-		const vertexShader = /* WGSL */`
-		varying vec3 vPosition;
-		void main() {
-			vPosition = position;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-		}
-		`;
-
-		const fragmentShader =  /* WGSL */`
-		#define PI 3.141592653589
-		varying vec3 vPosition;
-		uniform sampler2D uTexture;
-		uniform vec4 mercatorBounds;
-		void main() {
-			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
-			float radius = length(vPosition);
-			float latitude = asin(vPosition.y / radius);
-			float longitude = atan(-vPosition.z, vPosition.x);
-			float mercator_x = radius * longitude;
-			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
-			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
-			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
-			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
-			
-			vec4 color = texture2D(uTexture, vec2(x, y));
-			gl_FragColor = color;
-		}
-		`;
-		
-		// Create shader material
-		let vBounds = new Vector4(...bounds);
-		const material = new ShaderMaterial({
-			uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
-			vertexShader: vertexShader,
-			fragmentShader: fragmentShader
-		});
-		return material;
-	}
 	static getGeometry(scale = 0){
-		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
 		return geometry;
 	}
 }

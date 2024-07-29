@@ -77,9 +77,10 @@
 		<script type="importmap">
 			{
 				"imports": {
-					"three": "../deps/three/build/three.module.js",
-					"three/examples/jsm/": "../deps/three/examples/jsm/",
-          "three-loader-3dtiles": "../node_modules/three-loader-3dtiles/dist/lib/three-loader-3dtiles.js"
+					"three": "../build/three.module.js",
+					"three/examples/jsm/": "../build/jsm/",
+          "three-loader-3dtiles": "../node_modules/three-loader-3dtiles/dist/lib/three-loader-3dtiles.js",
+          "Geo": "../build/wegeo.module.js"
 				}
 			}
 		</script>
@@ -95,14 +96,16 @@
     SRGBColorSpace,
     AmbientLight, 
     DirectionalLight,
-    MeshBasicMaterial
+    MeshBasicMaterial,
+    MathUtils
   } from 'three';
 
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
-  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import {UnitsUtils} from 'Geo';
+  // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   import { Loader3DTiles } from 'three-loader-3dtiles';
   import Stats from 'three/examples/jsm/libs/stats.module.js';
+
 
   const queryParams = new URLSearchParams(document.location.search);
 
@@ -115,7 +118,7 @@
   let directionalLight = new DirectionalLight(0xFFFFFF);
   scene.add(directionalLight);
   const camera = new PerspectiveCamera(
-    35,
+    75,
     1,
     0.01,
     1000,
@@ -133,6 +136,9 @@
 controls = new OrbitControls( camera, canvasParent);
 controls.listenToKeyEvents( document.body );
 camera.position.set(0,200,0);
+camera.up.set(0,1,0);
+camera.lookAt(0,0,0);
+
 controls.update();
   
  
@@ -144,7 +150,7 @@ controls.update();
   threeJsStats.domElement.style.top = '10px';
   threeJsStats.domElement.style.left = '10px';
 
-  canvasParent.appendChild( threeJsStats.domElement );
+  // canvasParent.appendChild( threeJsStats.domElement );
 
 
   let tilesRuntime = undefined;
@@ -152,16 +158,22 @@ controls.update();
   if (queryParams.get('tilesetUrl')) {
     document.querySelector('#example-desc').style.display = 'none';
   }
-  let path = './cesiumlab_trean_3dtiles/tileset.json';
+  let path = './data/cesiumlab_trean_3dtiles/tileset.json';
   loadTileset(path);
 
 
-  async function loadTileset(path) {
+  async function loadTileset(path, option) {
     // 支持加载geojson
     const result = await Loader3DTiles.load(
       {
         url: path,
+        viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        devicePixelRatio: window.devicePixelRatio
+        },
         renderer: renderer,
+        // renderer: renderer,
         options: {
           dracoDecoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco',
           basisTranscoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis',
@@ -172,47 +184,48 @@ controls.update();
     );
     
     const {model, runtime} = result;
-    model.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
 
-    if (!queryParams.get('tilesetUrl')) {
-      model.position.set(-1, 4, -16);
-    }
+    
+
 
     tilesRuntime = runtime;
 
     // runtime.orientToGeocoord({height:0, lat:44.266119, long:90.139228}); // 模型位置已经更改
-    runtime.orientToGeocoord({
-      long: runtime.getTileset().cartographicCenter[0],
-      lat: runtime.getTileset().cartographicCenter[1],
-      height: runtime.getTileset().cartographicCenter[2]
-    })
+    // runtime.orientToGeocoord({
+    //   long: runtime.getTileset().cartographicCenter[0],
+    //   lat: runtime.getTileset().cartographicCenter[1],
+    //   height: runtime.getTileset().cartographicCenter[2]
+    // })
     // const coords = runtime.getWebMercatorCoord({
     //   long: runtime.getTileset().cartographicCenter[0],
     //   lat: runtime.getTileset().cartographicCenter[1],
     //   height: 0
     // });
     // model.position.set(-coords.x, -200, coords.y);
+    let lat = runtime.getTileset().cartographicCenter[1], lon = runtime.getTileset().cartographicCenter[0];
+    model.rotation.set(MathUtils.degToRad(90-lat),  MathUtils.degToRad(lon),0);
+    let direction = UnitsUtils.datumsToVector( lat, lon);
+    let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+runtime.getTileset().cartographicCenter[2]);
+    model.position.copy(location);
+    console.log(runtime.getTileset().cartographicCenter[1], runtime.getTileset().cartographicCenter[0]);
     scene.add(model);
     // 修改模型位置，然后设置相机位置。
     // 修改相机位置，然后让相机控制器看到模型上
-    camera.position.set(model.position.x, model.position.y+50, model.position.z); 
+    camera.position.set(model.position.x+100, model.position.y+100, model.position.z+100); 
 		controls.target.set(model.position.x, model.position.y, model.position.z);
-		
-
     
   }
   statsParent.style.visibility = 'visible';
   function render(t) {
-    const dt = clock.getDelta()
+    const dt = clock.getDelta();
     controls.update(t);
     if (tilesRuntime) {
-      tilesRuntime.update(dt, viewportSize, camera);
+      tilesRuntime.update(1,camera);
     }
     // for (const tilesRenderer of tilesRendererArr) {
     //   tilesRenderer.update()
     // }
     renderer.render(scene, camera);
-    threeJsStats.update();
     window.requestAnimationFrame(render);
 
   }

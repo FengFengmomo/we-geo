@@ -98,10 +98,10 @@ export class WegeoMap {
             }
             let distance = this.baseMap.camera.position.distanceTo(new Vector3(0,0,0));
             // console.log(distance);
-            if(distance > UnitsUtils.EARTH_RADIUS *2.5){
-                distance = UnitsUtils.EARTH_RADIUS *2.5;
+            if(distance > UnitsUtils.EARTH_RADIUS_A *2.5){
+                distance = UnitsUtils.EARTH_RADIUS_A *2.5;
             }
-            let thirdPow = distance / UnitsUtils.EARTH_RADIUS-1;
+            let thirdPow = distance / UnitsUtils.EARTH_RADIUS_A-1;
             this.baseMap.controls.zoomSpeed = thirdPow;
             this.baseMap.controls.rotateSpeed = thirdPow * 0.2;
             this.baseMap.controls.panSpeed = thirdPow;
@@ -111,7 +111,7 @@ export class WegeoMap {
             MIDDLE: MOUSE.DOLLY,
             RIGHT: MOUSE.PAN
         };
-        this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS + 1e7);
+        this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS_A + 1e7);
         this.listener = new Listener(this.baseMap.canvas);
         this.selectModel(RaycasterUtils.casterMesh);
         let sky = new Skybox().loadBox();
@@ -195,6 +195,19 @@ export class WegeoMap {
             return;
         }
         this.baseMap.moveToByLL(lat, lon, distance);
+    }
+
+    /**
+     * 跳转到指定位置，用于球形地图
+     * @param {*} lat 
+     * @param {*} lon 
+     * @returns 
+     */
+    fromDegrees(lat, lon, distance = 384720){
+        if(!this.baseMap){
+            return;
+        }
+        this.baseMap.fromDegrees(lat, lon, distance);
     }
     
     // 鼠标点击获取模型
