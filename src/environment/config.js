@@ -31,6 +31,11 @@ let Config = {
         usePatternTexture: false,
         visibleEdgeColor : '#ffffff',
         hiddenEdgeColor: '#190a05',
+        bloomPass:{
+            threshold:1,
+            strength:0.1,
+            radius:0
+        }
     },
     selectModelTriggle: true,
     al: '#404040', // AmbientLight 灯光颜色

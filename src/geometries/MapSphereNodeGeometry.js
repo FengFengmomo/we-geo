@@ -50,7 +50,7 @@ export class MapSphereNodeGeometry extends BufferGeometry
 				// vertex.y = radius * Math.sin(thetaStart + v * thetaLength);  // 维度
 				// vertex.z = radius * Math.cos(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
 
-				vertices.push(vertex.x, vertex.y, vertex.z);
+				// vertices.push(vertex.x, vertex.y, vertex.z);
 
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
@@ -58,14 +58,39 @@ export class MapSphereNodeGeometry extends BufferGeometry
 
 				// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
 				// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
-			
-				// modify uv
-				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 				
-				let len = this.distance(vertex); // length of the vertex, distance from the center
+				// 当使用6371008作为地球半径的时候会发现经纬度定位会相差几十上百公里，然后更改为6378137的时候发现定位距离真实定位非常接近，但仍然处于不准确的状态
+				// 参考博客：https://www.cnblogs.com/arxive/p/6694225.html
+				// 参考文档https://pro.arcgis.com/zh-cn/pro-app/latest/help/mapping/properties/mercator.htm
+				// 发生小范围数据的便宜的原因之一就是该投影本身角度并不等角 （Web 墨卡托坐标系并不等角）
+				// 此外，如果地理坐标系是基于椭圆体的，它还具有一个投影参数，用于标识球体半径所使用的内容。默认值为零 (0) 时，将使用长半轴
+				// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				let vetexC = vertex.clone();
+				// let radiusSuqred = UnitsUtils.EARTH_RADIUS_Squared;
+				// let nX = vertex.x;
+				// let nY = vertex.y;
+				// let nZ = vertex.z;
+				// const KX = radiusSuqred.x * vertex.x;
+				// const KY = radiusSuqred.y * vertex.y;
+				// const KZ = radiusSuqred.z * vertex.z;
+				// const gamma = Math.sqrt(KX * nX + KY * nY + KZ * nZ);
+				// const oneOverGamma = 1.0 / gamma;
+				// const rSurfaceX = KX * oneOverGamma;
+				// const rSurfaceY = KY * oneOverGamma;
+				// const rSurfaceZ = KZ * oneOverGamma;
+				// const position = new Vector3();
+				// position.x = rSurfaceX ;
+				// position.y = rSurfaceY ;
+				// position.z = rSurfaceZ ;
+				// vertex.multiply(UnitsUtils.EARTH_RADIUS_V);
+				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				vertices.push(vertex.x, vertex.y, vertex.z);
+				// modify uv
+				vetexC.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				let len = this.distance(vetexC); // length of the vertex, distance from the center
 				// let len = radius; // length of the vertex, distance from the center
-				let latitude = Math.asin(vertex.y/len); 
-				let longitude = Math.atan2(-vertex.z,vertex.x);
+				let latitude = Math.asin(vetexC.y/len); 
+				let longitude = Math.atan2(-vetexC.z,vetexC.x);
 				// let longitude = Math.atan(-vertex.z);
 				let mercator_x = len * longitude;
 				let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));

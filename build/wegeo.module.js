@@ -229,13 +229,16 @@ class UnitsUtils
 	/**
 	 * WGS84 earth radius vector
 	 * 
-	 * todo 现在定位仍然是有一点点的便宜，大概在100到200米左右，在维度较低地区相对较好。
+	 * todo 现在定位仍然是有一点点的偏移，大概在100到200米左右，在维度较低地区相对较好。
 	 * 经过观察cesium的写法，就是采用赤道地区采用6378137的平均半径，极柱反向采用短半轴长度6356752.314245，然后再计算数据。
-	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试
+	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试。
+	 * 经过多次调试，采用6378137的半径是正确的，在之前的经纬度调试中由于采用的不同的标准的经纬度，所以一直定位不正确。
+	 * 目前下面两个向量暂时用不到，是cesium的写法。后续可能和带高程的定位有关。
 	 */
 	static EARTH_RADIUS_V = new Vector3(6378137.0, 6356752.314245, 6378137.0);
+	static EARTH_RADIUS_Squared = new Vector3(6378137.0*6378137.0, 6356752.314245*6356752.314245, 6378137.0*6378137.0);
 	/**
-	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
+	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径，WGS84标准
 	 */
 	static EARTH_RADIUS_A = 6378137.0;
 
@@ -361,21 +364,22 @@ class UnitsUtils
 		return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
 	}
 
-	
-	static datumsToVector2(latitude, longitude){
-		const degToRad = Math.PI / 180;
-		
-		const rotX = (longitude+90) * degToRad;
-		const rotY = latitude * degToRad;
-
-		var cos = Math.cos(rotY);
-		let result = new Vector3();
-		result.x = Math.sin(rotX) * cos;
-		result.y =  Math.sin(rotY);
-		result.z = Math.cos(rotX) * cos;
-		result.normalize();
-		return result;
+	/**
+	 * 
+	 * Get a direction vector from WGS84 coordinates.
+	 * 
+	 * The vector obtained will be normalized.
+	 * @param latitude - Latitude value in degrees.
+	 * @param longitude - Longitude value in degrees.
+	 * @param height - Height in meters.
+	 * @returns Direction vector.
+	 * */
+	static fromDegrees(latitude, longitude, height){
+		let drector = UnitsUtils.datumsToVector(latitude, longitude);
+		drector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A + height);
+		return drector;
 	}
+
 
 	/**
 	 * Get altitude from RGB color for mapbox altitude encoding
@@ -497,30 +501,7 @@ class UnitsUtils
 		return radians * 180.0/Math.PI;
 	}
 
-	static fromDegrees(latitude,longitude,height){
-		
-		
-		return UnitsUtils.fromRadians(latitude, longitude, height);
-	}
-
-	static fromRadians(latitude, longitude,height=0.0){
-		let scratchN = new Vector3();
-		let scratchK = new Vector3();
-		longitude = UnitsUtils.toRadians(longitude+90);
-		latitude = UnitsUtils.toRadians(latitude);
-		
-		var cos = Math.cos(latitude);
-		
-		scratchN.x = Math.sin(longitude) * cos;
-		scratchN.y = Math.sin(latitude);
-		scratchN.z = Math.cos(longitude) * cos;
-		scratchN.normalize();
-		scratchK = UnitsUtils._ellipsoidRadiiSquared.multiply(scratchN);
-		const grama = Math.sqrt(scratchK.dot(scratchN));
-		scratchK.divideScalar(grama);
-		scratchN.multiplyScalar(height);
-		return scratchK.add(scratchN);
-	}
+	
 	
 }
 
@@ -1715,7 +1696,7 @@ class MapSphereNodeGeometry extends BufferGeometry
 				// vertex.y = radius * Math.sin(thetaStart + v * thetaLength);  // 维度
 				// vertex.z = radius * Math.cos(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
 
-				vertices.push(vertex.x, vertex.y, vertex.z);
+				// vertices.push(vertex.x, vertex.y, vertex.z);
 
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
@@ -1723,14 +1704,39 @@ class MapSphereNodeGeometry extends BufferGeometry
 
 				// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
 				// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
-			
-				// modify uv
-				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 				
-				let len = this.distance(vertex); // length of the vertex, distance from the center
+				// 当使用6371008作为地球半径的时候会发现经纬度定位会相差几十上百公里，然后更改为6378137的时候发现定位距离真实定位非常接近，但仍然处于不准确的状态
+				// 参考博客：https://www.cnblogs.com/arxive/p/6694225.html
+				// 参考文档https://pro.arcgis.com/zh-cn/pro-app/latest/help/mapping/properties/mercator.htm
+				// 发生小范围数据的便宜的原因之一就是该投影本身角度并不等角 （Web 墨卡托坐标系并不等角）
+				// 此外，如果地理坐标系是基于椭圆体的，它还具有一个投影参数，用于标识球体半径所使用的内容。默认值为零 (0) 时，将使用长半轴
+				// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				let vetexC = vertex.clone();
+				// let radiusSuqred = UnitsUtils.EARTH_RADIUS_Squared;
+				// let nX = vertex.x;
+				// let nY = vertex.y;
+				// let nZ = vertex.z;
+				// const KX = radiusSuqred.x * vertex.x;
+				// const KY = radiusSuqred.y * vertex.y;
+				// const KZ = radiusSuqred.z * vertex.z;
+				// const gamma = Math.sqrt(KX * nX + KY * nY + KZ * nZ);
+				// const oneOverGamma = 1.0 / gamma;
+				// const rSurfaceX = KX * oneOverGamma;
+				// const rSurfaceY = KY * oneOverGamma;
+				// const rSurfaceZ = KZ * oneOverGamma;
+				// const position = new Vector3();
+				// position.x = rSurfaceX ;
+				// position.y = rSurfaceY ;
+				// position.z = rSurfaceZ ;
+				// vertex.multiply(UnitsUtils.EARTH_RADIUS_V);
+				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				vertices.push(vertex.x, vertex.y, vertex.z);
+				// modify uv
+				vetexC.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				let len = this.distance(vetexC); // length of the vertex, distance from the center
 				// let len = radius; // length of the vertex, distance from the center
-				let latitude = Math.asin(vertex.y/len); 
-				let longitude = Math.atan2(-vertex.z,vertex.x);
+				let latitude = Math.asin(vetexC.y/len); 
+				let longitude = Math.atan2(-vetexC.z,vetexC.x);
 				// let longitude = Math.atan(-vertex.z);
 				let mercator_x = len * longitude;
 				let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
@@ -1890,7 +1896,9 @@ class MapSphereNode extends MapNode
 		const center = box.getCenter(new Vector3());
 	
 		const matrix = new Matrix4();
-		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
+		// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
+		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(1,1,1));
+		// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), UnitsUtils.EARTH_RADIUS_V);
 		this.geometry.applyMatrix4(matrix);
 		// 未赋值matrix的缘故？
 		// this.matrix = matrix;
@@ -8832,6 +8840,466 @@ class OutputPass extends Pass {
 }
 
 /**
+ * Luminosity
+ * http://en.wikipedia.org/wiki/Luminosity
+ */
+
+const LuminosityHighPassShader = {
+
+	name: 'LuminosityHighPassShader',
+
+	shaderID: 'luminosityHighPass',
+
+	uniforms: {
+
+		'tDiffuse': { value: null },
+		'luminosityThreshold': { value: 1.0 },
+		'smoothWidth': { value: 1.0 },
+		'defaultColor': { value: new Color( 0x000000 ) },
+		'defaultOpacity': { value: 0.0 }
+
+	},
+
+	vertexShader: /* glsl */`
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+
+	fragmentShader: /* glsl */`
+
+		uniform sampler2D tDiffuse;
+		uniform vec3 defaultColor;
+		uniform float defaultOpacity;
+		uniform float luminosityThreshold;
+		uniform float smoothWidth;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vec4 texel = texture2D( tDiffuse, vUv );
+
+			vec3 luma = vec3( 0.299, 0.587, 0.114 );
+
+			float v = dot( texel.xyz, luma );
+
+			vec4 outputColor = vec4( defaultColor.rgb, defaultOpacity );
+
+			float alpha = smoothstep( luminosityThreshold, luminosityThreshold + smoothWidth, v );
+
+			gl_FragColor = mix( outputColor, texel, alpha );
+
+		}`
+
+};
+
+/**
+ * UnrealBloomPass is inspired by the bloom pass of Unreal Engine. It creates a
+ * mip map chain of bloom textures and blurs them with different radii. Because
+ * of the weighted combination of mips, and because larger blurs are done on
+ * higher mips, this effect provides good quality and performance.
+ *
+ * Reference:
+ * - https://docs.unrealengine.com/latest/INT/Engine/Rendering/PostProcessEffects/Bloom/
+ */
+class UnrealBloomPass extends Pass {
+
+	constructor( resolution, strength, radius, threshold ) {
+
+		super();
+
+		this.strength = ( strength !== undefined ) ? strength : 1;
+		this.radius = radius;
+		this.threshold = threshold;
+		this.resolution = ( resolution !== undefined ) ? new Vector2( resolution.x, resolution.y ) : new Vector2( 256, 256 );
+
+		// create color only once here, reuse it later inside the render function
+		this.clearColor = new Color( 0, 0, 0 );
+
+		// render targets
+		this.renderTargetsHorizontal = [];
+		this.renderTargetsVertical = [];
+		this.nMips = 5;
+		let resx = Math.round( this.resolution.x / 2 );
+		let resy = Math.round( this.resolution.y / 2 );
+
+		this.renderTargetBright = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
+		this.renderTargetBright.texture.name = 'UnrealBloomPass.bright';
+		this.renderTargetBright.texture.generateMipmaps = false;
+
+		for ( let i = 0; i < this.nMips; i ++ ) {
+
+			const renderTargetHorizonal = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
+
+			renderTargetHorizonal.texture.name = 'UnrealBloomPass.h' + i;
+			renderTargetHorizonal.texture.generateMipmaps = false;
+
+			this.renderTargetsHorizontal.push( renderTargetHorizonal );
+
+			const renderTargetVertical = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
+
+			renderTargetVertical.texture.name = 'UnrealBloomPass.v' + i;
+			renderTargetVertical.texture.generateMipmaps = false;
+
+			this.renderTargetsVertical.push( renderTargetVertical );
+
+			resx = Math.round( resx / 2 );
+
+			resy = Math.round( resy / 2 );
+
+		}
+
+		// luminosity high pass material
+
+		const highPassShader = LuminosityHighPassShader;
+		this.highPassUniforms = UniformsUtils.clone( highPassShader.uniforms );
+
+		this.highPassUniforms[ 'luminosityThreshold' ].value = threshold;
+		this.highPassUniforms[ 'smoothWidth' ].value = 0.01;
+
+		this.materialHighPassFilter = new ShaderMaterial( {
+			uniforms: this.highPassUniforms,
+			vertexShader: highPassShader.vertexShader,
+			fragmentShader: highPassShader.fragmentShader
+		} );
+
+		// gaussian blur materials
+
+		this.separableBlurMaterials = [];
+		const kernelSizeArray = [ 3, 5, 7, 9, 11 ];
+		resx = Math.round( this.resolution.x / 2 );
+		resy = Math.round( this.resolution.y / 2 );
+
+		for ( let i = 0; i < this.nMips; i ++ ) {
+
+			this.separableBlurMaterials.push( this.getSeperableBlurMaterial( kernelSizeArray[ i ] ) );
+
+			this.separableBlurMaterials[ i ].uniforms[ 'invSize' ].value = new Vector2( 1 / resx, 1 / resy );
+
+			resx = Math.round( resx / 2 );
+
+			resy = Math.round( resy / 2 );
+
+		}
+
+		// composite material
+
+		this.compositeMaterial = this.getCompositeMaterial( this.nMips );
+		this.compositeMaterial.uniforms[ 'blurTexture1' ].value = this.renderTargetsVertical[ 0 ].texture;
+		this.compositeMaterial.uniforms[ 'blurTexture2' ].value = this.renderTargetsVertical[ 1 ].texture;
+		this.compositeMaterial.uniforms[ 'blurTexture3' ].value = this.renderTargetsVertical[ 2 ].texture;
+		this.compositeMaterial.uniforms[ 'blurTexture4' ].value = this.renderTargetsVertical[ 3 ].texture;
+		this.compositeMaterial.uniforms[ 'blurTexture5' ].value = this.renderTargetsVertical[ 4 ].texture;
+		this.compositeMaterial.uniforms[ 'bloomStrength' ].value = strength;
+		this.compositeMaterial.uniforms[ 'bloomRadius' ].value = 0.1;
+
+		const bloomFactors = [ 1.0, 0.8, 0.6, 0.4, 0.2 ];
+		this.compositeMaterial.uniforms[ 'bloomFactors' ].value = bloomFactors;
+		this.bloomTintColors = [ new Vector3( 1, 1, 1 ), new Vector3( 1, 1, 1 ), new Vector3( 1, 1, 1 ), new Vector3( 1, 1, 1 ), new Vector3( 1, 1, 1 ) ];
+		this.compositeMaterial.uniforms[ 'bloomTintColors' ].value = this.bloomTintColors;
+
+		// blend material
+
+		const copyShader = CopyShader;
+
+		this.copyUniforms = UniformsUtils.clone( copyShader.uniforms );
+
+		this.blendMaterial = new ShaderMaterial( {
+			uniforms: this.copyUniforms,
+			vertexShader: copyShader.vertexShader,
+			fragmentShader: copyShader.fragmentShader,
+			blending: AdditiveBlending,
+			depthTest: false,
+			depthWrite: false,
+			transparent: true
+		} );
+
+		this.enabled = true;
+		this.needsSwap = false;
+
+		this._oldClearColor = new Color();
+		this.oldClearAlpha = 1;
+
+		this.basic = new MeshBasicMaterial();
+
+		this.fsQuad = new FullScreenQuad( null );
+
+	}
+
+	dispose() {
+
+		for ( let i = 0; i < this.renderTargetsHorizontal.length; i ++ ) {
+
+			this.renderTargetsHorizontal[ i ].dispose();
+
+		}
+
+		for ( let i = 0; i < this.renderTargetsVertical.length; i ++ ) {
+
+			this.renderTargetsVertical[ i ].dispose();
+
+		}
+
+		this.renderTargetBright.dispose();
+
+		//
+
+		for ( let i = 0; i < this.separableBlurMaterials.length; i ++ ) {
+
+			this.separableBlurMaterials[ i ].dispose();
+
+		}
+
+		this.compositeMaterial.dispose();
+		this.blendMaterial.dispose();
+		this.basic.dispose();
+
+		//
+
+		this.fsQuad.dispose();
+
+	}
+
+	setSize( width, height ) {
+
+		let resx = Math.round( width / 2 );
+		let resy = Math.round( height / 2 );
+
+		this.renderTargetBright.setSize( resx, resy );
+
+		for ( let i = 0; i < this.nMips; i ++ ) {
+
+			this.renderTargetsHorizontal[ i ].setSize( resx, resy );
+			this.renderTargetsVertical[ i ].setSize( resx, resy );
+
+			this.separableBlurMaterials[ i ].uniforms[ 'invSize' ].value = new Vector2( 1 / resx, 1 / resy );
+
+			resx = Math.round( resx / 2 );
+			resy = Math.round( resy / 2 );
+
+		}
+
+	}
+
+	render( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+
+		renderer.getClearColor( this._oldClearColor );
+		this.oldClearAlpha = renderer.getClearAlpha();
+		const oldAutoClear = renderer.autoClear;
+		renderer.autoClear = false;
+
+		renderer.setClearColor( this.clearColor, 0 );
+
+		if ( maskActive ) renderer.state.buffers.stencil.setTest( false );
+
+		// Render input to screen
+
+		if ( this.renderToScreen ) {
+
+			this.fsQuad.material = this.basic;
+			this.basic.map = readBuffer.texture;
+
+			renderer.setRenderTarget( null );
+			renderer.clear();
+			this.fsQuad.render( renderer );
+
+		}
+
+		// 1. Extract Bright Areas
+
+		this.highPassUniforms[ 'tDiffuse' ].value = readBuffer.texture;
+		this.highPassUniforms[ 'luminosityThreshold' ].value = this.threshold;
+		this.fsQuad.material = this.materialHighPassFilter;
+
+		renderer.setRenderTarget( this.renderTargetBright );
+		renderer.clear();
+		this.fsQuad.render( renderer );
+
+		// 2. Blur All the mips progressively
+
+		let inputRenderTarget = this.renderTargetBright;
+
+		for ( let i = 0; i < this.nMips; i ++ ) {
+
+			this.fsQuad.material = this.separableBlurMaterials[ i ];
+
+			this.separableBlurMaterials[ i ].uniforms[ 'colorTexture' ].value = inputRenderTarget.texture;
+			this.separableBlurMaterials[ i ].uniforms[ 'direction' ].value = UnrealBloomPass.BlurDirectionX;
+			renderer.setRenderTarget( this.renderTargetsHorizontal[ i ] );
+			renderer.clear();
+			this.fsQuad.render( renderer );
+
+			this.separableBlurMaterials[ i ].uniforms[ 'colorTexture' ].value = this.renderTargetsHorizontal[ i ].texture;
+			this.separableBlurMaterials[ i ].uniforms[ 'direction' ].value = UnrealBloomPass.BlurDirectionY;
+			renderer.setRenderTarget( this.renderTargetsVertical[ i ] );
+			renderer.clear();
+			this.fsQuad.render( renderer );
+
+			inputRenderTarget = this.renderTargetsVertical[ i ];
+
+		}
+
+		// Composite All the mips
+
+		this.fsQuad.material = this.compositeMaterial;
+		this.compositeMaterial.uniforms[ 'bloomStrength' ].value = this.strength;
+		this.compositeMaterial.uniforms[ 'bloomRadius' ].value = this.radius;
+		this.compositeMaterial.uniforms[ 'bloomTintColors' ].value = this.bloomTintColors;
+
+		renderer.setRenderTarget( this.renderTargetsHorizontal[ 0 ] );
+		renderer.clear();
+		this.fsQuad.render( renderer );
+
+		// Blend it additively over the input texture
+
+		this.fsQuad.material = this.blendMaterial;
+		this.copyUniforms[ 'tDiffuse' ].value = this.renderTargetsHorizontal[ 0 ].texture;
+
+		if ( maskActive ) renderer.state.buffers.stencil.setTest( true );
+
+		if ( this.renderToScreen ) {
+
+			renderer.setRenderTarget( null );
+			this.fsQuad.render( renderer );
+
+		} else {
+
+			renderer.setRenderTarget( readBuffer );
+			this.fsQuad.render( renderer );
+
+		}
+
+		// Restore renderer settings
+
+		renderer.setClearColor( this._oldClearColor, this.oldClearAlpha );
+		renderer.autoClear = oldAutoClear;
+
+	}
+
+	getSeperableBlurMaterial( kernelRadius ) {
+
+		const coefficients = [];
+
+		for ( let i = 0; i < kernelRadius; i ++ ) {
+
+			coefficients.push( 0.39894 * Math.exp( - 0.5 * i * i / ( kernelRadius * kernelRadius ) ) / kernelRadius );
+
+		}
+
+		return new ShaderMaterial( {
+
+			defines: {
+				'KERNEL_RADIUS': kernelRadius
+			},
+
+			uniforms: {
+				'colorTexture': { value: null },
+				'invSize': { value: new Vector2( 0.5, 0.5 ) }, // inverse texture size
+				'direction': { value: new Vector2( 0.5, 0.5 ) },
+				'gaussianCoefficients': { value: coefficients } // precomputed Gaussian coefficients
+			},
+
+			vertexShader:
+				`varying vec2 vUv;
+				void main() {
+					vUv = uv;
+					gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				}`,
+
+			fragmentShader:
+				`#include <common>
+				varying vec2 vUv;
+				uniform sampler2D colorTexture;
+				uniform vec2 invSize;
+				uniform vec2 direction;
+				uniform float gaussianCoefficients[KERNEL_RADIUS];
+
+				void main() {
+					float weightSum = gaussianCoefficients[0];
+					vec3 diffuseSum = texture2D( colorTexture, vUv ).rgb * weightSum;
+					for( int i = 1; i < KERNEL_RADIUS; i ++ ) {
+						float x = float(i);
+						float w = gaussianCoefficients[i];
+						vec2 uvOffset = direction * invSize * x;
+						vec3 sample1 = texture2D( colorTexture, vUv + uvOffset ).rgb;
+						vec3 sample2 = texture2D( colorTexture, vUv - uvOffset ).rgb;
+						diffuseSum += (sample1 + sample2) * w;
+						weightSum += 2.0 * w;
+					}
+					gl_FragColor = vec4(diffuseSum/weightSum, 1.0);
+				}`
+		} );
+
+	}
+
+	getCompositeMaterial( nMips ) {
+
+		return new ShaderMaterial( {
+
+			defines: {
+				'NUM_MIPS': nMips
+			},
+
+			uniforms: {
+				'blurTexture1': { value: null },
+				'blurTexture2': { value: null },
+				'blurTexture3': { value: null },
+				'blurTexture4': { value: null },
+				'blurTexture5': { value: null },
+				'bloomStrength': { value: 1.0 },
+				'bloomFactors': { value: null },
+				'bloomTintColors': { value: null },
+				'bloomRadius': { value: 0.0 }
+			},
+
+			vertexShader:
+				`varying vec2 vUv;
+				void main() {
+					vUv = uv;
+					gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				}`,
+
+			fragmentShader:
+				`varying vec2 vUv;
+				uniform sampler2D blurTexture1;
+				uniform sampler2D blurTexture2;
+				uniform sampler2D blurTexture3;
+				uniform sampler2D blurTexture4;
+				uniform sampler2D blurTexture5;
+				uniform float bloomStrength;
+				uniform float bloomRadius;
+				uniform float bloomFactors[NUM_MIPS];
+				uniform vec3 bloomTintColors[NUM_MIPS];
+
+				float lerpBloomFactor(const in float factor) {
+					float mirrorFactor = 1.2 - factor;
+					return mix(factor, mirrorFactor, bloomRadius);
+				}
+
+				void main() {
+					gl_FragColor = bloomStrength * ( lerpBloomFactor(bloomFactors[0]) * vec4(bloomTintColors[0], 1.0) * texture2D(blurTexture1, vUv) +
+						lerpBloomFactor(bloomFactors[1]) * vec4(bloomTintColors[1], 1.0) * texture2D(blurTexture2, vUv) +
+						lerpBloomFactor(bloomFactors[2]) * vec4(bloomTintColors[2], 1.0) * texture2D(blurTexture3, vUv) +
+						lerpBloomFactor(bloomFactors[3]) * vec4(bloomTintColors[3], 1.0) * texture2D(blurTexture4, vUv) +
+						lerpBloomFactor(bloomFactors[4]) * vec4(bloomTintColors[4], 1.0) * texture2D(blurTexture5, vUv) );
+				}`
+		} );
+
+	}
+
+}
+
+UnrealBloomPass.BlurDirectionX = new Vector2( 1.0, 0.0 );
+UnrealBloomPass.BlurDirectionY = new Vector2( 0.0, 1.0 );
+
+/**
  * NVIDIA FXAA by Timothy Lottes
  * https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
  * - WebGL port by @supereggbert
@@ -9147,6 +9615,11 @@ let Config = {
         usePatternTexture: false,
         visibleEdgeColor : '#ffffff',
         hiddenEdgeColor: '#190a05',
+        bloomPass:{
+            threshold:1,
+            strength:0.1,
+            radius:0
+        }
     },
     selectModelTriggle: true,
     al: '#404040', // AmbientLight 灯光颜色
@@ -9217,6 +9690,13 @@ class EffectOutline {
 
         this.outlinePass = new OutlinePass( new Vector2(width, height ), this.scene, this.camera );
         this.composer.addPass( this.outlinePass );
+
+        // 后置发光处理器，
+        this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+        this.bloomPass.threshold = Config.outLine.bloomPass.threshold;
+        this.bloomPass.strength = Config.outLine.bloomPass.strength;
+        this.bloomPass.radius = Config.outLine.bloomPass.radius;
+        this.composer.addPass( this.bloomPass );
 
         // const textureLoader = new THREE.TextureLoader();
         // textureLoader.load( 'textures/tri_pattern.jpg', function ( texture ) {
@@ -33140,17 +33620,14 @@ class Layer  extends BasLayer{
         this.controls.target.set(coords.x, coords.y, coords.z);
     }
 
-    moveToByLL(lat, lon, distance = 384720){
-        let dir = UnitsUtils.datumsToVector2(lat, lon);
-        let dir_c = dir.clone();
-        let surface = dir.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
-        let height = dir_c.multiplyScalar(distance);
-        let result = surface.add(height);
-        this.camera.position.copy(result);
-    }
 
     fromDegrees(lat, lon, height){
         let position = UnitsUtils.fromDegrees(lat, lon, height);
+        this.camera.position.copy(position);
+    }
+
+    latlon2Vector(lat, lon, height){
+        let position = UnitsUtils.latlon2Vector(lat, lon, height);
         this.camera.position.copy(position);
     }
 
@@ -33280,16 +33757,11 @@ class Layer  extends BasLayer{
               },
         });
         const {model, runtime} = result;
-        // model.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
-        // runtime.orientToGeocoord({
-        //     long: runtime.getTileset().cartographicCenter[0],
-        //     lat: runtime.getTileset().cartographicCenter[1],
-        //     height: runtime.getTileset().cartographicCenter[2]
-        // });
 
         // 模型销毁只需要执行model.dispose();
         // 还未打包进行调试
-        let lat = runtime.getTileset().cartographicCenter[1]+0.04, lon = runtime.getTileset().cartographicCenter[0]+0.10085;
+        // 2024年8月21日10:25:52 已测试完毕，定位正常，模型显示正常，显示大小正常。
+        let lat = runtime.getTileset().cartographicCenter[1], lon = runtime.getTileset().cartographicCenter[0];
         runtime.getTileset().cartographicCenter[2];
         // 由于设计时z轴在世界经度的90度上，所以需要先逆向旋转90度。
         // model.rotation.set(0, MathUtils.degToRad(-90), 0);
@@ -33297,7 +33769,7 @@ class Layer  extends BasLayer{
         // model.rotation.set(MathUtils.degToRad(lat+90)-Math.PI/2,  MathUtils.degToRad(lon) +Math.PI/2,0);
         model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
         let direction = UnitsUtils.datumsToVector( lat, lon);
-        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+10);
+        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+10);
         model.position.copy(location);
         this.scene.add(model);
         this.tilesRuntimeS.push(runtime);
@@ -33384,8 +33856,8 @@ class Layer  extends BasLayer{
             this.effectOutline.render(); // 合成器渲染
         } else {
             this.renderer.autoClear = true;
+            this.renderer.render(this.scene, this.camera);
         }
-        this.renderer.render(this.scene, this.camera);
     }
 
     _raycast(meshes, recursive, faceExclude) {
@@ -33436,242 +33908,6 @@ class Layer  extends BasLayer{
         return this._raycastFromMouse(
             mx, my, clientWidth, clientHeight, this.camera,
             this.scene.children, recursive);
-    }
-
-}
-
-// 多个canvas并没有id，只有父节点
-
-class D3TilesLayer {
-    id; // 唯一标识
-    layerContainer; // div#layer 容器
-    zIndex=1;//默认为1
-    opacity=1;//默认为1
-    canvas;//canvas
-    dispose = false;
-    renderer;//canvas上下文
-    scene;//场景
-    visible=true;//是否可见
-    mapView;//地图视图
-    camera;//相机
-    controls;//控件
-    animateId;//动画事件id
-    base = false; // 是否为底图
-    ambientLight; // 环境光
-    directionalLight; // 方向光
-    modelLayer = false; // 模型图层
-    imageLayer = false; // 影像图层
-    vectorLayer = false; // 矢量图层,如路网、行政区划，地名等图层
-    /**
-     * 
-     * @param {*} id canvas的id
-     * @param {*} layerContainer div#layer 容器
-     * @param {*} canvas canvas
-     * @param {*} option = jsonPath 文件路径，callback 回调函数
-     * @param {*} camera camera
-     * @param {*} z_index html显示层级
-     * @param {*} opacity 透明度
-     * @param {*} visible 可见性
-     */
-    constructor(id, layerContainer, canvas, option = {jsonPath: '', callback: () => {}}, camera = new PerspectiveCamera(80, 1, 0.1, 1e12), z_index=1, opacity=1,visible=true) {
-        this.id = id;
-        this.layerContainer = layerContainer;
-        this.canvas = canvas;
-        this.z_index = z_index;
-        this.opacity = opacity;
-        this.visible = visible;
-        this.renderer = new WebGLRenderer({
-            canvas: this.canvas,
-            antialias: true,
-            alpha: true,
-        });
-        this.renderer.setClearColor(0xFFFFFF, 0.0);
-        this.scene = new Scene();
-        // https://github.com/nytimes/three-loader-3dtiles
-
-        this.clock = new Clock();
-        this.loadTiles(option);
-        this.camera = camera;
-        // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
-        this.controls = new MapControls(this.camera, this.canvas);
-        this.controls.minDistance = 1e1;
-        this.controls.zoomSpeed = 2.0;
-        // this.camera.position.set(coords.x, 38472.48763833733, -coords.y);
-        // this.controls.target.set(this.camera.position.x, 0, this.camera.position.z);
-        this._raycaster = new Raycaster();
-        if(Config.outLineMode){
-            this.effectOutline = new EffectOutline(this.renderer, this.scene, this.camera, this.canvas.width, this.canvas.height);
-        }
-        
-    }
-    // 支持3dtiles，点云，geojson
-    async loadTiles(option){
-        const result = await qB.load({
-            url: option.jsonPath,
-            renderer: this.renderer,
-            options: {
-                dracoDecoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco',
-                basisTranscoderPath: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis',
-                resetTransform: true
-              },
-            });
-        const {model, runtime} = result;
-        // runtime.orientToGeocoord({height:38000.48763833733, lat:44.266119, long:90.139228});
-        this.tilesRuntime = runtime;
-        model.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
-        // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
-        // model.position.set(coords.x, 38472.48763833733, -coords.y);
-        // model.updateMatrixWorld();
-        runtime.orientToGeocoord({
-        long: runtime.getTileset().cartographicCenter[0],
-        lat: runtime.getTileset().cartographicCenter[1],
-        height: runtime.getTileset().cartographicCenter[2]
-        });
-        
-        var coords = {
-            x: model.position.x,
-            y: model.position.y,
-            z: model.position.z
-        };
-        this.scene.add(model);
-
-        option.callBack(coords);
-    }
-
-    on(eventName, callback){
-        this.listener.on(eventName, callback);
-    }
-
-    setSceneBackground(color) {
-        this.scene.background = color;
-    }
-
-    clearSceneBackground() {
-        this.scene.background = null;
-    }
-
-    // 可用于添加灯光mesh等元素
-    add(Object3D) {
-        if(Object3D ==null || Object3D ==undefined){
-            return;
-        }
-        this.scene.add(Object3D);
-    }
-
-    remove(Object3D) {
-        if(Object3D ==null || Object3D ==undefined){
-            return;
-        }
-        this.scene.remove(Object3D);  
-    }
-
-    setVisible(visible) {
-        this.visible = this.visible;
-        this.layerContainer.style.display = visible ? 'block' : 'none';
-    }
-    /**
-     * @deprecated 不建议用
-     * @param {number} opacity 
-     */
-    setOpacity(opacity) {
-        this.opacity = opacity;
-        this.layerContainer.style.opacity = opacity;
-    }
-
-    /**
-     * 修改显示层级，默认越靠下的dom元素，显示上越靠上
-     * @param {number} zIndex 
-     */
-    setZIndex(zIndex) {
-        this.zIndex = zIndex;
-        this.layerContainer.style.zIndex = this.zIndex;
-    }
-
-    dispose() {
-        Element.removeLayer(id);
-        this.dispose = true;
-        this.animateId && cancelAnimationFrame(this.animateId);
-        this.mapView.root.dispose();
-        this.mapView.dispose();
-    }
-
-    selectModel(insect){
-        this.effectOutline.selectModel(insect);
-    }
-
-    resize(){
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        this.renderer.setSize(width, height);
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
-        if(Config.outLineMode){
-            this.effectOutline.resize(width, height);
-        }
-    }
-
-    animate(){
-        this.animateId = requestAnimationFrame(this.animate.bind(this));
-        const dt = this.clock.getDelta();
-        if(this.base){
-            this.controls.update();
-        }
-        if (this.base){ 
-            update(); //目前只有在基础地图中添加相机移动的动画，所以暂且只在base地图中进行渲染，后期可改成每个图层都进行渲染，或者必要时进行渲染。 
-        }
-        if (this.tilesRuntime) {
-            this.tilesRuntime.update(dt, window.innerHeight, this.camera);
-          }
-        // this.tilesRenderer.update(); // 瓦片渲染
-        if (Config.outLineMode){
-            this.effectOutline.render(); // 合成器渲染
-            // this.effectOutline.composer.render(); // 合成器渲染
-        } else {
-            this.renderer.autoClear = true;
-            this.renderer.render(this.scene, this.camera);
-        }
-    }
-    
-    _raycast(meshes, recursive, faceExclude) {
-        const isects = this._raycaster.intersectObjects(meshes, recursive);
-        if (faceExclude) {
-            for (let i = 0; i < isects.length; i++) {
-                if (isects[i].face !== faceExclude) {
-                    return isects[i];
-                }
-            }
-            return null;
-        }
-        return isects.length > 0 ? isects[0] : null;
-    }
-
-    _raycastFromMouse(mx, my, width, height, cam, meshes, recursive=false) {
-        const mouse = new Vector2( // normalized (-1 to +1)
-            (mx / width) * 2 - 1,
-            - (my / height) * 2 + 1);
-        // https://threejs.org/docs/#api/core/Raycaster
-        // update the picking ray with the camera and mouse position
-        this._raycaster.setFromCamera(mouse, cam);
-        return this._raycast(meshes, recursive, null);
-    }
-
-    /**
-     * 
-     * @param {*} mx 屏幕坐标x
-     * @param {*} my 屏幕坐标y
-     * @param {boolean} recursive 是否检查子节点，true 递归检查
-     * @returns mesh
-     */
-    raycastFromMouse(mx, my, recursive=false) {
-        //---- NG: 2x when starting with Chrome's inspector mobile
-        // const {width, height} = this.renderer.domElement;
-        // const {width, height} = this.canvas;
-        //---- OK
-        const {clientWidth, clientHeight} = this.canvas;
-
-        return this._raycastFromMouse(
-            mx, my, clientWidth, clientHeight, this.camera,
-            this.mapView.children, recursive);
     }
 
 }
@@ -36442,18 +36678,7 @@ class WegeoMap {
         this.baseMap.moveToByCoords(coords);
     }
 
-    /**
-     * 跳转到指定位置，用于球形地图
-     * @param {*} lat 
-     * @param {*} lon 
-     * @returns 
-     */
-    moveToByLL(lat, lon, distance = 384720){
-        if(!this.baseMap){
-            return;
-        }
-        this.baseMap.moveToByLL(lat, lon, distance);
-    }
+    
 
     /**
      * 跳转到指定位置，用于球形地图
@@ -36466,6 +36691,13 @@ class WegeoMap {
             return;
         }
         this.baseMap.fromDegrees(lat, lon, distance);
+    }
+
+    latlon2Vector(lat, lon, distance = 384720){
+        if(!this.baseMap){
+            return ;
+        }
+        this.baseMap.latlon2Vector(lat, lon, distance);
     }
     
     // 鼠标点击获取模型

@@ -100,17 +100,14 @@ export class Layer  extends BasLayer{
         this.controls.target.set(coords.x, coords.y, coords.z);
     }
 
-    moveToByLL(lat, lon, distance = 384720){
-        let dir = UnitsUtils.datumsToVector2(lat, lon);
-        let dir_c = dir.clone();
-        let surface = dir.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
-        let height = dir_c.multiplyScalar(distance);
-        let result = surface.add(height);
-        this.camera.position.copy(result);
-    }
 
     fromDegrees(lat, lon, height){
         let position = UnitsUtils.fromDegrees(lat, lon, height);
+        this.camera.position.copy(position);
+    }
+
+    latlon2Vector(lat, lon, height){
+        let position = UnitsUtils.latlon2Vector(lat, lon, height);
         this.camera.position.copy(position);
     }
 
@@ -240,16 +237,11 @@ export class Layer  extends BasLayer{
               },
         });
         const {model, runtime} = result;
-        // model.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
-        // runtime.orientToGeocoord({
-        //     long: runtime.getTileset().cartographicCenter[0],
-        //     lat: runtime.getTileset().cartographicCenter[1],
-        //     height: runtime.getTileset().cartographicCenter[2]
-        // });
 
         // 模型销毁只需要执行model.dispose();
         // 还未打包进行调试
-        let lat = runtime.getTileset().cartographicCenter[1]+0.04, lon = runtime.getTileset().cartographicCenter[0]+0.10085;
+        // 2024年8月21日10:25:52 已测试完毕，定位正常，模型显示正常，显示大小正常。
+        let lat = runtime.getTileset().cartographicCenter[1], lon = runtime.getTileset().cartographicCenter[0];
         let height =runtime.getTileset().cartographicCenter[2];
         // 由于设计时z轴在世界经度的90度上，所以需要先逆向旋转90度。
         // model.rotation.set(0, MathUtils.degToRad(-90), 0);
@@ -257,7 +249,7 @@ export class Layer  extends BasLayer{
         // model.rotation.set(MathUtils.degToRad(lat+90)-Math.PI/2,  MathUtils.degToRad(lon) +Math.PI/2,0);
         model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
         let direction = UnitsUtils.datumsToVector( lat, lon);
-        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+10);
+        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+10);
         model.position.copy(location);
         this.scene.add(model);
         this.tilesRuntimeS.push(runtime);
@@ -344,8 +336,8 @@ export class Layer  extends BasLayer{
             this.effectOutline.render(); // 合成器渲染
         } else {
             this.renderer.autoClear = true;
+            this.renderer.render(this.scene, this.camera);
         }
-        this.renderer.render(this.scene, this.camera);
     }
 
     _raycast(meshes, recursive, faceExclude) {

@@ -2,7 +2,6 @@ import { AmbientLight, DirectionalLight, MOUSE, Vector3, PerspectiveCamera, BoxG
 import {RoadImageProvider} from './providers/RoadImageProvider';
 import {MapView} from './MapView';
 import { Layer } from './layers/Layer';
-import {D3TilesLayer} from './layers/3DTilesLayer';
 import { Element } from './utils/Element';
 import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -184,18 +183,7 @@ export class WegeoMap {
         this.baseMap.moveToByCoords(coords);
     }
 
-    /**
-     * 跳转到指定位置，用于球形地图
-     * @param {*} lat 
-     * @param {*} lon 
-     * @returns 
-     */
-    moveToByLL(lat, lon, distance = 384720){
-        if(!this.baseMap){
-            return;
-        }
-        this.baseMap.moveToByLL(lat, lon, distance);
-    }
+    
 
     /**
      * 跳转到指定位置，用于球形地图
@@ -208,6 +196,13 @@ export class WegeoMap {
             return;
         }
         this.baseMap.fromDegrees(lat, lon, distance);
+    }
+
+    latlon2Vector(lat, lon, distance = 384720){
+        if(!this.baseMap){
+            return ;
+        }
+        this.baseMap.latlon2Vector(lat, lon, distance);
     }
     
     // 鼠标点击获取模型

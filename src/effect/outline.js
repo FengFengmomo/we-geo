@@ -3,6 +3,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { Vector2 } from 'three';
 import { Config} from '../environment/config.js';
@@ -60,6 +61,13 @@ export class EffectOutline {
 
         this.outlinePass = new OutlinePass( new Vector2(width, height ), this.scene, this.camera );
         this.composer.addPass( this.outlinePass );
+
+        // 后置发光处理器，
+        this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+        this.bloomPass.threshold = Config.outLine.bloomPass.threshold;
+        this.bloomPass.strength = Config.outLine.bloomPass.strength;
+        this.bloomPass.radius = Config.outLine.bloomPass.radius;
+        this.composer.addPass( this.bloomPass );
 
         // const textureLoader = new THREE.TextureLoader();
         // textureLoader.load( 'textures/tri_pattern.jpg', function ( texture ) {

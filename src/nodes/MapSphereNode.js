@@ -108,7 +108,9 @@ export class MapSphereNode extends MapNode
 		const center = box.getCenter(new Vector3());
 	
 		const matrix = new Matrix4();
-		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
+		// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
+		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(1,1,1));
+		// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), UnitsUtils.EARTH_RADIUS_V);
 		this.geometry.applyMatrix4(matrix);
 		// 未赋值matrix的缘故？
 		// this.matrix = matrix;

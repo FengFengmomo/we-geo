@@ -21,13 +21,16 @@ export class UnitsUtils
 	/**
 	 * WGS84 earth radius vector
 	 * 
-	 * todo 现在定位仍然是有一点点的便宜，大概在100到200米左右，在维度较低地区相对较好。
+	 * todo 现在定位仍然是有一点点的偏移，大概在100到200米左右，在维度较低地区相对较好。
 	 * 经过观察cesium的写法，就是采用赤道地区采用6378137的平均半径，极柱反向采用短半轴长度6356752.314245，然后再计算数据。
-	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试
+	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试。
+	 * 经过多次调试，采用6378137的半径是正确的，在之前的经纬度调试中由于采用的不同的标准的经纬度，所以一直定位不正确。
+	 * 目前下面两个向量暂时用不到，是cesium的写法。后续可能和带高程的定位有关。
 	 */
 	static EARTH_RADIUS_V = new Vector3(6378137.0, 6356752.314245, 6378137.0);
+	static EARTH_RADIUS_Squared = new Vector3(6378137.0*6378137.0, 6356752.314245*6356752.314245, 6378137.0*6378137.0);
 	/**
-	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径
+	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径，WGS84标准
 	 */
 	static EARTH_RADIUS_A = 6378137.0;
 
@@ -153,21 +156,22 @@ export class UnitsUtils
 		return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
 	}
 
-	
-	static datumsToVector2(latitude, longitude){
-		const degToRad = Math.PI / 180;
-		
-		const rotX = (longitude+90) * degToRad;
-		const rotY = latitude * degToRad;
-
-		var cos = Math.cos(rotY);
-		let result = new Vector3();
-		result.x = Math.sin(rotX) * cos;
-		result.y =  Math.sin(rotY);
-		result.z = Math.cos(rotX) * cos;
-		result.normalize();
-		return result;
+	/**
+	 * 
+	 * Get a direction vector from WGS84 coordinates.
+	 * 
+	 * The vector obtained will be normalized.
+	 * @param latitude - Latitude value in degrees.
+	 * @param longitude - Longitude value in degrees.
+	 * @param height - Height in meters.
+	 * @returns Direction vector.
+	 * */
+	static fromDegrees(latitude, longitude, height){
+		let drector = UnitsUtils.datumsToVector(latitude, longitude);
+		drector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A + height);
+		return drector;
 	}
+
 
 	/**
 	 * Get altitude from RGB color for mapbox altitude encoding
@@ -289,29 +293,6 @@ export class UnitsUtils
 		return radians * 180.0/Math.PI;
 	}
 
-	static fromDegrees(latitude,longitude,height){
-		
-		
-		return UnitsUtils.fromRadians(latitude, longitude, height);
-	}
-
-	static fromRadians(latitude, longitude,height=0.0){
-		let scratchN = new Vector3();
-		let scratchK = new Vector3();
-		longitude = UnitsUtils.toRadians(longitude+90);
-		latitude = UnitsUtils.toRadians(latitude);
-		
-		var cos = Math.cos(latitude);
-		
-		scratchN.x = Math.sin(longitude) * cos;
-		scratchN.y = Math.sin(latitude);
-		scratchN.z = Math.cos(longitude) * cos;
-		scratchN.normalize();
-		scratchK = UnitsUtils._ellipsoidRadiiSquared.multiply(scratchN);
-		const grama = Math.sqrt(scratchK.dot(scratchN));
-		scratchK.divideScalar(grama);
-		scratchN.multiplyScalar(height);
-		return scratchK.add(scratchN);
-	}
+	
 	
 }
