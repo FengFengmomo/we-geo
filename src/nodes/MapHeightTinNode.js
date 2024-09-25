@@ -5,7 +5,9 @@ import {MapPlaneNode} from './MapPlaneNode';
 import {UnitsUtils} from '../utils/UnitsUtils';
 import {MapView} from '../MapView';
 import {MapNodeHeightGeometry} from '../geometries/MapNodeHeightGeometry';
+import {MapNodeHeightTinGeometry} from '../geometries/MapNodeHeightTinGeometry'
 import {CanvasUtils} from '../utils/CanvasUtils';
+import {TerrainUtils } from '../utils/TerrainUtils';
 
 /**
  * Represents a height map tile node that can be subdivided into other height nodes.
@@ -14,7 +16,7 @@ import {CanvasUtils} from '../utils/CanvasUtils';
  *
  * The height node is designed to use MapBox elevation tile encoded data as described in https://www.mapbox.com/help/access-elevation-data/
  */
-export class MapHeightNode extends MapNode 
+export class MapHeightNodeTin extends MapNode 
 {
 	/**
 	 * Flag indicating if the tile height data was loaded.
@@ -121,22 +123,14 @@ export class MapHeightNode extends MapNode
 
 		try 
 		{
-			const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+			const dataBuffer = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
  
 			if (this.disposed) 
 			{
 				return;
 			}
-
-			const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
-
-			const context = canvas.getContext('2d');
-			context.imageSmoothingEnabled = false;
-			context.drawImage(image, 0, 0, MapHeightNode.tileSize, MapHeightNode.tileSize, 0, 0, canvas.width, canvas.height);
-
-			const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
-
-			this.geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.mapView.heightProvider.littleEndian);
+			this.geometry = new MapNodeHeightTinGeometry(terrain);
 			
 			this.geometry.clearGroups();
 			for (let i = 0; i < this.material.length; i++) {

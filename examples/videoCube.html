@@ -21,7 +21,8 @@
 		<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
 			<!-- <source src="https://threejs.org/examples/textures/pano.webm"> -->
 			<!-- <source src="https://threejs.org/examples/textures/pano.mp4"> -->
-			<source src="./data/xiangjiang_nalati.mp4">
+			<!-- <source src="./data/xiangjiang_nalati.mp4"> -->
+			<source src="./data/S101.mp4">
 		</video>
 
 		<script type="importmap">
@@ -86,6 +87,36 @@
 				//
 
 				window.addEventListener( 'resize', onWindowResize );
+
+				var vol = 0.1;  //1代表100%音量，每次增减0.1
+				var time = 10; //单位秒，每次增减10秒
+ 				var videoElement = document.getElementById("video");
+				document.onkeyup = function (event){
+					if (event.keyCode == 38) { //上
+						vol += 0.1;
+						videoElement.volume = vol;
+					}
+					if (event.keyCode == 40) { //下
+						vol -= 0.1;
+						videoElement.volume = vol;
+					}
+					if (event.keyCode == 37) { //左
+						time -= 10; //减10秒
+						videoElement.currentTime = time;
+					}
+					if (event.keyCode == 39) { //右
+						time += 10; //加10秒
+						videoElement.currentTime = time;
+					}
+					// 暂停和播放
+					if (event.keyCode == 32) { //空格
+						if (videoElement.paused) {
+							videoElement.play();
+						} else {
+							videoElement.pause();
+						}
+					}
+				}
 
 			}
 

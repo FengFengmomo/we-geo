@@ -238,6 +238,8 @@
 		 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试。
 		 * 经过多次调试，采用6378137的半径是正确的，在之前的经纬度调试中由于采用的不同的标准的经纬度，所以一直定位不正确。
 		 * 目前下面两个向量暂时用不到，是cesium的写法。后续可能和带高程的定位有关。
+		 * 
+		 * 现在的经纬度没有见到偏移，已修正完毕
 		 */
 		static EARTH_RADIUS_V = new three.Vector3(6378137.0, 6356752.314245, 6378137.0);
 		static EARTH_RADIUS_Squared = new three.Vector3(6378137.0*6378137.0, 6356752.314245*6356752.314245, 6378137.0*6378137.0);
@@ -250,6 +252,26 @@
 		 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
 		 */
 		static EARTH_RADIUS_B = 6356752.314245;
+
+		/**
+		 * 最大高度
+		 */
+		static minimumHeight = 65536.0;
+		
+		/**
+		 * 最小高度
+		 */
+	  	static maximumHeight = -65536.0;
+
+		/**
+		 * 全球实际的最大海拔高度
+		 */
+		static HEIGHT_MAX = 8800;
+
+		/**
+		 * 全球实际的最小海拔高度
+		 */ 
+		static HEIGHT_MIN = -4100;
 
 		/**
 		 * Earth equator perimeter in meters.
@@ -878,7 +900,7 @@
 				let material = this.material.clone();
 				try 
 				{
-					let image = await provider.fetchTile(this.level, this.x, this.y, this.bbox);
+					let image = await provider.fetchTile(this.level, this.x, this.y);
 					if (this.disposed) 
 					{
 						return;
@@ -1019,10 +1041,10 @@
 		/**
 		 * Map node geometry constructor.
 		 *
-		 * @param width - Width of the node.
-		 * @param height - Height of the node.
-		 * @param widthSegments - Number of subdivisions along the width.
-		 * @param heightSegments - Number of subdivisions along the height.
+		 * @param width - Width of the node. 1.0
+		 * @param height - Height of the node. 1.0
+		 * @param widthSegments - Number of subdivisions along the width. 传进来默认值为16
+		 * @param heightSegments - Number of subdivisions along the height. 传进来默认值为16
 		 * @param skirt - Skirt around the plane to mask gaps between tiles. 非高程几何体，不带skirt
 		 */
 		constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0)
@@ -1056,31 +1078,31 @@
 			// Half width X  这里基本只能设置为1，和父节点的相对坐标有关系
 			// 以父节点横向和纵向中间点为坐标原点，（xy坐标），所以作为子节点，在拼接
 			// 的时候，xy坐标就限制在了-0.5到0.5之间，所以这里只能设置为1
-			const widthHalf = width / 2; 
+			const widthHalf = width / 2; // 0.5
 
 			// Half width Z
-			const heightHalf = height / 2;
+			const heightHalf = height / 2; // 0.5
 
 			// Size of the grid in X
-			const gridX = widthSegments + 1;
+			const gridX = widthSegments + 1; // 传进来默认值为16，所以gridX=17
 
 			// Size of the grid in Z
-			const gridZ = heightSegments + 1;
+			const gridZ = heightSegments + 1; // 传进来默认值为16，所以gridZ=17
 
 			// Width of each segment X
-			const segmentWidth = width / widthSegments;
+			const segmentWidth = width / widthSegments; // 1/16 = 0.0625
 			
 			// Height of each segment Z
-			const segmentHeight = height / heightSegments;
+			const segmentHeight = height / heightSegments; // 1/16 = 0.0625
 
 			// Generate vertices, normals and uvs
 			for (let iz = 0; iz < gridZ; iz++) 
 			{
-				const z = iz * segmentHeight - heightHalf;
+				const z = iz * segmentHeight - heightHalf; // z 从-0.5到0.5
 
 				for (let ix = 0; ix < gridX; ix++) 
 				{
-					const x = ix * segmentWidth - widthHalf;
+					const x = ix * segmentWidth - widthHalf; // x 从-0.5到0.5
 
 					vertices.push(x, 0, z);
 					normals.push(0, 1, 0);
@@ -1089,7 +1111,7 @@
 			}
 
 			// Indices
-			for (let iz = 0; iz < heightSegments; iz++) 
+			for (let iz = 0; iz < heightSegments; iz++)  // heightSegments = 16 iz从0到15
 			{
 				for (let ix = 0; ix < widthSegments; ix++) 
 				{
@@ -1099,7 +1121,7 @@
 					const d = ix + 1 + gridX * iz;
 
 					// Faces
-					indices.push(a, b, d, b, c, d);
+					indices.push(a, b, d, b, c, d); // 绘制一个面的索引，两个三角形
 				}
 			}
 		}
@@ -1146,7 +1168,7 @@
 				const x = ix * segmentWidth - widthHalf;
 				const z = -heightHalf;
 				//vertices add values(x,z): [-0.5, -0.5], [-0.4375, -0.5], [-0.375, -0.5], [-0.3125, -0.5],[-0.25, -0.5]
-				vertices.push(x, -skirtDepth, z);
+				vertices.push(x, -skirtDepth, z);  // 全部都是-skirtDepth会有一个问题，在那种高程比较高的地方，裙边会比较长，是否应该是h-skirtDepth，这样永远都和高程一样高程相关
 				normals.push(0, 1, 0);
 				uvs.push(ix / widthSegments, 1);
 				// uvs: [0, 1], [0.0625, 1], [0.125, 1], [0.1875, 1], [0.25, 1]
@@ -1294,7 +1316,6 @@
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -1302,7 +1323,6 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -1312,7 +1332,6 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -1320,7 +1339,6 @@
 			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -1411,7 +1429,7 @@
 			{
 				// Reset existing normals to zero
 				let normalAttribute = this.getAttribute('normal');
-				const normalLength = heightSegments * widthSegments;
+				const normalLength = (heightSegments+1) * (widthSegments+1);
 				for (let i = 0; i < normalLength; i++)
 				{
 					normalAttribute.setXYZ(i, 0, 0, 0);
@@ -1421,7 +1439,7 @@
 				const nA = new three.Vector3(), nB = new three.Vector3(), nC = new three.Vector3();
 				const cb = new three.Vector3(), ab = new three.Vector3();
 				
-				const indexLength = heightSegments * widthSegments * 6;
+				const indexLength = heightSegments * widthSegments * 6;	//没有建立裙边之前的索引数量
 				for (let i = 0; i < indexLength ; i += 3)
 				{
 					const vA = this.index.getX(i + 0);
@@ -1463,7 +1481,7 @@
 	 *
 	 * The height node is designed to use MapBox elevation tile encoded data as described in https://www.mapbox.com/help/access-elevation-data/
 	 */
-	class MapHeightNode extends MapNode 
+	let MapHeightNode$1 = class MapHeightNode extends MapNode 
 	{
 		/**
 		 * Flag indicating if the tile height data was loaded.
@@ -1517,7 +1535,7 @@
 		 * @param material - Material used to render this height node.
 		 * @param geometry - Geometry used to render this height node.
 		 */
-		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new three.MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode$1.geometry, material = new three.MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
 		{
 			super(parentNode, mapView, location, level, x, y, geometry, material);
 
@@ -1557,7 +1575,7 @@
 		{
 			if (this.mapView.heightProvider === null) 
 			{
-				throw new Error('GeoThree: MapView.heightProvider provider is null.');
+				throw new Error('MapView.heightProvider provider is null.');
 			}
 	 
 			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
@@ -1569,7 +1587,7 @@
 
 			try 
 			{
-				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y, this.bbox);
+				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
 	 
 				if (this.disposed) 
 				{
@@ -1580,11 +1598,16 @@
 
 				const context = canvas.getContext('2d');
 				context.imageSmoothingEnabled = false;
-				context.drawImage(image, 0, 0, MapHeightNode.tileSize, MapHeightNode.tileSize, 0, 0, canvas.width, canvas.height);
+				context.drawImage(image, 0, 0, MapHeightNode$1.tileSize, MapHeightNode$1.tileSize, 0, 0, canvas.width, canvas.height);
 
 				const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
 
 				this.geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+				
+				this.geometry.clearGroups();
+				for (let i = 0; i < this.material.length; i++) {
+					this.geometry.addGroup(0, Infinity, i);
+				}
 			}
 			catch (e) 
 			{
@@ -1595,7 +1618,6 @@
 				
 				this.geometry = MapPlaneNode.baseGeometry;
 			}
-
 			this.heightLoaded = true;
 		}
 
@@ -1603,37 +1625,32 @@
 		{
 			const level = this.level + 1;
 			const Constructor = Object.getPrototypeOf(this).constructor;
-			let bboxs = this.calculateChildLatLon();
 			const x = this.x * 2;
 			const y = this.y * 2;
-			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, bboxs[QuadTreePosition.topLeft], level, x, y);
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, bboxs[QuadTreePosition.topRight], level, x + 1, y);
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, -0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, bboxs[QuadTreePosition.bottomLeft], level, x, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(-0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
 
-			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, bboxs[QuadTreePosition.bottomRight], level, x + 1, y + 1);
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 			node.scale.set(0.5, 1.0, 0.5);
 			node.position.set(0.25, 0, 0.25);
-			node.renderOrder = this.renderOrder;
 			this.add(node);
 			node.updateMatrix();
 			node.updateMatrixWorld(true);
@@ -1649,7 +1666,7 @@
 				super.raycast(raycaster, intersects);
 			}
 		}
-	}
+	};
 
 	/**
 	 * Map node geometry is a geometry used to represent the spherical map nodes.
@@ -1802,7 +1819,7 @@
 	 * 
 	 * A map node can be subdivided into other nodes (Quadtree).
 	 */
-	class MapSphereNode extends MapNode 
+	let MapSphereNode$1 = class MapSphereNode extends MapNode 
 	{	
 		/**
 		 * Base geometry contains the entire globe.
@@ -1833,7 +1850,7 @@
 		{
 			
 			
-			super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), new three.MeshBasicMaterial({wireframe: false}));
+			super(parentNode, mapView, location, level, x, y, MapSphereNode$1.createGeometry(level, x, y), new three.MeshBasicMaterial({wireframe: false}));
 			// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 		
 			this.applyScaleNode();
@@ -1862,7 +1879,7 @@
 		{
 			const range = Math.pow(2, zoom);
 			const max = 40;
-			const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
+			const segments = Math.floor(MapSphereNode$1.segments * (max / (zoom + 1)) / max);
 
 
 		
@@ -2065,6 +2082,476 @@
 			let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new three.Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
 			return geometry;
 		}
+	};
+
+	/**
+	 * Map node geometry is a geometry used to represent the spherical map nodes.
+	 */
+	class MapSphereNodeHeightGeometry extends three.BufferGeometry 
+	{
+		/**
+		 * Map sphere geometry constructor.
+		 * 
+		 * @param radius - Radius of the sphere.
+		 * @param width - Width of the node.
+		 * @param height - Height of the node.
+		 * @param widthSegments - Number of subdivisions along the width.
+		 * @param heightSegments - Number of subdivisions along the height.
+		 */
+		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds,imageData) 
+		{
+			super();
+
+			const thetaEnd = thetaStart + thetaLength;
+			let index = 0;
+			const grid = [];
+			const vertex = new three.Vector3();
+			const normal = new three.Vector3();
+
+			// Buffers
+			const indices = [];
+			const vertices = [];
+			const normals = [];
+			const uvs = [];
+
+			// Generate vertices, normals and uvs
+			for (let iy = 0; iy <= heightSegments; iy++) 
+			{
+				const verticesRow = [];
+				const v = iy / heightSegments;
+
+				for (let ix = 0; ix <= widthSegments; ix++) 
+				{
+					const u = ix / widthSegments;
+
+					// Vertex
+					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
+					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+
+					// vertex.x = radius * Math.sin(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
+					// vertex.y = radius * Math.sin(thetaStart + v * thetaLength);  // 维度
+					// vertex.z = radius * Math.cos(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
+
+					// vertices.push(vertex.x, vertex.y, vertex.z);
+
+					// Normal
+					normal.set(vertex.x, vertex.y, vertex.z).normalize();
+					normals.push(normal.x, normal.y, normal.z);
+
+					// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
+					// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
+					
+					// 当使用6371008作为地球半径的时候会发现经纬度定位会相差几十上百公里，然后更改为6378137的时候发现定位距离真实定位非常接近，但仍然处于不准确的状态
+					// 参考博客：https://www.cnblogs.com/arxive/p/6694225.html
+					// 参考文档https://pro.arcgis.com/zh-cn/pro-app/latest/help/mapping/properties/mercator.htm
+					// 发生小范围数据的便宜的原因之一就是该投影本身角度并不等角 （Web 墨卡托坐标系并不等角）
+					// 此外，如果地理坐标系是基于椭圆体的，它还具有一个投影参数，用于标识球体半径所使用的内容。默认值为零 (0) 时，将使用长半轴
+					// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+					let vetexC = vertex.clone();
+					// let radiusSuqred = UnitsUtils.EARTH_RADIUS_Squared;
+					// let nX = vertex.x;
+					// let nY = vertex.y;
+					// let nZ = vertex.z;
+					// const KX = radiusSuqred.x * vertex.x;
+					// const KY = radiusSuqred.y * vertex.y;
+					// const KZ = radiusSuqred.z * vertex.z;
+					// const gamma = Math.sqrt(KX * nX + KY * nY + KZ * nZ);
+					// const oneOverGamma = 1.0 / gamma;
+					// const rSurfaceX = KX * oneOverGamma;
+					// const rSurfaceY = KY * oneOverGamma;
+					// const rSurfaceZ = KZ * oneOverGamma;
+					// const position = new Vector3();
+					// position.x = rSurfaceX ;
+					// position.y = rSurfaceY ;
+					// position.z = rSurfaceZ ;
+					// vertex.multiply(UnitsUtils.EARTH_RADIUS_V);
+					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+					vertices.push(vertex.x, vertex.y, vertex.z);
+					// modify uv
+					vetexC.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+					let len = this.distance(vetexC); // length of the vertex, distance from the center
+					// let len = radius; // length of the vertex, distance from the center
+					let latitude = Math.asin(vetexC.y/len); 
+					let longitude = Math.atan2(-vetexC.z,vetexC.x);
+					// let longitude = Math.atan(-vertex.z);
+					let mercator_x = len * longitude;
+					let mercator_y = len * Math.log(Math.tan(Math.PI / 4.0 + latitude / 2.0));
+					let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+					let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+					uvs.push(x, y);
+					// modify uv end
+					
+					// let latitude = Math.acos(vertex.y);
+					// let longitude = Math.atan(-vertex.z, vertex.x);
+					// uvs.push(longitude, latitude);
+					// uvs.push(u, 1 - v);
+					verticesRow.push(index++);
+				}
+
+				grid.push(verticesRow);
+			}
+
+			// Indices
+			for (let iy = 0; iy < heightSegments; iy++) 
+			{
+				for (let ix = 0; ix < widthSegments; ix++) 
+				{
+					const a = grid[iy][ix + 1];
+					const b = grid[iy][ix];
+					const c = grid[iy + 1][ix];
+					const d = grid[iy + 1][ix + 1];
+
+					if (iy !== 0 || thetaStart > 0) 
+					{
+						indices.push(a, b, d);
+					}
+
+					if (iy !== heightSegments - 1 || thetaEnd < Math.PI) 
+					{
+						indices.push(b, c, d);
+					}
+				}
+			}
+
+			this.setIndex(indices);
+			this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
+			this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
+			this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+		}
+
+		/**
+		 * 计算position的长度
+		 * @param {*} postion  
+		 */
+		distance(postion){
+			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
+			return distance;
+		}
+	}
+
+	/** 
+	 * Represents a map tile node.
+	 * 
+	 * A map node can be subdivided into other nodes (Quadtree).
+	 */
+	class MapSphereNodeHeight extends MapNode 
+	{	
+		/**
+		 * Base geometry contains the entire globe.
+		 * 
+		 * Individual geometries generated for the sphere nodes are not based on this base geometry.
+		 * 
+		 * Applied to the map view on initialization.
+		 */
+		static baseGeometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new three.Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+
+		/**
+		 * Base scale of the node.
+		 * 
+		 * Applied to the map view on initialization.
+		 */
+		static baseScale = new three.Vector3(1, 1, 1);
+
+		/**
+		 * Number of segments per node geometry.
+		 * 
+		 * Can be configured globally and is applied to all nodes.
+		 */
+		static segments = 160;
+		// static segments = 64;
+
+
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
+		{
+			
+			
+			super(parentNode, mapView, location, level, x, y, MapSphereNode.baseGeometry, new three.MeshBasicMaterial({wireframe: false}));
+			// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
+		
+			this.applyScaleNode();
+			this.matrixAutoUpdate = false;
+			this.isMesh = true;
+			this.visible = false;
+		}
+		
+		async initialize()
+		{
+			super.initialize();
+			
+			await this.loadData();
+			await this.createGeometry();
+			
+			this.nodeReady();
+		}
+
+		/**
+		 * Create a geometry for a sphere map node.
+		 *
+		 * @param zoom - Zoom level to generate the geometry for.
+		 * @param x - X tile position.
+		 * @param y - Y tile position.
+		 */
+		async createGeometry()
+		{
+			let zoom =this.level;
+			let x = this.x;
+			let y = this.y;
+			const range = Math.pow(2, zoom);
+			const max = 40;
+			const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
+
+
+		
+			// X
+			// const phiLength = 1 / range * 2 * Math.PI;
+			// const phiStart = x * phiLength;
+			
+			// // 经度
+			const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+			const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+			const phiStart = lon1;
+			const phiLength = lon2 - lon1;
+		
+			// Y
+			// const thetaLength = 1 / range * Math.PI;
+			// const thetaStart = y * thetaLength;
+			// 维度
+			const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+			const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+			const thetaLength = lat1 - lat2;
+			const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+			let vBounds = new three.Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+			let data = await loadHeightData(segments);
+			this.geometry =  new MapSphereNodeHeightGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds, data);
+			this.geometry.clearGroups();
+			for (let i = 0; i < this.material.length; i++) {
+				this.geometry.addGroup(0, Infinity, i);
+			}
+		}
+		
+		/** 
+		 * Apply scale and offset position to the sphere node geometry.
+		 */
+		applyScaleNode()
+		{
+			this.geometry.computeBoundingBox();
+		
+			const box = this.geometry.boundingBox.clone();
+			const center = box.getCenter(new three.Vector3());
+		
+			const matrix = new three.Matrix4();
+			// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
+			matrix.compose(new three.Vector3(-center.x, -center.y, -center.z), new three.Quaternion(), new three.Vector3(1,1,1));
+			// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), UnitsUtils.EARTH_RADIUS_V);
+			this.geometry.applyMatrix4(matrix);
+			// 未赋值matrix的缘故？
+			// this.matrix = matrix;
+			this.position.copy(center);
+			
+			// var centerCopy = this.geometry.boundingBox.getCenter(new Vector3());
+		
+			this.updateMatrix();
+			this.updateMatrixWorld();
+		}
+
+		/**
+		 * Load height texture from the server and create a geometry to match it.
+		 *
+		 * @returns Returns a promise indicating when the geometry generation has finished.
+		 */
+		async loadHeightData(segments = 16) 
+		{
+			if (this.mapView.heightProvider === null) 
+			{
+				throw new Error('MapView.heightProvider provider is null.');
+			}
+	 
+			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
+			{
+				return null;
+			}
+
+			try 
+			{
+				const image = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+	 
+				if (this.disposed) 
+				{
+					return null;
+				}
+
+				const canvas = CanvasUtils.createOffscreenCanvas(segments + 1, segments + 1); 
+
+				const context = canvas.getContext('2d');
+				context.imageSmoothingEnabled = false;
+				context.drawImage(image, 0, 0, MapHeightNode.tileSize, MapHeightNode.tileSize, 0, 0, canvas.width, canvas.height);
+
+				const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+				return imageData;
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return null;
+				}
+			}
+			this.heightLoaded = true;
+		}
+		
+		updateMatrix()
+		{
+			this.matrix.setPosition(this.position);
+			this.matrixWorldNeedsUpdate = true;
+		}
+		
+		updateMatrixWorld(force = false)
+		{
+			if (this.matrixWorldNeedsUpdate || force) 
+			{
+				// var temp = this.matrix.clone().multiplyScalar(6371008);
+				// this.matrixWorld.copy(temp);
+				this.matrixWorld.copy(this.matrix);
+				this.matrixWorldNeedsUpdate = false;
+			}
+		}
+		
+		createChildNodes()
+		{
+			const level = this.level + 1;
+			const x = this.x * 2;
+			const y = this.y * 2;
+
+			const Constructor = Object.getPrototypeOf(this).constructor;
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+			// return;
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
+			node.renderOrder = this.renderOrder;
+			this.add(node);
+		}
+		/**
+		async loadData()
+		{
+			if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
+			{
+				console.warn('Geo-Three: Loading tile outside of provider range.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// @ts-ignore
+				this.material.needsUpdate = true;
+				return;
+			}
+
+			try 
+			{
+				let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
+				
+				if (this.disposed) 
+				{
+					return;
+				}
+							
+				const texture = new Texture(image);
+				texture.generateMipmaps = false;
+				texture.format = RGBAFormat;
+				texture.magFilter = LinearFilter;
+				texture.minFilter = LinearFilter;
+				texture.needsUpdate = true;
+				// @ts-ignore
+				this.material.map = texture;
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				console.warn('Geo-Three: Failed to load node tile data.', this);
+
+				// @ts-ignore
+				this.material.map = MapNode.defaultTexture;
+				// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
+				this.material.transparent = true;
+				// this.material.alphaTest = 0.01;
+				this.material.opacity = 0;
+			}
+
+			// @ts-ignore
+			this.material.needsUpdate = true;
+		}
+		 */
+		
+		/**
+		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
+		 */
+		raycast(raycaster, intersects)
+		{
+			if (this.isMesh === true) 
+			{
+				super.raycast(raycaster, intersects);
+			}
+		}
+
+		shaderMaterial(level,x,y){
+			let bounds = UnitsUtils.tileBounds(level, x, y);
+			// Load shaders
+			const vertexShader = /* WGSL */`
+		varying vec3 vPosition;
+		void main() {
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+		`;
+
+			const fragmentShader =  /* WGSL */`
+		#define PI 3.141592653589
+		varying vec3 vPosition;
+		uniform sampler2D uTexture;
+		uniform vec4 mercatorBounds;
+		void main() {
+			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
+			float radius = length(vPosition);
+			float latitude = asin(vPosition.y / radius);
+			float longitude = atan(-vPosition.z, vPosition.x);
+			float mercator_x = radius * longitude;
+			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
+			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
+			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
+			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
+			
+			vec4 color = texture2D(uTexture, vec2(x, y));
+			gl_FragColor = color;
+		}
+		`;
+			
+			// Create shader material
+			let vBounds = new three.Vector4(...bounds);
+			const material = new three.ShaderMaterial({
+				uniforms: {uTexture: {value: new three.Texture()}, mercatorBounds: {value: vBounds}},
+				vertexShader: vertexShader,
+				fragmentShader: fragmentShader
+			});
+			return material;
+		}
+		static getGeometry(scale = 0){
+			let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new three.Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+			return geometry;
+		}
 	}
 
 	/**
@@ -2079,7 +2566,7 @@
 	 * @param x - X position of the node in the tile tree.
 	 * @param y - Y position of the node in the tile tree.
 	 */
-	class MapHeightNodeShader extends MapHeightNode 
+	class MapHeightNodeShader extends MapHeightNode$1 
 	{
 		/**
 		 * Default height texture applied when tile load fails.
@@ -2886,7 +3373,7 @@
 	 * @param material   -Material used to render this height node.
 	 * @param geometry - Geometry used to render this height node.
 	 */
-	class MapMartiniHeightNode extends MapHeightNode
+	class MapMartiniHeightNode extends MapHeightNode$1
 	{
 		/**
 		 * Geometry size to be used for each martini height node.
@@ -3215,6 +3702,705 @@
 		}
 	}
 
+	class MapNodeHeightTinGeometry extends three.BufferGeometry
+	{
+		/**
+		 * Map node geometry constructor.
+		 *
+		 * @param terrain - 稀疏网格的高程数据， 基于cesium terrain world（小端存储） 与 天地图 terrain world（大端存储）制作的稀疏网格数据
+		 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是10，calculateNormals默认是true
+		 */
+		constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true)
+		{
+			super();
+
+			// Buffers
+			const indices = [];
+			const vertices = [];
+			const normals = [];
+			const uvs = [];
+			if (terrain === null || terrain === undefined || terrain.vertexData === null || terrain.vertexData === undefined) {
+				MapNodeGeometry.buildPlane(1, 1, 16, 16, indices, vertices, normals, uvs);
+				if (skirt) {
+					MapNodeGeometry.buildSkirt(1, 1, 16, 16, skirtDepth, indices, vertices, normals, uvs);
+				}
+				this.setIndex(indices);
+				this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
+				this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
+				this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+				return;
+			}
+
+			if (terrain){
+				if (terrain.header) {
+				    this.userData.terrain.header = terrain.header;
+				}
+			}
+			// 构建平面
+			this.buildPlane(terrain.vertexData, terrain.indexData, indices, vertices, normals, uvs);
+			
+
+			// Generate the skirt
+			// 构建裙边。
+			if (skirt)
+			{
+				this.buildSkirt(terrain.edgeIndices ,skirtDepth, indices, vertices, normals, uvs);
+			}
+
+			this.setIndex(indices);
+			this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
+			this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
+			this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+
+			if (calculateNormals)
+			{
+				this.computeNormals(terrain.vertexData, terrain.indexData);
+			}
+		}
+
+		buildPlane(vertexData, indicesData, indices, vertices, normals, uvs) {
+		    let vertexCount = vertexData.vertexCount;
+			let xarr = vertexData.xarr;
+			let yarr = vertexData.yarr;
+			let harr = vertexData.harr;
+			let MaxHeight = this.userData.terrain.header.MaxiumHeight;
+			let MinHeight = this.userData.terrain.header.MiniumHeight;
+			for (let i = 0; i < vertexCount; i++) {
+			    let x = 1.0 * xarr[i]/32767 - 0.5;
+			    let z = 1.0 * yarr[i]/32767 - 0.5;
+			    let h = 1.0 * harr[i]/32767 * (MaxHeight - MinHeight) + MinHeight;
+			    vertices.push(x, h, z);
+				normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
+				uvs.push(x+0.5, 0.5-z); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
+			}
+			// let triangleCount = indicesData.triangleCount;
+			// let indexs = indicesData.indices;
+			// for (let i = 0; i < triangleCount; i+=3) {
+			//     let index0 = indexs[i];
+			//     let index1 = indexs[i+1];
+			//     let index2 = indexs[i+2];
+			//     indices.push(index0, index1, index2);
+			// }
+			indices.push(...indicesData.indices);
+		}
+
+		buildSkirt(edgeIndices, skirtDepth, indices, vertices, normals, uvs){
+			let westVertexCount = edgeIndices.westVertexCount;
+			let westIndices = edgeIndices.west;
+			let start = vertices.length/3; // 顶点数组的长度除以3，得到顶点的个数
+			for (let i = 0; i < westVertexCount; i++) {
+			    let index = westIndices[i];
+				let x = vertices[index*3];
+				let h = vertices[index*3+1];
+				let z = vertices[index*3+2];
+				let u = uvs[index*2];
+				let v = uvs[index*2+1];
+				vertices.push(x, h-skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(u, v);
+			}
+			for (let i = 0; i < westVertexCount-1; i++) {
+			    let a = westIndices[i];
+			    let b = westIndices[i+1];
+				let c = start + i;				// a   b
+			    let d = start + i + 1;			// c   d
+			    indices.push(b, c, a, b, d, c); // 逆时针顺序
+			}
+
+			// south
+			let southVertexCount = edgeIndices.southVertexCount;
+			let southIndices = edgeIndices.south;
+			start = vertices.length/3;
+			for (let i = 0; i < southVertexCount; i++) {
+			    let index = southIndices[i];
+				let x = vertices[index*3];
+				let h = vertices[index*3+1];
+				let z = vertices[index*3+2];
+				let u = uvs[index*2];
+				let v = uvs[index*2+1];
+				vertices.push(x, h-skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(u, v);
+			}
+			for (let i = 0; i < southVertexCount-1; i++) {
+			    let a = southIndices[i];
+			    let b = southIndices[i+1];
+				let c = start + i;				// a   b
+			    let d = start + i + 1;			// c   d
+			    indices.push(b, c, a, b, d, c); // 逆时针顺序
+			}
+
+			// east
+			let eastVertexCount = edgeIndices.eastVertexCount;
+			let eastIndices = edgeIndices.east;
+			start = vertices.length/3;
+			for (let i = 0; i < eastVertexCount; i++) {
+			    let index = eastIndices[i];
+				let x = vertices[index*3];
+				let h = vertices[index*3+1];
+				let z = vertices[index*3+2];
+				let u = uvs[index*2];
+				let v = uvs[index*2+1];
+				vertices.push(x, h-skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(u, v);
+			}
+			for (let i = 0; i < eastVertexCount-1; i++) {
+			    let a = eastIndices[i];
+			    let b = eastIndices[i+1];
+				let c = start + i;				// a   b
+			    let d = start + i + 1;			// c   d
+			    indices.push(b, c, a, b, d, c); // 逆时针顺序
+			}
+
+			// north
+			let northVertexCount = edgeIndices.northVertexCount;
+			let northIndices = edgeIndices.north;
+			start = vertices.length/3;
+			for (let i = 0; i < northVertexCount; i++) {
+			    let index = northIndices[i];
+				let x = vertices[index*3];
+				let h = vertices[index*3+1];
+				let z = vertices[index*3+2];
+				let u = uvs[index*2];
+				let v = uvs[index*2+1];
+				vertices.push(x, h-skirtDepth, z);
+				normals.push(0, 1, 0);
+				uvs.push(u, v);
+			}
+			for (let i = 0; i < northVertexCount-1; i++) {
+			    let a = northIndices[i];
+			    let b = northIndices[i+1];
+				let c = start + i;				// a   b
+			    let d = start + i + 1;			// c   d
+			    indices.push(b, c, a, b, d, c); // 逆时针顺序
+			}
+		}
+		/**
+		 * Compute normals for the height geometry.
+		 * 计算法向量
+		 * Only computes normals for the surface of the map geometry. Skirts are not considered.
+		 * 
+		 * @param widthSegments - Number of segments in width.
+		 * @param heightSegments - Number of segments in height.
+		 */
+		computeNormals(vertexData, indicesData)
+		{
+			vertexData.vertexCount;
+			let triangleCount = indicesData.triangleCount;
+			const positionAttribute = this.getAttribute('position');
+		
+			if (positionAttribute !== undefined)
+			{
+				// Reset existing normals to zero
+				let normalAttribute = this.getAttribute('normal');
+				// for (let i = 0; i < vertexCount; i++)
+				// {
+				// 	normalAttribute.setXYZ(i, 0, 0, 0);
+				// }
+
+				const pA = new three.Vector3(), pB = new three.Vector3(), pC = new three.Vector3();
+				const nA = new three.Vector3(), nB = new three.Vector3(), nC = new three.Vector3();
+				const cb = new three.Vector3(), ab = new three.Vector3();
+				
+				const indexLength = triangleCount * 3;
+				for (let i = 0; i < indexLength ; i += 3)
+				{
+					const vA = this.index.getX(i + 0);
+					const vB = this.index.getX(i + 1);
+					const vC = this.index.getX(i + 2);
+
+					pA.fromBufferAttribute(positionAttribute, vA);
+					pB.fromBufferAttribute(positionAttribute, vB);
+					pC.fromBufferAttribute(positionAttribute, vC);
+
+					cb.subVectors(pC, pB);
+					ab.subVectors(pA, pB);
+					cb.cross(ab);
+
+					nA.fromBufferAttribute(normalAttribute, vA);
+					nB.fromBufferAttribute(normalAttribute, vB);
+					nC.fromBufferAttribute(normalAttribute, vC);
+
+					nA.add(cb);
+					nB.add(cb);
+					nC.add(cb);
+
+					normalAttribute.setXYZ(vA, nA.x, nA.y, nA.z);
+					normalAttribute.setXYZ(vB, nB.x, nB.y, nB.z);
+					normalAttribute.setXYZ(vC, nC.x, nC.y, nC.z);
+				}
+
+				this.normalizeNormals();
+
+				normalAttribute.needsUpdate = true;
+			}
+		}
+	}
+
+	class TerrainUtils {
+	    
+	    /**
+	     * 用法：
+	     * fetch('./data/46486.terrain').then(res=> res.arrayBuffer()).then(data => {TerrainUtils.extractTerrainInfo(data)});
+	     * 
+	     * @param {ArrayBuffer} data 直接请求到的数据 
+	     */
+	    static extractTerrainInfo(data, littleEndian = true) {
+	        let dataView = new DataView(data);
+	        let byteoffset = 0;
+	        // let littleEndian = true; // true: 小端，false或undifined: 大端
+	        let CenterX = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let CenterY = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let CenterZ = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let MiniumHeight = dataView.getFloat32(byteoffset, littleEndian); byteoffset+=4;
+	        let MaxiumHeight = dataView.getFloat32(byteoffset, littleEndian); byteoffset+=4;
+	        let BoundingSphereCenterX = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let BoundingSphereCenterY = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let BoundingSphereCenterZ = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let BoundingSphereRadius = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let HorizonOcclusionPointX = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let HorizonOcclusionPointY = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        let HorizonOcclusionPointZ = dataView.getFloat64(byteoffset, littleEndian); byteoffset+=8;
+	        
+	        let header = {
+	            CenterX: CenterX,
+	            CenterY: CenterY,
+	            CenterZ: CenterZ,
+	            MiniumHeight: MiniumHeight,
+	            MaxiumHeight: MaxiumHeight,
+	            BoundingSphereCenterX: BoundingSphereCenterX,
+	            BoundingSphereCenterY: BoundingSphereCenterY,
+	            BoundingSphereCenterZ: BoundingSphereCenterZ,
+	            BoundingSphereRadius: BoundingSphereRadius,
+	            HorizonOcclusionPointX: HorizonOcclusionPointX,
+	            HorizonOcclusionPointY: HorizonOcclusionPointY,
+	            HorizonOcclusionPointZ: HorizonOcclusionPointZ,
+	        };
+	        
+	        let vertexCount = dataView.getInt32(byteoffset, littleEndian); byteoffset+=4;
+
+	        //解码后，每个数组中值的含义如下：
+
+	        //u: 瓦片中顶点的水平坐标。当u值为0时，顶点位于瓦块的西边缘。值为32767时，顶点在瓦块的东边缘。
+	        //对于其他值，顶点的经度是瓦块西边和东边的经度之间的线性插值。
+
+	        //v: 瓦片中顶点的垂直坐标。当v值为0时，顶点位于瓦块的南部边缘。值为32767时，顶点位于瓦块的北边缘。
+	        //对于其他值，顶点的纬度是瓦块的南边和北边的纬度之间的线性插值。
+
+	        //height: 瓦片中顶点的高度。当height值为0时，顶点的高度等于tile头中指定的tile内的最小高度。值为32767时，顶点的高度等于瓦块内的最大高度。
+	        //对于其他值，顶点的高度是最小和最大高度之间的线性插值。
+	        let x = 0, y=0, h = 0;
+	        let xarr = new Array(vertexCount);
+	        let yarr = new Array(vertexCount);
+	        let harr = new Array(vertexCount);
+	        for(let i = 0; i < vertexCount; i++) {
+	            let num = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	            xarr[i] = num;
+	        }
+	        for(let i = 0; i < vertexCount; i++) {
+	            let num = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	            yarr[i] = num;
+	        }
+	        for(let i = 0; i < vertexCount; i++) {
+	            let num = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	            harr[i] = num;
+	        }
+	        for(let i = 0; i < vertexCount; i++) {
+	            x += zigzagDecodeInt(xarr[i]);
+	            y += zigzagDecodeInt(yarr[i]);
+	            h += zigzagDecodeInt(harr[i]);
+	            xarr[i] = x;
+	            yarr[i] = y;
+	            harr[i] = h;
+	        }
+	        let vertexData = {
+	            vertexCount: vertexCount,
+	            u: xarr,
+	            v: yarr,
+	            height: harr
+	        };
+	        //紧跟着顶点数据的是索引数据。索引指定顶点如何链接在一起成为三角形。
+	        //如果瓦块具有超过65536个顶点，则该瓦块使用IndexData32结构编码索引。否则，它将使用IndexData16结构。
+	        //为了强制正确的字节对齐，在IndexData之前添加填充以确保IndexData16的2字节对齐和IndexData32的4字节对齐。
+	        let bytesPerIndex = vertexCount > 65536 ? 4 : 2;
+	        if (byteoffset % bytesPerIndex != 0){
+	            byteoffset += bytesPerIndex - (byteoffset % bytesPerIndex);
+	        }
+
+	        let triangleCount = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4; //三角形数量
+	        let indices = new Array(triangleCount*3);
+	        for(let i = 0; i < triangleCount*3; i++) {
+	            if (bytesPerIndex === 4){
+	                indices[i] = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	            } else {
+	                indices[i] = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	            }
+	        }
+
+	        let highest = 0;
+	        for (let i = 0; i < triangleCount; i++)
+	        {
+	            let code = indices[i];
+	            indices[i] = highest - code;//需要强制转换为UInt16
+	            if (code == 0)
+	            {
+	                highest++;
+	            }
+	        }
+	        let indexData = {
+	            triangleCount: triangleCount,
+	            indices: indices,
+	            highest: highest
+	        };
+	        // console.log("vertexCount:" + vertexCount + " indexCount:" + triangleCount);
+	        // console.log(highest);
+	        // return;
+
+
+
+	        // let vertexs = new Array(vertexCount);
+	        // for (let i = 0; i < vertexCount; i++)
+	        // {
+	        // 	let lon = 1.0 * xarr[i] / 32767 * degree + lonmin;
+	        // 	let lat = 1.0 * yarr[i] / 32767 * degree + latmin;
+	        // 	let height = 1.0 * harr[i] / 32767 * (MaxiumHeight - MiniumHeight) + MiniumHeight;
+
+	        // 	vertexs.Add(new Cartographic(lon, lat, height));
+	        // }
+
+	        // let face = new Array();
+	        // for(let i = 0; i < triangleCount; i+=3){
+	        // 	let index0 = indices[i];
+	        // 	let index1 = indices[i+1];
+	        // 	let index2 = indices[i+2];
+	        // 	if (index0 < 0 || index1 < 0 || index2 < 0){
+	        // 		continue;
+	        // 	}
+	        // 	if (index0 > vertexCount-1 || index1 > vertexCount -1 || index2 > vertexCount-1){
+	        // 		continue;
+	        // 	}
+	        // 	face.push(index0);
+	        // 	face.push(index1);
+	        // 	face.push(index2);
+	        // }
+	        
+	        let westVertexCount = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	        let westVertexs = new Array(westVertexCount);
+	        for (let i = 0; i < westVertexCount; i++){
+	            if (bytesPerIndex === 4){
+	                let index = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	                westVertexs[i] = index;
+	            } else {
+	                let index = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	                westVertexs[i] = index;
+	            }
+	            
+	        }
+
+	        let southVertexCount = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	        let southVertexs = new Array(southVertexCount);
+	        for (let i = 0; i < southVertexCount; i++){
+	            if (bytesPerIndex === 4){
+	                let index = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	                southVertexs[i] = index;
+	            } else {
+	                let index = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	                southVertexs[i] = index;
+	            }
+	        }
+
+	        let eastVertexCount = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	        let eastVertexs = new Array(eastVertexCount);
+	        for (let i = 0; i < eastVertexCount; i++){
+	            if (bytesPerIndex === 4){
+	                let index = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	                eastVertexs[i] = index;
+	            } else {
+	                let index = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	                eastVertexs[i] = index;
+	            }
+	        }
+
+	        let northVertexCount = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	        let northVertexs = new Array(northVertexCount);
+	        for (let i = 0; i < northVertexCount; i++){
+	            if (bytesPerIndex === 4){
+	                let index = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	                northVertexs[i] = index;
+	            } else {
+	                let index = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
+	                northVertexs[i] = index;
+	            }
+	        }
+
+	        let edgeIndices = {
+	            westVertexCount: westVertexCount,
+	            southVertexCount: southVertexCount,
+	            eastVertexCount: eastVertexCount,
+	            northVertexCount: northVertexCount,
+	            west: westVertexs,
+	            south: southVertexs,
+	            east: eastVertexs,
+	            north: northVertexs
+	        };
+	        let extensions = {};
+	        // 加载扩展
+	        while (byteoffset < data.byteLength){
+	            let extensionId = dataView.getUint8(byteoffset, littleEndian); byteoffset+=1;
+	            let extensionLength = dataView.getUint32(byteoffset, littleEndian); byteoffset+=4;
+	            if (extensionId === 1){ // 地形照明
+	                let xy = new Array(vertexCount*2);
+	                for (let i = 0; i < vertexCount*2; i++){
+	                    xy[i] = dataView.getUint8(byteoffset, littleEndian); byteoffset+=1;
+	                }
+	                extensions.xy = xy;
+	                
+	            } else if (extensionId === 2){ // 水标记
+	                if (extensionLength === 1){
+	                    let mask = dataView.getUint8(byteoffset, littleEndian); byteoffset+=1;
+	                    extensions.mask = mask;
+	                } else {
+	                    let masks = new Array(256*256);
+	                    for (let i = 0; i < 256*256; i++){
+	                        masks[i] = dataView.getUint8(byteoffset, littleEndian); byteoffset+=1;
+	                        byteoffset += 1;
+	                    }
+	                    extensions.masks = masks;
+	                }
+	            } else if (extensionId === 4){ // 元数据
+
+	                let jsonLength = dataView.getUint32(byteoffset, littleEndian);byteoffset+=4;
+
+	                let jsonString = '';
+	                for (let i = 0; i < jsonLength; ++i) {
+	                    jsonString += String.fromCharCode(dataView.getUint8(byteoffset, littleEndian));byteoffset+=1;
+	                }
+	                let json = JSON.parse(jsonString);
+	                byteoffset += extensionLength;
+	                extensions.json = json;
+	                extensions.jsonLength = jsonLength;
+
+	            } else {
+	                byteoffset += extensionLength;
+	            }
+	        }
+	        // console.log(header); // 经过比对，完全一样 pass
+	        // console.log(vertexData); // pass
+	        // console.log(indices);   // pass
+	        // console.log(edgeIndices); // pass
+	        // console.log(extensions); // pass
+	        return {
+	            header,
+	            vertexData,
+	            indexData,
+	            edgeIndices,
+	            extensions
+	        }
+	    }
+
+
+
+
+	    static zigzagDecodeInt(data) {
+	        return (data >> 1) ^ (-(data & 1));
+	    }
+
+	    static zigzagDecodeShort(data) {
+	        return ((data >> 15) ^ (data << 1));
+	    }
+
+	    static extractRGBA(){
+	        
+	    }
+	}
+
+	/**
+	 * Represents a height map tile node that can be subdivided into other height nodes.
+	 *
+	 * Its important to update match the height of the tile with the neighbors nodes edge heights to ensure proper continuity of the surface.
+	 *
+	 * The height node is designed to use MapBox elevation tile encoded data as described in https://www.mapbox.com/help/access-elevation-data/
+	 */
+	class MapHeightNodeTin extends MapNode 
+	{
+		/**
+		 * Flag indicating if the tile height data was loaded.
+		 */
+		heightLoaded = false;
+
+		/**
+		 * Flag indicating if the tile texture was loaded.
+		 */
+		textureLoaded = false;
+
+		/**
+		 * Original tile size of the images retrieved from the height provider.
+		 */
+		static tileSize = 256;
+
+		/**
+		 * Size of the grid of the geometry displayed on the scene for each tile.
+		 */
+		geometrySize = 16;
+
+		/**
+		 * If true the tiles will compute their normals.
+		 */
+		geometryNormals = false;
+
+		/**
+		 * Map node plane geometry.
+		 */
+		static geometry = new MapNodeGeometry(1, 1, 1, 1);
+
+		/**
+		 * Base geometry shared across all the nodes.
+		 */
+		static baseGeometry = MapPlaneNode.geometry;
+
+		/**
+		 * Scale to apply to each node.
+		 */
+		static baseScale = new three.Vector3(UnitsUtils.EARTH_PERIMETER, 1, UnitsUtils.EARTH_PERIMETER);
+
+		/**
+		 * Map height node constructor.
+		 *
+		 * @param parentNode - The parent node of this node.
+		 * @param mapView - Map view object where this node is placed.
+		 * @param location - Position in the node tree relative to the parent.
+		 * @param level - Zoom level in the tile tree of the node.
+		 * @param x - X position of the node in the tile tree.
+		 * @param y - Y position of the node in the tile tree.
+		 * @param material - Material used to render this height node.
+		 * @param geometry - Geometry used to render this height node.
+		 */
+		constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = MapHeightNode.geometry, material = new three.MeshPhongMaterial({wireframe: false, color: 0xffffff})) 
+		{
+			super(parentNode, mapView, location, level, x, y, geometry, material);
+
+			this.isMesh = true;
+			this.visible = false;
+			this.matrixAutoUpdate = false;
+		}
+
+		async initialize()
+		{
+			super.initialize();
+			
+			await this.loadData();
+			await this.loadHeightGeometry();
+
+			this.nodeReady();
+		}
+
+		/**
+		 * Load tile texture from the server.
+		 *
+		 * Aditionally in this height node it loads elevation data from the height provider and generate the appropiate maps.
+		 */
+		async loadData() 
+		{
+			await super.loadData();
+			
+			this.textureLoaded = true;
+		}
+
+		/**
+		 * Load height texture from the server and create a geometry to match it.
+		 *
+		 * @returns Returns a promise indicating when the geometry generation has finished.
+		 */
+		async loadHeightGeometry() 
+		{
+			if (this.mapView.heightProvider === null) 
+			{
+				throw new Error('MapView.heightProvider provider is null.');
+			}
+	 
+			if (this.level < this.mapView.heightProvider.minZoom || this.level > this.mapView.heightProvider.maxZoom)
+			{
+
+				this.geometry = MapPlaneNode.baseGeometry;
+				return;
+			}
+
+			try 
+			{
+				const dataBuffer = await this.mapView.heightProvider.fetchTile(this.level, this.x, this.y);
+	 
+				if (this.disposed) 
+				{
+					return;
+				}
+				let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.mapView.heightProvider.littleEndian);
+				this.geometry = new MapNodeHeightTinGeometry(terrain);
+				
+				this.geometry.clearGroups();
+				for (let i = 0; i < this.material.length; i++) {
+					this.geometry.addGroup(0, Infinity, i);
+				}
+			}
+			catch (e) 
+			{
+				if (this.disposed) 
+				{
+					return;
+				}
+				
+				this.geometry = MapPlaneNode.baseGeometry;
+			}
+			this.heightLoaded = true;
+		}
+
+		createChildNodes() 
+		{
+			const level = this.level + 1;
+			const Constructor = Object.getPrototypeOf(this).constructor;
+			const x = this.x * 2;
+			const y = this.y * 2;
+			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(-0.25, 0, -0.25);
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(0.25, 0, -0.25);
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(-0.25, 0, 0.25);
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+
+			node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
+			node.scale.set(0.5, 1.0, 0.5);
+			node.position.set(0.25, 0, 0.25);
+			this.add(node);
+			node.updateMatrix();
+			node.updateMatrixWorld(true);
+		}
+
+		/**
+		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
+		 */
+		raycast(raycaster, intersects)
+		{
+			if (this.isMesh === true) 
+			{
+				super.raycast(raycaster, intersects);
+			}
+		}
+	}
+
 	/**
 	 * Map viewer is used to read and display map tiles from a server.
 	 *
@@ -3250,14 +4436,26 @@
 		static MARTINI = 204;
 
 		/**
+		 * RTIN map mode.
+		 */
+		static HEIGHT_TIN = 205;
+
+		/**
+		 * spherical height map
+		 */
+		static SPHERICAL_HEIGHT = 206;
+
+		/**
 		 * Map of the map node types available.
 		 */
 		static mapModes = new Map([
 			[MapView.PLANAR, MapPlaneNode],
-			[MapView.SPHERICAL, MapSphereNode],
-			[MapView.HEIGHT, MapHeightNode],
+			[MapView.SPHERICAL, MapSphereNode$1],
+			[MapView.HEIGHT, MapHeightNode$1],
 			[MapView.HEIGHT_SHADER, MapHeightNodeShader],
-			[MapView.MARTINI, MapMartiniHeightNode]
+			[MapView.MARTINI, MapMartiniHeightNode],
+			[MapView.HEIGHT_TIN, MapHeightNodeTin],
+			[MapView.SPHERICAL_HEIGHT, MapSphereNodeHeight]
 		]);
 
 		/**
@@ -4451,6 +5649,7 @@
 
 	/**
 	 * Debug provider can be used to debug the levels of the map three based on the zoom level they change between green and red.
+	 * 用瓦片的zoom x y作为贴图
 	 */
 	class DebugProvider extends MapProvider 
 	{
@@ -4707,39 +5906,31 @@
 
 	// import Fetch from "../utils/Fetch.js";
 	class TianDiTuHeightProvider extends MapProvider {
-	    address = "http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk={token}";
+	    address = "https://t3.tianditu.gov.cn/mapservice/swdx?tk={token}&x={x}&y={y}&l={z}";
 	    minZoom = 0;
-	    maxZoom = 25;
+	    maxZoom = 19;
 	    tileSize = 256;
-	    token = "";
+	    token = "588e61bc464868465169f209fe694dd0";
+	    littleEndian = false;
 	    constructor(options) {
 	        super(options);
 	        Object.assign(this, options);
 	    }
 	    getAddress(zoom, x, y) {
-	        return this.address.replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
+	        let num = Math.floor(Math.random() * 8);
+	        return this.url.replace("t3", "t" + num).replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
 	    }
-	    // 拿到的既是图片数据
+	    
 	    fetchTile(zoom, x, y){
 	        let url = this.getAddress(zoom, x, y);
 	        return new Promise((resolve, reject) => 
 			{
-				const image = document.createElement('img');
-				image.onload = function() 
-				{
-					resolve(image);
-				};
-				image.onerror = function() 
-				{
-					reject();
-				};
-				image.crossOrigin = 'Anonymous';
-				image.src = url;
+				fetch(url).then(res=> res.arrayBuffer()).then(data=> {
+					resolve(data);
+	            });
 			});
 	    }
 	}
-	// let tianDiTuProvider = new TianDiTuProvider("your_token");
-	// tianDiTuProvider.fetchTile(1, 1, 1);
 
 	/**
 	 * Geolocation utils contains utils to access the user location (GPS, IP location or wifi).
@@ -5117,6 +6308,48 @@
 	   
 	}
 
+	class VectorUtils{
+	    static magnitudeSquared(cartesian){
+	        return cartesian.x*cartesian.x+cartesian.y*cartesian.y+cartesian.z*cartesian.z;
+	    }
+
+	    static magnitude(cartesian){
+	        return Math.sqrt(this.magnitudeSquared(cartesian));
+	    }
+
+	    static normalize(cartesian){
+	        const magnitude = this.magnitude(cartesian);
+	        const result = new three.Vector3();
+	        result.x = cartesian.x / magnitude;
+	        result.y = cartesian.y / magnitude;
+	        result.z = cartesian.z / magnitude;
+	          //>>includeStart('debug', pragmas.debug);
+	        if (isNaN(result.x) || isNaN(result.y) || isNaN(result.z)) {
+	            throw new Error("normalized result is not a number");
+	        }
+	        return result;
+	    }
+
+	    /**
+	     * 通过同平面内的向量a和b，计算垂直该平面的向量
+	     * @param {Vector3} a 向量 
+	     * @param {Vector3} b 向量
+	     * @returns 
+	     */
+	    static apply(a, b){
+	        let left = new three.Matrix3(0, -a.z, a.y, a.z, 0, -a.x, -a.y, a.x, 0);
+	        let right = new three.Matrix3(b.x, 0, 0, b.y, 0, 0, b.z, 0, 0);
+	        let result = left.multiply(right);
+	        let xAxis = new three.Vector3();
+	        let yAxis = new three.Vector3();
+	        let zAxis = new three.Vector3();
+	        result.extractBasis(xAxis, yAxis, zAxis);
+	        return xAxis;
+
+	    }
+
+	}
+
 	// OrbitControls performs orbiting, dollying (zooming), and panning.
 	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
 	//
@@ -5124,14 +6357,14 @@
 	//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
 	//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
-	const _changeEvent = { type: 'change' };
-	const _startEvent = { type: 'start' };
-	const _endEvent = { type: 'end' };
-	const _ray = new three.Ray();
-	const _plane = new three.Plane();
-	const TILT_LIMIT = Math.cos( 70 * three.MathUtils.DEG2RAD );
+	const _changeEvent$1 = { type: 'change' };
+	const _startEvent$1 = { type: 'start' };
+	const _endEvent$1 = { type: 'end' };
+	const _ray$1 = new three.Ray();
+	const _plane$1 = new three.Plane();
+	const TILT_LIMIT$1 = Math.cos( 70 * three.MathUtils.DEG2RAD );
 
-	class OrbitControls extends three.EventDispatcher {
+	let OrbitControls$1 = class OrbitControls extends three.EventDispatcher {
 
 		constructor( object, domElement ) {
 
@@ -5266,7 +6499,7 @@
 				scope.object.zoom = scope.zoom0;
 
 				scope.object.updateProjectionMatrix();
-				scope.dispatchEvent( _changeEvent );
+				scope.dispatchEvent( _changeEvent$1 );
 
 				scope.update();
 
@@ -5456,19 +6689,19 @@
 							} else {
 
 								// get the ray and translation plane to compute target
-								_ray.origin.copy( scope.object.position );
-								_ray.direction.set( 0, 0, - 1 ).transformDirection( scope.object.matrix );
+								_ray$1.origin.copy( scope.object.position );
+								_ray$1.direction.set( 0, 0, - 1 ).transformDirection( scope.object.matrix );
 
 								// if the camera is 20 degrees above the horizon then don't adjust the focus target to avoid
 								// extremely large values
-								if ( Math.abs( scope.object.up.dot( _ray.direction ) ) < TILT_LIMIT ) {
+								if ( Math.abs( scope.object.up.dot( _ray$1.direction ) ) < TILT_LIMIT$1 ) {
 
 									object.lookAt( scope.target );
 
 								} else {
 
-									_plane.setFromNormalAndCoplanarPoint( scope.object.up, scope.target );
-									_ray.intersectPlane( _plane, scope.target );
+									_plane$1.setFromNormalAndCoplanarPoint( scope.object.up, scope.target );
+									_ray$1.intersectPlane( _plane$1, scope.target );
 
 								}
 
@@ -5496,7 +6729,7 @@
 						8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ||
 						lastTargetPosition.distanceToSquared( scope.target ) > 0 ) {
 
-						scope.dispatchEvent( _changeEvent );
+						scope.dispatchEvent( _changeEvent$1 );
 
 						lastPosition.copy( scope.object.position );
 						lastQuaternion.copy( scope.object.quaternion );
@@ -6150,7 +7383,7 @@
 
 				}
 
-				scope.dispatchEvent( _endEvent );
+				scope.dispatchEvent( _endEvent$1 );
 
 				state = STATE.NONE;
 
@@ -6247,7 +7480,7 @@
 
 				if ( state !== STATE.NONE ) {
 
-					scope.dispatchEvent( _startEvent );
+					scope.dispatchEvent( _startEvent$1 );
 
 				}
 
@@ -6286,6 +7519,1580 @@
 			}
 
 			function onMouseWheel( event ) {
+
+				if ( scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE ) return;
+
+				event.preventDefault();
+
+				scope.dispatchEvent( _startEvent$1 );
+
+				handleMouseWheel( customWheelEvent( event ) );
+
+				scope.dispatchEvent( _endEvent$1 );
+
+			}
+
+			function customWheelEvent( event ) {
+
+				const mode = event.deltaMode;
+
+				// minimal wheel event altered to meet delta-zoom demand
+				const newEvent = {
+					clientX: event.clientX,
+					clientY: event.clientY,
+					deltaY: event.deltaY,
+				};
+
+				switch ( mode ) {
+
+					case 1: // LINE_MODE
+						newEvent.deltaY *= 16;
+						break;
+
+					case 2: // PAGE_MODE
+						newEvent.deltaY *= 100;
+						break;
+
+				}
+
+				// detect if event was triggered by pinching
+				if ( event.ctrlKey && !controlActive ) {
+
+					newEvent.deltaY *= 10;
+
+				}
+
+				return newEvent;
+
+			}
+
+			function interceptControlDown( event ) {
+
+				if ( event.key === "Control" ) {
+
+					controlActive = true;
+					
+					document.addEventListener('keyup', interceptControlUp, { passive: true, capture: true });
+
+				}
+
+			}
+
+			function interceptControlUp( event ) {
+
+				if ( event.key === "Control" ) {
+
+					controlActive = false;
+					
+					document.removeEventListener('keyup', interceptControlUp, { passive: true, capture: true });
+
+				}
+
+			}
+
+			function onKeyDown( event ) {
+
+				if ( scope.enabled === false || scope.enablePan === false ) return;
+
+				handleKeyDown( event );
+
+			}
+
+			function onTouchStart( event ) {
+
+				trackPointer( event );
+
+				switch ( pointers.length ) {
+
+					case 1:
+
+						switch ( scope.touches.ONE ) {
+
+							case three.TOUCH.ROTATE:
+
+								if ( scope.enableRotate === false ) return;
+
+								handleTouchStartRotate( event );
+
+								state = STATE.TOUCH_ROTATE;
+
+								break;
+
+							case three.TOUCH.PAN:
+
+								if ( scope.enablePan === false ) return;
+
+								handleTouchStartPan( event );
+
+								state = STATE.TOUCH_PAN;
+
+								break;
+
+							default:
+
+								state = STATE.NONE;
+
+						}
+
+						break;
+
+					case 2:
+
+						switch ( scope.touches.TWO ) {
+
+							case three.TOUCH.DOLLY_PAN:
+
+								if ( scope.enableZoom === false && scope.enablePan === false ) return;
+
+								handleTouchStartDollyPan( event );
+
+								state = STATE.TOUCH_DOLLY_PAN;
+
+								break;
+
+							case three.TOUCH.DOLLY_ROTATE:
+
+								if ( scope.enableZoom === false && scope.enableRotate === false ) return;
+
+								handleTouchStartDollyRotate( event );
+
+								state = STATE.TOUCH_DOLLY_ROTATE;
+
+								break;
+
+							default:
+
+								state = STATE.NONE;
+
+						}
+
+						break;
+
+					default:
+
+						state = STATE.NONE;
+
+				}
+
+				if ( state !== STATE.NONE ) {
+
+					scope.dispatchEvent( _startEvent$1 );
+
+				}
+
+			}
+
+			function onTouchMove( event ) {
+
+				trackPointer( event );
+
+				switch ( state ) {
+
+					case STATE.TOUCH_ROTATE:
+
+						if ( scope.enableRotate === false ) return;
+
+						handleTouchMoveRotate( event );
+
+						scope.update();
+
+						break;
+
+					case STATE.TOUCH_PAN:
+
+						if ( scope.enablePan === false ) return;
+
+						handleTouchMovePan( event );
+
+						scope.update();
+
+						break;
+
+					case STATE.TOUCH_DOLLY_PAN:
+
+						if ( scope.enableZoom === false && scope.enablePan === false ) return;
+
+						handleTouchMoveDollyPan( event );
+
+						scope.update();
+
+						break;
+
+					case STATE.TOUCH_DOLLY_ROTATE:
+
+						if ( scope.enableZoom === false && scope.enableRotate === false ) return;
+
+						handleTouchMoveDollyRotate( event );
+
+						scope.update();
+
+						break;
+
+					default:
+
+						state = STATE.NONE;
+
+				}
+
+			}
+
+			function onContextMenu( event ) {
+
+				if ( scope.enabled === false ) return;
+
+				event.preventDefault();
+
+			}
+
+			function addPointer( event ) {
+
+				pointers.push( event.pointerId );
+
+			}
+
+			function removePointer( event ) {
+
+				delete pointerPositions[ event.pointerId ];
+
+				for ( let i = 0; i < pointers.length; i ++ ) {
+
+					if ( pointers[ i ] == event.pointerId ) {
+
+						pointers.splice( i, 1 );
+						return;
+
+					}
+
+				}
+
+			}
+
+			function trackPointer( event ) {
+
+				let position = pointerPositions[ event.pointerId ];
+
+				if ( position === undefined ) {
+
+					position = new three.Vector2();
+					pointerPositions[ event.pointerId ] = position;
+
+				}
+
+				position.set( event.pageX, event.pageY );
+
+			}
+
+			function getSecondPointerPosition( event ) {
+
+				const pointerId = ( event.pointerId === pointers[ 0 ] ) ? pointers[ 1 ] : pointers[ 0 ];
+
+				return pointerPositions[ pointerId ];
+
+			}
+
+			//
+
+			scope.domElement.addEventListener( 'contextmenu', onContextMenu );
+
+			scope.domElement.addEventListener( 'pointerdown', onPointerDown );
+			scope.domElement.addEventListener( 'pointercancel', onPointerUp );
+			scope.domElement.addEventListener( 'wheel', onMouseWheel, { passive: false } );
+
+			document.addEventListener( 'keydown', interceptControlDown, { passive: true, capture: true } );
+
+			// force an update at start
+
+			this.update();
+
+		}
+
+	};
+
+	// MapControls performs orbiting, dollying (zooming), and panning.
+	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+	//
+	//    Orbit - right mouse, or left mouse + ctrl/meta/shiftKey / touch: two-finger rotate
+	//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+	//    Pan - left mouse, or arrow keys / touch: one-finger move
+
+	class MapControls extends OrbitControls$1 {
+
+		constructor( object, domElement ) {
+
+			super( object, domElement );
+
+			this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
+
+			this.mouseButtons = { LEFT: three.MOUSE.PAN, MIDDLE: three.MOUSE.DOLLY, RIGHT: three.MOUSE.ROTATE };
+
+			this.touches = { ONE: three.TOUCH.PAN, TWO: three.TOUCH.DOLLY_ROTATE };
+
+		}
+
+	}
+
+	// OrbitControls performs orbiting, dollying (zooming), and panning.
+	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+	//
+	//    Orbit - left mouse / touch: one-finger move
+	//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+	//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
+
+	// 原修改方案为看着某个点 参考链接：https://github.com/sciecode/three.js/commit/dccf1578343bb9b7c79bb2eb2004d5ee34a76e6a#diff-ffef32863dd826c87a45cfb28c4ddd83
+	// 现在是在旋转的时候观察点也会改变。
+	const _changeEvent = { type: 'change' };
+	const _startEvent = { type: 'start' };
+	const _endEvent = { type: 'end' };
+	const _ray = new three.Ray();
+	const _plane = new three.Plane();
+	const TILT_LIMIT = Math.cos( 70 * three.MathUtils.DEG2RAD );
+
+	class OrbitControls extends three.EventDispatcher {
+
+		constructor( object, domElement ) {
+
+			super();
+
+			this.object = object;
+			this.domElement = domElement;
+			this.domElement.style.touchAction = 'none'; // disable touch scroll
+
+			// Set to false to disable this control
+			this.enabled = true;
+
+			// "target" sets the location of focus, where the object orbits around
+			this.target = new three.Vector3();
+			this.pivot = new three.Vector3();
+
+			// Sets the 3D cursor (similar to Blender), from which the maxTargetRadius takes effect
+			this.cursor = new three.Vector3();
+
+			// How far you can dolly in and out ( PerspectiveCamera only )
+			this.minDistance = 0;
+			this.maxDistance = Infinity;
+
+			// How far you can zoom in and out ( OrthographicCamera only )
+			this.minZoom = 0;
+			this.maxZoom = Infinity;
+
+			// Limit camera target within a spherical area around the cursor
+			this.minTargetRadius = 0;
+			this.maxTargetRadius = Infinity;
+
+			// How far you can orbit vertically, upper and lower limits.
+			// Range is 0 to Math.PI radians.
+			this.minPolarAngle = 0; // radians
+			this.maxPolarAngle = Math.PI; // radians
+
+			// How far you can orbit horizontally, upper and lower limits.
+			// If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
+			this.minAzimuthAngle = - Infinity; // radians
+			this.maxAzimuthAngle = Infinity; // radians
+
+			// Set to true to enable damping (inertia)
+			// If damping is enabled, you must call controls.update() in your animation loop
+			this.enableDamping = false;
+			this.dampingFactor = 0.05;
+
+			// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
+			// Set to false to disable zooming
+			this.enableZoom = true;
+			this.zoomSpeed = 1.0;
+
+			// Set to false to disable rotating
+			this.enableRotate = true;
+			this.rotateSpeed = 1.0;
+
+			// Set to false to disable panning
+			this.enablePan = true;
+			this.panSpeed = 1.0;
+			this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
+			this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+			this.zoomToCursor = false;
+
+			// Set to true to automatically rotate around the target
+			// If auto-rotate is enabled, you must call controls.update() in your animation loop
+			this.autoRotate = false;
+			this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
+
+			// The four arrow keys
+			this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
+
+			// Mouse buttons
+			this.mouseButtons = { LEFT: three.MOUSE.ROTATE, MIDDLE: three.MOUSE.DOLLY, RIGHT: three.MOUSE.PAN };
+
+			// Touch fingers
+			this.touches = { ONE: three.TOUCH.ROTATE, TWO: three.TOUCH.DOLLY_PAN };
+
+			// for reset
+			this.target0 = this.target.clone();
+			this.pivot0 = this.pivot.clone();
+			this.position0 = this.object.position.clone();
+			this.zoom0 = this.object.zoom;
+
+			// the target DOM element for key events
+			this._domElementKeyEvents = null;
+
+			//
+			// public methods
+			//
+
+			this.getPolarAngle = function () {
+
+				return spherical.phi;
+
+			};
+
+			this.getAzimuthalAngle = function () {
+
+				return spherical.theta;
+
+			};
+
+			this.getDistance = function () {
+
+				return this.object.position.distanceTo( this.target );
+
+			};
+
+			this.listenToKeyEvents = function ( domElement ) {
+
+				domElement.addEventListener( 'keydown', onKeyDown );
+				this._domElementKeyEvents = domElement;
+
+			};
+
+			this.stopListenToKeyEvents = function () {
+
+				this._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
+				this._domElementKeyEvents = null;
+
+			};
+
+			this.saveState = function () {
+
+				scope.target0.copy( scope.target );
+				scope.pivot0.copy( scope.pivot );
+				scope.position0.copy( scope.object.position );
+				scope.zoom0 = scope.object.zoom;
+
+			};
+
+			this.reset = function () {
+
+				scope.target.copy( scope.target0 );
+				scope.pivot.copy( scope.pivot0 );
+				scope.object.position.copy( scope.position0 );
+				scope.object.zoom = scope.zoom0;
+
+				scope.object.updateProjectionMatrix();
+				scope.dispatchEvent( _changeEvent );
+
+				scope.update();
+
+				state = STATE.NONE;
+
+			};
+
+			// // 设置相机位置
+			// this.setAngle = function (phi, theta, distance) {
+
+			// 	var r = distance || scope.object.position.distanceTo(scope.target);
+		
+			// 	var x = r * Math.cos(phi - Math.PI / 2) * Math.sin(theta) + scope.target.x;
+			// 	var y = r * Math.sin(phi + Math.PI / 2) + scope.target.y;
+			// 	var z = r * Math.cos(phi - Math.PI / 2) * Math.cos(theta) + scope.target.z;
+		
+			// 	scope.object.position.set(x, y, z);
+		
+			// 	scope.object.lookAt(scope.target);
+		
+			// };
+		
+
+			// this method is exposed, but perhaps it would be better if we can make it private...
+			this.update = function () {
+
+				const offset = new three.Vector3();
+				const offsetTarget = new three.Vector3();
+
+				// so camera.up is the orbit axis
+				const quat = new three.Quaternion().setFromUnitVectors( object.up, new three.Vector3( 0, 1, 0 ) );
+				const quatInverse = quat.clone().invert();
+
+				const quatTarget = new three.Quaternion().setFromUnitVectors( object.up, new three.Vector3( 0, 1, 0 ) );
+				const quatInverseTarget = quat.clone().invert();
+
+				const lastPosition = new three.Vector3();
+				const lastQuaternion = new three.Quaternion();
+				const lastTargetPosition = new three.Vector3();
+
+				const twoPI = 2 * Math.PI;
+
+				return function update( deltaTime = null ) {
+
+					const position = scope.object.position;
+					// offset 本来为计算相机位置到旋转点的偏移，
+					//  根据该思路，计算目标点到旋转点的偏移
+					// offset.copy( position ).sub( scope.target );
+					offset.copy( position ).sub( scope.pivot );
+					// rotate offset to "y-axis-is-up" space
+					offset.applyQuaternion( quat );
+					// angle from z-axis around y-axis
+					spherical.setFromVector3( offset );
+					// 当是鼠标右键时，目标点不跟着旋转变化
+					let notRightClick = !(this.target.x ==0 && this.target.y == 0 && this.target.z == 0) && this.getMouseId() !== 2;
+					// let notRightClick = true;
+					if (notRightClick){
+						offsetTarget.copy( scope.target ).sub( scope.pivot );
+						offsetTarget.applyQuaternion( quatTarget );
+						sphericalTarget.setFromVector3( offsetTarget );
+					}
+					
+
+					
+					
+
+					if ( scope.autoRotate && state === STATE.NONE ) {
+
+						rotateLeft( getAutoRotationAngle( deltaTime ) );
+
+					}
+
+					if ( scope.enableDamping ) {
+
+						spherical.theta += sphericalDelta.theta * scope.dampingFactor;
+						spherical.phi += sphericalDelta.phi * scope.dampingFactor;
+						if (notRightClick){
+							sphericalTarget.theta += sphericalDelta.theta * scope.dampingFactor;
+							sphericalTarget.phi += sphericalDelta.phi * scope.dampingFactor;
+						}
+
+					} else {
+
+						spherical.theta += sphericalDelta.theta;
+						spherical.phi += sphericalDelta.phi;
+						if (notRightClick){
+							sphericalTarget.theta += sphericalDelta.theta;
+							sphericalTarget.phi += sphericalDelta.phi;
+						}
+						
+
+					}
+
+					// restrict theta to be between desired limits
+
+					let min = scope.minAzimuthAngle;
+					let max = scope.maxAzimuthAngle;
+
+					if ( isFinite( min ) && isFinite( max ) ) {
+
+						if ( min < - Math.PI ) min += twoPI; else if ( min > Math.PI ) min -= twoPI;
+
+						if ( max < - Math.PI ) max += twoPI; else if ( max > Math.PI ) max -= twoPI;
+
+						if ( min <= max ) {
+
+							spherical.theta = Math.max( min, Math.min( max, spherical.theta ) );
+
+						} else {
+
+							spherical.theta = ( spherical.theta > ( min + max ) / 2 ) ?
+								Math.max( min, spherical.theta ) :
+								Math.min( max, spherical.theta );
+							if (notRightClick){
+								sphericalTarget.theta = ( sphericalTarget.theta > ( min + max ) / 2 ) ?
+								Math.max( min, sphericalTarget.theta ) :
+								Math.min( max, sphericalTarget.theta );
+							}
+							
+
+						}
+
+					}
+
+					// restrict phi to be between desired limits
+					spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
+
+					spherical.makeSafe();
+					if (notRightClick){
+						sphericalTarget.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, sphericalTarget.phi ) );
+						sphericalTarget.makeSafe();
+					}
+					
+
+
+					// move target to panned location
+
+					if ( scope.enableDamping === true ) {
+
+						scope.target.addScaledVector( panOffset, scope.dampingFactor );
+
+					} else {
+
+						scope.pivot.add( panOffset );
+
+					}
+
+					// Limit the target distance from the cursor to create a sphere around the center of interest
+					scope.target.sub( scope.cursor );
+					scope.target.clampLength( scope.minTargetRadius, scope.maxTargetRadius );
+					scope.target.add( scope.cursor );
+					scope.pivot.sub( scope.cursor );
+					scope.pivot.clampLength( scope.minTargetRadius, scope.maxTargetRadius );
+					scope.pivot.add( scope.cursor );
+
+					// adjust the camera position based on zoom only if we're not zooming to the cursor or if it's an ortho camera
+					// we adjust zoom later in these cases
+					if ( scope.zoomToCursor && performCursorZoom || scope.object.isOrthographicCamera ) {
+
+						spherical.radius = clampDistance( spherical.radius );
+						sphericalTarget.radius = clampDistance( sphericalTarget.radius );
+
+					} else {
+
+						spherical.radius = clampDistance( spherical.radius * scale );
+						sphericalTarget.radius = clampDistance( sphericalTarget.radius * scale );
+
+					}
+
+					// sphericalTarget.phi = spherical.phi;
+					// sphericalTarget.theta = spherical.theta;
+					// sphericalTarget.radius =  clampDistance( sphericalTarget.radius * scale );
+					// sphericalTarget.makeSafe();
+
+					offset.setFromSpherical( spherical );
+					
+
+					// rotate offset back to "camera-up-vector-is-up" space
+					offset.applyQuaternion( quatInverse );
+					if(notRightClick){
+						offsetTarget.setFromSpherical( sphericalTarget );
+						offsetTarget.applyQuaternion( quatInverseTarget );
+					}
+					// position.copy( scope.target ).add( offset );
+					position.copy( scope.pivot  ).add( offset );
+					if(notRightClick){
+					    scope.target.copy( scope.pivot ).add( offsetTarget );
+					}
+					
+					scope.object.lookAt( scope.target );
+
+					if ( scope.enableDamping === true ) {
+
+						sphericalDelta.theta *= ( 1 - scope.dampingFactor );
+						sphericalDelta.phi *= ( 1 - scope.dampingFactor );
+
+						panOffset.multiplyScalar( 1 - scope.dampingFactor );
+
+					} else {
+
+						sphericalDelta.set( 0, 0, 0 );
+
+						panOffset.set( 0, 0, 0 );
+
+					}
+
+					// adjust camera position
+					let zoomChanged = false;
+					if ( scope.zoomToCursor && performCursorZoom ) {
+
+						let newRadius = null;
+						if ( scope.object.isPerspectiveCamera ) {
+
+							// move the camera down the pointer ray
+							// this method avoids floating point error
+							const prevRadius = offset.length();
+							newRadius = clampDistance( prevRadius * scale );
+
+							const radiusDelta = prevRadius - newRadius;
+							scope.object.position.addScaledVector( dollyDirection, radiusDelta );
+							scope.object.updateMatrixWorld();
+
+						} else if ( scope.object.isOrthographicCamera ) {
+
+							// adjust the ortho camera position based on zoom changes
+							const mouseBefore = new three.Vector3( mouse.x, mouse.y, 0 );
+							mouseBefore.unproject( scope.object );
+
+							scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
+							scope.object.updateProjectionMatrix();
+							zoomChanged = true;
+
+							const mouseAfter = new three.Vector3( mouse.x, mouse.y, 0 );
+							mouseAfter.unproject( scope.object );
+
+							scope.object.position.sub( mouseAfter ).add( mouseBefore );
+							scope.object.updateMatrixWorld();
+
+							newRadius = offset.length();
+
+						} else {
+							scope.zoomToCursor = false;
+
+						}
+
+						// handle the placement of the target
+						if ( newRadius !== null ) {
+
+							if ( this.screenSpacePanning ) {
+
+								// position the orbit target in front of the new camera position
+								scope.target.set( 0, 0, - 1 )
+									.transformDirection( scope.object.matrix )
+									.multiplyScalar( newRadius )
+									.add( scope.object.position );
+								scope.pivot.set( 0, 0, - 1 )
+									.transformDirection( scope.object.matrix )
+									.multiplyScalar( newRadius )
+									.add( scope.object.position );
+
+							} else {
+
+								// get the ray and translation plane to compute target
+								_ray.origin.copy( scope.object.position );
+								_ray.direction.set( 0, 0, - 1 ).transformDirection( scope.object.matrix );
+
+								// if the camera is 20 degrees above the horizon then don't adjust the focus target to avoid
+								// extremely large values
+								if ( Math.abs( scope.object.up.dot( _ray.direction ) ) < TILT_LIMIT ) {
+
+									object.lookAt( scope.target );
+
+								} else {
+
+									_plane.setFromNormalAndCoplanarPoint( scope.object.up, scope.target );
+									_ray.intersectPlane( _plane, scope.pivot );
+
+								}
+
+							}
+
+						}
+
+					} else if ( scope.object.isOrthographicCamera ) {
+
+						scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
+						scope.object.updateProjectionMatrix();
+						zoomChanged = true;
+
+					}
+
+					scale = 1;
+					performCursorZoom = false;
+
+					// update condition is:
+					// min(camera displacement, camera rotation in radians)^2 > EPS
+					// using small-angle approximation cos(x/2) = 1 - x^2 / 8
+
+					if ( zoomChanged ||
+						lastPosition.distanceToSquared( scope.object.position ) > EPS ||
+						8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ||
+						lastTargetPosition.distanceToSquared( scope.pivot ) > 0 ) {
+
+						scope.dispatchEvent( _changeEvent );
+
+						lastPosition.copy( scope.object.position );
+						lastQuaternion.copy( scope.object.quaternion );
+						lastTargetPosition.copy( scope.pivot );
+
+						return true;
+
+					}
+
+					return false;
+
+				};
+
+			}();
+
+			this.dispose = function () {
+
+				scope.domElement.removeEventListener( 'contextmenu', onContextMenu );
+
+				scope.domElement.removeEventListener( 'pointerdown', onPointerDown );
+				scope.domElement.removeEventListener( 'pointercancel', onPointerUp );
+				scope.domElement.removeEventListener( 'wheel', onMouseWheel );
+
+				scope.domElement.removeEventListener( 'pointermove', onPointerMove );
+				scope.domElement.removeEventListener( 'pointerup', onPointerUp );
+
+
+				if ( scope._domElementKeyEvents !== null ) {
+
+					scope._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
+					scope._domElementKeyEvents = null;
+
+				}
+
+				//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
+
+			};
+
+			//
+			// internals
+			//
+			this.getState = function () {
+
+				return state;
+
+			};
+			// 该方法主要是为了获取到是鼠标的哪个按键触发了事件，左键，右键，滚轮。
+			this.getMouseId = function () {
+
+				return mouseId;
+			};
+
+			const scope = this;
+
+			const STATE = {
+				NONE: - 1,
+				ROTATE: 0,
+				DOLLY: 1,
+				PAN: 2,
+				TOUCH_ROTATE: 3,
+				TOUCH_PAN: 4,
+				TOUCH_DOLLY_PAN: 5,
+				TOUCH_DOLLY_ROTATE: 6
+			};
+
+			let state = STATE.NONE;
+			let mouseId = - 1;
+			const EPS = 0.000001;
+
+			// current position in spherical coordinates
+			const spherical = new three.Spherical();
+			const sphericalTarget = new three.Spherical();
+			const sphericalDelta = new three.Spherical();
+
+			let scale = 1;
+			const panOffset = new three.Vector3();
+
+			const rotateStart = new three.Vector2();
+			const rotateEnd = new three.Vector2();
+			const rotateDelta = new three.Vector2();
+
+			const panStart = new three.Vector2();
+			const panEnd = new three.Vector2();
+			const panDelta = new three.Vector2();
+
+			const dollyStart = new three.Vector2();
+			const dollyEnd = new three.Vector2();
+			const dollyDelta = new three.Vector2();
+
+			const dollyDirection = new three.Vector3();
+			const mouse = new three.Vector2();
+			let performCursorZoom = false;
+
+			const pointers = [];
+			const pointerPositions = {};
+
+			let controlActive = false;
+
+			function getAutoRotationAngle( deltaTime ) {
+
+				if ( deltaTime !== null ) {
+
+					return ( 2 * Math.PI / 60 * scope.autoRotateSpeed ) * deltaTime;
+
+				} else {
+
+					return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+
+				}
+
+			}
+
+			function getZoomScale( delta ) {
+
+				const normalizedDelta = Math.abs( delta * 0.01 );
+				return Math.pow( 0.95, scope.zoomSpeed * normalizedDelta );
+
+			}
+
+			function rotateLeft( angle ) {
+
+				sphericalDelta.theta -= angle;
+
+			}
+
+			function rotateUp( angle ) {
+
+				sphericalDelta.phi -= angle;
+
+			}
+
+			const panLeft = function () {
+
+				const v = new three.Vector3();
+
+				return function panLeft( distance, objectMatrix ) {
+
+					v.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
+					v.multiplyScalar( - distance );
+
+					panOffset.add( v );
+
+				};
+
+			}();
+
+			const panUp = function () {
+
+				const v = new three.Vector3();
+
+				return function panUp( distance, objectMatrix ) {
+
+					if ( scope.screenSpacePanning === true ) {
+
+						v.setFromMatrixColumn( objectMatrix, 1 );
+
+					} else {
+
+						v.setFromMatrixColumn( objectMatrix, 0 );
+						v.crossVectors( scope.object.up, v );
+
+					}
+
+					v.multiplyScalar( distance );
+
+					panOffset.add( v );
+
+				};
+
+			}();
+
+			// deltaX and deltaY are in pixels; right and down are positive
+			const pan = function () {
+
+				const offset = new three.Vector3();
+
+				return function pan( deltaX, deltaY ) {
+
+					const element = scope.domElement;
+
+					if ( scope.object.isPerspectiveCamera ) {
+
+						// perspective
+						const position = scope.object.position;
+						offset.copy( position ).sub( scope.target );
+						let targetDistance = offset.length();
+
+						// half of the fov is center to top of screen
+						targetDistance *= Math.tan( ( scope.object.fov / 2 ) * Math.PI / 180.0 );
+
+						// we use only clientHeight here so aspect ratio does not distort speed
+						panLeft( 2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix );
+						panUp( 2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix );
+
+					} else if ( scope.object.isOrthographicCamera ) {
+
+						// orthographic
+						panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
+						panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
+
+					} else {
+
+						// camera neither orthographic nor perspective
+						scope.enablePan = false;
+
+					}
+
+				};
+
+			}();
+
+			function dollyOut( dollyScale ) {
+
+				if ( scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera ) {
+
+					scale /= dollyScale;
+
+				} else {
+					scope.enableZoom = false;
+
+				}
+
+			}
+
+			function dollyIn( dollyScale ) {
+
+				if ( scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera ) {
+
+					scale *= dollyScale;
+
+				} else {
+					scope.enableZoom = false;
+
+				}
+
+			}
+
+			function updateZoomParameters( x, y ) {
+
+				if ( ! scope.zoomToCursor ) {
+
+					return;
+
+				}
+
+				performCursorZoom = true;
+
+				const rect = scope.domElement.getBoundingClientRect();
+				const dx = x - rect.left;
+				const dy = y - rect.top;
+				const w = rect.width;
+				const h = rect.height;
+
+				mouse.x = ( dx / w ) * 2 - 1;
+				mouse.y = - ( dy / h ) * 2 + 1;
+
+				dollyDirection.set( mouse.x, mouse.y, 1 ).unproject( scope.object ).sub( scope.object.position ).normalize();
+
+			}
+
+			function clampDistance( dist ) {
+
+				return Math.max( scope.minDistance, Math.min( scope.maxDistance, dist ) );
+
+			}
+
+			//
+			// event callbacks - update the object state
+			//
+
+			function handleMouseDownRotate( event ) {
+
+				rotateStart.set( event.clientX, event.clientY );
+
+			}
+
+			function handleMouseDownDolly( event ) {
+
+				updateZoomParameters( event.clientX, event.clientX );
+				dollyStart.set( event.clientX, event.clientY );
+
+			}
+
+			function handleMouseDownPan( event ) {
+
+				panStart.set( event.clientX, event.clientY );
+
+			}
+
+			function handleMouseMoveRotate( event ) {
+
+				rotateEnd.set( event.clientX, event.clientY );
+
+				rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+
+				const element = scope.domElement;
+
+				rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+
+				rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+				rotateStart.copy( rotateEnd );
+
+				scope.update();
+
+			}
+
+			function handleMouseMoveDolly( event ) {
+
+				dollyEnd.set( event.clientX, event.clientY );
+
+				dollyDelta.subVectors( dollyEnd, dollyStart );
+
+				if ( dollyDelta.y > 0 ) {
+
+					dollyOut( getZoomScale( dollyDelta.y ) );
+
+				} else if ( dollyDelta.y < 0 ) {
+
+					dollyIn( getZoomScale( dollyDelta.y ) );
+
+				}
+
+				dollyStart.copy( dollyEnd );
+
+				scope.update();
+
+			}
+
+			function handleMouseMovePan( event ) {
+
+				panEnd.set( event.clientX, event.clientY );
+
+				panDelta.subVectors( panEnd, panStart ).multiplyScalar( scope.panSpeed );
+
+				pan( panDelta.x, panDelta.y );
+
+				panStart.copy( panEnd );
+
+				scope.update();
+
+			}
+
+			function handleMouseWheel( event ) {
+
+				updateZoomParameters( event.clientX, event.clientY );
+
+				if ( event.deltaY < 0 ) {
+
+					dollyIn( getZoomScale( event.deltaY ) );
+
+				} else if ( event.deltaY > 0 ) {
+
+					dollyOut( getZoomScale( event.deltaY ) );
+
+				}
+
+				scope.update();
+
+			}
+
+			function handleKeyDown( event ) {
+
+				let needsUpdate = false;
+
+				switch ( event.code ) {
+
+					case scope.keys.UP:
+
+						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+							rotateUp( 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+						} else {
+
+							pan( 0, scope.keyPanSpeed );
+
+						}
+
+						needsUpdate = true;
+						break;
+
+					case scope.keys.BOTTOM:
+
+						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+							rotateUp( - 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+						} else {
+
+							pan( 0, - scope.keyPanSpeed );
+
+						}
+
+						needsUpdate = true;
+						break;
+
+					case scope.keys.LEFT:
+
+						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+							rotateLeft( 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+						} else {
+
+							pan( scope.keyPanSpeed, 0 );
+
+						}
+
+						needsUpdate = true;
+						break;
+
+					case scope.keys.RIGHT:
+
+						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+							rotateLeft( - 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+						} else {
+
+							pan( - scope.keyPanSpeed, 0 );
+
+						}
+
+						needsUpdate = true;
+						break;
+
+				}
+
+				if ( needsUpdate ) {
+
+					// prevent the browser from scrolling on cursor keys
+					event.preventDefault();
+
+					scope.update();
+
+				}
+
+
+			}
+
+			function handleTouchStartRotate( event ) {
+
+				if ( pointers.length === 1 ) {
+
+					rotateStart.set( event.pageX, event.pageY );
+
+				} else {
+
+					const position = getSecondPointerPosition( event );
+
+					const x = 0.5 * ( event.pageX + position.x );
+					const y = 0.5 * ( event.pageY + position.y );
+
+					rotateStart.set( x, y );
+
+				}
+
+			}
+
+			function handleTouchStartPan( event ) {
+
+				if ( pointers.length === 1 ) {
+
+					panStart.set( event.pageX, event.pageY );
+
+				} else {
+
+					const position = getSecondPointerPosition( event );
+
+					const x = 0.5 * ( event.pageX + position.x );
+					const y = 0.5 * ( event.pageY + position.y );
+
+					panStart.set( x, y );
+
+				}
+
+			}
+
+			function handleTouchStartDolly( event ) {
+
+				const position = getSecondPointerPosition( event );
+
+				const dx = event.pageX - position.x;
+				const dy = event.pageY - position.y;
+
+				const distance = Math.sqrt( dx * dx + dy * dy );
+
+				dollyStart.set( 0, distance );
+
+			}
+
+			function handleTouchStartDollyPan( event ) {
+
+				if ( scope.enableZoom ) handleTouchStartDolly( event );
+
+				if ( scope.enablePan ) handleTouchStartPan( event );
+
+			}
+
+			function handleTouchStartDollyRotate( event ) {
+
+				if ( scope.enableZoom ) handleTouchStartDolly( event );
+
+				if ( scope.enableRotate ) handleTouchStartRotate( event );
+
+			}
+
+			function handleTouchMoveRotate( event ) {
+
+				if ( pointers.length == 1 ) {
+
+					rotateEnd.set( event.pageX, event.pageY );
+
+				} else {
+
+					const position = getSecondPointerPosition( event );
+
+					const x = 0.5 * ( event.pageX + position.x );
+					const y = 0.5 * ( event.pageY + position.y );
+
+					rotateEnd.set( x, y );
+
+				}
+
+				rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+
+				const element = scope.domElement;
+
+				rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+
+				rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+				rotateStart.copy( rotateEnd );
+
+			}
+
+			function handleTouchMovePan( event ) {
+
+				if ( pointers.length === 1 ) {
+
+					panEnd.set( event.pageX, event.pageY );
+
+				} else {
+
+					const position = getSecondPointerPosition( event );
+
+					const x = 0.5 * ( event.pageX + position.x );
+					const y = 0.5 * ( event.pageY + position.y );
+
+					panEnd.set( x, y );
+
+				}
+
+				panDelta.subVectors( panEnd, panStart ).multiplyScalar( scope.panSpeed );
+
+				pan( panDelta.x, panDelta.y );
+
+				panStart.copy( panEnd );
+
+			}
+
+			function handleTouchMoveDolly( event ) {
+
+				const position = getSecondPointerPosition( event );
+
+				const dx = event.pageX - position.x;
+				const dy = event.pageY - position.y;
+
+				const distance = Math.sqrt( dx * dx + dy * dy );
+
+				dollyEnd.set( 0, distance );
+
+				dollyDelta.set( 0, Math.pow( dollyEnd.y / dollyStart.y, scope.zoomSpeed ) );
+
+				dollyOut( dollyDelta.y );
+
+				dollyStart.copy( dollyEnd );
+
+				const centerX = ( event.pageX + position.x ) * 0.5;
+				const centerY = ( event.pageY + position.y ) * 0.5;
+
+				updateZoomParameters( centerX, centerY );
+
+			}
+
+			function handleTouchMoveDollyPan( event ) {
+
+				if ( scope.enableZoom ) handleTouchMoveDolly( event );
+
+				if ( scope.enablePan ) handleTouchMovePan( event );
+
+			}
+
+			function handleTouchMoveDollyRotate( event ) {
+
+				if ( scope.enableZoom ) handleTouchMoveDolly( event );
+
+				if ( scope.enableRotate ) handleTouchMoveRotate( event );
+
+			}
+
+			//
+			// event handlers - FSM: listen for events and reset state
+			//
+
+			function onPointerDown( event ) {
+
+				if ( scope.enabled === false ) return;
+
+				if ( pointers.length === 0 ) {
+
+					scope.domElement.setPointerCapture( event.pointerId );
+
+					scope.domElement.addEventListener( 'pointermove', onPointerMove );
+					scope.domElement.addEventListener( 'pointerup', onPointerUp );
+
+				}
+
+				//
+
+				addPointer( event );
+
+				if ( event.pointerType === 'touch' ) {
+
+					onTouchStart( event );
+
+				} else {
+
+					onMouseDown( event );
+
+				}
+
+			}
+
+			function onPointerMove( event ) {
+
+				if ( scope.enabled === false ) return;
+
+				if ( event.pointerType === 'touch' ) {
+
+					onTouchMove( event );
+
+				} else {
+
+					onMouseMove( event );
+
+				}
+
+			}
+
+			function onPointerUp( event ) {
+
+				removePointer( event );
+
+				if ( pointers.length === 0 ) {
+
+					scope.domElement.releasePointerCapture( event.pointerId );
+
+					scope.domElement.removeEventListener( 'pointermove', onPointerMove );
+					scope.domElement.removeEventListener( 'pointerup', onPointerUp );
+
+				}
+
+				scope.dispatchEvent( _endEvent );
+
+				state = STATE.NONE;
+
+			}
+
+			function onMouseDown( event ) {
+
+				let mouseAction;
+				mouseId = event.buttons;
+
+				switch ( event.button ) {
+
+					case 0:
+
+						mouseAction = scope.mouseButtons.LEFT;
+						break;
+
+					case 1:
+
+						mouseAction = scope.mouseButtons.MIDDLE;
+						break;
+
+					case 2:
+
+						mouseAction = scope.mouseButtons.RIGHT;
+						break;
+
+					default:
+
+						mouseAction = - 1;
+
+				}
+
+				switch ( mouseAction ) {
+
+					case three.MOUSE.DOLLY:
+
+						if ( scope.enableZoom === false ) return;
+
+						handleMouseDownDolly( event );
+
+						state = STATE.DOLLY;
+
+						break;
+
+					case three.MOUSE.ROTATE:
+
+						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+							if ( scope.enablePan === false ) return;
+
+							handleMouseDownPan( event );
+
+							state = STATE.PAN;
+
+						} else {
+
+							if ( scope.enableRotate === false ) return;
+
+							handleMouseDownRotate( event );
+
+							state = STATE.ROTATE;
+
+						}
+
+						break;
+
+					case three.MOUSE.PAN:
+
+						if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+							if ( scope.enableRotate === false ) return;
+
+							handleMouseDownRotate( event );
+
+							state = STATE.ROTATE;
+
+						} else {
+
+							if ( scope.enablePan === false ) return;
+
+							handleMouseDownPan( event );
+
+							state = STATE.PAN;
+
+						}
+
+						break;
+
+					default:
+
+						state = STATE.NONE;
+
+				}
+
+				if ( state !== STATE.NONE ) {
+
+					scope.dispatchEvent( _startEvent );
+
+				}
+
+			}
+
+			function onMouseMove( event ) {
+				mouseId = event.buttons;
+				switch ( state ) {
+
+					case STATE.ROTATE:
+
+						if ( scope.enableRotate === false ) return;
+
+						handleMouseMoveRotate( event );
+
+						break;
+
+					case STATE.DOLLY:
+
+						if ( scope.enableZoom === false ) return;
+
+						handleMouseMoveDolly( event );
+
+						break;
+
+					case STATE.PAN:
+
+						if ( scope.enablePan === false ) return;
+
+						handleMouseMovePan( event );
+
+						break;
+
+				}
+
+			}
+
+			function onMouseWheel( event ) {
+				mouseId = event.buttons;
 
 				if ( scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE ) return;
 
@@ -6570,29 +9377,6 @@
 			// force an update at start
 
 			this.update();
-
-		}
-
-	}
-
-	// MapControls performs orbiting, dollying (zooming), and panning.
-	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-	//
-	//    Orbit - right mouse, or left mouse + ctrl/meta/shiftKey / touch: two-finger rotate
-	//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-	//    Pan - left mouse, or arrow keys / touch: one-finger move
-
-	class MapControls extends OrbitControls {
-
-		constructor( object, domElement ) {
-
-			super( object, domElement );
-
-			this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
-
-			this.mouseButtons = { LEFT: three.MOUSE.PAN, MIDDLE: three.MOUSE.DOLLY, RIGHT: three.MOUSE.ROTATE };
-
-			this.touches = { ONE: three.TOUCH.PAN, TWO: three.TOUCH.DOLLY_ROTATE };
 
 		}
 
@@ -33589,10 +36373,34 @@ Char: ${this.c}`;
 	            this.controls.minDistance = 1e1;
 	            this.controls.zoomSpeed = 2.0;
 	        } else {
+	            // 对orbitControls进行了源码修改，原来为绕目标点进行旋转，且看着目标点，即旋转中心点和看向的目标点重合的。
+	            // 修改后，旋转中心点为原点，看向目标点，即旋转中心点和看向的目标点不重合的。且旋转时，目标点也会相应的旋转而不是看着一个地方不变。
+	            // 后续需要增加一个方法，在右键拖动时，需要修改旋转点，使其绕新的旋转点进行旋转，然后在右键拖动结束后，恢复旋转点为原点。
 	            this.controls = new OrbitControls(this.camera, this.canvas);
+	            // this.controls = new MapControls(this.camera, this.canvas);
 	            this.controls.enablePan = false;
+	            // this.controls.target.set(UnitsUtils.EARTH_RADIUS_A, 0, 0);
 	            this.controls.minDistance = UnitsUtils.EARTH_RADIUS_A + 2;
 	            this.controls.maxDistance = UnitsUtils.EARTH_RADIUS_A * 1e1;
+	            this.controls.addEventListener( 'start', () => {
+	                // console.log(controls.getState());
+	                // console.log(controls.mouseButtons.RIGHT);
+	                if (this.controls.getMouseId() !== 2){
+	                    return;
+	                }
+	                const {clientWidth, clientHeight} = this.canvas;
+	                let insect = this.raycastFromMouse(clientWidth/2, clientHeight/2, true);
+	                if (insect == null){
+	                    return;
+	                }
+	                let point = insect.point;
+	                this.controls.target.set(point.x, point.y, point.z);
+	                // this.controls.pivot.set(point.x, point.y, point.z);
+	            } );
+	            // this.controls.addEventListener( 'end', () => {
+	            //     // this.controls.target.set(0,0,0);
+	            //     // controls.update();
+	            // } );
 	        }
 	        this._raycaster = new three.Raycaster();
 	        if(Config.outLine.on){
@@ -36548,13 +39356,13 @@ Char: ${this.c}`;
 	            throw("providers is null or empty, please give a provider");
 	        }
 	        if(option.heightProvider && option.heightProvider!=null){
-	            map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
+	            map = new MapView(MapView.HEIGHT , option.providers, option.heightProvider);
 	        } else {
 	            map = new MapView(MapView.PLANAR , option.providers);
 	        }
 	        // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
 	        // // 值越小越先渲染，但越容易被覆盖
-	        this.baseMap = new Layer(1, container, canvas, map, this.camera);
+	        this.baseMap = new Layer(1, container, canvas, map, true, this.camera);
 	        this.baseMap.moveTo(44.266119,90.139228);
 	        this.baseMap.base = true;
 	        this.baseMap.controls.addEventListener('change', () => {
@@ -36607,7 +39415,7 @@ Char: ${this.c}`;
 	        this.baseMap.controls.mouseButtons = {
 	            LEFT: three.MOUSE.ROTATE,
 	            MIDDLE: three.MOUSE.DOLLY,
-	            RIGHT: three.MOUSE.PAN
+	            RIGHT: three.MOUSE.ROTATE
 	        };
 	        this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS_A + 1e7);
 	        this.listener = new Listener(this.baseMap.canvas);
@@ -37126,14 +39934,14 @@ Char: ${this.c}`;
 	exports.LODSphere = LODSphere;
 	exports.Layer = Layer;
 	exports.MapBoxProvider = MapBoxProvider;
-	exports.MapHeightNode = MapHeightNode;
+	exports.MapHeightNode = MapHeightNode$1;
 	exports.MapHeightNodeShader = MapHeightNodeShader;
 	exports.MapNode = MapNode;
 	exports.MapNodeGeometry = MapNodeGeometry;
 	exports.MapNodeHeightGeometry = MapNodeHeightGeometry;
 	exports.MapPlaneNode = MapPlaneNode;
 	exports.MapProvider = MapProvider;
-	exports.MapSphereNode = MapSphereNode;
+	exports.MapSphereNode = MapSphereNode$1;
 	exports.MapSphereNodeGeometry = MapSphereNodeGeometry;
 	exports.MapTilerProvider = MapTilerProvider;
 	exports.MapView = MapView;
@@ -37142,10 +39950,12 @@ Char: ${this.c}`;
 	exports.QuadTreePosition = QuadTreePosition;
 	exports.RoadImageProvider = RoadImageProvider;
 	exports.Skybox = Skybox;
+	exports.TerrainUtils = TerrainUtils;
 	exports.TextureUtils = TextureUtils;
 	exports.TianDiTuHeightProvider = TianDiTuHeightProvider;
 	exports.TianDiTuProvider = TianDiTuProvider;
 	exports.UnitsUtils = UnitsUtils;
+	exports.VectorUtils = VectorUtils;
 	exports.WegeoMap = WegeoMap;
 	exports.XHRUtils = XHRUtils;
 

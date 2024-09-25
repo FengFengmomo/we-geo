@@ -4,6 +4,10 @@ import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { CatmullRomCurve3, Vector3, Color} from 'three';
 import { UnitsUtils } from '../utils/UnitsUtils.js';
 import { Geolocation } from '../utils/Geolocation.js';
+
+/**
+ * 飞线功能，从一个点到另外一个点，类似飞机航线的飞线
+ */
 export class FlyLine{
     /**
      * 

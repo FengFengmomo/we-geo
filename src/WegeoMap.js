@@ -49,13 +49,13 @@ export class WegeoMap {
             throw("providers is null or empty, please give a provider");
         }
         if(option.heightProvider && option.heightProvider!=null){
-            map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
+            map = new MapView(MapView.HEIGHT , option.providers, option.heightProvider);
         } else{
             map = new MapView(MapView.PLANAR , option.providers);
         }
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
-        this.baseMap = new Layer(1, container, canvas, map, this.camera);
+        this.baseMap = new Layer(1, container, canvas, map, true, this.camera);
         this.baseMap.moveTo(44.266119,90.139228);
         this.baseMap.base = true;
         this.baseMap.controls.addEventListener('change', () => {
@@ -108,7 +108,7 @@ export class WegeoMap {
         this.baseMap.controls.mouseButtons = {
             LEFT: MOUSE.ROTATE,
             MIDDLE: MOUSE.DOLLY,
-            RIGHT: MOUSE.PAN
+            RIGHT: MOUSE.ROTATE
         };
         this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS_A + 1e7);
         this.listener = new Listener(this.baseMap.canvas);

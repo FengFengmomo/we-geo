@@ -41,6 +41,8 @@ export {XHRUtils} from './utils/XHRUtils';
 export {TextureUtils} from './utils/TextureUtils';
 export {Element} from './utils/Element';
 export {AngleUtils} from './utils/AngleUtils';
+export {VectorUtils} from './utils/VectorUtils';
+export {TerrainUtils} from './utils/TerrainUtils';
 
 export {Layer} from './layers/Layer';
 export {WegeoMap} from './WegeoMap';

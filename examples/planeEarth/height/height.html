@@ -6,7 +6,7 @@
 </head>
 <body>
 	<div id="mapContainer">
-
+		
 	</div>
 	<!-- GUI -->
 	<!-- <div id="mapContainer">
@@ -32,7 +32,7 @@
 		{
 			"imports": {
 				"three": "../../../build/three.module.js",
-				"three/addons/": "../build/jsm/",
+				"three/addons/": "../../../deps/three/examples/jsm/",
 				"Geo": "../../../build/wegeo.module.js"
 			}
 		}
@@ -40,7 +40,9 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, MapBoxProvider} from 'Geo';
+		let token = 'pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA';
+		let mapbox = new MapBoxProvider(token, 'mapbox.terrain-rgb', MapBoxProvider.MAP_ID, "pngraw");
 		let provider = new BingMapsProvider();
 		// 地名服务
 		let nameprovider = new TianDiTuProvider({
@@ -59,13 +61,13 @@
 		// 	providers: [provider,nameprovider, edgeprovider]
 		// });
 		map.addBaseMap({
-			providers: [provider]
+			providers: [provider],
+			heightProvider: mapbox
 		});
-		map.moveTo(45.993553258799736,90.14134050768502,10000);
-		map.resize();
+		map.moveTo(43.905036,88.109167,10000);
+		window.onresize = map.resize();
 		map.animate();
-// map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
-// pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA
+
 	</script>
 </body>
 </html>

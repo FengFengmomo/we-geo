@@ -71,7 +71,7 @@
 		map.addBaseSphereMap({
 			providers: [provider]
 		});
-		map.moveToByLL(44.266119,90.139228, 6371008);
+		map.fromDegrees(44.266119,90.139228, 6371008);
 		window.onresize = () => { map.resize(); }
 		map.resize();
 		map.animate();
@@ -129,7 +129,7 @@
 		material.transparent = true;
 		material.opacity = 0.5;
 		map.baseMap.add( mesh );
-		let scale =0.995;
+		let scale =0.996;
 		// let scale =0.9939;
 		// let scale =0.99385;
 		mesh.scale.set( scale,scale,scale );

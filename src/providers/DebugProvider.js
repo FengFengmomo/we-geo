@@ -4,6 +4,7 @@ import {CanvasUtils} from '../utils/CanvasUtils';
 
 /**
  * Debug provider can be used to debug the levels of the map three based on the zoom level they change between green and red.
+ * 用瓦片的zoom x y作为贴图
  */
 export class DebugProvider extends MapProvider 
 {

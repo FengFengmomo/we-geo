@@ -73,7 +73,7 @@ export class MapNodeHeightGeometry extends BufferGeometry
 		{
 			// Reset existing normals to zero
 			let normalAttribute = this.getAttribute('normal');
-			const normalLength = heightSegments * widthSegments;
+			const normalLength = (heightSegments+1) * (widthSegments+1);
 			for (let i = 0; i < normalLength; i++)
 			{
 				normalAttribute.setXYZ(i, 0, 0, 0);
@@ -83,7 +83,7 @@ export class MapNodeHeightGeometry extends BufferGeometry
 			const nA = new Vector3(), nB = new Vector3(), nC = new Vector3();
 			const cb = new Vector3(), ab = new Vector3();
 			
-			const indexLength = heightSegments * widthSegments * 6;
+			const indexLength = heightSegments * widthSegments * 6;	//没有建立裙边之前的索引数量
 			for (let i = 0; i < indexLength ; i += 3)
 			{
 				const vA = this.index.getX(i + 0);

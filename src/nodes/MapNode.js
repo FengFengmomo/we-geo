@@ -270,7 +270,7 @@ export class MapNode extends Mesh
 			let material = this.material.clone();
 			try 
 			{
-				let image = await provider.fetchTile(this.level, this.x, this.y, this.bbox);
+				let image = await provider.fetchTile(this.level, this.x, this.y);
 				if (this.disposed) 
 				{
 					return;

@@ -5,19 +5,18 @@ import { MapProvider } from "./MapProvider";
 
 // import Fetch from "../utils/Fetch.js";
 export class TianDiTuHeightProvider extends MapProvider {
-    address = "https://t3.tianditu.gov.cn/mapservice/swdx?tk={token}&x={x}&y={y}&l={z}";
+    address = "https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
     minZoom = 0;
     maxZoom = 19;
     tileSize = 256;
-    token = "588e61bc464868465169f209fe694dd0";
-    littleEndian = false;
+    token = "";
+    littleEndian = true;
     constructor(options) {
         super(options);
         Object.assign(this, options);
     }
     getAddress(zoom, x, y) {
-        let num = Math.floor(Math.random() * 8);
-        return this.url.replace("t3", "t" + num).replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
+        return this.address.replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
     }
     
     fetchTile(zoom, x, y){
@@ -26,7 +25,7 @@ export class TianDiTuHeightProvider extends MapProvider {
 		{
 			fetch(url).then(res=> res.arrayBuffer()).then(data=> {
 				resolve(data);
-            });
+            })
 		});
     }
 }

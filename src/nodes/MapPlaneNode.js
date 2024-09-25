@@ -53,7 +53,6 @@ export class MapPlaneNode extends MapNode
 		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(-0.25, 0, -0.25);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
@@ -61,7 +60,6 @@ export class MapPlaneNode extends MapNode
 		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, -0.25);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
@@ -71,7 +69,6 @@ export class MapPlaneNode extends MapNode
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft, level, x, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(-0.25, 0, 0.25);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
@@ -79,7 +76,6 @@ export class MapPlaneNode extends MapNode
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, 0.25);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 		node.updateMatrix();
 		node.updateMatrixWorld(true);

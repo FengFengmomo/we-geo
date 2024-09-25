@@ -1,7 +1,8 @@
 // 多个canvas并没有id，只有父节点
 import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from '../../build/jsm/controls/OrbitControls.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Clock,
     Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
@@ -65,10 +66,35 @@ export class Layer  extends BasLayer{
             this.controls.minDistance = 1e1;
             this.controls.zoomSpeed = 2.0;
         } else {
+            // 对orbitControls进行了源码修改，原来为绕目标点进行旋转，且看着目标点，即旋转中心点和看向的目标点重合的。
+            // 修改后，旋转中心点为原点，看向目标点，即旋转中心点和看向的目标点不重合的。且旋转时，目标点也会相应的旋转而不是看着一个地方不变。
+            // 后续需要增加一个方法，在右键拖动时，需要修改旋转点，使其绕新的旋转点进行旋转，然后在右键拖动结束后，恢复旋转点为原点。
             this.controls = new OrbitControls(this.camera, this.canvas);
+            // this.controls = new MapControls(this.camera, this.canvas);
             this.controls.enablePan = false;
+            // this.controls.target.set(UnitsUtils.EARTH_RADIUS_A, 0, 0);
             this.controls.minDistance = UnitsUtils.EARTH_RADIUS_A + 2;
             this.controls.maxDistance = UnitsUtils.EARTH_RADIUS_A * 1e1;
+            this.controls.addEventListener( 'start', () => {
+                console.log("start");
+                // console.log(controls.getState());
+                // console.log(controls.mouseButtons.RIGHT);
+                if (this.controls.getMouseId() !== 2){
+                    return;
+                }
+                const {clientWidth, clientHeight} = this.canvas;
+                let insect = this.raycastFromMouse(clientWidth/2, clientHeight/2, true);
+                if (insect == null){
+                    return;
+                }
+                let point = insect.point;
+                this.controls.target.set(point.x, point.y, point.z);
+                // this.controls.pivot.set(point.x, point.y, point.z);
+            } );
+            // this.controls.addEventListener( 'end', () => {
+            //     // this.controls.target.set(0,0,0);
+            //     // controls.update();
+            // } );
         }
         this._raycaster = new Raycaster();
         if(Config.outLine.on){

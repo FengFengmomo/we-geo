@@ -4,6 +4,7 @@ import {MapNode} from './nodes/MapNode';
 import {MapHeightNode} from './nodes/MapHeightNode';
 import {MapPlaneNode} from './nodes/MapPlaneNode';
 import {MapSphereNode} from './nodes/MapSphereNode';
+import {MapSphereNodeHeight} from './nodes/MapSphereNodeHeight';
 import {MapHeightNodeShader} from './nodes/MapHeightNodeShader';
 import {LODRaycast} from './lod/LODRaycast';
 import {LODRadial} from './lod/LODRadial';
@@ -11,6 +12,7 @@ import {LODFrustum} from './lod/LODFrustum';
 import {MapProvider} from './providers/MapProvider';
 import {LODControl} from './lod/LODControl';
 import {MapMartiniHeightNode} from './nodes/MapMartiniHeightNode';
+import { MapHeightNodeTin } from './nodes/MapHeightTinNode';
 /**
  * Map viewer is used to read and display map tiles from a server.
  *
@@ -46,6 +48,16 @@ export class MapView extends Mesh
 	static MARTINI = 204;
 
 	/**
+	 * RTIN map mode.
+	 */
+	static HEIGHT_TIN = 205;
+
+	/**
+	 * spherical height map
+	 */
+	static SPHERICAL_HEIGHT = 206;
+
+	/**
 	 * Map of the map node types available.
 	 */
 	static mapModes = new Map([
@@ -53,7 +65,9 @@ export class MapView extends Mesh
 		[MapView.SPHERICAL, MapSphereNode],
 		[MapView.HEIGHT, MapHeightNode],
 		[MapView.HEIGHT_SHADER, MapHeightNodeShader],
-		[MapView.MARTINI, MapMartiniHeightNode]
+		[MapView.MARTINI, MapMartiniHeightNode],
+		[MapView.HEIGHT_TIN, MapHeightNodeTin],
+		[MapView.SPHERICAL_HEIGHT, MapSphereNodeHeight]
 	]);
 
 	/**

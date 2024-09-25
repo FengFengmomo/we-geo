@@ -14,10 +14,10 @@ export class MapNodeGeometry extends BufferGeometry
 	/**
 	 * Map node geometry constructor.
 	 *
-	 * @param width - Width of the node.
-	 * @param height - Height of the node.
-	 * @param widthSegments - Number of subdivisions along the width.
-	 * @param heightSegments - Number of subdivisions along the height.
+	 * @param width - Width of the node. 1.0
+	 * @param height - Height of the node. 1.0
+	 * @param widthSegments - Number of subdivisions along the width. 传进来默认值为16
+	 * @param heightSegments - Number of subdivisions along the height. 传进来默认值为16
 	 * @param skirt - Skirt around the plane to mask gaps between tiles. 非高程几何体，不带skirt
 	 */
 	constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0)
@@ -51,31 +51,31 @@ export class MapNodeGeometry extends BufferGeometry
 		// Half width X  这里基本只能设置为1，和父节点的相对坐标有关系
 		// 以父节点横向和纵向中间点为坐标原点，（xy坐标），所以作为子节点，在拼接
 		// 的时候，xy坐标就限制在了-0.5到0.5之间，所以这里只能设置为1
-		const widthHalf = width / 2; 
+		const widthHalf = width / 2; // 0.5
 
 		// Half width Z
-		const heightHalf = height / 2;
+		const heightHalf = height / 2; // 0.5
 
 		// Size of the grid in X
-		const gridX = widthSegments + 1;
+		const gridX = widthSegments + 1; // 传进来默认值为16，所以gridX=17
 
 		// Size of the grid in Z
-		const gridZ = heightSegments + 1;
+		const gridZ = heightSegments + 1; // 传进来默认值为16，所以gridZ=17
 
 		// Width of each segment X
-		const segmentWidth = width / widthSegments;
+		const segmentWidth = width / widthSegments; // 1/16 = 0.0625
 		
 		// Height of each segment Z
-		const segmentHeight = height / heightSegments;
+		const segmentHeight = height / heightSegments; // 1/16 = 0.0625
 
 		// Generate vertices, normals and uvs
 		for (let iz = 0; iz < gridZ; iz++) 
 		{
-			const z = iz * segmentHeight - heightHalf;
+			const z = iz * segmentHeight - heightHalf; // z 从-0.5到0.5
 
 			for (let ix = 0; ix < gridX; ix++) 
 			{
-				const x = ix * segmentWidth - widthHalf;
+				const x = ix * segmentWidth - widthHalf; // x 从-0.5到0.5
 
 				vertices.push(x, 0, z);
 				normals.push(0, 1, 0);
@@ -84,7 +84,7 @@ export class MapNodeGeometry extends BufferGeometry
 		}
 
 		// Indices
-		for (let iz = 0; iz < heightSegments; iz++) 
+		for (let iz = 0; iz < heightSegments; iz++)  // heightSegments = 16 iz从0到15
 		{
 			for (let ix = 0; ix < widthSegments; ix++) 
 			{
@@ -94,7 +94,7 @@ export class MapNodeGeometry extends BufferGeometry
 				const d = ix + 1 + gridX * iz;
 
 				// Faces
-				indices.push(a, b, d, b, c, d);
+				indices.push(a, b, d, b, c, d); // 绘制一个面的索引，两个三角形
 			}
 		}
 	}
@@ -141,7 +141,7 @@ export class MapNodeGeometry extends BufferGeometry
 			const x = ix * segmentWidth - widthHalf;
 			const z = -heightHalf;
 			//vertices add values(x,z): [-0.5, -0.5], [-0.4375, -0.5], [-0.375, -0.5], [-0.3125, -0.5],[-0.25, -0.5]
-			vertices.push(x, -skirtDepth, z);
+			vertices.push(x, -skirtDepth, z);  // 全部都是-skirtDepth会有一个问题，在那种高程比较高的地方，裙边会比较长，是否应该是h-skirtDepth，这样永远都和高程一样高程相关
 			normals.push(0, 1, 0);
 			uvs.push(ix / widthSegments, 1);
 			// uvs: [0, 1], [0.0625, 1], [0.125, 1], [0.1875, 1], [0.25, 1]

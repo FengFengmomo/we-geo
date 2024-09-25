@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - equirectangular video panorama</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			body {
+				touch-action: none;
+			}
+		</style>
+	</head>
+	<body>
+	
+
+		<div id="container"></div>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "../build/jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			// fetch("./data/swdx.terrain" , {responseType: 'arraybuffer'}).then(res=> res.arrayBuffer()).then(res => {
+			// 	console.log("data");
+			// 	console.log(res);
+			// });
+			
+			init();
+
+			// , {responseType: 'arraybuffer'}
+			function init() {
+				
+				fetch('./data/46486.terrain').then(res=> res.arrayBuffer()).then(data => {
+				// fetch('https://t5.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk=588e61bc464868465169f209fe694dd0&x=215384&y=42916&l=18').then(res=> res.arrayBuffer()).then(data => {
+					console.log(data);
+					if (data.byteLength < 1000){
+						return;
+					}
+					
+					let CenterX = new Float64Array(data.slice(0,8));
+					let CenterY = new Float64Array(data.slice(8,16));
+					let CenterZ = new Float64Array(data.slice(16,24));
+					let MiniumHeight = new Float32Array(data.slice(24,28));
+					let MaxiumHeight = new Float32Array(data.slice(28,32));
+					let BoundingSphereCenterX = new Float64Array(data.slice(32,40));
+					let BoundingSphereCenterY = new Float64Array(data.slice(40,48));
+					let BoundingSphereCenterZ = new Float64Array(data.slice(48,56));
+					let BoundingSphereRadius = new Float64Array(data.slice(56,64));
+					let HorizonOcclusionPointX = new Float64Array(data.slice(64,72));
+					let HorizonOcclusionPointY = new Float64Array(data.slice(72,80));
+					let HorizonOcclusionPointZ = new Float64Array(data.slice(80,88));
+					
+
+					let vertexCount = new Uint32Array(data.slice(88,92));
+
+					//解码后，每个数组中值的含义如下：
+
+					//u: 瓦片中顶点的水平坐标。当u值为0时，顶点位于瓦块的西边缘。值为32767时，顶点在瓦块的东边缘。
+					//对于其他值，顶点的经度是瓦块西边和东边的经度之间的线性插值。
+
+					//v: 瓦片中顶点的垂直坐标。当v值为0时，顶点位于瓦块的南部边缘。值为32767时，顶点位于瓦块的北边缘。
+					//对于其他值，顶点的纬度是瓦块的南边和北边的纬度之间的线性插值。
+
+					//height: 瓦片中顶点的高度。当height值为0时，顶点的高度等于tile头中指定的tile内的最小高度。值为32767时，顶点的高度等于瓦块内的最大高度。
+					//对于其他值，顶点的高度是最小和最大高度之间的线性插值。
+					let x = 0, y=0, h = 0;
+					let xarr = new Array(vertexCount);
+					let yarr = new Array(vertexCount);
+					let harr = new Array(vertexCount);
+					let index_buffer = 92;
+					for(let i = 0; i < vertexCount; i++) {
+						let num = new Uint16Array(data.slice(index_buffer + i * 2, index_buffer + (i+1) * 2));
+						xarr[i] = num[0];
+					}
+					index_buffer += vertexCount * 2;
+					for(let i = 0; i < vertexCount; i++) {
+					    let num = new Uint16Array(data.slice(index_buffer + i * 2, index_buffer + (i+1) * 2));
+					    yarr[i] = num[0];
+					}
+					index_buffer += vertexCount * 2;
+					for(let i = 0; i < vertexCount; i++) {
+					    let num = new Uint16Array(data.slice(index_buffer + i * 2, index_buffer + (i+1) * 2));
+					    harr[i] = num[0];
+					}
+					index_buffer += vertexCount * 2;
+					for(let i = 0; i < vertexCount; i++) {
+						x += zigzagDecodeInt(xarr[i]);
+						y += zigzagDecodeInt(yarr[i]);
+						h += zigzagDecodeInt(harr[i]);
+						xarr[i] = x;
+						yarr[i] = y;
+						harr[i] = h;
+					}
+
+					//紧跟着顶点数据的是索引数据。索引指定顶点如何链接在一起成为三角形。
+					//如果瓦块具有超过65536个顶点，则该瓦块使用IndexData32结构编码索引。否则，它将使用IndexData16结构。
+					//为了强制正确的字节对齐，在IndexData之前添加填充以确保IndexData16的2字节对齐和IndexData32的4字节对齐。
+					let bytesPerIndex = vertexCount > 65536 ? 4 : 2;
+					if (index_buffer % bytesPerIndex != 0){
+						index_buffer += bytesPerIndex - (index_buffer % bytesPerIndex);
+					}
+
+					let triangleCount = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+					index_buffer += 4;
+					let indices = new Array(triangleCount);
+					for(let i = 0; i < triangleCount; i++) {
+						if (vertexCount > 65536){
+							indices[i] = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+							index_buffer+=4;
+						} else {
+							indices[i] = new Uint16Array(data.slice(index_buffer, index_buffer + 2));
+							index_buffer+=2;
+						}
+					}
+
+					let highest = 0;
+					for (let i = 0; i < triangleCount[0]; i++)
+					{
+						let code = indices[i];
+						indices[i] = highest - code;//需要强制转换为UInt16
+						if (code == 0)
+						{
+							highest++;
+						}
+					}
+					console.log("vertexCount:" + vertexCount + " indexCount:" + triangleCount);
+					console.log(highest);
+					// return;
+
+
+
+					// let vertexs = new Array(vertexCount);
+					// for (let i = 0; i < vertexCount; i++)
+					// {
+					// 	let lon = 1.0 * xarr[i] / 32767 * degree + lonmin;
+					// 	let lat = 1.0 * yarr[i] / 32767 * degree + latmin;
+					// 	let height = 1.0 * harr[i] / 32767 * (MaxiumHeight - MiniumHeight) + MiniumHeight;
+
+					// 	vertexs.Add(new Cartographic(lon, lat, height));
+					// }
+
+					// let face = new Array();
+					// for(let i = 0; i < triangleCount; i+=3){
+					// 	let index0 = indices[i];
+					// 	let index1 = indices[i+1];
+					// 	let index2 = indices[i+2];
+					// 	if (index0 < 0 || index1 < 0 || index2 < 0){
+					// 		continue;
+					// 	}
+					// 	if (index0 > vertexCount-1 || index1 > vertexCount -1 || index2 > vertexCount-1){
+					// 		continue;
+					// 	}
+					// 	face.push(index0);
+					// 	face.push(index1);
+					// 	face.push(index2);
+					// }
+					
+					let westVertexCount = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+					index_buffer += 4;
+					let westVertexs = new Array(westVertexCount[0]);
+					for (let i = 0; i < westVertexCount[0]; i++){
+						if (bytesPerIndex === 4){
+							let index = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+							index_buffer += 4;
+							westVertexs[i] = index;
+						} else{
+							let index = new Uint16Array(data.slice(index_buffer, index_buffer + 2));
+							index_buffer += 2;
+							westVertexs[i] = index;
+						}
+						
+					}
+
+					let southVertexCount = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+					index_buffer += 4;
+					let southVertexs = new Array(southVertexCount[0]);
+					for (let i = 0; i < southVertexCount[0]; i++){
+						if (bytesPerIndex === 4){
+							let index = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+							index_buffer += 4;
+							southVertexs[i] = index;
+						} else{
+						    let index = new Uint16Array(data.slice(index_buffer, index_buffer + 2));
+							index_buffer += 2;
+							southVertexs[i] = index;
+						}
+					}
+
+					let eastVertexCount = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+					index_buffer += 4;
+					let eastVertexs = new Array(eastVertexCount[0]);
+					for (let i = 0; i < eastVertexCount[0]; i++){
+						if (bytesPerIndex === 4){
+							let index = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+							index_buffer += 4;
+							eastVertexs[i] = index;
+						} else{
+							let index = new Uint16Array(data.slice(index_buffer, index_buffer + 2));
+							index_buffer += 2;
+							eastVertexs[i] = index;
+						}
+					}
+
+					let northVertexCount = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+					index_buffer += 4;
+					let northVertexs = new Array(northVertexCount[0]);
+					for (let i = 0; i < northVertexCount[0]; i++){
+						if (bytesPerIndex === 4){
+							let index = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+							index_buffer += 4;
+							northVertexs[i] = index;
+						} else {
+							let index = new Uint16Array(data.slice(index_buffer, index_buffer + 2));
+							index_buffer += 2;
+							northVertexs[i] = index;
+						}
+					}
+					// 加载扩展
+					while (index_buffer < data.byteLength){
+						let extensionId = new Uint8Array(data.slice(index_buffer, index_buffer + 1));
+						index_buffer += 1;
+						let extensionLength = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+						index_buffer += 4;
+						if (extensionId === 1){ // 地形照明
+							let xy = new Array(vertexCount*2);
+							for (let i = 0; i < vertexCount*2; i++){
+								xy[i] = new Uint8Array(data.slice(index_buffer, index_buffer + 1));
+								index_buffer += 1;
+							}
+						    
+						} else if (extensionId === 2){ // 水标记
+							if (extensionLength === 1){
+								let mask = new Uint8Array(data.slice(index_buffer, index_buffer + 1));
+								index_buffer += 1;
+							} else {
+								let masks = new Array(256*256);
+								for (let i = 0; i < 256*256; i++){
+									masks[i] = new Uint8Array(data.slice(index_buffer, index_buffer + 1));
+									index_buffer += 1;
+								}
+							}
+						} else if (extensionId === 4){ // 元数据
+							let jsonLength = new Uint32Array(data.slice(index_buffer, index_buffer + 4));
+							index_buffer += 4;
+							let json = JSON.parse(new TextDecoder().decode(data.slice(index_buffer, index_buffer + jsonLength)));
+							index_buffer += jsonLength;
+						} else{
+							index_buffer += extensionLength;
+						}
+					}
+						
+					// console.log(vertexs);
+					// console.log(face);
+
+					console.log(CenterX, CenterY, CenterZ, MiniumHeight, MaxiumHeight, BoundingSphereCenterX, BoundingSphereCenterY, BoundingSphereCenterZ, BoundingSphereRadius, HorizonOcclusionPointX, HorizonOcclusionPointY, HorizonOcclusionPointZ);
+					// console.log(ab);
+					// console.log(ab);
+				});
+
+				
+
+			}
+
+			function zigzagDecodeInt(data) {
+				return (data >> 1) ^ (-(data & 1));
+			}
+
+			function zigzagDecodeShort(data) {
+			    return ((data >> 15) ^ (data << 1));
+			}
+
+			
+
+		</script>
+	</body>
+</html>

@@ -26,6 +26,8 @@ export class UnitsUtils
 	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试。
 	 * 经过多次调试，采用6378137的半径是正确的，在之前的经纬度调试中由于采用的不同的标准的经纬度，所以一直定位不正确。
 	 * 目前下面两个向量暂时用不到，是cesium的写法。后续可能和带高程的定位有关。
+	 * 
+	 * 现在的经纬度没有见到偏移，已修正完毕
 	 */
 	static EARTH_RADIUS_V = new Vector3(6378137.0, 6356752.314245, 6378137.0);
 	static EARTH_RADIUS_Squared = new Vector3(6378137.0*6378137.0, 6356752.314245*6356752.314245, 6378137.0*6378137.0);
@@ -38,6 +40,26 @@ export class UnitsUtils
 	 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
 	 */
 	static EARTH_RADIUS_B = 6356752.314245;
+
+	/**
+	 * 最大高度
+	 */
+	static minimumHeight = 65536.0;
+	
+	/**
+	 * 最小高度
+	 */
+  	static maximumHeight = -65536.0;
+
+	/**
+	 * 全球实际的最大海拔高度
+	 */
+	static HEIGHT_MAX = 8800;
+
+	/**
+	 * 全球实际的最小海拔高度
+	 */ 
+	static HEIGHT_MIN = -4100;
 
 	/**
 	 * Earth equator perimeter in meters.
