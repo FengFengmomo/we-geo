@@ -12,7 +12,7 @@ import {LODFrustum} from './lod/LODFrustum';
 import {MapProvider} from './providers/MapProvider';
 import {LODControl} from './lod/LODControl';
 import {MapMartiniHeightNode} from './nodes/MapMartiniHeightNode';
-import { MapHeightNodeTin } from './nodes/MapHeightTinNode';
+import { MapHeightTinNode } from './nodes/MapHeightTinNode';
 /**
  * Map viewer is used to read and display map tiles from a server.
  *
@@ -66,7 +66,7 @@ export class MapView extends Mesh
 		[MapView.HEIGHT, MapHeightNode],
 		[MapView.HEIGHT_SHADER, MapHeightNodeShader],
 		[MapView.MARTINI, MapMartiniHeightNode],
-		[MapView.HEIGHT_TIN, MapHeightNodeTin],
+		[MapView.HEIGHT_TIN, MapHeightTinNode],
 		[MapView.SPHERICAL_HEIGHT, MapSphereNodeHeight]
 	]);
 

@@ -32,6 +32,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 
 		if (terrain){
 			if (terrain.header) {
+				this.userData.terrain = {};
 			    this.userData.terrain.header = terrain.header;
 			}
 		}

@@ -8,6 +8,7 @@ import {MapNodeHeightGeometry} from '../geometries/MapNodeHeightGeometry';
 import {MapNodeHeightTinGeometry} from '../geometries/MapNodeHeightTinGeometry'
 import {CanvasUtils} from '../utils/CanvasUtils';
 import {TerrainUtils } from '../utils/TerrainUtils';
+import {MapHeightNode} from './MapHeightNode';
 
 /**
  * Represents a height map tile node that can be subdivided into other height nodes.
@@ -16,7 +17,7 @@ import {TerrainUtils } from '../utils/TerrainUtils';
  *
  * The height node is designed to use MapBox elevation tile encoded data as described in https://www.mapbox.com/help/access-elevation-data/
  */
-export class MapHeightNodeTin extends MapNode 
+export class MapHeightTinNode extends MapNode 
 {
 	/**
 	 * Flag indicating if the tile height data was loaded.
@@ -83,8 +84,8 @@ export class MapHeightNodeTin extends MapNode
 	{
 		super.initialize();
 		
-		await this.loadData();
 		await this.loadHeightGeometry();
+		await this.loadData();
 
 		this.nodeReady();
 	}
@@ -129,16 +130,21 @@ export class MapHeightNodeTin extends MapNode
 			{
 				return;
 			}
+			// if (dataBuffer !== null && dataBuffer.byteLength < 1000){
+
+			// } else {
 			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.mapView.heightProvider.littleEndian);
 			this.geometry = new MapNodeHeightTinGeometry(terrain);
 			
-			this.geometry.clearGroups();
-			for (let i = 0; i < this.material.length; i++) {
-				this.geometry.addGroup(0, Infinity, i);
-			}
+			// this.geometry.clearGroups();
+			// for (let i = 0; i < this.material.length; i++) {
+			// 	this.geometry.addGroup(0, Infinity, i);
+			// }
+			// }
 		}
 		catch (e) 
 		{
+			console.error('Error loading height data.', this.level,this.x,this.y, e);
 			if (this.disposed) 
 			{
 				return;

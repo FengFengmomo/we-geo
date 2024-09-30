@@ -1,4 +1,4 @@
-import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending} from 'three';
+import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending, DoubleSide} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
 import {GeoserverWMSProvider} from '../providers/GeoserverWMSProvider';
@@ -311,6 +311,7 @@ export class MapNode extends Mesh
 
 		// @ts-ignore
 			material.needsUpdate = true;
+			// material.side = DoubleSide;
 			materials.push(material);
 		}
 

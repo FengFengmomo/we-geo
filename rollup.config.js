@@ -9,7 +9,7 @@ export default [
 		external: ['three'],
 		plugins: [
 			strip({
-				functions: ['assert.*', 'debug', 'alert', 'console.*']
+				functions: ['assert.*', 'debug', 'alert', 'console.log*','console.warn*', 'console.info*']
 			}),
 			typescript({
 				tsconfig: './tsconfig.json'

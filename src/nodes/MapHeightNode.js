@@ -81,8 +81,8 @@ export class MapHeightNode extends MapNode
 	{
 		super.initialize();
 		
-		await this.loadData();
 		await this.loadHeightGeometry();
+		await this.loadData();
 
 		this.nodeReady();
 	}
@@ -138,10 +138,10 @@ export class MapHeightNode extends MapNode
 
 			this.geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
 			
-			this.geometry.clearGroups();
-			for (let i = 0; i < this.material.length; i++) {
-				this.geometry.addGroup(0, Infinity, i);
-			}
+			// this.geometry.clearGroups();
+			// for (let i = 0; i < this.material.length; i++) {
+			// 	this.geometry.addGroup(0, Infinity, i);
+			// }
 		}
 		catch (e) 
 		{

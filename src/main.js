@@ -21,16 +21,20 @@ export {GeoserverWMTSProvider} from './providers/GeoserverWMTSProvider';
 export {RoadImageProvider} from './providers/RoadImageProvider';
 export {TianDiTuProvider} from './providers/TianDituProvider';
 export {TianDiTuHeightProvider} from './providers/TianDituHeightProvider';
+export {CesiumHeightProvider} from './providers/CesiumHeightProvider';
 
 export {MapNodeGeometry} from './geometries/MapNodeGeometry';
 export {MapNodeHeightGeometry} from './geometries/MapNodeHeightGeometry';
 export {MapSphereNodeGeometry} from './geometries/MapSphereNodeGeometry';
+export {MapNodeHeightTinGeometry} from './geometries/MapNodeHeightTinGeometry';
+export {MapSphereNodeHeightGeometry} from './geometries/MapSphereNodeHeightGeometry';
 
 export {MapNode, QuadTreePosition} from './nodes/MapNode';
 export {MapHeightNode} from './nodes/MapHeightNode';
 export {MapPlaneNode} from './nodes/MapPlaneNode';
 export {MapSphereNode} from './nodes/MapSphereNode';
 export {MapHeightNodeShader} from './nodes/MapHeightNodeShader';
+export {MapHeightTinNode} from './nodes/MapHeightTinNode';
 
 export {UnitsUtils} from './utils/UnitsUtils';
 export {CanvasUtils} from './utils/CanvasUtils';

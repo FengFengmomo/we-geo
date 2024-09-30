@@ -34,13 +34,25 @@
 			// 	console.log("data");
 			// 	console.log(res);
 			// });
+			let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ODA0MzRlZi0xNDQzLTRlNzctOTdmNC04MzFiMTZmYzk0MTEiLCJpZCI6MjQ0MTc0LCJpYXQiOjE3MjczMTYxNjd9.AVCxxaF0nYQh8jD7Zi0mW1ytdzNHV5GwnFKJcPPjw-I";
+			let access_token = "";
+			fetch('https://api.cesium.com/v1/assets/1/endpoint?access_token='+token).then(res=> res.json()).then(data=> {
+                
+               access_token = data.accessToken;
+			   init()
+            });
 			
-			init();
+			// init();
 
 			// , {responseType: 'arraybuffer'}
 			function init() {
-				
-				fetch('./data/46486.terrain').then(res=> res.arrayBuffer()).then(data => {
+				let headers = {
+                    'accept': 'application/vnd.quantized-mesh,application/octet-stream;q=0.9,*/*;q=0.01',
+                    'Authorization': 'Bearer ' + access_token,
+                    'Referer': 'http://127.0.0.1:8080/terrain.html',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+                };
+				fetch('https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/8/190/93.terrain?extensions=octvertexnormals-metadata-watermask&v=1.2.0', {'headers':headers}).then(res=> res.arrayBuffer()).then(data => {
 				// fetch('https://t5.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk=588e61bc464868465169f209fe694dd0&x=215384&y=42916&l=18').then(res=> res.arrayBuffer()).then(data => {
 					console.log(data);
 					// data = pako.inflate(new Uint8Array(data));
@@ -263,7 +275,6 @@
 								let masks = new Array(256*256);
 								for (let i = 0; i < 256*256; i++){
 									masks[i] = dataView.getUint8(byteoffset, littleEndian); byteoffset+=1;
-									byteoffset += 1;
 								}
 								extensions.masks = masks;
 							}
@@ -308,7 +319,7 @@
 			function zigzagDecodeShort(data) {
 			    return ((data >> 15) ^ (data << 1));
 			}
-
+			
 			
 
 		</script>

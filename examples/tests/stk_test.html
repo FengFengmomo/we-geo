@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - equirectangular video panorama</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="./css/main.css">
+		<style>
+			body {
+				touch-action: none;
+			}
+			.colorPicker {
+				display: inline-block;
+				margin: 0 10px
+			}
+			#info {
+			display: block;
+			position: absolute;
+			top: 0px;
+			width: 100%;
+			padding: 10px;
+			box-sizing: border-box;
+			/* text-align: center; */
+			z-index: 1;
+		}
+		</style>
+		
+	</head>
+	<body>
+		<div id="info">
+			<!-- <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> car materials<br/>
+			Ferrari 458 Italia model by <a href="https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6" target="_blank" rel="noopener">vicent091036</a>
+			<br><br>
+			<span class="colorPicker"><input id="body-color" type="color" value="#ff0000"></input><br/>Body</span>
+			<span class="colorPicker"><input id="details-color" type="color" value="#ffffff"></input><br/>Details</span>
+			<span class="colorPicker"><input id="glass-color" type="color" value="#ffffff"></input><br/>Glass</span> -->
+			<br/>输入cesium的terrain链接，无需带token：<br/><input id = 'url' style="width: 500px;"/>
+		</div>
+		
+		<div id="container"></div>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../../build/three.module.js",
+					"three/addons/": "../../build/jsm/",
+					"Geo": "../../build/wegeo.module.js"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import {TerrainUtils, MapNodeHeightTinGeometry} from 'Geo';
+ 			// import pako from 'pako';
+			// fetch("./data/swdx.terrain" , {responseType: 'arraybuffer'}).then(res=> res.arrayBuffer()).then(res => {
+			// 	console.log("data");
+			// 	console.log(res);
+			// });
+			let clock = new THREE.Clock();
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			camera.position.set( 1, 1, 1 );
+			const renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor(0x000000,1.0);
+			document.body.appendChild( renderer.domElement );
+			const controls = new  OrbitControls( camera, renderer.domElement );
+
+
+			const light = new THREE.DirectionalLight( 0xffffff );
+			light.position.set( -8, 12, 10 );
+			light.intensity = 1.0;
+			scene.add( light );
+
+			const light1 = new THREE.AmbientLight( 0x040404 ); // soft white light
+			scene.add( light1 );
+
+
+			let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ODA0MzRlZi0xNDQzLTRlNzctOTdmNC04MzFiMTZmYzk0MTEiLCJpZCI6MjQ0MTc0LCJpYXQiOjE3MjczMTYxNjd9.AVCxxaF0nYQh8jD7Zi0mW1ytdzNHV5GwnFKJcPPjw-I";
+			let access_token = "";
+			fetch('https://api.cesium.com/v1/assets/1/endpoint?access_token='+token).then(res=> res.json()).then(data=> {
+                
+               access_token = data.accessToken;
+			   init()
+            });
+			let mesh;
+			let url = './data/725.terrain';
+			let input = document.getElementById('url');
+			input.addEventListener('change', function(data) {
+			    url = input.value;
+				scene.remove(mesh);
+				init();
+			})
+			// init();
+			function init() {
+				let headers = {
+                    'accept': 'application/vnd.quantized-mesh,application/octet-stream;q=0.9,*/*;q=0.01',
+                    'Authorization': 'Bearer ' + access_token,
+                    'Referer': 'http://127.0.0.1:8080/terrain.html',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+                };
+				fetch(url, {headers:headers}).then(res=> res.arrayBuffer()).then(data => {
+				// fetch('https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/10/332/765.terrain?extensions=octvertexnormals-metadata-watermask&v=1.2.0', {'headers':headers}).then(res=> res.arrayBuffer()).then(data => {
+				// fetch('https://t5.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk=588e61bc464868465169f209fe694dd0&x=215384&y=42916&l=18').then(res=> res.arrayBuffer()).then(data => {
+					
+					console.log(data);
+					let terrain = TerrainUtils.extractTerrainInfo(data, true);
+					console.log(terrain);
+					let geometry = new MapNodeHeightTinGeometry(terrain,false,10, true);
+					let MaxHeight = geometry.userData.terrain.header.MaxiumHeight;
+					let MinHeight = geometry.userData.terrain.header.MiniumHeight;
+					let pos = geometry.getAttribute('position').array;
+					for(let i = 1; i < pos.length; i+=3) {
+					    pos[i] = (pos[i] - MinHeight) / (MaxHeight - MinHeight);
+					}
+					    
+					
+					const tmaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: false,   } );
+					// tmaterial.side = THREE.DoubleSide;
+					
+					const image = document.createElement('img');
+					// imgage = new Image();
+					image.onload = function() 
+					{
+						// BingMapsProvider.convert(image);
+						// 这里这个convert先禁用。
+						const texture = new THREE.Texture(image);
+						texture.generateMipmaps = false;
+						texture.format = THREE.RGBAFormat;
+						texture.magFilter = THREE.LinearFilter;
+						texture.minFilter = THREE.LinearFilter;
+						texture.needsUpdate = true;
+					
+						tmaterial.map = texture;
+						tmaterial.needsUpdate = true;
+					};
+					image.onerror = function() 
+					{
+						reject();
+					};
+					image.crossOrigin = 'Anonymous';
+					image.src = 'http://ecn.t1.tiles.virtualearth.net/tiles/a1.jpeg?g=1173';
+
+
+					
+
+					mesh = new THREE.Mesh( geometry, tmaterial );
+					mesh.position.set(0,0,0);
+					addWireframe(mesh);
+					console.log(mesh);
+					scene.add( mesh );
+
+				});
+
+				
+
+			}
+			animate();
+			function animate( ) {
+			let time = clock.getElapsedTime();
+				requestAnimationFrame( animate );
+				renderer.render( scene, camera );
+			}
+
+			function addWireframe (mesh) {
+				const wireframe = new THREE.LineSegments(
+					new THREE.WireframeGeometry(mesh.geometry),
+					new THREE.LineBasicMaterial({
+					color: 0xffffff,
+					linewidth: 2
+					})
+				);
+
+				mesh.add(wireframe);
+			}
+
+			function addNormalHelper (scene, mesh) {
+				const hasNormals = mesh.geometry.getAttribute('normal') !== undefined
+
+				if (!hasNormals) {
+					console.warn('Normals helper was requested but geometry does not contain normals')
+				} else {
+					const normalsHelper = new THREE.VertexNormalsHelper(mesh, 30, 0x00ff00, 1)
+
+					scene.add(normalsHelper)
+				}
+			}
+		</script>
+	</body>
+</html>

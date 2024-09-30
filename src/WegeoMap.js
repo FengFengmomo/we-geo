@@ -49,7 +49,7 @@ export class WegeoMap {
             throw("providers is null or empty, please give a provider");
         }
         if(option.heightProvider && option.heightProvider!=null){
-            map = new MapView(MapView.HEIGHT , option.providers, option.heightProvider);
+            map = new MapView(MapView.HEIGHT_TIN , option.providers, option.heightProvider);
         } else{
             map = new MapView(MapView.PLANAR , option.providers);
         }

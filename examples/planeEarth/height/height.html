@@ -40,9 +40,10 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, MapBoxProvider} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, MapBoxProvider, CesiumHeightProvider} from 'Geo';
 		let token = 'pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA';
 		let mapbox = new MapBoxProvider(token, 'mapbox.terrain-rgb', MapBoxProvider.MAP_ID, "pngraw");
+		let cesium = new CesiumHeightProvider();
 		let provider = new BingMapsProvider();
 		// 地名服务
 		let nameprovider = new TianDiTuProvider({
@@ -62,9 +63,9 @@
 		// });
 		map.addBaseMap({
 			providers: [provider],
-			heightProvider: mapbox
+			heightProvider: cesium
 		});
-		map.moveTo(43.905036,88.109167,10000);
+		map.moveTo(43.905036,88.109167,1000000);
 		window.onresize = map.resize();
 		map.animate();
 

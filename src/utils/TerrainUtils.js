@@ -68,18 +68,18 @@ export class TerrainUtils {
             harr[i] = num;
         }
         for(let i = 0; i < vertexCount; i++) {
-            x += zigzagDecodeInt(xarr[i]);
-            y += zigzagDecodeInt(yarr[i]);
-            h += zigzagDecodeInt(harr[i]);
+            x += TerrainUtils.zigzagDecodeInt(xarr[i]);
+            y += TerrainUtils.zigzagDecodeInt(yarr[i]);
+            h += TerrainUtils.zigzagDecodeInt(harr[i]);
             xarr[i] = x;
             yarr[i] = y;
             harr[i] = h;
         }
         let vertexData = {
             vertexCount: vertexCount,
-            u: xarr,
-            v: yarr,
-            height: harr
+            xarr: xarr,
+            yarr: yarr,
+            harr: harr
         }
         //紧跟着顶点数据的是索引数据。索引指定顶点如何链接在一起成为三角形。
         //如果瓦块具有超过65536个顶点，则该瓦块使用IndexData32结构编码索引。否则，它将使用IndexData16结构。
@@ -98,20 +98,33 @@ export class TerrainUtils {
                 indices[i] = dataView.getUint16(byteoffset, littleEndian); byteoffset+=2;
             }
         }
-
+        
+        // let indices;
+        // if (bytesPerIndex === 4){
+        //     indices = new Uint32Array(dataView.buffer, byteoffset ,triangleCount*3);
+        // } else {
+        //     indices = new Uint16Array(dataView.buffer, byteoffset ,triangleCount*3);
+        // }
+        // byteoffset += triangleCount*3 * bytesPerIndex;
         let highest = 0;
-        for (let i = 0; i < triangleCount; i++)
+        for (let i = 0; i < triangleCount*3; i++)
         {
             let code = indices[i];
             indices[i] = highest - code;//需要强制转换为UInt16
-            if (code == 0)
+            if (code === 0)
             {
                 highest++;
             }
         }
+        let indexReverse = new Array(triangleCount*3);
+        for (let i = 0; i < triangleCount*3; i+=3){
+            indexReverse[i] = indices[i+2];
+            indexReverse[i+1] = indices[i+1];
+            indexReverse[i+2] = indices[i];
+        }
         let indexData = {
             triangleCount: triangleCount,
-            indices: indices,
+            indices: indexReverse,
             highest: highest
         }
         // console.log("vertexCount:" + vertexCount + " indexCount:" + triangleCount);
@@ -225,7 +238,6 @@ export class TerrainUtils {
                     let masks = new Array(256*256);
                     for (let i = 0; i < 256*256; i++){
                         masks[i] = dataView.getUint8(byteoffset, littleEndian); byteoffset+=1;
-                        byteoffset += 1;
                     }
                     extensions.masks = masks;
                 }
