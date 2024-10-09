@@ -1,13 +1,14 @@
-import {MapProvider} from './MapProvider';
+import {MapProvider} from '../MapProvider';
 import {Color} from 'three';
-import {CanvasUtils} from '../utils/CanvasUtils';
+import {CanvasUtils} from '../../utils/CanvasUtils';
+import { PlaneProvider } from './PlaneProvider';
 
 /**
  * Height debug provider takes a RGB encoded height map from another provider and converts it to a gradient for preview.
  *
  * Usefull to preview and compare height of different providers. Can also be usefull to generate grayscale maps to be feed into other libraries (e.g. physics engine).
  */
-export class HeightDebugProvider extends MapProvider 
+export class HeightDebugProvider extends PlaneProvider 
 {
 	/**
 	 * The provider used to retrieve the base RGB information to be debugged.

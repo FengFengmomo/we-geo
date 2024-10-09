@@ -1,4 +1,4 @@
-import {MapProvider} from './MapProvider';
+import {MapProvider} from '../MapProvider';
 
 
 /**

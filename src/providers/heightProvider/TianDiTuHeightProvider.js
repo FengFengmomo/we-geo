@@ -1,7 +1,7 @@
 // 瓦片获取
 // http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=您的密钥
 
-import { MapProvider } from "./MapProvider";
+import { MapProvider } from "../MapProvider";
 
 // import Fetch from "../utils/Fetch.js";
 export class TianDiTuHeightProvider extends MapProvider {

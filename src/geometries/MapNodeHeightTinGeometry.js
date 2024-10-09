@@ -9,10 +9,10 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 	 * @param terrain - 稀疏网格的高程数据， 基于cesium terrain world（小端存储） 与 天地图 terrain world（大端存储）制作的稀疏网格数据
 	 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是10，calculateNormals默认是true
 	 */
-	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true)
+	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true, scale = 2.0)
 	{
 		super();
-
+		this.scale = scale;
 		// Buffers
 		const indices = [];
 		const vertices = [];
@@ -69,7 +69,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		    let x = 1.0 * xarr[i]/32767 - 0.5;
 		    let z = 1.0 * yarr[i]/32767 - 0.5;
 		    let h = 1.0 * harr[i]/32767 * (MaxHeight - MinHeight) + MinHeight;
-		    vertices.push(x, h, z);
+		    vertices.push(x, h * this.scale, z);
 			normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
 			uvs.push(x+0.5, 0.5-z); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 		}

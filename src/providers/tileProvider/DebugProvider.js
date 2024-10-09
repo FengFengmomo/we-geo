@@ -1,6 +1,6 @@
-import {MapProvider} from './MapProvider';
+import {MapProvider} from '../MapProvider';
 import {Color} from 'three';
-import {CanvasUtils} from '../utils/CanvasUtils';
+import {CanvasUtils} from '../../utils/CanvasUtils';
 
 /**
  * Debug provider can be used to debug the levels of the map three based on the zoom level they change between green and red.

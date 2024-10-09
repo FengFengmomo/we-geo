@@ -1,11 +1,16 @@
 // 瓦片获取
 // http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=您的密钥
 
-import { MapProvider } from "./MapProvider";
-import { SyncQueue} from '../utils/RequestQueue';
+import { MapProvider } from "../MapProvider";
+import { SyncQueue} from '../../utils/RequestQueue';
+import { PlaneProvider } from "./PlaneProvider";
+import { MapNodeGeometry } from "../../geometries/MapNodeGeometry";
+import { MapNodeHeightTinGeometry } from "../../geometries/MapNodeHeightTinGeometry";
+import { TerrainUtils } from "../../utils/TerrainUtils";
+import { DefaultPlaneProvider } from "./DefaultPlaneProvider"
 
 // import Fetch from "../utils/Fetch.js";
-export class CesiumHeightProvider extends MapProvider {
+export class CesiumPlaneProvider extends PlaneProvider {
     // address = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
     address = "{z}/{x}/{y}.terrain?extensions=octvertexnormals-metadata-watermask&v=1.2.0";
     baseUrl = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/";
@@ -18,6 +23,8 @@ export class CesiumHeightProvider extends MapProvider {
     authority = false;
     syncQueue = new SyncQueue(1);
     layers = null;
+    scale = 2.0;
+    static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
     constructor(options) {
         super(options);
         Object.assign(this, options);
@@ -82,6 +89,44 @@ export class CesiumHeightProvider extends MapProvider {
                 });
             });
         });
+    }
+
+    fetchGeometry(zoom, x, y){
+        let url = this.getAddress(zoom, x, y);
+        return this.syncQueue.enqueue(() => {
+            return new Promise((resolve, reject) => {
+                let headers = {
+                    'accept': 'application/vnd.quantized-mesh,application/octet-stream;q=0.9,*/*;q=0.01',
+                    'Authorization': 'Bearer ' + this.access_token,
+                    'Referer': 'http://127.0.0.1:8080/terrain.html',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+                };
+                fetch(url, {'headers':headers}).then(res=> res.arrayBuffer()).then(data=> {
+                    let geometry = this.createGeometry(data);
+                    resolve(geometry); 
+                });
+            });
+        });
+        
+    }
+
+    createGeometry(dataBuffer){
+        let geometry;
+        try 
+		{
+			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.littleEndian);
+			geometry = new MapNodeHeightTinGeometry(terrain, false, 10.0, false, this.scale);
+		}
+		catch (e) 
+		{
+			console.error('Error loading height data.', this.level,this.x,this.y, e);
+			geometry = CesiumPlaneProvider.geometry;
+		}
+        return geometry;
+    }
+
+    getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
     }
 }
 

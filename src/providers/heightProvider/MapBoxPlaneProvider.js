@@ -1,14 +1,16 @@
-import {MapProvider} from './MapProvider';
-import {XHRUtils} from '../utils/XHRUtils';
-
-
+import {XHRUtils} from '../../utils/XHRUtils';
+import { PlaneProvider } from './PlaneProvider';
+import { MapProvider } from '../MapProvider';
+import { CanvasUtils } from '../../utils/CanvasUtils';
+import { DefaultPlaneProvider } from './DefaultPlaneProvider';
+import { MapNodeGeometry } from '../../geometries/MapNodeGeometry';
 /**
  * Map box service tile provider. Map tiles can be fetched from style or from a map id.
  *
  * API Reference
  *  - https://www.mapbox.com/
  */
-export class MapBoxProvider extends MapProvider 
+export class MapBoxPlaneProvider extends PlaneProvider 
 {
 	/**
 	 * Base adress of the mapbox service.
@@ -91,6 +93,10 @@ export class MapBoxProvider extends MapProvider
 	 */
 	version;
 
+	geometrySize = 16;
+
+	tileSize = 256;
+	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 	/**
 	 * @param apiToken - Map box api token.
 	 * @param id - Map style or map ID if the mode is set to MAP_ID.
@@ -98,7 +104,7 @@ export class MapBoxProvider extends MapProvider
 	 * @param format - Image format.
 	 * @param useHDPI - If true uses high DPI mode.
 	 */
-	constructor(apiToken = '', id = '', mode = MapBoxProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
+	constructor(apiToken = '', id = '', mode = MapBoxPlaneProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
 	{
 		super();
 
@@ -113,7 +119,7 @@ export class MapBoxProvider extends MapProvider
 
 	async getMetaData()
 	{
-		const address = MapBoxProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
+		const address = MapBoxPlaneProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
 
 		const data = await XHRUtils.get(address);
 		
@@ -140,14 +146,56 @@ export class MapBoxProvider extends MapProvider
 			};
 			image.crossOrigin = 'Anonymous';
 
-			if (this.mode === MapBoxProvider.STYLE) 
+			if (this.mode === MapBoxPlaneProvider.STYLE) 
 			{
-				image.src = MapBoxProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
 			}
 			else 
 			{
-				image.src = MapBoxProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
 			}
 		});
 	}
+	fetchGeometry(zoom, x, y){
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				let geometry = this.createGeometry(image);
+				resolve(geometry);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxPlaneProvider.STYLE) 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+	}
+
+	createGeometry(image){
+		const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
+
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, this.tileSize, this.tileSize, 0, 0, canvas.width, canvas.height);
+
+		const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+		let geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+		return geometry;
+	}
+
+	getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
+    }
 }

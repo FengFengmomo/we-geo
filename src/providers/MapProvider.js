@@ -55,6 +55,14 @@ export class MapProvider
 	}
 
 	/**
+	 * Get a geometry for the x, y, zoom based on the provider configuration.
+	 * 仅在高程地图和球体地图中使用
+	 */ 
+	fetchGeometry(zoom, x, y){
+		return null;
+	}
+
+	/**
 	 * Get map meta data from server if supported.
 	 *
 	 * Usually map server have API method to retrieve TileJSON metadata.

@@ -68,7 +68,7 @@
 		map.addBaseSphereMap({
 			providers: [provider]
 		});
-		map.moveToByLL(44.266119,90.139228, 6371008);
+		map.fromDegrees(44.266119,90.139228, 6371008);
 		window.onresize = () => { map.resize(); }
 		map.resize();
 		map.animate();
@@ -131,7 +131,7 @@
 
         const flat = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, color: 0x450089, wireframe: false} );
         const flatMesh = new THREE.Mesh(threeDgeo, flat);
-        let scale =1.004;
+        let scale =1.0055;
         flatMesh.scale.set( scale,scale,scale );
         map.baseMap.add(flatMesh);
 		// let lineGeo = new LineGeometry();

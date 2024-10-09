@@ -1,7 +1,6 @@
 import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending, DoubleSide} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
-import {GeoserverWMSProvider} from '../providers/GeoserverWMSProvider';
 /**
  * Constants to store quad-tree positions.
  */
@@ -159,8 +158,6 @@ export class MapNode extends Mesh
 		this.level = level;
 		this.x = x;
 		this.y = y;
-		// this.transparent = mapView.transparent;
-		// this.opacity = mapView.opacity;
 
 		this.initialize();
 	}
@@ -179,6 +176,11 @@ export class MapNode extends Mesh
 	 */
 	createChildNodes() {}
 
+	/**
+	 * Create the geometry for the node.
+	 * 
+	 */ 
+	async createGeometry() {}
 	/**
 	 * Subdivide node,check the maximum depth allowed for the tile provider.
 	 *

@@ -1,7 +1,7 @@
 // *天地图地图服务二级域名包括t0-t7，您可以随机选择使用，如http://t2.tianditu.gov.cn/vec_c/wmts?tk=您的密钥
 // 天地图各个服务说明： https://zhuanlan.zhihu.com/p/603476133
 // 天地图api页面： http://lbs.tianditu.gov.cn/server/MapService.html
-import { MapProvider } from "./MapProvider";
+import { MapProvider } from "../MapProvider";
 
 export class TianDiTuProvider extends MapProvider {
     url = "https://t3.tianditu.gov.cn/DataServer?T={service}&x={x}&y={y}&l={z}&tk={token}";

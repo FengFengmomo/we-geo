@@ -1,11 +1,9 @@
 import { AmbientLight, DirectionalLight, MOUSE, Vector3, PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh} from 'three';
-import {RoadImageProvider} from './providers/RoadImageProvider';
 import {MapView} from './MapView';
 import { Layer } from './layers/Layer';
 import { Element } from './utils/Element';
 import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import {BingMapsProvider} from './providers/BingMapsProvider';
 import { Listener } from './listener/listener';
 import { RaycasterUtils } from './raycaster/utils';
 import { Config } from './environment/config';
@@ -15,7 +13,8 @@ import { WaterLorder } from './loader/WaterLorder';
 import { UnitsUtils } from './utils/UnitsUtils';
 import { LODSphere } from './lod/LODSphere';
 import { Skybox } from './main';
-
+import { DefaultPlaneProvider } from './providers';
+import { DefaultSphereProvider } from './providers';
 
 export class WegeoMap {
     baseMap;
@@ -48,11 +47,10 @@ export class WegeoMap {
         if(!option.providers || option.providers.length == 0){
             throw("providers is null or empty, please give a provider");
         }
-        if(option.heightProvider && option.heightProvider!=null){
-            map = new MapView(MapView.HEIGHT_TIN , option.providers, option.heightProvider);
-        } else{
-            map = new MapView(MapView.PLANAR , option.providers);
+        if(option.heightProvider === null || option.heightProvider === undefined){
+            option.heightProvider = new DefaultPlaneProvider();
         }
+        map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, true, this.camera);
@@ -82,7 +80,10 @@ export class WegeoMap {
         if(!option.providers || option.providers.length == 0){
             throw("providers is null or empty, please give a provider");
         }
-        let map = new MapView(MapView.SPHERICAL , option.providers);
+        if(option.heightProvider === null || option.heightProvider === undefined){
+            option.heightProvider = new DefaultSphereProvider();
+        }
+        let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
         map.lod = new LODSphere();
         // map.updateMatrixWorld(true);
         this.baseMap = new Layer(1, container, canvas, map, false);

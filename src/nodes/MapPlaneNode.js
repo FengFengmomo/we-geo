@@ -17,7 +17,7 @@ export class MapPlaneNode extends MapNode
 {
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
+		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
 		this.matrixAutoUpdate = false;
 		this.isMesh = true;
@@ -29,17 +29,34 @@ export class MapPlaneNode extends MapNode
 	 */
 	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 
-	static baseGeometry = MapPlaneNode.geometry;
+	// static baseGeometry = MapPlaneNode.geometry;
 
 	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
 
 	async initialize()
 	{
 		super.initialize();
-		
+		await this.createGeometry(this.level, this.x, this.y);
 		await this.loadData();
 		
 		this.nodeReady();
+	}
+
+	async createGeometry(zoom, x, y){
+		if (this.mapView.heightProvider === null) 
+		{
+			throw new Error('MapView.heightProvider provider is null.');
+		}
+ 
+		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		{
+			console.warn('Loading tile outside of provider range.', this);
+
+			this.geometry = this.mapView.heightProvider.getDefaultGeometry();//MapPlaneNode.geometry;
+			return;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+
 	}
 
 	createChildNodes()

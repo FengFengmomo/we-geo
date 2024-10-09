@@ -1,6 +1,8 @@
-import {MapProvider} from './MapProvider';
-import {XHRUtils} from '../utils/XHRUtils';
-import {MapBoxProvider} from './MapBoxProvider';
+import {MapProvider} from '../MapProvider';
+import {XHRUtils} from '../../utils/XHRUtils';
+import {MapBoxProvider} from '../heightProvider/MapBoxPlaneProvider';
+import {CanvasUtils} from '../../utils/CanvasUtils';
+import { ErrorCode } from '../../utils/ErrorCode';
 
 /**
  * Bing maps tile provider.
@@ -142,13 +144,49 @@ export class BingMapsProvider extends MapProvider
 		return quad;
 	}
 
+	static convert(image, resolve, reject){
+		let imageSize = 256;
+		const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, imageSize, imageSize, 0, 0, imageSize, imageSize);
+
+		const imageData = context.getImageData(0, 0, imageSize, imageSize); // 图像变成17*17像素
+		const data = imageData.data;
+		for (let i = 0; i < data.length; i += 4) {
+		    let gray = (data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11)
+			data[i] = gray;
+			data[i+1] = gray;
+			data[i+2] = gray;	
+		}
+		// context.putImageData(imageData, 0, 0);
+		// 此处仅仅是修改了画布上的数据。
+		// 如何生成一个图片对象并返回。
+		var img = new Image()
+		img.onload = () => {
+		// 画图片
+			ctx.drawImage(img, 60, 0)
+			// toImage
+			var dataImg = new Image()
+			dataImg.src = canvas.toDataURL('image/png')
+			resolve(dataImg)
+		}
+		img.onerror = function() {
+				reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
+		};
+
+	}
+
 	fetchTile(zoom, x, y)
 	{
 		return new Promise((resolve, reject) => 
 		{
 			const image = document.createElement('img');
+			// imgage = new Image();
 			image.onload = function() 
 			{
+				// BingMapsProvider.convert(image);
+				// 这里这个convert先禁用。
 				resolve(image);
 			};
 			image.onerror = function() 
@@ -157,6 +195,8 @@ export class BingMapsProvider extends MapProvider
 			};
 			image.crossOrigin = 'Anonymous';
 			image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
+			// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
+			// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
 		});
 	}
 }

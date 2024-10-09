@@ -1,5 +1,5 @@
 import {BufferGeometry, Camera, Group, Material, Mesh, MeshBasicMaterial, Object3D, Raycaster, Scene, WebGLRenderer} from 'three';
-import {OpenStreetMapsProvider} from './providers/OpenStreetMapsProvider';
+import {OpenStreetMapsProvider} from './providers/tileProvider/OpenStreetMapsProvider';
 import {MapNode} from './nodes/MapNode';
 import {MapHeightNode} from './nodes/MapHeightNode';
 import {MapPlaneNode} from './nodes/MapPlaneNode';
@@ -175,7 +175,8 @@ export class MapView extends Mesh
 			
 			// @ts-ignore
 			
-			this.geometry = this.root.constructor.baseGeometry;
+			// this.geometry = this.root.constructor.baseGeometry;
+			this.geometry = this.heightProvider.getDefaultGeometry();
 			
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
@@ -308,7 +309,9 @@ export class MapView extends Mesh
 	 */
 	maxZoom() 
 	{
-		return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		// return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		// 这里只需要关注影像的最大放缩级别，不需要关注高程的最大放缩级别，高程数据可以通过下采样的方式进行处理
+		return this.providers[0].maxZoom;
 	}
 
 	/**

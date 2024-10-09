@@ -1,5 +1,5 @@
-import {MapProvider} from './MapProvider';
-import {XHRUtils} from '../utils/XHRUtils';
+import {MapProvider} from '../MapProvider';
+import {XHRUtils} from '../../utils/XHRUtils';
 
 
 /**

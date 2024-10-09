@@ -40,10 +40,10 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, MapBoxProvider, CesiumHeightProvider} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, MapBoxPlaneProvider, CesiumPlaneProvider} from 'Geo';
 		let token = 'pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA';
-		let mapbox = new MapBoxProvider(token, 'mapbox.terrain-rgb', MapBoxProvider.MAP_ID, "pngraw");
-		let cesium = new CesiumHeightProvider();
+		let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
+		let cesium = new CesiumPlaneProvider();
 		let provider = new BingMapsProvider();
 		// 地名服务
 		let nameprovider = new TianDiTuProvider({

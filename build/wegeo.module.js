@@ -1,4 +1,4 @@
-import { Texture, RGBAFormat, LinearFilter, Vector3, Vector2, Mesh, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, EventDispatcher, MOUSE, TOUCH, Spherical, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, BackSide, BoxGeometry, CompressedCubeTexture, UnsignedByteType, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, FloatType, DataTexture, Data3DTexture, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, PMREMGenerator, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib } from 'three';
+import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, EventDispatcher, MOUSE, TOUCH, Spherical, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, BackSide, BoxGeometry, CompressedCubeTexture, UnsignedByteType, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, FloatType, DataTexture, Data3DTexture, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, PMREMGenerator, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib } from 'three';
 
 /**
  * A map provider is a object that handles the access to map tiles of a specific service.
@@ -51,6 +51,14 @@ class MapProvider
 	 */
 	fetchTile(zoom, x, y)
 	{
+		return null;
+	}
+
+	/**
+	 * Get a geometry for the x, y, zoom based on the provider configuration.
+	 * 仅在高程地图和球体地图中使用
+	 */ 
+	fetchGeometry(zoom, x, y){
 		return null;
 	}
 
@@ -182,451 +190,6 @@ class TextureUtils
 		texture.needsUpdate = true;
         
 		return texture;
-	}
-}
-
-/**
- * Geolocation is used to represent a position in earth using WGS84 Datum units.
- */
-class Geolocation 
-{
-	/**
-     * Latitude in degrees. Range from -90° to 90°.
-	 * 维度
-     */
-	latitude;
-
-	/**
-     * longitude in degrees. Range from -180° to 180°.
-	 * 经度
-     */
-	longitude;
-
-	constructor(latitude, longitude) 
-	{
-		this.latitude = latitude;
-		this.longitude = longitude;
-	}
-}
-
-/**
- * Units utils contains methods to convert data between representations.
- *
- * Multiple methods are used to reprent world coordinates based on the type of data being presented.
- * 
- * WGS84 is the most commonly used representation with (latitude, longitude, altitude).
- * 
- * EPSG:900913 is used for planar coordinates in (X, Y, Z)
- */
-class UnitsUtils 
-{
-	/**
-	 * Average radius of earth in meters. // 赤道平均半径
-	 */
-	static EARTH_RADIUS = 6371008;
-	// static EARTH_RADIUS = 6377800.0;
-
-	/**
-	 * WGS84 earth radius vector
-	 * 
-	 * todo 现在定位仍然是有一点点的偏移，大概在100到200米左右，在维度较低地区相对较好。
-	 * 经过观察cesium的写法，就是采用赤道地区采用6378137的平均半径，极柱反向采用短半轴长度6356752.314245，然后再计算数据。
-	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试。
-	 * 经过多次调试，采用6378137的半径是正确的，在之前的经纬度调试中由于采用的不同的标准的经纬度，所以一直定位不正确。
-	 * 目前下面两个向量暂时用不到，是cesium的写法。后续可能和带高程的定位有关。
-	 * 
-	 * 现在的经纬度没有见到偏移，已修正完毕
-	 */
-	static EARTH_RADIUS_V = new Vector3(6378137.0, 6356752.314245, 6378137.0);
-	static EARTH_RADIUS_Squared = new Vector3(6378137.0*6378137.0, 6356752.314245*6356752.314245, 6378137.0*6378137.0);
-	/**
-	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径，WGS84标准
-	 */
-	static EARTH_RADIUS_A = 6378137.0;
-
-	/**
-	 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
-	 */
-	static EARTH_RADIUS_B = 6356752.314245;
-
-	/**
-	 * 最大高度
-	 */
-	static minimumHeight = 65536.0;
-	
-	/**
-	 * 最小高度
-	 */
-  	static maximumHeight = -65536.0;
-
-	/**
-	 * 全球实际的最大海拔高度
-	 */
-	static HEIGHT_MAX = 8800;
-
-	/**
-	 * 全球实际的最小海拔高度
-	 */ 
-	static HEIGHT_MIN = -4100;
-
-	/**
-	 * Earth equator perimeter in meters.
-	 */
-	static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
-
-	/**
-	 * Earth equator perimeter in meters.
-	 */
-	static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
-
-		/**
-	 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
-	 */
-	static MERCATOR_MAX_EXTENT = 20037508.342789244;
-
-	static _ellipsoidRadiiSquared = new Vector3(
-		6378137.0 * 6378137.0,
-		// 6356752.3142451793 * 6356752.3142451793,
-		6378137.0 * 6378137.0,
-		6378137.0 * 6378137.0
-	  );
-
-	static tileWidth(level){
-		return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
-	}
-
-	/**
-	 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
-	 *	经纬度转为世界坐标（x,y） 
-	 * @param latitude - Latitude value in degrees. 纬度
-	 * @param longitude - Longitude value in degrees. 经度
-	 */
-	static datumsToSpherical(latitude, longitude)
-	{
-		const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
-		let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
-
-		y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
-
-		return new Vector2(x, y);
-	}
-
-	/**
-	 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
-	 * 计算世界坐标(x,y)到经纬度(lat,lon)
-	 * @param x - X coordinate.
-	 * @param y - Y coordinate.
-	 */
-	static sphericalToDatums(x, y)
-	{
-		const longitude = x / UnitsUtils.EARTH_ORIGIN * 180.0;
-		let latitude = y / UnitsUtils.EARTH_ORIGIN * 180.0;
-
-		latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
-
-		return new Geolocation(latitude, longitude);
-	}
-
-	/**
-	 * Converts quad tree zoom/x/y to lat/lon in WGS84 Datum.
-	 * 
-	 * The X and Y start from 0 from the top/left corner of the quadtree up to (4^zoom - 1)
-	 *
-	 * @param zoom - Zoom level of the quad tree.
-	 * @param x - X coordinate.
-	 * @param y - Y coordinate.
-	 */
-	static quadtreeToDatums(zoom, x, y)
-	{
-		const n = Math.pow(2.0, zoom);
-		const longitude = x / n * 360.0 - 180.0;
-		const latitudeRad = Math.atan(Math.sinh(Math.PI * (1.0 - 2.0 * y / n)));
-		const latitude = 180.0 * (latitudeRad / Math.PI);
-
-		return new Geolocation(latitude, longitude);
-	}
-
-	/**
-	 * Direction vector to WGS84 coordinates.
-	 * 
-	 * Can be used to transform surface points of world sphere to coordinates.
-	 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
-	 * @param dir - Direction vector.
-	 * @returns WGS84 coordinates.
-	 */
-	static vectorToDatums(dir) 
-	{
-		const radToDeg = 180 / Math.PI;
-
-		const latitude = Math.atan2(dir.y, Math.sqrt(Math.pow(dir.x, 2) + Math.pow(-dir.z, 2))) * radToDeg;
-		const longitude = Math.atan2(-dir.z, dir.x) * radToDeg;
-
-		return new Geolocation(latitude, longitude);
-	}
-
-	
-	/**
-	 * Get a direction vector from WGS84 coordinates.
-	 * 
-	 * The vector obtained will be normalized.
-	 * 经纬度到空间内（x,y,z）的转换。
-	 * @param latitude - Latitude value in degrees.
-	 * @param longitude - Longitude value in degrees.
-	 * @returns Direction vector normalized.
-	 */
-	static datumsToVector(latitude, longitude) 
-	{
-		const degToRad = Math.PI / 180;
-		
-		const rotX = longitude * degToRad;
-		const rotY = latitude * degToRad;
-
-		var cos = Math.cos(rotY);
-		
-		return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
-	}
-
-	/**
-	 * 
-	 * Get a direction vector from WGS84 coordinates.
-	 * 
-	 * The vector obtained will be normalized.
-	 * @param latitude - Latitude value in degrees.
-	 * @param longitude - Longitude value in degrees.
-	 * @param height - Height in meters.
-	 * @returns Direction vector.
-	 * */
-	static fromDegrees(latitude, longitude, height){
-		let drector = UnitsUtils.datumsToVector(latitude, longitude);
-		drector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A + height);
-		return drector;
-	}
-
-
-	/**
-	 * Get altitude from RGB color for mapbox altitude encoding
-	 * 
-	 * https://docs.mapbox.com/data/tilesets/guides/access-elevation-data/~
-	 * 
-	 * @param color - Color of the pixel
-	 * @returns The altitude encoded in meters.
-	 */
-	static mapboxAltitude(color) 
-	{
-		return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
-	}
-	
-	/**
-	 * WGS84经纬度转平面xy坐标
-	 * @param {*} lat 维度
-	 * @param {*} lon 经度
-	 * @returns {Vector2}
-	 */
-	static latLonToXy(lat, lon){
-		let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
-		let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
-		return new Vector2(x, y);
-	}
-
-	/**
-	 * 平面xy坐标转WGS84经纬度
-	 * @param {*} x 
-	 * @param {*} y 
-	 * @returns {Geolocation}
-	 */
-	static xyToLatLon(x, y){
-	    let lat = y/UnitsUtils.EARTH_RADIUS_A *180 /Math.PI;
-		let lon = x/(UnitsUtils.EARTH_RADIUS_A * Math.cos(lat/180 *Math.PI))*180 /Math.PI;
-		return new Geolocation(lat, lon);
-	}
-
-	/**
-	 * @param {*} lat 维度 
-	 * @param {*} lng 经度
-	 * @returns {Vector2}
-	 */
-	static mecatorLL2XY(lat, lng){
-		let earthRad = UnitsUtils.EARTH_RADIUS_A;
-		let x = ((lng * Math.PI) / 180) * earthRad;
-		let a = (lat * Math.PI) / 180;
-		let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
-		return new Vector2(x, y)
-	}
-
-
-	/**
-	 * Get the size of a web mercator tile in mercator coordinates
-	 * 计算每个tile的大小，单位是米
-	 * 	 
-	 * @param zoom - the zoom level of the tile
-	 * @returns the size of the tile in mercator coordinates
-	 */
-	static getTileSize(zoom){
-		const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
-		const numTiles = Math.pow(2, zoom);
-		return 2 * maxExtent / numTiles;	
-	}
-
-	/**
-	 * Get the bounds of a web mercator tile in mercator coordinates
-	 * 	 x,y的起止， 和tilsize的大小。
-	 * @param zoom - the zoom level of the tile
-	 * @param x - the x coordinate of the tile
-	 * @param y - the y coordinate of the tile
-	 * @returns list of bounds - [startX, sizeX, startY, sizeY]
-	 */
-	static tileBounds(zoom, x, y){
-		const tileSize = UnitsUtils.getTileSize(zoom);
-		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
-		const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
-		return [minX, tileSize, minY, tileSize];
-	}
-
-	/**
-	 * Get the latitude value of a given mercator coordinate and zoom level
-	 * 
-	 * @param zoom - the zoom level of the coordinate
-	 * @param y - the y mercator coordinate
-	 * @returns - latitude of coordinate in radians
-	 */
-	static mercatorToLatitude(zoom, y) {
-		const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
-		return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS_A));
-	}
-
-	/**
-	 * Get the latitude value of a given mercator coordinate and zoom level
-	 * 
-	 * @param zoom - the zoom level of the coordinate
-	 * @param x - the x mercator coordinate
-	 * @returns - longitude of coordinate in radians
-	 */
-	static mercatorToLongitude(zoom, x) {
-		const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
-		return xMerc / UnitsUtils.EARTH_RADIUS_A;
-	}
-	/**
-	 * 角度转弧度值
-	 * @param {number} degrees 角度值
-	 * @returns 
-	 */
-	static toRadians(degrees){
-		return degrees * Math.PI / 180.0;
-	}
-
-	/**
-	 * 弧度转角度值
-	 * @param {number} radians 
-	 * @returns 
-	 */
-	static toDegrees(radians){
-		return radians * 180.0/Math.PI;
-	}
-
-	
-	
-}
-
-/*
- *                        _oo0oo_
- *                       o8888888o
- *                       88" . "88
- *                       (| -_- |)
- *                       0\  =  /0
- *                     ___/`---'\___
- *                   .' \\|     |// '.
- *                  / \\|||  :  |||// \
- *                 / _||||| -:- |||||- \
- *                |   | \\\  - /// |   |
- *                | \_|  ''\---/''  |_/ |
- *                \  .-\__  '-'  ___/-. /
- *              ___'. .'  /--.--\  `. .'___
- *           ."" '<  `.___\_<|>_/___.' >' "".
- *          | | :  `- \`.;`\ _ /`;.`/ - ` : | |
- *          \  \ `_.   \_ __\ /__ _/   .-` /  /
- *      =====`-.____`.___ \_____/___.-`___.-'=====
- *                        `=---='
- * 
- * 
- *      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 
- *            佛祖保佑     永不宕机     永无BUG
- * 
- *        佛曰:  
- *                写字楼里写字间，写字间里程序员；  
- *                程序人员写程序，又拿程序换酒钱。  
- *                酒醒只在网上坐，酒醉还来网下眠；  
- *                酒醉酒醒日复日，网上网下年复年。  
- *                但愿老死电脑间，不愿鞠躬老板前；  
- *                奔驰宝马贵者趣，公交自行程序员。  
- *                别人笑我忒疯癫，我笑自己命太贱；  
- *                不见满街漂亮妹，哪个归得程序员？
- */
-
-class GeoserverWMSProvider{
-    minZoom = 1;
-    maxZoom = 13;
-    tileSize = 256;
-
-	// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
-
-    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
-    // %3A 表示冒号
-    // %2F 表示斜杠
-    // %20 表示空格
-    // %5F 表示下划线
-	// %3C 表示<
-	// %3E 表示>
-	// %2C 表示，
-    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
-	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts'
-	data = 'xinjiang';
-	layer = 'xinjiang';
-	width = 256;
-	height = 256;
-	EPSG = '4326'
-	version = '1.1.1';
-	imageUrl = '{url}?SERVICE=WMS&VERSION={version}&REQUEST=GetMap&FORMAT=image/png8&TRANSPARENT=true&STYLES&LAYERS={data}:{layer}&exceptions=application/vnd.ogc.se_inimage&SRS=EPSG:{EPSG}&WIDTH={width}&HEIGHT={height}&BBOX={bbox}'
-	
-	constructor(options) {
-        Object.assign(this, options);
-		this.imageUrl = this.imageUrl.replace('{url}', this.url);
-		this.imageUrl = this.imageUrl.replace('{version}', this.version);
-		this.imageUrl = this.imageUrl.replace('{data}', this.data);
-		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
-		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
-		this.imageUrl = this.imageUrl.replace('{width}', this.width);
-		this.imageUrl = this.imageUrl.replace('{height}', this.height);
-    }
-    fetchTile(zoom,x,y,bbox)
-	{
-		if(bbox === null){
-			return null;
-		}
-		// 传输bbox的方式有两种，【左下角，右上角】【右下角，左上角】，同时是（经度，维度）的组合方式
-		// 当前bbox存放的是（维度，经度）的组合方式
-		// 实际测试应该是 【左下角，右上角】方式
-		// 还未进行测试过。
-		// 2024年4月12日14:41:12 对该方法进行了实际测试，数据链路已打通。
-		let topleft = UnitsUtils.quadtreeToDatums(zoom,x,y);
-		let bottomRight = UnitsUtils.quadtreeToDatums(zoom,x+1,y+1);
-		let box = [topleft.longitude, bottomRight.latitude, bottomRight.longitude, topleft.latitude]; // 先经度后维度
-		console.log("geoserver:fetchtile",zoom, x, y, box);
-        let urlTemp = this.imageUrl.replace('{bbox}', box.join(","));
-		return new Promise((resolve, reject) => 
-		{
-			const image = document.createElement('img');
-			image.onload = function() 
-			{
-				resolve(image);
-			};
-			image.onerror = function() 
-			{
-				reject();
-			};
-			image.crossOrigin = 'Anonymous';
-			image.src = urlTemp;
-		});
 	}
 }
 
@@ -787,8 +350,6 @@ class MapNode extends Mesh
 		this.level = level;
 		this.x = x;
 		this.y = y;
-		// this.transparent = mapView.transparent;
-		// this.opacity = mapView.opacity;
 
 		this.initialize();
 	}
@@ -807,6 +368,11 @@ class MapNode extends Mesh
 	 */
 	createChildNodes() {}
 
+	/**
+	 * Create the geometry for the node.
+	 * 
+	 */ 
+	async createGeometry() {}
 	/**
 	 * Subdivide node,check the maximum depth allowed for the tile provider.
 	 *
@@ -1269,6 +835,348 @@ class MapNodeGeometry extends BufferGeometry
 	}
 }
 
+/**
+ * Geolocation is used to represent a position in earth using WGS84 Datum units.
+ */
+class Geolocation 
+{
+	/**
+     * Latitude in degrees. Range from -90° to 90°.
+	 * 维度
+     */
+	latitude;
+
+	/**
+     * longitude in degrees. Range from -180° to 180°.
+	 * 经度
+     */
+	longitude;
+
+	constructor(latitude, longitude) 
+	{
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
+}
+
+/**
+ * Units utils contains methods to convert data between representations.
+ *
+ * Multiple methods are used to reprent world coordinates based on the type of data being presented.
+ * 
+ * WGS84 is the most commonly used representation with (latitude, longitude, altitude).
+ * 
+ * EPSG:900913 is used for planar coordinates in (X, Y, Z)
+ */
+class UnitsUtils 
+{
+	/**
+	 * Average radius of earth in meters. // 赤道平均半径
+	 */
+	static EARTH_RADIUS = 6371008;
+	// static EARTH_RADIUS = 6377800.0;
+
+	/**
+	 * WGS84 earth radius vector
+	 * 
+	 * todo 现在定位仍然是有一点点的偏移，大概在100到200米左右，在维度较低地区相对较好。
+	 * 经过观察cesium的写法，就是采用赤道地区采用6378137的平均半径，极柱反向采用短半轴长度6356752.314245，然后再计算数据。
+	 * 目前数据平面地图采用6371008的半径是对的，球体地球应该采用下面的向量方式，后面再进行调试。
+	 * 经过多次调试，采用6378137的半径是正确的，在之前的经纬度调试中由于采用的不同的标准的经纬度，所以一直定位不正确。
+	 * 目前下面两个向量暂时用不到，是cesium的写法。后续可能和带高程的定位有关。
+	 * 
+	 * 现在的经纬度没有见到偏移，已修正完毕
+	 */
+	static EARTH_RADIUS_V = new Vector3(6378137.0, 6356752.314245, 6378137.0);
+	static EARTH_RADIUS_Squared = new Vector3(6378137.0*6378137.0, 6356752.314245*6356752.314245, 6378137.0*6378137.0);
+	/**
+	 * Earth radius in semi-major axis A as defined in WGS84. 赤道半径，WGS84标准
+	 */
+	static EARTH_RADIUS_A = 6378137.0;
+
+	/**
+	 * Earth radius in semi-minor axis B as defined in WGS84. 短轴赤道半径
+	 */
+	static EARTH_RADIUS_B = 6356752.314245;
+
+	/**
+	 * 最大高度
+	 */
+	static minimumHeight = 65536.0;
+	
+	/**
+	 * 最小高度
+	 */
+  	static maximumHeight = -65536.0;
+
+	/**
+	 * 全球实际的最大海拔高度
+	 */
+	static HEIGHT_MAX = 8800;
+
+	/**
+	 * 全球实际的最小海拔高度
+	 */ 
+	static HEIGHT_MIN = -4100;
+
+	/**
+	 * Earth equator perimeter in meters.
+	 */
+	static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
+
+	/**
+	 * Earth equator perimeter in meters.
+	 */
+	static EARTH_ORIGIN = UnitsUtils.EARTH_PERIMETER / 2.0;
+
+		/**
+	 * Largest web mercator coordinate value, both X and Y range from negative extent to positive extent
+	 */
+	static MERCATOR_MAX_EXTENT = 20037508.342789244;
+
+	static _ellipsoidRadiiSquared = new Vector3(
+		6378137.0 * 6378137.0,
+		// 6356752.3142451793 * 6356752.3142451793,
+		6378137.0 * 6378137.0,
+		6378137.0 * 6378137.0
+	  );
+
+	static tileWidth(level){
+		return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
+	}
+
+	/**
+	 * Converts coordinates from WGS84 Datum to XY in Spherical Mercator EPSG:900913.
+	 *	经纬度转为世界坐标（x,y） 
+	 * @param latitude - Latitude value in degrees. 纬度
+	 * @param longitude - Longitude value in degrees. 经度
+	 */
+	static datumsToSpherical(latitude, longitude)
+	{
+		const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
+		let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
+
+		y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
+
+		return new Vector2(x, y);
+	}
+
+	/**
+	 * Converts XY point from Spherical Mercator EPSG:900913 to WGS84 Datum.
+	 * 计算世界坐标(x,y)到经纬度(lat,lon)
+	 * @param x - X coordinate.
+	 * @param y - Y coordinate.
+	 */
+	static sphericalToDatums(x, y)
+	{
+		const longitude = x / UnitsUtils.EARTH_ORIGIN * 180.0;
+		let latitude = y / UnitsUtils.EARTH_ORIGIN * 180.0;
+
+		latitude = 180.0 / Math.PI * (2 * Math.atan(Math.exp(latitude * Math.PI / 180.0)) - Math.PI / 2.0);
+
+		return new Geolocation(latitude, longitude);
+	}
+
+	/**
+	 * Converts quad tree zoom/x/y to lat/lon in WGS84 Datum.
+	 * 
+	 * The X and Y start from 0 from the top/left corner of the quadtree up to (4^zoom - 1)
+	 *
+	 * @param zoom - Zoom level of the quad tree.
+	 * @param x - X coordinate.
+	 * @param y - Y coordinate.
+	 */
+	static quadtreeToDatums(zoom, x, y)
+	{
+		const n = Math.pow(2.0, zoom);
+		const longitude = x / n * 360.0 - 180.0;
+		const latitudeRad = Math.atan(Math.sinh(Math.PI * (1.0 - 2.0 * y / n)));
+		const latitude = 180.0 * (latitudeRad / Math.PI);
+
+		return new Geolocation(latitude, longitude);
+	}
+
+	/**
+	 * Direction vector to WGS84 coordinates.
+	 * 
+	 * Can be used to transform surface points of world sphere to coordinates.
+	 * 笛卡尔坐标系下(x,y,z)到经纬度的转换。
+	 * @param dir - Direction vector.
+	 * @returns WGS84 coordinates.
+	 */
+	static vectorToDatums(dir) 
+	{
+		const radToDeg = 180 / Math.PI;
+
+		const latitude = Math.atan2(dir.y, Math.sqrt(Math.pow(dir.x, 2) + Math.pow(-dir.z, 2))) * radToDeg;
+		const longitude = Math.atan2(-dir.z, dir.x) * radToDeg;
+
+		return new Geolocation(latitude, longitude);
+	}
+
+	
+	/**
+	 * Get a direction vector from WGS84 coordinates.
+	 * 
+	 * The vector obtained will be normalized.
+	 * 经纬度到空间内（x,y,z）的转换。
+	 * @param latitude - Latitude value in degrees.
+	 * @param longitude - Longitude value in degrees.
+	 * @returns Direction vector normalized.
+	 */
+	static datumsToVector(latitude, longitude) 
+	{
+		const degToRad = Math.PI / 180;
+		
+		const rotX = longitude * degToRad;
+		const rotY = latitude * degToRad;
+
+		var cos = Math.cos(rotY);
+		
+		return new Vector3(-Math.cos(rotX + Math.PI) * cos, Math.sin(rotY), Math.sin(rotX + Math.PI) * cos);
+	}
+
+	/**
+	 * 
+	 * Get a direction vector from WGS84 coordinates.
+	 * 
+	 * The vector obtained will be normalized.
+	 * @param latitude - Latitude value in degrees.
+	 * @param longitude - Longitude value in degrees.
+	 * @param height - Height in meters.
+	 * @returns Direction vector.
+	 * */
+	static fromDegrees(latitude, longitude, height){
+		let drector = UnitsUtils.datumsToVector(latitude, longitude);
+		drector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A + height);
+		return drector;
+	}
+
+
+	/**
+	 * Get altitude from RGB color for mapbox altitude encoding
+	 * 
+	 * https://docs.mapbox.com/data/tilesets/guides/access-elevation-data/~
+	 * 
+	 * @param color - Color of the pixel
+	 * @returns The altitude encoded in meters.
+	 */
+	static mapboxAltitude(color) 
+	{
+		return (color.r * 255.0 * 65536.0 + color.g * 255.0 * 256.0 + color.b * 255.0) * 0.1 - 10000.0;
+	}
+	
+	/**
+	 * WGS84经纬度转平面xy坐标
+	 * @param {*} lat 维度
+	 * @param {*} lon 经度
+	 * @returns {Vector2}
+	 */
+	static latLonToXy(lat, lon){
+		let x = UnitsUtils.EARTH_RADIUS_A * lon * Math.cos(lat/180 *Math.PI)/180 *Math.PI;
+		let y = UnitsUtils.EARTH_RADIUS_A * lat/180 * Math.PI;
+		return new Vector2(x, y);
+	}
+
+	/**
+	 * 平面xy坐标转WGS84经纬度
+	 * @param {*} x 
+	 * @param {*} y 
+	 * @returns {Geolocation}
+	 */
+	static xyToLatLon(x, y){
+	    let lat = y/UnitsUtils.EARTH_RADIUS_A *180 /Math.PI;
+		let lon = x/(UnitsUtils.EARTH_RADIUS_A * Math.cos(lat/180 *Math.PI))*180 /Math.PI;
+		return new Geolocation(lat, lon);
+	}
+
+	/**
+	 * @param {*} lat 维度 
+	 * @param {*} lng 经度
+	 * @returns {Vector2}
+	 */
+	static mecatorLL2XY(lat, lng){
+		let earthRad = UnitsUtils.EARTH_RADIUS_A;
+		let x = ((lng * Math.PI) / 180) * earthRad;
+		let a = (lat * Math.PI) / 180;
+		let y = (earthRad / 2) * Math.log((1.0 + Math.sin(a)) / (1.0 - Math.sin(a)));
+		return new Vector2(x, y)
+	}
+
+
+	/**
+	 * Get the size of a web mercator tile in mercator coordinates
+	 * 计算每个tile的大小，单位是米
+	 * 	 
+	 * @param zoom - the zoom level of the tile
+	 * @returns the size of the tile in mercator coordinates
+	 */
+	static getTileSize(zoom){
+		const maxExtent = UnitsUtils.MERCATOR_MAX_EXTENT;
+		const numTiles = Math.pow(2, zoom);
+		return 2 * maxExtent / numTiles;	
+	}
+
+	/**
+	 * Get the bounds of a web mercator tile in mercator coordinates
+	 * 	 x,y的起止， 和tilsize的大小。
+	 * @param zoom - the zoom level of the tile
+	 * @param x - the x coordinate of the tile
+	 * @param y - the y coordinate of the tile
+	 * @returns list of bounds - [startX, sizeX, startY, sizeY]
+	 */
+	static tileBounds(zoom, x, y){
+		const tileSize = UnitsUtils.getTileSize(zoom);
+		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+		const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
+		return [minX, tileSize, minY, tileSize];
+	}
+
+	/**
+	 * Get the latitude value of a given mercator coordinate and zoom level
+	 * 
+	 * @param zoom - the zoom level of the coordinate
+	 * @param y - the y mercator coordinate
+	 * @returns - latitude of coordinate in radians
+	 */
+	static mercatorToLatitude(zoom, y) {
+		const yMerc = UnitsUtils.MERCATOR_MAX_EXTENT - y * UnitsUtils.getTileSize(zoom);
+		return Math.atan(Math.sinh(yMerc / UnitsUtils.EARTH_RADIUS_A));
+	}
+
+	/**
+	 * Get the latitude value of a given mercator coordinate and zoom level
+	 * 
+	 * @param zoom - the zoom level of the coordinate
+	 * @param x - the x mercator coordinate
+	 * @returns - longitude of coordinate in radians
+	 */
+	static mercatorToLongitude(zoom, x) {
+		const xMerc = -UnitsUtils.MERCATOR_MAX_EXTENT + x * UnitsUtils.getTileSize(zoom);
+		return xMerc / UnitsUtils.EARTH_RADIUS_A;
+	}
+	/**
+	 * 角度转弧度值
+	 * @param {number} degrees 角度值
+	 * @returns 
+	 */
+	static toRadians(degrees){
+		return degrees * Math.PI / 180.0;
+	}
+
+	/**
+	 * 弧度转角度值
+	 * @param {number} radians 
+	 * @returns 
+	 */
+	static toDegrees(radians){
+		return radians * 180.0/Math.PI;
+	}
+
+	
+	
+}
+
 /*
  * @Author: FengFengmomo 12838106+FengFengmomo@users.noreply.github.com
  * @Date: 2024-03-28 17:43:14
@@ -1284,7 +1192,7 @@ class MapPlaneNode extends MapNode
 {
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, level, x, y, MapPlaneNode.geometry, new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
+		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
 
 		this.matrixAutoUpdate = false;
 		this.isMesh = true;
@@ -1296,17 +1204,34 @@ class MapPlaneNode extends MapNode
 	 */
 	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 
-	static baseGeometry = MapPlaneNode.geometry;
+	// static baseGeometry = MapPlaneNode.geometry;
 
 	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
 
 	async initialize()
 	{
 		super.initialize();
-		
+		await this.createGeometry(this.level, this.x, this.y);
 		await this.loadData();
 		
 		this.nodeReady();
+	}
+
+	async createGeometry(zoom, x, y){
+		if (this.mapView.heightProvider === null) 
+		{
+			throw new Error('MapView.heightProvider provider is null.');
+		}
+ 
+		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		{
+			console.warn('Loading tile outside of provider range.', this);
+
+			this.geometry = this.mapView.heightProvider.getDefaultGeometry();//MapPlaneNode.geometry;
+			return;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+
 	}
 
 	createChildNodes()
@@ -1361,7 +1286,7 @@ class MapPlaneNode extends MapNode
 	}
 }
 
-class MapNodeHeightGeometry extends BufferGeometry
+let MapNodeHeightGeometry$1 = class MapNodeHeightGeometry extends BufferGeometry
 {
 	/**
 	 * Map node geometry constructor.
@@ -1476,7 +1401,7 @@ class MapNodeHeightGeometry extends BufferGeometry
 			normalAttribute.needsUpdate = true;
 		}
 	}
-}
+};
 
 /**
  * Represents a height map tile node that can be subdivided into other height nodes.
@@ -1607,7 +1532,7 @@ let MapHeightNode$1 = class MapHeightNode extends MapNode
 
 			const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
 
-			this.geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+			this.geometry = new MapNodeHeightGeometry$1(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
 			
 			// this.geometry.clearGroups();
 			// for (let i = 0; i < this.material.length; i++) {
@@ -1853,10 +1778,7 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 	{
-		
-		
-		super(parentNode, mapView, location, level, x, y, MapSphereNode$1.createGeometry(level, x, y), new MeshBasicMaterial({wireframe: false}));
-		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
+		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial({wireframe: false}));
 	
 		this.applyScaleNode();
 		this.matrixAutoUpdate = false;
@@ -1864,10 +1786,15 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 		this.visible = false;
 	}
 	
+	/**
+	 * Load the data for the node.
+	 * This method is called when the node is initialized.
+	 * 在父类的初始化里面执行，然后才是执行applyScaleNode() 方法
+	 */
 	async initialize()
 	{
 		super.initialize();
-		
+		await this.createGeometry(this.level, this.x, this.y);
 		await this.loadData();
 		
 		this.nodeReady();
@@ -1880,35 +1807,49 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 	 * @param x - X tile position.
 	 * @param y - Y tile position.
 	 */
-	static createGeometry(zoom, x, y)
+	async createGeometry(zoom, x, y)
 	{
-		const range = Math.pow(2, zoom);
-		const max = 40;
-		const segments = Math.floor(MapSphereNode$1.segments * (max / (zoom + 1)) / max);
+
+		if (this.mapView.heightProvider === null) 
+		{
+			throw new Error('MapView.heightProvider provider is null.');
+		}
+ 
+		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		{
+			console.warn('Loading tile outside of provider range.', this);
+
+			this.geometry = this.mapView.heightProvider.getDefaultGeometry();
+			return;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+		// const range = Math.pow(2, zoom);
+		// const max = 40;
+		// const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
 
 
 	
-		// X
-		// const phiLength = 1 / range * 2 * Math.PI;
-		// const phiStart = x * phiLength;
+		// // X
+		// // const phiLength = 1 / range * 2 * Math.PI;
+		// // const phiStart = x * phiLength;
 		
-		// // 经度
-		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
-		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
-		const phiStart = lon1;
-		const phiLength = lon2 - lon1;
+		// // // 经度
+		// const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+		// const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+		// const phiStart = lon1;
+		// const phiLength = lon2 - lon1;
 	
-		// Y
-		// const thetaLength = 1 / range * Math.PI;
-		// const thetaStart = y * thetaLength;
-		// 维度
-		const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
-		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
-		const thetaLength = lat1 - lat2;
-		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
-		let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+		// // Y
+		// // const thetaLength = 1 / range * Math.PI;
+		// // const thetaStart = y * thetaLength;
+		// // 维度
+		// const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+		// const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+		// const thetaLength = lat1 - lat2;
+		// const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+		// let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
 
-		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
+		// return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
 	}
 	
 	/** 
@@ -1922,16 +1863,12 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 		const center = box.getCenter(new Vector3());
 	
 		const matrix = new Matrix4();
-		// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A, UnitsUtils.EARTH_RADIUS_A));
 		matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), new Vector3(1,1,1));
-		// matrix.compose(new Vector3(-center.x, -center.y, -center.z), new Quaternion(), UnitsUtils.EARTH_RADIUS_V);
 		this.geometry.applyMatrix4(matrix);
 		// 未赋值matrix的缘故？
 		// this.matrix = matrix;
 		this.position.copy(center);
 		
-		// var centerCopy = this.geometry.boundingBox.getCenter(new Vector3());
-	
 		this.updateMatrix();
 		this.updateMatrixWorld();
 	}
@@ -1946,8 +1883,6 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 	{
 		if (this.matrixWorldNeedsUpdate || force) 
 		{
-			// var temp = this.matrix.clone().multiplyScalar(6371008);
-			// this.matrixWorld.copy(temp);
 			this.matrixWorld.copy(this.matrix);
 			this.matrixWorldNeedsUpdate = false;
 		}
@@ -1961,75 +1896,18 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 
 		const Constructor = Object.getPrototypeOf(this).constructor;
 		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 		// return;
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomLeft,  level, x, y + 1);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
-		node.renderOrder = this.renderOrder;
 		this.add(node);
 	}
-	/**
-	async loadData()
-	{
-		if (this.level < this.mapView.provider.minZoom || this.level > this.mapView.provider.maxZoom)
-		{
-			console.warn('Geo-Three: Loading tile outside of provider range.', this);
-
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-			// @ts-ignore
-			this.material.needsUpdate = true;
-			return;
-		}
-
-		try 
-		{
-			let image = await this.mapView.provider.fetchTile(this.level, this.x, this.y);
-			
-			if (this.disposed) 
-			{
-				return;
-			}
-						
-			const texture = new Texture(image);
-			texture.generateMipmaps = false;
-			texture.format = RGBAFormat;
-			texture.magFilter = LinearFilter;
-			texture.minFilter = LinearFilter;
-			texture.needsUpdate = true;
-			// @ts-ignore
-			this.material.map = texture;
-		}
-		catch (e) 
-		{
-			if (this.disposed) 
-			{
-				return;
-			}
-			
-			console.warn('Geo-Three: Failed to load node tile data.', this);
-
-			// @ts-ignore
-			this.material.map = MapNode.defaultTexture;
-			// 有时候加载不出来数据，mesh显示为黑块，这里设置为true，不显示出来
-			this.material.transparent = true;
-			// this.material.alphaTest = 0.01;
-			this.material.opacity = 0;
-		}
-
-		// @ts-ignore
-		this.material.needsUpdate = true;
-	}
-	 */
 	
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
@@ -2042,47 +1920,6 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 		}
 	}
 
-	shaderMaterial(level,x,y){
-		let bounds = UnitsUtils.tileBounds(level, x, y);
-		// Load shaders
-		const vertexShader = /* WGSL */`
-		varying vec3 vPosition;
-		void main() {
-			vPosition = position;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-		}
-		`;
-
-		const fragmentShader =  /* WGSL */`
-		#define PI 3.141592653589
-		varying vec3 vPosition;
-		uniform sampler2D uTexture;
-		uniform vec4 mercatorBounds;
-		void main() {
-			// this could also be a constant, but for some reason using a constant causes more visible tile gaps at high zoom
-			float radius = length(vPosition);
-			float latitude = asin(vPosition.y / radius);
-			float longitude = atan(-vPosition.z, vPosition.x);
-			float mercator_x = radius * longitude;
-			// float mercator_y = radius * log(tan(PI / 4.0 + latitude / 2.0));
-			float mercator_y = radius * log(tan(PI / 4.0 + latitude * 0.5));
-			float y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
-			float x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
-			
-			vec4 color = texture2D(uTexture, vec2(x, y));
-			gl_FragColor = color;
-		}
-		`;
-		
-		// Create shader material
-		let vBounds = new Vector4(...bounds);
-		const material = new ShaderMaterial({
-			uniforms: {uTexture: {value: new Texture()}, mercatorBounds: {value: vBounds}},
-			vertexShader: vertexShader,
-			fragmentShader: fragmentShader
-		});
-		return material;
-	}
 	static getGeometry(scale = 0){
 		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
 		return geometry;
@@ -3719,10 +3556,10 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 	 * @param terrain - 稀疏网格的高程数据， 基于cesium terrain world（小端存储） 与 天地图 terrain world（大端存储）制作的稀疏网格数据
 	 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是10，calculateNormals默认是true
 	 */
-	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true)
+	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true, scale = 2.0)
 	{
 		super();
-
+		this.scale = scale;
 		// Buffers
 		const indices = [];
 		const vertices = [];
@@ -3779,7 +3616,7 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 		    let x = 1.0 * xarr[i]/32767 - 0.5;
 		    let z = 1.0 * yarr[i]/32767 - 0.5;
 		    let h = 1.0 * harr[i]/32767 * (MaxHeight - MinHeight) + MinHeight;
-		    vertices.push(x, h, z);
+		    vertices.push(x, h * this.scale, z);
 			normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
 			uvs.push(x+0.5, 0.5-z); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 		}
@@ -4591,7 +4428,8 @@ class MapView extends Mesh
 			
 			// @ts-ignore
 			
-			this.geometry = this.root.constructor.baseGeometry;
+			// this.geometry = this.root.constructor.baseGeometry;
+			this.geometry = this.heightProvider.getDefaultGeometry();
 			
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
@@ -4724,7 +4562,9 @@ class MapView extends Mesh
 	 */
 	maxZoom() 
 	{
-		return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		// return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
+		// 这里只需要关注影像的最大放缩级别，不需要关注高程的最大放缩级别，高程数据可以通过下采样的方式进行处理
+		return this.providers[0].maxZoom;
 	}
 
 	/**
@@ -4804,6 +4644,78 @@ class LODSphere extends LODControl
 				node.parentNode.simplify();
 			}
 		}
+	}
+}
+
+/**
+ * Map tiler provider API.
+ *
+ * The map tiler server is based on open map tiles.
+ *
+ * API Reference
+ *  - https://www.maptiler.com/
+ */
+class MapTilerProvider extends MapProvider 
+{
+	/**
+	 * Server API access token.
+	 */
+	apiKey;
+
+	/**
+	 * Map image tile file format (e.g png, jpg)
+	 *
+	 * Format can be for image or for geometry fetched from the system (e.g quantized-mesh-1.0)
+	 */
+	format;
+
+	/**
+	 * Tile category (e.g. maps, tiles),
+	 */
+	category;
+
+	/**
+	 * Map tile type, some of the vectorial styles available.
+	 *
+	 * Can be used for rasterized vectorial maps (e.g, basic, bright, darkmatter, hybrid, positron, streets, topo, voyager).
+	 *
+	 * Cam be used for data tiles (e.g hillshades, terrain-rgb, satellite).
+	 */
+	style;
+
+	resolution;
+
+	constructor(apiKey, category, style, format) 
+	{
+		super();
+
+		this.apiKey = apiKey !== undefined ? apiKey : '';
+
+		this.format = format !== undefined ? format : 'png';
+
+		this.category = category !== undefined ? category : 'maps';
+
+		this.style = style !== undefined ? style : 'satellite';
+
+		this.resolution = 512;
+	}
+
+	fetchTile(zoom, x, y)
+	{
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+			image.src = 'https://api.maptiler.com/' + this.category + '/' + this.style + '/' + zoom + '/' + x + '/' + y + '.' + this.format + '?key=' + this.apiKey;
+		});
 	}
 }
 
@@ -4927,13 +4839,49 @@ class XHRUtils
 	}
 }
 
+class PlaneProvider extends MapProvider{
+    constructor() {
+        super();
+    }
+    fetchGeometry(zoom, x, y) {
+        return new Promise((resolve, reject) => {
+            resolve(null);
+        })
+    }
+}
+
+/**
+ * Default implementation of PlaneProvider
+ * 默认的平面数据提供器，纯平面，无高程。
+ */ 
+class DefaultPlaneProvider extends PlaneProvider {
+
+    /**
+     * Map node plane geometry.
+     */
+    static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
+
+
+    constructor() {
+        super();
+    }
+
+    fetchGeometry(zoom, x, y) {
+        return Promise.resolve(DefaultPlaneProvider.geometry);
+    }
+
+    getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
+    }
+}
+
 /**
  * Map box service tile provider. Map tiles can be fetched from style or from a map id.
  *
  * API Reference
  *  - https://www.mapbox.com/
  */
-class MapBoxProvider extends MapProvider 
+class MapBoxPlaneProvider extends PlaneProvider 
 {
 	/**
 	 * Base adress of the mapbox service.
@@ -5016,6 +4964,10 @@ class MapBoxProvider extends MapProvider
 	 */
 	version;
 
+	geometrySize = 16;
+
+	tileSize = 256;
+	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 	/**
 	 * @param apiToken - Map box api token.
 	 * @param id - Map style or map ID if the mode is set to MAP_ID.
@@ -5023,7 +4975,7 @@ class MapBoxProvider extends MapProvider
 	 * @param format - Image format.
 	 * @param useHDPI - If true uses high DPI mode.
 	 */
-	constructor(apiToken = '', id = '', mode = MapBoxProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
+	constructor(apiToken = '', id = '', mode = MapBoxPlaneProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
 	{
 		super();
 
@@ -5038,7 +4990,7 @@ class MapBoxProvider extends MapProvider
 
 	async getMetaData()
 	{
-		const address = MapBoxProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
+		const address = MapBoxPlaneProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
 
 		const data = await XHRUtils.get(address);
 		
@@ -5065,16 +5017,58 @@ class MapBoxProvider extends MapProvider
 			};
 			image.crossOrigin = 'Anonymous';
 
-			if (this.mode === MapBoxProvider.STYLE) 
+			if (this.mode === MapBoxPlaneProvider.STYLE) 
 			{
-				image.src = MapBoxProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
 			}
 			else 
 			{
-				image.src = MapBoxProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
 			}
 		});
 	}
+	fetchGeometry(zoom, x, y){
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				let geometry = this.createGeometry(image);
+				resolve(geometry);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxPlaneProvider.STYLE) 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+	}
+
+	createGeometry(image){
+		const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
+
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, this.tileSize, this.tileSize, 0, 0, canvas.width, canvas.height);
+
+		const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+		let geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+		return geometry;
+	}
+
+	getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
+    }
 }
 
 class ErrorCode {
@@ -5093,7 +5087,204 @@ class ErrorCode {
  *  - https://msdn.microsoft.com/en-us/library/mt823633.aspx (Directly accessing the Bing Maps tiles)
  *  - https://www.bingmapsportal.com/
  */
-class BingMapsProvider extends MapProvider 
+let BingMapsProvider$1 = class BingMapsProvider extends MapProvider 
+{
+	/**
+	 * Base address of the bing map provider.
+	 */
+	static ADDRESS = 'https://dev.virtualearth.net';
+
+	/**
+	 * Maximum zoom level allowed by the provider.
+	 */
+	maxZoom = 19;
+
+	/**
+	 * Minimum zoom level allowed by the provider.
+	 */
+	minZoom = 1;
+
+	/**
+	 * Server API access token.
+	 */
+	apiKey;
+
+	/**
+	 * The type of the map used.
+	 */
+	type;
+
+	/**
+	 * Map image tile format, the formats available are:
+	 *  - gif: Use GIF image format.
+	 *  - jpeg: Use JPEG image format. JPEG format is the default for Road, Aerial and AerialWithLabels imagery.
+	 *  - png: Use PNG image format. PNG is the default format for OrdnanceSurvey imagery.
+	 */
+	format = 'jpeg';
+
+	/**
+	 * Size of the map tiles.
+	 */
+	tileSize = 256;
+
+	/**
+	 * Tile server subdomain.
+	 */
+	subdomain = 't1';
+
+	/**
+	 * Metadata of the provider.
+	 */
+	meta = null;
+
+	/**
+	 * @param apiKey - Bing API key.
+	 * @param type - Type provider.
+	 */
+	constructor(apiKey = '', type = BingMapsProvider$1.AERIAL) 
+	{
+		super();
+
+		this.apiKey = apiKey;
+		this.type = type;
+	}
+
+	/**
+	 * Display an aerial view of the map.
+	 */
+	static AERIAL = 'a';
+
+	/**
+	 * Display a road view of the map.
+	 */
+	static ROAD = 'r';
+
+	/**
+	 * Display an aerial view of the map with labels.
+	 */
+	static AERIAL_LABELS = 'h';
+
+	/**
+	 * Use this value to display a bird's eye (oblique) view of the map.
+	 */
+	static OBLIQUE = 'o';
+
+	/**
+	 * Display a bird's eye (oblique) with labels view of the map.
+	 */
+	static OBLIQUE_LABELS = 'b';
+
+	/**
+	 * Get the base URL for the map configuration requested.
+	 *
+	 * Uses the follwing format
+	 * 
+	 * http://ecn.\{subdomain\}.tiles.virtualearth.net/tiles/r\{quadkey\}.jpeg?g=129&mkt=\{culture\}&shading=hill&stl=H
+	 */
+	async getMetaData() 
+	{
+		const address = BingMapsProvider$1.ADDRESS + '/REST/V1/Imagery/Metadata/RoadOnDemand?output=json&include=ImageryProviders&key=' + this.apiKey;
+		const data = await XHRUtils.get(address);
+
+		this.meta = JSON.parse(data);
+	}
+
+	/**
+	 * Convert x, y, zoom quadtree to a bing maps specific quadkey.
+	 *
+	 * Adapted from original C# code at https://msdn.microsoft.com/en-us/library/bb259689.aspx.
+	 */
+	static quadKey(zoom, x, y)
+	{
+		let quad = '';
+
+		for (let i = zoom; i > 0; i--) 
+		{
+			const mask = 1 << i - 1;
+			let cell = 0;
+
+			if ((x & mask) !== 0) 
+			{
+				cell++;
+			}
+
+			if ((y & mask) !== 0) 
+			{
+				cell += 2;
+			}
+
+			quad += cell;
+		}
+
+		return quad;
+	}
+
+	static convert(image, resolve, reject){
+		let imageSize = 256;
+		const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, imageSize, imageSize, 0, 0, imageSize, imageSize);
+
+		const imageData = context.getImageData(0, 0, imageSize, imageSize); // 图像变成17*17像素
+		const data = imageData.data;
+		for (let i = 0; i < data.length; i += 4) {
+		    let gray = (data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11);
+			data[i] = gray;
+			data[i+1] = gray;
+			data[i+2] = gray;	
+		}
+		// context.putImageData(imageData, 0, 0);
+		// 此处仅仅是修改了画布上的数据。
+		// 如何生成一个图片对象并返回。
+		var img = new Image();
+		img.onload = () => {
+		// 画图片
+			ctx.drawImage(img, 60, 0);
+			// toImage
+			var dataImg = new Image();
+			dataImg.src = canvas.toDataURL('image/png');
+			resolve(dataImg);
+		};
+		img.onerror = function() {
+				reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
+		};
+
+	}
+
+	fetchTile(zoom, x, y)
+	{
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			// imgage = new Image();
+			image.onload = function() 
+			{
+				// BingMapsProvider.convert(image);
+				// 这里这个convert先禁用。
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+			image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider$1.quadKey(zoom, x, y) + '.jpeg?g=1173';
+			// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
+			// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
+		});
+	}
+};
+
+/**
+ * Bing maps tile provider.
+ *
+ * API Reference
+ *  - https://msdn.microsoft.com/en-us/library/bb259689.aspx (Bing Maps Tile System)
+ *  - https://msdn.microsoft.com/en-us/library/mt823633.aspx (Directly accessing the Bing Maps tiles)
+ *  - https://www.bingmapsportal.com/
+ */
+class BingMapsMarsProvider extends MapProvider 
 {
 	/**
 	 * Base address of the bing map provider.
@@ -5225,49 +5416,13 @@ class BingMapsProvider extends MapProvider
 		return quad;
 	}
 
-	static convert(image, resolve, reject){
-		let imageSize = 256;
-		const canvas = CanvasUtils.createOffscreenCanvas(imageSize, imageSize); 
-		const context = canvas.getContext('2d');
-		context.imageSmoothingEnabled = false;
-		context.drawImage(image, 0, 0, imageSize, imageSize, 0, 0, imageSize, imageSize);
-
-		const imageData = context.getImageData(0, 0, imageSize, imageSize); // 图像变成17*17像素
-		const data = imageData.data;
-		for (let i = 0; i < data.length; i += 4) {
-		    let gray = (data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11);
-			data[i] = gray;
-			data[i+1] = gray;
-			data[i+2] = gray;	
-		}
-		// context.putImageData(imageData, 0, 0);
-		// 此处仅仅是修改了画布上的数据。
-		// 如何生成一个图片对象并返回。
-		var img = new Image();
-		img.onload = () => {
-		// 画图片
-			ctx.drawImage(img, 60, 0);
-			// toImage
-			var dataImg = new Image();
-			dataImg.src = canvas.toDataURL('image/png');
-			resolve(dataImg);
-		};
-		img.onerror = function() {
-				reject(new Error(ErrorCode.ImageConvert,'图片加载失败'));
-		};
-
-	}
-
 	fetchTile(zoom, x, y)
 	{
 		return new Promise((resolve, reject) => 
 		{
 			const image = document.createElement('img');
-			// imgage = new Image();
 			image.onload = function() 
 			{
-				// BingMapsProvider.convert(image);
-				// 这里这个convert先禁用。
 				resolve(image);
 			};
 			image.onerror = function() 
@@ -5276,8 +5431,180 @@ class BingMapsProvider extends MapProvider
 			};
 			image.crossOrigin = 'Anonymous';
 			image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
-			// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
-			// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
+		});
+	}
+}
+
+/**
+ * Debug provider can be used to debug the levels of the map three based on the zoom level they change between green and red.
+ * 用瓦片的zoom x y作为贴图
+ */
+class DebugProvider extends MapProvider 
+{
+	/**
+	 * Resolution in px of each tile.
+	 */
+	resolution = 256;
+
+	fetchTile(zoom, x, y)
+	{
+		const canvas = CanvasUtils.createOffscreenCanvas(this.resolution, this.resolution);
+		const context = canvas.getContext('2d');
+
+		const green = new Color(0x00ff00);
+		const red = new Color(0xff0000);
+
+		const color = green.lerpHSL(red, (zoom - this.minZoom) / (this.maxZoom - this.minZoom));
+
+		context.fillStyle = color.getStyle();
+		context.fillRect(0, 0, this.resolution, this.resolution);
+
+		context.fillStyle = '#000000';
+		context.textAlign = 'center';
+		context.textBaseline = 'middle';
+		context.font = 'bold ' + this.resolution * 0.1 + 'px arial';
+		context.fillText('(' + zoom + ')', this.resolution / 2, this.resolution * 0.4);
+		context.fillText('(' + x + ', ' + y + ')', this.resolution / 2, this.resolution * 0.6);
+
+		return Promise.resolve(canvas);
+	}
+}
+
+class GeoserverWMSProvider{
+    minZoom = 1;
+    maxZoom = 13;
+    tileSize = 256;
+
+	// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
+
+    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
+    // %3A 表示冒号
+    // %2F 表示斜杠
+    // %20 表示空格
+    // %5F 表示下划线
+	// %3C 表示<
+	// %3E 表示>
+	// %2C 表示，
+    // url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang:xinjiang_rgb_remake&style=&tilematrixset=EPSG:4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:4326:{z}&TileCol={x}&TileRow={y}';    
+	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts'
+	data = 'xinjiang';
+	layer = 'xinjiang';
+	width = 256;
+	height = 256;
+	EPSG = '4326'
+	version = '1.1.1';
+	imageUrl = '{url}?SERVICE=WMS&VERSION={version}&REQUEST=GetMap&FORMAT=image/png8&TRANSPARENT=true&STYLES&LAYERS={data}:{layer}&exceptions=application/vnd.ogc.se_inimage&SRS=EPSG:{EPSG}&WIDTH={width}&HEIGHT={height}&BBOX={bbox}'
+	
+	constructor(options) {
+        Object.assign(this, options);
+		this.imageUrl = this.imageUrl.replace('{url}', this.url);
+		this.imageUrl = this.imageUrl.replace('{version}', this.version);
+		this.imageUrl = this.imageUrl.replace('{data}', this.data);
+		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
+		this.imageUrl = this.imageUrl.replace('{EPSG}', this.EPSG);
+		this.imageUrl = this.imageUrl.replace('{width}', this.width);
+		this.imageUrl = this.imageUrl.replace('{height}', this.height);
+    }
+    fetchTile(zoom,x,y,bbox)
+	{
+		if(bbox === null){
+			return null;
+		}
+		// 传输bbox的方式有两种，【左下角，右上角】【右下角，左上角】，同时是（经度，维度）的组合方式
+		// 当前bbox存放的是（维度，经度）的组合方式
+		// 实际测试应该是 【左下角，右上角】方式
+		// 还未进行测试过。
+		// 2024年4月12日14:41:12 对该方法进行了实际测试，数据链路已打通。
+		let topleft = UnitsUtils.quadtreeToDatums(zoom,x,y);
+		let bottomRight = UnitsUtils.quadtreeToDatums(zoom,x+1,y+1);
+		let box = [topleft.longitude, bottomRight.latitude, bottomRight.longitude, topleft.latitude]; // 先经度后维度
+		console.log("geoserver:fetchtile",zoom, x, y, box);
+        let urlTemp = this.imageUrl.replace('{bbox}', box.join(","));
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+			image.src = urlTemp;
+		});
+	}
+}
+
+//http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
+
+
+class GeoserverWMTSProvider{
+	mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
+    minZoom = 0;
+    maxZoom = 13;
+    tileSize = 256;
+	/**
+	 * 使用这种zxy的方式进行切分数据
+	 * 
+	 * // 使用该方式计算出来的结果,y的方向是反的，无法直接使用。
+	 */
+	// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
+
+    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
+    // %3A 表示冒号
+    // %2F 表示斜杠
+    // %20 表示空格
+    // %5F 表示下划线
+	// %3C 表示<
+	// %3E 表示>
+	// %2C 表示，
+	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts';
+	data = 'xinjiang';
+	layer = 'xinjiang';
+	tilematrixset = 'unkonwn'; // 设置该参数，则同时需要设置tilematrix,
+	TileMatrix = 'unkonwn'; // 同上
+	EPSG = '3857';
+	version = '1.0.0';
+	
+    imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{tilematrixset}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{TileMatrix}:{z}&TileCol={x}&TileRow={y}';    
+	constructor(options) {
+        Object.assign(this, options);
+		this.imageUrl = this.imageUrl.replace('{url}', this.url);
+		this.imageUrl = this.imageUrl.replace('{version}', this.version);
+		this.imageUrl = this.imageUrl.replace('{data}', this.data);
+		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
+		if(this.tilematrixset === 'unkonwn'){
+		    this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.EPSG);
+			this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.EPSG);
+		} else {
+			this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.tilematrixset);
+			this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.TileMatrix);
+		}
+		
+    }
+    fetchTile(zoom, x, y, bbox)
+	{
+		if(zoom < 0){
+			return;
+		}
+		
+        let urlTemp = this.imageUrl.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
+		
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+			image.src = urlTemp;
 		});
 	}
 }
@@ -5533,78 +5860,6 @@ class HereMapsProvider extends MapProvider
 }
 
 /**
- * Map tiler provider API.
- *
- * The map tiler server is based on open map tiles.
- *
- * API Reference
- *  - https://www.maptiler.com/
- */
-class MapTilerProvider extends MapProvider 
-{
-	/**
-	 * Server API access token.
-	 */
-	apiKey;
-
-	/**
-	 * Map image tile file format (e.g png, jpg)
-	 *
-	 * Format can be for image or for geometry fetched from the system (e.g quantized-mesh-1.0)
-	 */
-	format;
-
-	/**
-	 * Tile category (e.g. maps, tiles),
-	 */
-	category;
-
-	/**
-	 * Map tile type, some of the vectorial styles available.
-	 *
-	 * Can be used for rasterized vectorial maps (e.g, basic, bright, darkmatter, hybrid, positron, streets, topo, voyager).
-	 *
-	 * Cam be used for data tiles (e.g hillshades, terrain-rgb, satellite).
-	 */
-	style;
-
-	resolution;
-
-	constructor(apiKey, category, style, format) 
-	{
-		super();
-
-		this.apiKey = apiKey !== undefined ? apiKey : '';
-
-		this.format = format !== undefined ? format : 'png';
-
-		this.category = category !== undefined ? category : 'maps';
-
-		this.style = style !== undefined ? style : 'satellite';
-
-		this.resolution = 512;
-	}
-
-	fetchTile(zoom, x, y)
-	{
-		return new Promise((resolve, reject) => 
-		{
-			const image = document.createElement('img');
-			image.onload = function() 
-			{
-				resolve(image);
-			};
-			image.onerror = function() 
-			{
-				reject();
-			};
-			image.crossOrigin = 'Anonymous';
-			image.src = 'https://api.maptiler.com/' + this.category + '/' + this.style + '/' + zoom + '/' + x + '/' + y + '.' + this.format + '?key=' + this.apiKey;
-		});
-	}
-}
-
-/**
  * Open tile map server tile provider.
  *
  * API Reference
@@ -5671,180 +5926,6 @@ class OpenMapTilesProvider extends MapProvider
 			};
 			image.crossOrigin = 'Anonymous';
 			image.src = this.address + 'styles/' + this.theme + '/' + zoom + '/' + x + '/' + y + '.' + this.format;
-		});
-	}
-}
-
-/**
- * Debug provider can be used to debug the levels of the map three based on the zoom level they change between green and red.
- * 用瓦片的zoom x y作为贴图
- */
-class DebugProvider extends MapProvider 
-{
-	/**
-	 * Resolution in px of each tile.
-	 */
-	resolution = 256;
-
-	fetchTile(zoom, x, y)
-	{
-		const canvas = CanvasUtils.createOffscreenCanvas(this.resolution, this.resolution);
-		const context = canvas.getContext('2d');
-
-		const green = new Color(0x00ff00);
-		const red = new Color(0xff0000);
-
-		const color = green.lerpHSL(red, (zoom - this.minZoom) / (this.maxZoom - this.minZoom));
-
-		context.fillStyle = color.getStyle();
-		context.fillRect(0, 0, this.resolution, this.resolution);
-
-		context.fillStyle = '#000000';
-		context.textAlign = 'center';
-		context.textBaseline = 'middle';
-		context.font = 'bold ' + this.resolution * 0.1 + 'px arial';
-		context.fillText('(' + zoom + ')', this.resolution / 2, this.resolution * 0.4);
-		context.fillText('(' + x + ', ' + y + ')', this.resolution / 2, this.resolution * 0.6);
-
-		return Promise.resolve(canvas);
-	}
-}
-
-/**
- * Height debug provider takes a RGB encoded height map from another provider and converts it to a gradient for preview.
- *
- * Usefull to preview and compare height of different providers. Can also be usefull to generate grayscale maps to be feed into other libraries (e.g. physics engine).
- */
-class HeightDebugProvider extends MapProvider 
-{
-	/**
-	 * The provider used to retrieve the base RGB information to be debugged.
-	 */
-	provider;
-
-	/**
-	 * Initial color to be used for lower values.
-	 */
-	fromColor = new Color(0xff0000);
-
-	/**
-	 * Final color to be used for higher values.
-	 */
-	toColor = new Color(0x00ff00);
-
-	constructor(provider) 
-	{
-		super();
-
-		this.provider = provider;
-	}
-
-	async fetchTile(zoom, x, y)
-	{
-		const image = await this.provider.fetchTile(zoom, x, y);
-		const resolution = 256;
-
-		const canvas = CanvasUtils.createOffscreenCanvas(resolution, resolution);
-		const context = canvas.getContext('2d');
-
-		context.drawImage(image, 0, 0, resolution, resolution, 0, 0, resolution, resolution);
-
-		const imageData = context.getImageData(0, 0, resolution, resolution);
-		const data = imageData.data;
-		for (let i = 0; i < data.length; i += 4) 
-		{
-			const r = data[i];
-			const g = data[i + 1];
-			const b = data[i + 2];
-
-			// The value will be composed of the bits RGB
-			const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-
-			// (16777216 * 0.1) - 1e4
-			const max = 1667721.6;
-
-			const color = this.fromColor.clone().lerpHSL(this.toColor, value / max);
-
-			// Set pixel color
-			data[i] = color.r * 255;
-			data[i + 1] = color.g * 255;
-			data[i + 2] = color.b * 255;
-		}
-
-		context.putImageData(imageData, 0, 0);
-
-		return canvas;
-	}
-}
-
-//http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts?layer=xinjiang%3Axinjiang_rgb_remake&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=94&TileRow=17
-
-
-class GeoserverWMTSProvider{
-	mode = 'xyz'; // 可以有xyz模式，bbox模式，（tilesrow，tilecol）模式
-    minZoom = 0;
-    maxZoom = 13;
-    tileSize = 256;
-	/**
-	 * 使用这种zxy的方式进行切分数据
-	 * 
-	 * // 使用该方式计算出来的结果,y的方向是反的，无法直接使用。
-	 */
-	// 或者通过计算经纬度范围的方式进行请求tile，这种是唯一的
-
-    // 编码，https://www.w3school.com.cn/tags/html_ref_urlencode.asp#google_vignette 
-    // %3A 表示冒号
-    // %2F 表示斜杠
-    // %20 表示空格
-    // %5F 表示下划线
-	// %3C 表示<
-	// %3E 表示>
-	// %2C 表示，
-	url = 'http://127.0.0.1:8080/geoserver/xinjiang/gwc/service/wmts';
-	data = 'xinjiang';
-	layer = 'xinjiang';
-	tilematrixset = 'unkonwn'; // 设置该参数，则同时需要设置tilematrix,
-	TileMatrix = 'unkonwn'; // 同上
-	EPSG = '3857';
-	version = '1.0.0';
-	
-    imageUrl = '{url}?layer={data}:{layer}&style=&tilematrixset=EPSG:{tilematrixset}&Service=WMTS&Request=GetTile&Version={version}&Format=image/png&TileMatrix=EPSG:{TileMatrix}:{z}&TileCol={x}&TileRow={y}';    
-	constructor(options) {
-        Object.assign(this, options);
-		this.imageUrl = this.imageUrl.replace('{url}', this.url);
-		this.imageUrl = this.imageUrl.replace('{version}', this.version);
-		this.imageUrl = this.imageUrl.replace('{data}', this.data);
-		this.imageUrl = this.imageUrl.replace('{layer}', this.layer);
-		if(this.tilematrixset === 'unkonwn'){
-		    this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.EPSG);
-			this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.EPSG);
-		} else {
-			this.imageUrl = this.imageUrl.replace('{tilematrixset}', this.tilematrixset);
-			this.imageUrl = this.imageUrl.replace('{TileMatrix}', this.TileMatrix);
-		}
-		
-    }
-    fetchTile(zoom, x, y, bbox)
-	{
-		if(zoom < 0){
-			return;
-		}
-		
-        let urlTemp = this.imageUrl.replace('{z}', zoom).replace('{x}', x).replace('{y}', y);
-		
-		return new Promise((resolve, reject) => 
-		{
-			const image = document.createElement('img');
-			image.onload = function() 
-			{
-				resolve(image);
-			};
-			image.onerror = function() 
-			{
-				reject();
-			};
-			image.crossOrigin = 'Anonymous';
-			image.src = urlTemp;
 		});
 	}
 }
@@ -5930,34 +6011,154 @@ let tianDiTuProvider = new TianDiTuProvider({
 tianDiTuProvider.fetchTile(1, 1, 1);
  */
 
-// 瓦片获取
+/**
+ * Map box service tile provider. Map tiles can be fetched from style or from a map id.
+ *
+ * API Reference
+ *  - https://www.mapbox.com/
+ */
+class MapBoxProvider extends MapProvider 
+{
+	/**
+	 * Base adress of the mapbox service.
+	 */
+	static ADDRESS = 'https://api.mapbox.com/';
 
-// import Fetch from "../utils/Fetch.js";
-class TianDiTuHeightProvider extends MapProvider {
-    address = "https://t3.tianditu.gov.cn/mapservice/swdx?tk={token}&x={x}&y={y}&l={z}";
-    minZoom = 0;
-    maxZoom = 19;
-    tileSize = 256;
-    token = "588e61bc464868465169f209fe694dd0";
-    littleEndian = false;
-    constructor(options) {
-        super(options);
-        Object.assign(this, options);
-    }
-    getAddress(zoom, x, y) {
-        let num = Math.floor(Math.random() * 8);
-        return this.url.replace("t3", "t" + num).replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
-    }
-    
-    fetchTile(zoom, x, y){
-        let url = this.getAddress(zoom, x, y);
-        return new Promise((resolve, reject) => 
+	/**
+	 * Access the map data using a map style.
+	 */
+	static STYLE = 100;
+
+	/**
+	 * Access the map data using a map id.
+	 */
+	static MAP_ID = 101;
+
+	/**
+	 * Server API access token.
+	 */
+	apiToken;
+
+	/**
+	 * Map image tile format, the formats available are:
+	 *  - png True color PNG
+	 *  - png32 32 color indexed PNG
+	 *  - png64 64 color indexed PNG
+	 *  - png128 128 color indexed PNG
+	 *  - png256 256 color indexed PNG
+	 *  - jpg70 70% quality JPG
+	 *  - jpg80 80% quality JPG
+	 *  - jpg90 90% quality JPG
+	 *  - pngraw Raw png (no interpolation)
+	 */
+	format;
+
+	/**
+	 * Flag to indicate if should use high resolution tiles
+	 */
+	useHDPI;
+
+	/**
+	 * Map tile access mode
+	 *  - MapBoxProvider.STYLE
+	 *  - MapBoxProvider.MAP_ID
+	 */
+	mode;
+
+	/**
+	 * Map identifier composed of \{username\}.\{style\}
+	 *
+	 * Some examples of the mapbox identifiers:
+	 *  - mapbox.mapbox-streets-v7
+	 *  - mapbox.satellite
+	 *  - mapbox.mapbox-terrain-v2
+	 *  - mapbox.mapbox-traffic-v1
+	 *  - mapbox.terrain-rgb
+	 */
+	mapId;
+
+	/**
+	 * Map style to be used composed of \{username\}/\{style_id\}
+	 *
+	 * Some example of the syles available:
+	 *  - mapbox/streets-v10
+	 *  - mapbox/outdoors-v10
+	 *  - mapbox/light-v9
+	 *  - mapbox/dark-v9
+	 *  - mapbox/satellite-v9
+	 *  - mapbox/satellite-streets-v10
+	 *  - mapbox/navigation-preview-day-v4
+	 *  - mapbox/navigation-preview-night-v4
+	 *  - mapbox/navigation-guidance-day-v4
+	 *  - mapbox/navigation-guidance-night-v4
+	 */
+	style;
+
+	/**
+	 * Mapbox api version
+	 *  - mapbox/navigation-guidance-night-v4
+	 */
+	version;
+
+	/**
+	 * @param apiToken - Map box api token.
+	 * @param id - Map style or map ID if the mode is set to MAP_ID.
+	 * @param mode - Map tile access mode.
+	 * @param format - Image format.
+	 * @param useHDPI - If true uses high DPI mode.
+	 */
+	constructor(apiToken = '', id = '', mode = MapBoxProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
+	{
+		super();
+
+		this.apiToken = apiToken;
+		this.format = format;
+		this.useHDPI = useHDPI;
+		this.mode = mode;
+		this.mapId = id;
+		this.style = id;
+		this.version = version;
+	}
+
+	async getMetaData()
+	{
+		const address = MapBoxProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
+
+		const data = await XHRUtils.get(address);
+		
+		const meta = JSON.parse(data);
+		this.name = meta.name;
+		this.minZoom = meta.minZoom;
+		this.maxZoom = meta.maxZoom;
+		this.bounds = meta.bounds;
+		this.center = meta.center;
+	}
+
+	fetchTile(zoom, x, y)
+	{
+		return new Promise((resolve, reject) => 
 		{
-			fetch(url).then(res=> res.arrayBuffer()).then(data=> {
-				resolve(data);
-            });
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxProvider.STYLE) 
+			{
+				image.src = MapBoxProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
 		});
-    }
+	}
 }
 
 class SyncQueue {
@@ -6007,7 +6208,7 @@ class SyncQueue {
 // 瓦片获取
 
 // import Fetch from "../utils/Fetch.js";
-class CesiumHeightProvider extends MapProvider {
+class CesiumPlaneProvider extends PlaneProvider {
     // address = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
     address = "{z}/{x}/{y}.terrain?extensions=octvertexnormals-metadata-watermask&v=1.2.0";
     baseUrl = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/";
@@ -6020,6 +6221,8 @@ class CesiumHeightProvider extends MapProvider {
     authority = false;
     syncQueue = new SyncQueue(1);
     layers = null;
+    scale = 2.0;
+    static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
     constructor(options) {
         super(options);
         Object.assign(this, options);
@@ -6085,6 +6288,44 @@ class CesiumHeightProvider extends MapProvider {
             });
         });
     }
+
+    fetchGeometry(zoom, x, y){
+        let url = this.getAddress(zoom, x, y);
+        return this.syncQueue.enqueue(() => {
+            return new Promise((resolve, reject) => {
+                let headers = {
+                    'accept': 'application/vnd.quantized-mesh,application/octet-stream;q=0.9,*/*;q=0.01',
+                    'Authorization': 'Bearer ' + this.access_token,
+                    'Referer': 'http://127.0.0.1:8080/terrain.html',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+                };
+                fetch(url, {'headers':headers}).then(res=> res.arrayBuffer()).then(data=> {
+                    let geometry = this.createGeometry(data);
+                    resolve(geometry); 
+                });
+            });
+        });
+        
+    }
+
+    createGeometry(dataBuffer){
+        let geometry;
+        try 
+		{
+			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.littleEndian);
+			geometry = new MapNodeHeightTinGeometry(terrain, false, 10.0, false, this.scale);
+		}
+		catch (e) 
+		{
+			console.error('Error loading height data.', this.level,this.x,this.y, e);
+			geometry = CesiumPlaneProvider.geometry;
+		}
+        return geometry;
+    }
+
+    getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
+    }
 }
 
 
@@ -6124,33 +6365,363 @@ class LayerInformation {
      }
 }
 
+class SphereProvider extends MapProvider{
+    constructor() {
+        super();
+    }
+    fetchGeometry(zoom, x, y) {
+        return new Promise((resolve, reject) => {
+            resolve(null);
+        })
+    }
+}
+
 /**
- * Geolocation utils contains utils to access the user location (GPS, IP location or wifi).
- *
- * Devices with a GPS, for example, can take a minute or more to get a GPS fix, so less accurate data (IP location or wifi) may be returned.
+ * Default implementation of the SphereProvider interface.
+ * 默认的球体提供者实现，无高程的数据，纯球体
  */
-class GeolocationUtils 
+class DefaultSphereProvider extends SphereProvider {
+
+
+	/**
+	 * Base geometry contains the entire globe.
+	 * 
+	 * Individual geometries generated for the sphere nodes are not based on this base geometry.
+	 * 
+	 * Applied to the map view on initialization.
+	 */
+	static geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
+
+    /**
+	 * Base geometry contains the entire globe.
+	 * 
+	 * Individual geometries generated for the sphere nodes are not based on this base geometry.
+	 * 
+	 * Applied to the map view on initialization.
+	 */
+    static segments = 160;
+    // static segments = 64;
+
+    constructor() {
+        super();
+    }
+
+	/**
+	 * 
+	 * @param {number} zoom 层级
+	 * @param {number} x x索引
+	 * @param {number} y y索引
+	 * @returns 
+	 */
+    fetchGeometry(zoom, x, y) {
+        return new Promise((resolve, reject) => {
+            resolve(this.createSphereGeometry(zoom, x, y));
+        });
+    }
+
+	createSphereGeometry(zoom, x, y) {
+		const range = Math.pow(2, zoom);
+		const max = 40;
+		const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+
+
+	
+		// X
+		// const phiLength = 1 / range * 2 * Math.PI;
+		// const phiStart = x * phiLength;
+		
+		// // 经度
+		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+		const phiStart = lon1;
+		const phiLength = lon2 - lon1;
+	
+		// Y
+		// const thetaLength = 1 / range * Math.PI;
+		// const thetaStart = y * thetaLength;
+		// 维度
+		const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+		const thetaLength = lat1 - lat2;
+		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+		let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+
+		return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
+	}
+
+	getDefaultGeometry() {
+		return DefaultSphereProvider.geometry;
+	}
+}
+
+/**
+ * Height debug provider takes a RGB encoded height map from another provider and converts it to a gradient for preview.
+ *
+ * Usefull to preview and compare height of different providers. Can also be usefull to generate grayscale maps to be feed into other libraries (e.g. physics engine).
+ */
+class HeightDebugProvider extends PlaneProvider 
 {
 	/**
-	 * Get the current geolocation from the browser using the location API.
-	 *
-	 * This location can be provided from GPS measure, estimated IP location or any other system available in the host. Precision may vary.
-	 * 获取浏览器当前地理位置，使用位置API。
-	 * @param onResult - Callback function onResult(coords, timestamp).
-	 * @param onError - Callback to handle errors.
+	 * The provider used to retrieve the base RGB information to be debugged.
 	 */
-	static get()//Promise<{coords: any, timestamp: number}>
-	{
-		return new Promise(function(resolve, reject) 
-		{
-			navigator.geolocation.getCurrentPosition(function(result) 
-			{
-				resolve(result);
-				// @ts-ignore
-			}, reject);
-		});
+	provider;
 
+	/**
+	 * Initial color to be used for lower values.
+	 */
+	fromColor = new Color(0xff0000);
+
+	/**
+	 * Final color to be used for higher values.
+	 */
+	toColor = new Color(0x00ff00);
+
+	constructor(provider) 
+	{
+		super();
+
+		this.provider = provider;
 	}
+
+	async fetchTile(zoom, x, y)
+	{
+		const image = await this.provider.fetchTile(zoom, x, y);
+		const resolution = 256;
+
+		const canvas = CanvasUtils.createOffscreenCanvas(resolution, resolution);
+		const context = canvas.getContext('2d');
+
+		context.drawImage(image, 0, 0, resolution, resolution, 0, 0, resolution, resolution);
+
+		const imageData = context.getImageData(0, 0, resolution, resolution);
+		const data = imageData.data;
+		for (let i = 0; i < data.length; i += 4) 
+		{
+			const r = data[i];
+			const g = data[i + 1];
+			const b = data[i + 2];
+
+			// The value will be composed of the bits RGB
+			const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
+
+			// (16777216 * 0.1) - 1e4
+			const max = 1667721.6;
+
+			const color = this.fromColor.clone().lerpHSL(this.toColor, value / max);
+
+			// Set pixel color
+			data[i] = color.r * 255;
+			data[i + 1] = color.g * 255;
+			data[i + 2] = color.b * 255;
+		}
+
+		context.putImageData(imageData, 0, 0);
+
+		return canvas;
+	}
+}
+
+/**
+ * Map box service tile provider. Map tiles can be fetched from style or from a map id.
+ *
+ * API Reference
+ *  - https://www.mapbox.com/
+ */
+class MapBoxSphereProvider extends SphereProvider {
+	/**
+	 * Base adress of the mapbox service.
+	 */
+	static ADDRESS = 'https://api.mapbox.com/';
+
+	/**
+	 * Access the map data using a map style.
+	 */
+	static STYLE = 100;
+
+	/**
+	 * Access the map data using a map id.
+	 */
+	static MAP_ID = 101;
+
+	/**
+	 * Server API access token.
+	 */
+	apiToken;
+
+	/**
+	 * Map image tile format, the formats available are:
+	 *  - png True color PNG
+	 *  - png32 32 color indexed PNG
+	 *  - png64 64 color indexed PNG
+	 *  - png128 128 color indexed PNG
+	 *  - png256 256 color indexed PNG
+	 *  - jpg70 70% quality JPG
+	 *  - jpg80 80% quality JPG
+	 *  - jpg90 90% quality JPG
+	 *  - pngraw Raw png (no interpolation)
+	 */
+	format;
+
+	/**
+	 * Flag to indicate if should use high resolution tiles
+	 */
+	useHDPI;
+
+	/**
+	 * Map tile access mode
+	 *  - MapBoxProvider.STYLE
+	 *  - MapBoxProvider.MAP_ID
+	 */
+	mode;
+
+	/**
+	 * Map identifier composed of \{username\}.\{style\}
+	 *
+	 * Some examples of the mapbox identifiers:
+	 *  - mapbox.mapbox-streets-v7
+	 *  - mapbox.satellite
+	 *  - mapbox.mapbox-terrain-v2
+	 *  - mapbox.mapbox-traffic-v1
+	 *  - mapbox.terrain-rgb
+	 */
+	mapId;
+
+	/**
+	 * Map style to be used composed of \{username\}/\{style_id\}
+	 *
+	 * Some example of the syles available:
+	 *  - mapbox/streets-v10
+	 *  - mapbox/outdoors-v10
+	 *  - mapbox/light-v9
+	 *  - mapbox/dark-v9
+	 *  - mapbox/satellite-v9
+	 *  - mapbox/satellite-streets-v10
+	 *  - mapbox/navigation-preview-day-v4
+	 *  - mapbox/navigation-preview-night-v4
+	 *  - mapbox/navigation-guidance-day-v4
+	 *  - mapbox/navigation-guidance-night-v4
+	 */
+	style;
+
+	/**
+	 * Mapbox api version
+	 *  - mapbox/navigation-guidance-night-v4
+	 */
+	version;
+
+	/**
+	 * @param apiToken - Map box api token.
+	 * @param id - Map style or map ID if the mode is set to MAP_ID.
+	 * @param mode - Map tile access mode.
+	 * @param format - Image format.
+	 * @param useHDPI - If true uses high DPI mode.
+	 */
+	constructor(apiToken = '', id = '', mode = MapBoxSphereProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
+	{
+		super();
+
+		this.apiToken = apiToken;
+		this.format = format;
+		this.useHDPI = useHDPI;
+		this.mode = mode;
+		this.mapId = id;
+		this.style = id;
+		this.version = version;
+	}
+
+	async getMetaData()
+	{
+		const address = MapBoxSphereProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
+
+		const data = await XHRUtils.get(address);
+		
+		const meta = JSON.parse(data);
+		this.name = meta.name;
+		this.minZoom = meta.minZoom;
+		this.maxZoom = meta.maxZoom;
+		this.bounds = meta.bounds;
+		this.center = meta.center;
+	}
+
+	fetchTile(zoom, x, y)
+	{
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxSphereProvider.STYLE) 
+			{
+				image.src = MapBoxSphereProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxSphereProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+	}
+
+	fetchGeometry(zoom, x, y){
+		
+	}
+}
+
+// 瓦片获取
+
+// import Fetch from "../utils/Fetch.js";
+class TianDiTuHeightProvider extends MapProvider {
+    address = "https://t3.tianditu.gov.cn/mapservice/swdx?tk={token}&x={x}&y={y}&l={z}";
+    minZoom = 0;
+    maxZoom = 19;
+    tileSize = 256;
+    token = "588e61bc464868465169f209fe694dd0";
+    littleEndian = false;
+    constructor(options) {
+        super(options);
+        Object.assign(this, options);
+    }
+    getAddress(zoom, x, y) {
+        let num = Math.floor(Math.random() * 8);
+        return this.url.replace("t3", "t" + num).replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
+    }
+    
+    fetchTile(zoom, x, y){
+        let url = this.getAddress(zoom, x, y);
+        return new Promise((resolve, reject) => 
+		{
+			fetch(url).then(res=> res.arrayBuffer()).then(data=> {
+				resolve(data);
+            });
+		});
+    }
+}
+
+class AngleUtils {
+    /**
+     * 弧度转角度
+     * @param {*} rad 
+     * @returns 
+     */
+    static radToDeg(rad) {
+        return rad * (180 / Math.PI);
+    }
+    /**
+     * 角度转弧度
+     * @param {*} deg 
+     * @returns 
+     */
+    static degToRad(deg) {
+        return deg * (Math.PI / 180);
+    }
+   
 }
 
 /**
@@ -6354,6 +6925,465 @@ class CancelablePromise
 	}
 }
 
+class Colors {
+    static Snow	= 0xFFFAFA;
+    static GhostWhite	= 0xF8F8FF;
+    static WhiteSmoke	= 0xF5F5F5;
+    static Gainsboro	= 0xDCDCDC;
+    static FloralWhite	= 0xFFFAF0;
+    static OldLace	= 0xFDF5E6;
+    static Linen	= 0xFAF0E6;
+    static AntiqueWhite	= 0xFAEBD7;
+    static PapayaWhip	= 0xFFEFD5;
+    static BlanchedAlmond	= 0xFFEBCD;
+    static Bisque	= 0xFFE4C4;
+    static PeachPuff	= 0xFFDAB9;
+    static NavajoWhite	= 0xFFDEAD;
+    static Moccasin	= 0xFFE4B5;
+    static Cornsilk	= 0xFFF8DC;
+    static Ivory	= 0xFFFFF0;
+    static LemonChiffon	= 0xFFFACD;
+    static Seashell	= 0xFFF5EE;
+    static Honeydew	= 0xF0FFF0;
+    static MintCream	= 0xF5FFFA;
+    static Azure	= 0xF0FFFF;
+    static AliceBlue	= 0xF0F8FF;
+    static lavender	= 0xE6E6FA;
+    static LavenderBlush	= 0xFFF0F5;
+    static MistyRose	= 0xFFE4E1;
+    static White	= 0xFFFFFF;
+    static Black	= 0x000000;
+    static DarkSlateGray	= 0x2F4F4F;
+    static DimGrey	= 0x696969;
+    static SlateGrey	= 0x708090;
+    static LightSlateGray	= 0x778899;
+    static Grey	= 0xBEBEBE;
+    static LightGray	= 0xD3D3D3;
+    static MidnightBlue	= 0x191970;
+    static NavyBlue	= 0x000080;
+    static CornflowerBlue	= 0x6495ED;
+    static DarkSlateBlue	= 0x483D8B;
+    static SlateBlue	= 0x6A5ACD;
+    static MediumSlateBlue	= 0x7B68EE;
+    static LightSlateBlue	= 0x8470FF;
+    static MediumBlue	= 0x0000CD;
+    static RoyalBlue	= 0x4169E1;
+    static Blue	= 0x0000FF;
+    static DodgerBlue	= 0x1E90FF;
+    static DeepSkyBlue	= 0x00BFFF;
+    static SkyBlue	= 0x87CEEB;
+    static LightSkyBlue	= 0x87CEFA;
+    static SteelBlue	= 0x4682B4;
+    static LightSteelBlue	= 0xB0C4DE;
+    static LightBlue	= 0xADD8E6;
+    static PowderBlue	= 0xB0E0E6;
+    static PaleTurquoise	= 0xAFEEEE;
+    static DarkTurquoise	= 0x00CED1;
+    static MediumTurquoise	= 0x48D1CC;
+    static Turquoise	= 0x40E0D0;
+    static Cyan	= 0x00FFFF;
+    static LightCyan	= 0xE0FFFF;
+    static CadetBlue	= 0x5F9EA0;
+    static MediumAquamarine	= 0x66CDAA;
+    static Aquamarine	= 0x7FFFD4;
+    static DarkGreen	= 0x006400;
+    static DarkOliveGreen	= 0x556B2F;
+    static DarkSeaGreen	= 0x8FBC8F;
+    static SeaGreen	= 0x2E8B57;
+    static MediumSeaGreen	= 0x3CB371;
+    static LightSeaGreen	= 0x20B2AA;
+    static PaleGreen	= 0x98FB98;
+    static SpringGreen	= 0x00FF7F;
+    static LawnGreen	= 0x7CFC00;
+    static Green	= 0x00FF00;
+    static Chartreuse	= 0x7FFF00;
+    static MedSpringGreen	= 0x00FA9A;
+    static GreenYellow	= 0xADFF2F;
+    static LimeGreen	= 0x32CD32;
+    static YellowGreen	= 0x9ACD32;
+    static ForestGreen	= 0x228B22;
+    static OliveDrab	= 0x6B8E23;
+    static DarkKhaki	= 0xBDB76B;
+    static PaleGoldenrod	= 0xEEE8AA;
+    static LtGoldenrodYello	= 0xFAFAD2;
+    static LightYellow	= 0xFFFFE0;
+    static Yellow	= 0xFFFF00;
+    static Gold	= 0xFFD700;
+    static LightGoldenrod	= 0xEEDD82;
+    static goldenrod	= 0xDAA520;
+    static DarkGoldenrod	= 0xB8860B;
+    static RosyBrown	= 0xBC8F8F;
+    static IndianRed	= 0xCD5C5C;
+    static SaddleBrown	= 0x8B4513;
+    static Sienna	= 0xA0522D;
+    static Peru	= 0xCD853F;
+    static Burlywood	= 0xDEB887;
+    static Beige	= 0xF5F5DC;
+    static Wheat	= 0xF5DEB3;
+    static SandyBrown	= 0xF4A460;
+    static Tan	= 0xD2B48C;
+    static Chocolate	= 0xD2691E;
+    static Firebrick	= 0xB22222;
+    static Brown	= 0xA52A2A;
+    static DarkSalmon	= 0xE9967A;
+    static Salmon	= 0xFA8072;
+    static LightSalmon	= 0xFFA07A;
+    static Orange	= 0xFFA500;
+    static DarkOrange	= 0xFF8C00;
+    static Coral	= 0xFF7F50;
+    static LightCoral	= 0xF08080;
+    static Tomato	= 0xFF6347;
+    static OrangeRed	= 0xFF4500;
+    static Red	= 0xFF0000;
+    static HotPink	= 0xFF69B4;
+    static DeepPink	= 0xFF1493;
+    static Pink	= 0xFFC0CB;
+    static LightPink	= 0xFFB6C1;
+    static PaleVioletRed	= 0xDB7093;
+    static Maroon	= 0xB03060;
+    static MediumVioletRed	= 0xC71585;
+    static VioletRed	= 0xD02090;
+    static Magenta	= 0xFF00FF;
+    static Violet	= 0xEE82EE;
+    static Plum	= 0xDDA0DD;
+    static Orchid	= 0xDA70D6;
+    static MediumOrchid	= 0xBA55D3;
+    static DarkOrchid	= 0x9932CC;
+    static DarkViolet	= 0x9400D3;
+    static BlueViolet	= 0x8A2BE2;
+    static Purple	= 0xA020F0;
+    static MediumPurple	= 0x9370DB;
+    static Thistle	= 0xD8BFD8;
+    static Snow1	= 0xFFFAFA;
+    static Snow2	= 0xEEE9E9;
+    static Snow3	= 0xCDC9C9;
+    static Snow4	= 0x8B8989;
+    static Seashell1	= 0xFFF5EE;
+    static Seashell2	= 0xEEE5DE;
+    static Seashell3	= 0xCDC5BF;
+    static Seashell4	= 0x8B8682;
+    static AntiqueWhite1	= 0xFFEFDB;
+    static AntiqueWhite2	= 0xEEDFCC;
+    static AntiqueWhite3	= 0xCDC0B0;
+    static AntiqueWhite4	= 0x8B8378;
+    static Bisque1	= 0xFFE4C4;
+    static Bisque2	= 0xEED5B7;
+    static Bisque3	= 0xCDB79E;
+    static Bisque4	= 0x8B7D6B;
+    static PeachPuff1	= 0xFFDAB9;
+    static PeachPuff2	= 0xEECBAD;
+    static PeachPuff3	= 0xCDAF95;
+    static PeachPuff4	= 0x8B7765;
+    static NavajoWhite1	= 0xFFDEAD;
+    static NavajoWhite2	= 0xEECFA1;
+    static NavajoWhite3	= 0xCDB38B;
+    static NavajoWhite4	= 0x8B795E;
+    static LemonChiffon1	= 0xFFFACD;
+    static LemonChiffon2	= 0xEEE9BF;
+    static LemonChiffon3	= 0xCDC9A5;
+    static LemonChiffon4	= 0x8B8970;
+    static Cornsilk1	= 0xFFF8DC;
+    static Cornsilk2	= 0xEEE8CD;
+    static Cornsilk3	= 0xCDC8B1;
+    static Cornsilk4	= 0x8B8878;
+    static Ivory1	= 0xFFFFF0;
+    static Ivory2	= 0xEEEEE0;
+    static Ivory3	= 0xCDCDC1;
+    static Ivory4	= 0x8B8B83;
+    static Honeydew1	= 0xF0FFF0;
+    static Honeydew2	= 0xE0EEE0;
+    static Honeydew3	= 0xC1CDC1;
+    static Honeydew4	= 0x838B83;
+    static LavenderBlush1	= 0xFFF0F5;
+    static LavenderBlush2	= 0xEEE0E5;
+    static LavenderBlush3	= 0xCDC1C5;
+    static LavenderBlush4	= 0x8B8386;
+    static MistyRose1	= 0xFFE4E1;
+    static MistyRose2	= 0xEED5D2;
+    static MistyRose3	= 0xCDB7B5;
+    static MistyRose4	= 0x8B7D7B;
+    static Azure1	= 0xF0FFFF;
+    static Azure2	= 0xE0EEEE;
+    static Azure3	= 0xC1CDCD;
+    static Azure4	= 0x838B8B;
+    static SlateBlue1	= 0x836FFF;
+    static SlateBlue2	= 0x7A67EE;
+    static SlateBlue3	= 0x6959CD;
+    static SlateBlue4	= 0x473C8B;
+    static RoyalBlue1	= 0x4876FF;
+    static RoyalBlue2	= 0x436EEE;
+    static RoyalBlue3	= 0x3A5FCD;
+    static RoyalBlue4	= 0x27408B;
+    static Blue1	= 0x0000FF;
+    static Blue2	= 0x0000EE;
+    static Blue3	= 0x0000CD;
+    static Blue4	= 0x00008B;
+    static DodgerBlue1	= 0x1E90FF;
+    static DodgerBlue2	= 0x1C86EE;
+    static DodgerBlue3	= 0x1874CD;
+    static DodgerBlue4	= 0x104E8B;
+    static SteelBlue1	= 0x63B8FF;
+    static SteelBlue2	= 0x5CACEE;
+    static SteelBlue3	= 0x4F94CD;
+    static SteelBlue4	= 0x36648B;
+    static DeepSkyBlue1	= 0x00BFFF;
+    static DeepSkyBlue2	= 0x00B2EE;
+    static DeepSkyBlue3	= 0x009ACD;
+    static DeepSkyBlue4	= 0x00688B;
+    static SkyBlue1	= 0x87CEFF;
+    static SkyBlue2	= 0x7EC0EE;
+    static SkyBlue3	= 0x6CA6CD;
+    static SkyBlue4	= 0x4A708B;
+    static LightSkyBlue1	= 0xB0E2FF;
+    static LightSkyBlue2	= 0xA4D3EE;
+    static LightSkyBlue3	= 0x8DB6CD;
+    static LightSkyBlue4	= 0x607B8B;
+    static SlateGray1	= 0xC6E2FF;
+    static SlateGray2	= 0xB9D3EE;
+    static SlateGray3	= 0x9FB6CD;
+    static SlateGray4	= 0x6C7B8B;
+    static LightSteelBlue1	= 0xCAE1FF;
+    static LightSteelBlue2	= 0xBCD2EE;
+    static LightSteelBlue3	= 0xA2B5CD;
+    static LightSteelBlue4	= 0x6E7B8B;
+    static LightBlue1	= 0xBFEFFF;
+    static LightBlue2	= 0xB2DFEE;
+    static LightBlue3	= 0x9AC0CD;
+    static LightBlue4	= 0x68838B;
+    static LightCyan1	= 0xE0FFFF;
+    static LightCyan2	= 0xD1EEEE;
+    static LightCyan3	= 0xB4CDCD;
+    static LightCyan4	= 0x7A8B8B;
+    static PaleTurquoise1	= 0xBBFFFF;
+    static PaleTurquoise2	= 0xAEEEEE;
+    static PaleTurquoise3	= 0x96CDCD;
+    static PaleTurquoise4	= 0x668B8B;
+    static CadetBlue1	= 0x98F5FF;
+    static CadetBlue2	= 0x8EE5EE;
+    static CadetBlue3	= 0x7AC5CD;
+    static CadetBlue4	= 0x53868B;
+    static Turquoise1	= 0x00F5FF;
+    static Turquoise2	= 0x00E5EE;
+    static Turquoise3	= 0x00C5CD;
+    static Turquoise4	= 0x00868B;
+    static Cyan1	= 0x00FFFF;
+    static Cyan2	= 0x00EEEE;
+    static Cyan3	= 0x00CDCD;
+    static Cyan4	= 0x008B8B;
+    static DarkSlateGray1	= 0x97FFFF;
+    static DarkSlateGray2	= 0x8DEEEE;
+    static DarkSlateGray3	= 0x79CDCD;
+    static DarkSlateGray4	= 0x528B8B;
+    static Aquamarine1	= 0x7FFFD4;
+    static Aquamarine2	= 0x76EEC6;
+    static Aquamarine3	= 0x66CDAA;
+    static Aquamarine4	= 0x458B74;
+    static DarkSeaGreen1	= 0xC1FFC1;
+    static DarkSeaGreen2	= 0xB4EEB4;
+    static DarkSeaGreen3	= 0x9BCD9B;
+    static DarkSeaGreen4	= 0x698B69;
+    static SeaGreen1	= 0x54FF9F;
+    static SeaGreen2	= 0x4EEE94;
+    static SeaGreen3	= 0x43CD80;
+    static SeaGreen4	= 0x2E8B57;
+    static PaleGreen1	= 0x9AFF9A;
+    static PaleGreen2	= 0x90EE90;
+    static PaleGreen3	= 0x7CCD7C;
+    static PaleGreen4	= 0x548B54;
+    static SpringGreen1	= 0x00FF7F;
+    static SpringGreen2	= 0x00EE76;
+    static SpringGreen3	= 0x00CD66;
+    static SpringGreen4	= 0x008B45;
+    static Green1	= 0x00FF00;
+    static Green2	= 0x00EE00;
+    static Green3	= 0x00CD00;
+    static Green4	= 0x008B00;
+    static Chartreuse1	= 0x7FFF00;
+    static Chartreuse2	= 0x76EE00;
+    static Chartreuse3	= 0x66CD00;
+    static Chartreuse4	= 0x458B00;
+    static OliveDrab1	= 0xC0FF3E;
+    static OliveDrab2	= 0xB3EE3A;
+    static OliveDrab3	= 0x9ACD32;
+    static OliveDrab4	= 0x698B22;
+    static DarkOliveGreen1	= 0xCAFF70;
+    static DarkOliveGreen2	= 0xBCEE68;
+    static DarkOliveGreen3	= 0xA2CD5A;
+    static DarkOliveGreen4	= 0x6E8B3D;
+    static Khaki1	= 0xFFF68F;
+    static Khaki2	= 0xEEE685;
+    static Khaki3	= 0xCDC673;
+    static Khaki4	= 0x8B864E;
+    static LightGoldenrod1	= 0xFFEC8B;
+    static LightGoldenrod2	= 0xEEDC82;
+    static LightGoldenrod3	= 0xCDBE70;
+    static LightGoldenrod4	= 0x8B814C;
+    static LightYellow1	= 0xFFFFE0;
+    static LightYellow2	= 0xEEEED1;
+    static LightYellow3	= 0xCDCDB4;
+    static LightYellow4	= 0x8B8B7A;
+    static Yellow1	= 0xFFFF00;
+    static Yellow2	= 0xEEEE00;
+    static Yellow3	= 0xCDCD00;
+    static Yellow4	= 0x8B8B00;
+    static Gold1	= 0xFFD700;
+    static Gold2	= 0xEEC900;
+    static Gold3	= 0xCDAD00;
+    static Gold4	= 0x8B7500;
+    static Goldenrod1	= 0xFFC125;
+    static Goldenrod2	= 0xEEB422;
+    static Goldenrod3	= 0xCD9B1D;
+    static Goldenrod4	= 0x8B6914;
+    static DarkGoldenrod1	= 0xFFB90F;
+    static DarkGoldenrod2	= 0xEEAD0E;
+    static DarkGoldenrod3	= 0xCD950C;
+    static DarkGoldenrod4	= 0x8B658B;
+    static RosyBrown1	= 0xFFC1C1;
+    static RosyBrown2	= 0xEEB4B4;
+    static RosyBrown3	= 0xCD9B9B;
+    static RosyBrown4	= 0x8B6969;
+    static IndianRed1	= 0xFF6A6A;
+    static IndianRed2	= 0xEE6363;
+    static IndianRed3	= 0xCD5555;
+    static IndianRed4	= 0x8B3A3A;
+    static Sienna1	= 0xFF8247;
+    static Sienna2	= 0xEE7942;
+    static Sienna3	= 0xCD6839;
+    static Sienna4	= 0x8B4726;
+    static Burlywood1	= 0xFFD39B;
+    static Burlywood2	= 0xEEC591;
+    static Burlywood3	= 0xCDAA7D;
+    static Burlywood4	= 0x8B7355;
+    static Wheat1	= 0xFFE7BA;
+    static Wheat2	= 0xEED8AE;
+    static Wheat3	= 0xCDBA96;
+    static Wheat4	= 0x8B7E66;
+    static Tan1	= 0xFFA54F;
+    static Tan2	= 0xEE9A49;
+    static Tan3	= 0xCD853F;
+    static Tan4	= 0x8B5A2B;
+    static Chocolate1	= 0xFF7F24;
+    static Chocolate2	= 0xEE7621;
+    static Chocolate3	= 0xCD661D;
+    static Chocolate4	= 0x8B4513;
+    static Firebrick1	= 0xFF3030;
+    static Firebrick2	= 0xEE2C2C;
+    static Firebrick3	= 0xCD2626;
+    static Firebrick4	= 0x8B1A1A;
+    static Brown1	= 0xFF4040;
+    static Brown2	= 0xEE3B3B;
+    static Brown3	= 0xCD3333;
+    static Brown4	= 0x8B2323;
+    static Salmon1	= 0xFF8C69;
+    static Salmon2	= 0xEE8262;
+    static Salmon3	= 0xCD7054;
+    static Salmon4	= 0x8B4C39;
+    static LightSalmon1	= 0xFFA07A;
+    static LightSalmon2	= 0xEE9572;
+    static LightSalmon3	= 0xCD8162;
+    static LightSalmon4	= 0x8B5742;
+    static Orange1	= 0xFFA500;
+    static Orange2	= 0xEE9A00;
+    static Orange3	= 0xCD8500;
+    static Orange4	= 0x8B5A00;
+    static DarkOrange1	= 0xFF7F00;
+    static DarkOrange2	= 0xEE7600;
+    static DarkOrange3	= 0xCD6600;
+    static DarkOrange4	= 0x8B4500;
+    static Coral1	= 0xFF7256;
+    static Coral2	= 0xEE6A50;
+    static Coral3	= 0xCD5B45;
+    static Coral4	= 0x8B3E2F;
+    static Tomato1	= 0xFF6347;
+    static Tomato2	= 0xEE5C42;
+    static Tomato3	= 0xCD4F39;
+    static Tomato4	= 0x8B3626;
+    static OrangeRed1	= 0xFF4500;
+    static OrangeRed2	= 0xEE4000;
+    static OrangeRed3	= 0xCD3700;
+    static OrangeRed4	= 0x8B2500;
+    static Red1	= 0xFF0000;
+    static Red2	= 0xEE0000;
+    static Red3	= 0xCD0000;
+    static Red4	= 0x8B0000;
+    static DeepPink1	= 0xFF1493;
+    static DeepPink2	= 0xEE1289;
+    static DeepPink3	= 0xCD1076;
+    static DeepPink4	= 0x8B0A50;
+    static HotPink1	= 0xFF6EB4;
+    static HotPink2	= 0xEE6AA7;
+    static HotPink3	= 0xCD6090;
+    static HotPink4	= 0x8B3A62;
+    static Pink1	= 0xFFB5C5;
+    static Pink2	= 0xEEA9B8;
+    static Pink3	= 0xCD919E;
+    static Pink4	= 0x8B636C;
+    static LightPink1	= 0xFFAEB9;
+    static LightPink2	= 0xEEA2AD;
+    static LightPink3	= 0xCD8C95;
+    static LightPink4	= 0x8B5F65;
+    static PaleVioletRed1	= 0xFF82AB;
+    static PaleVioletRed2	= 0xEE799F;
+    static PaleVioletRed3	= 0xCD6889;
+    static PaleVioletRed4	= 0x8B475D;
+    static Maroon1	= 0xFF34B3;
+    static Maroon2	= 0xEE30A7;
+    static Maroon3	= 0xCD2990;
+    static Maroon4	= 0x8B1C62;
+    static VioletRed1	= 0xFF3E96;
+    static VioletRed2	= 0xEE3A8C;
+    static VioletRed3	= 0xCD3278;
+    static VioletRed4	= 0x8B2252;
+    static Magenta1	= 0xFF00FF;
+    static Magenta2	= 0xEE00EE;
+    static Magenta3	= 0xCD00CD;
+    static Magenta4	= 0x8B008B;
+    static Orchid1	= 0xFF83FA;
+    static Orchid2	= 0xEE7AE9;
+    static Orchid3	= 0xCD69C9;
+    static Orchid4	= 0x8B4789;
+    static Plum1	= 0xFFBBFF;
+    static Plum2	= 0xEEAEEE;
+    static Plum3	= 0xCD96CD;
+    static Plum4	= 0x8B668B;
+    static MediumOrchid1	= 0xE066FF;
+    static MediumOrchid2	= 0xD15FEE;
+    static MediumOrchid3	= 0xB452CD;
+    static MediumOrchid4	= 0x7A378B;
+    static DarkOrchid1	= 0xBF3EFF;
+    static DarkOrchid2	= 0xB23AEE;
+    static DarkOrchid3	= 0x9A32CD;
+    static DarkOrchid4	= 0x68228B;
+    static Purple1	= 0x9B30FF;
+    static Purple2	= 0x912CEE;
+    static Purple3	= 0x7D26CD;
+    static Purple4	= 0x551A8B;
+    static MediumPurple1	= 0xAB82FF;
+    static MediumPurple2	= 0x9F79EE;
+    static MediumPurple3	= 0x8968CD;
+    static MediumPurple4	= 0x5D478B;
+    static Thistle1	= 0xFFE1FF;
+    static Thistle2	= 0xEED2EE;
+    static Thistle3	= 0xCDB5CD;
+    static Thistle4	= 0x8B7B8B;
+    static grey11	= 0x1C1C1C;
+    static grey21	= 0x363636;;
+    static grey31	= 0x4F4F4F;;
+    static grey41	= 0x696969;
+    static grey51	= 0x828282;
+    static grey61	= 0x9C9C9C;
+    static grey71	= 0xB5B5B5;
+    static gray81	= 0xCFCFCF;
+    static gray91	= 0xE8E8E8;
+    static DarkGrey	= 0xA9A9A9;
+    static DarkBlue	= 0x00008B;
+    static DarkCyan	= 0x008B8B;
+    static DarkMagenta	= 0x8B008B;
+    static DarkRed	= 0x8B0000;
+    static LightGreen	= 0x90EE90;
+
+}
+
 class Element {
     static layerid = 1;
     static bgColor = 'rgba(255,255,255,1)';
@@ -6480,24 +7510,50 @@ class Element {
     }
 }
 
-class AngleUtils {
+let Error$1 = class Error {
     /**
-     * 弧度转角度
-     * @param {*} rad 
-     * @returns 
+     * code 为错误码
+     * message 为错误信息，同时该信息最好能唯一定位该reject的原因
+     * 错误在何处发生。比如message为"在xxx处发生错误"，code为"xxx",xxx为发生错误的具体位置,某个类的某个方法。
+     * 这样在catch中，可以根据code来判断错误类型，从而进行不同的处理。
+     * 同时在各种log日志中也应进行区分日志类型。
+     * @param {*} code 
+     * @param {*} message 
      */
-    static radToDeg(rad) {
-        return rad * (180 / Math.PI);
+    constructor(code, message) {
+        this.message = message;
+        this.code = code;
     }
-    /**
-     * 角度转弧度
-     * @param {*} deg 
-     * @returns 
-     */
-    static degToRad(deg) {
-        return deg * (Math.PI / 180);
-    }
-   
+    // ...
+};
+
+/**
+ * Geolocation utils contains utils to access the user location (GPS, IP location or wifi).
+ *
+ * Devices with a GPS, for example, can take a minute or more to get a GPS fix, so less accurate data (IP location or wifi) may be returned.
+ */
+class GeolocationUtils 
+{
+	/**
+	 * Get the current geolocation from the browser using the location API.
+	 *
+	 * This location can be provided from GPS measure, estimated IP location or any other system available in the host. Precision may vary.
+	 * 获取浏览器当前地理位置，使用位置API。
+	 * @param onResult - Callback function onResult(coords, timestamp).
+	 * @param onError - Callback to handle errors.
+	 */
+	static get()//Promise<{coords: any, timestamp: number}>
+	{
+		return new Promise(function(resolve, reject) 
+		{
+			navigator.geolocation.getCurrentPosition(function(result) 
+			{
+				resolve(result);
+				// @ts-ignore
+			}, reject);
+		});
+
+	}
 }
 
 class VectorUtils{
@@ -37419,465 +38475,6 @@ class Shapes {
     }
 }
 
-class Colors {
-    static Snow	= 0xFFFAFA;
-    static GhostWhite	= 0xF8F8FF;
-    static WhiteSmoke	= 0xF5F5F5;
-    static Gainsboro	= 0xDCDCDC;
-    static FloralWhite	= 0xFFFAF0;
-    static OldLace	= 0xFDF5E6;
-    static Linen	= 0xFAF0E6;
-    static AntiqueWhite	= 0xFAEBD7;
-    static PapayaWhip	= 0xFFEFD5;
-    static BlanchedAlmond	= 0xFFEBCD;
-    static Bisque	= 0xFFE4C4;
-    static PeachPuff	= 0xFFDAB9;
-    static NavajoWhite	= 0xFFDEAD;
-    static Moccasin	= 0xFFE4B5;
-    static Cornsilk	= 0xFFF8DC;
-    static Ivory	= 0xFFFFF0;
-    static LemonChiffon	= 0xFFFACD;
-    static Seashell	= 0xFFF5EE;
-    static Honeydew	= 0xF0FFF0;
-    static MintCream	= 0xF5FFFA;
-    static Azure	= 0xF0FFFF;
-    static AliceBlue	= 0xF0F8FF;
-    static lavender	= 0xE6E6FA;
-    static LavenderBlush	= 0xFFF0F5;
-    static MistyRose	= 0xFFE4E1;
-    static White	= 0xFFFFFF;
-    static Black	= 0x000000;
-    static DarkSlateGray	= 0x2F4F4F;
-    static DimGrey	= 0x696969;
-    static SlateGrey	= 0x708090;
-    static LightSlateGray	= 0x778899;
-    static Grey	= 0xBEBEBE;
-    static LightGray	= 0xD3D3D3;
-    static MidnightBlue	= 0x191970;
-    static NavyBlue	= 0x000080;
-    static CornflowerBlue	= 0x6495ED;
-    static DarkSlateBlue	= 0x483D8B;
-    static SlateBlue	= 0x6A5ACD;
-    static MediumSlateBlue	= 0x7B68EE;
-    static LightSlateBlue	= 0x8470FF;
-    static MediumBlue	= 0x0000CD;
-    static RoyalBlue	= 0x4169E1;
-    static Blue	= 0x0000FF;
-    static DodgerBlue	= 0x1E90FF;
-    static DeepSkyBlue	= 0x00BFFF;
-    static SkyBlue	= 0x87CEEB;
-    static LightSkyBlue	= 0x87CEFA;
-    static SteelBlue	= 0x4682B4;
-    static LightSteelBlue	= 0xB0C4DE;
-    static LightBlue	= 0xADD8E6;
-    static PowderBlue	= 0xB0E0E6;
-    static PaleTurquoise	= 0xAFEEEE;
-    static DarkTurquoise	= 0x00CED1;
-    static MediumTurquoise	= 0x48D1CC;
-    static Turquoise	= 0x40E0D0;
-    static Cyan	= 0x00FFFF;
-    static LightCyan	= 0xE0FFFF;
-    static CadetBlue	= 0x5F9EA0;
-    static MediumAquamarine	= 0x66CDAA;
-    static Aquamarine	= 0x7FFFD4;
-    static DarkGreen	= 0x006400;
-    static DarkOliveGreen	= 0x556B2F;
-    static DarkSeaGreen	= 0x8FBC8F;
-    static SeaGreen	= 0x2E8B57;
-    static MediumSeaGreen	= 0x3CB371;
-    static LightSeaGreen	= 0x20B2AA;
-    static PaleGreen	= 0x98FB98;
-    static SpringGreen	= 0x00FF7F;
-    static LawnGreen	= 0x7CFC00;
-    static Green	= 0x00FF00;
-    static Chartreuse	= 0x7FFF00;
-    static MedSpringGreen	= 0x00FA9A;
-    static GreenYellow	= 0xADFF2F;
-    static LimeGreen	= 0x32CD32;
-    static YellowGreen	= 0x9ACD32;
-    static ForestGreen	= 0x228B22;
-    static OliveDrab	= 0x6B8E23;
-    static DarkKhaki	= 0xBDB76B;
-    static PaleGoldenrod	= 0xEEE8AA;
-    static LtGoldenrodYello	= 0xFAFAD2;
-    static LightYellow	= 0xFFFFE0;
-    static Yellow	= 0xFFFF00;
-    static Gold	= 0xFFD700;
-    static LightGoldenrod	= 0xEEDD82;
-    static goldenrod	= 0xDAA520;
-    static DarkGoldenrod	= 0xB8860B;
-    static RosyBrown	= 0xBC8F8F;
-    static IndianRed	= 0xCD5C5C;
-    static SaddleBrown	= 0x8B4513;
-    static Sienna	= 0xA0522D;
-    static Peru	= 0xCD853F;
-    static Burlywood	= 0xDEB887;
-    static Beige	= 0xF5F5DC;
-    static Wheat	= 0xF5DEB3;
-    static SandyBrown	= 0xF4A460;
-    static Tan	= 0xD2B48C;
-    static Chocolate	= 0xD2691E;
-    static Firebrick	= 0xB22222;
-    static Brown	= 0xA52A2A;
-    static DarkSalmon	= 0xE9967A;
-    static Salmon	= 0xFA8072;
-    static LightSalmon	= 0xFFA07A;
-    static Orange	= 0xFFA500;
-    static DarkOrange	= 0xFF8C00;
-    static Coral	= 0xFF7F50;
-    static LightCoral	= 0xF08080;
-    static Tomato	= 0xFF6347;
-    static OrangeRed	= 0xFF4500;
-    static Red	= 0xFF0000;
-    static HotPink	= 0xFF69B4;
-    static DeepPink	= 0xFF1493;
-    static Pink	= 0xFFC0CB;
-    static LightPink	= 0xFFB6C1;
-    static PaleVioletRed	= 0xDB7093;
-    static Maroon	= 0xB03060;
-    static MediumVioletRed	= 0xC71585;
-    static VioletRed	= 0xD02090;
-    static Magenta	= 0xFF00FF;
-    static Violet	= 0xEE82EE;
-    static Plum	= 0xDDA0DD;
-    static Orchid	= 0xDA70D6;
-    static MediumOrchid	= 0xBA55D3;
-    static DarkOrchid	= 0x9932CC;
-    static DarkViolet	= 0x9400D3;
-    static BlueViolet	= 0x8A2BE2;
-    static Purple	= 0xA020F0;
-    static MediumPurple	= 0x9370DB;
-    static Thistle	= 0xD8BFD8;
-    static Snow1	= 0xFFFAFA;
-    static Snow2	= 0xEEE9E9;
-    static Snow3	= 0xCDC9C9;
-    static Snow4	= 0x8B8989;
-    static Seashell1	= 0xFFF5EE;
-    static Seashell2	= 0xEEE5DE;
-    static Seashell3	= 0xCDC5BF;
-    static Seashell4	= 0x8B8682;
-    static AntiqueWhite1	= 0xFFEFDB;
-    static AntiqueWhite2	= 0xEEDFCC;
-    static AntiqueWhite3	= 0xCDC0B0;
-    static AntiqueWhite4	= 0x8B8378;
-    static Bisque1	= 0xFFE4C4;
-    static Bisque2	= 0xEED5B7;
-    static Bisque3	= 0xCDB79E;
-    static Bisque4	= 0x8B7D6B;
-    static PeachPuff1	= 0xFFDAB9;
-    static PeachPuff2	= 0xEECBAD;
-    static PeachPuff3	= 0xCDAF95;
-    static PeachPuff4	= 0x8B7765;
-    static NavajoWhite1	= 0xFFDEAD;
-    static NavajoWhite2	= 0xEECFA1;
-    static NavajoWhite3	= 0xCDB38B;
-    static NavajoWhite4	= 0x8B795E;
-    static LemonChiffon1	= 0xFFFACD;
-    static LemonChiffon2	= 0xEEE9BF;
-    static LemonChiffon3	= 0xCDC9A5;
-    static LemonChiffon4	= 0x8B8970;
-    static Cornsilk1	= 0xFFF8DC;
-    static Cornsilk2	= 0xEEE8CD;
-    static Cornsilk3	= 0xCDC8B1;
-    static Cornsilk4	= 0x8B8878;
-    static Ivory1	= 0xFFFFF0;
-    static Ivory2	= 0xEEEEE0;
-    static Ivory3	= 0xCDCDC1;
-    static Ivory4	= 0x8B8B83;
-    static Honeydew1	= 0xF0FFF0;
-    static Honeydew2	= 0xE0EEE0;
-    static Honeydew3	= 0xC1CDC1;
-    static Honeydew4	= 0x838B83;
-    static LavenderBlush1	= 0xFFF0F5;
-    static LavenderBlush2	= 0xEEE0E5;
-    static LavenderBlush3	= 0xCDC1C5;
-    static LavenderBlush4	= 0x8B8386;
-    static MistyRose1	= 0xFFE4E1;
-    static MistyRose2	= 0xEED5D2;
-    static MistyRose3	= 0xCDB7B5;
-    static MistyRose4	= 0x8B7D7B;
-    static Azure1	= 0xF0FFFF;
-    static Azure2	= 0xE0EEEE;
-    static Azure3	= 0xC1CDCD;
-    static Azure4	= 0x838B8B;
-    static SlateBlue1	= 0x836FFF;
-    static SlateBlue2	= 0x7A67EE;
-    static SlateBlue3	= 0x6959CD;
-    static SlateBlue4	= 0x473C8B;
-    static RoyalBlue1	= 0x4876FF;
-    static RoyalBlue2	= 0x436EEE;
-    static RoyalBlue3	= 0x3A5FCD;
-    static RoyalBlue4	= 0x27408B;
-    static Blue1	= 0x0000FF;
-    static Blue2	= 0x0000EE;
-    static Blue3	= 0x0000CD;
-    static Blue4	= 0x00008B;
-    static DodgerBlue1	= 0x1E90FF;
-    static DodgerBlue2	= 0x1C86EE;
-    static DodgerBlue3	= 0x1874CD;
-    static DodgerBlue4	= 0x104E8B;
-    static SteelBlue1	= 0x63B8FF;
-    static SteelBlue2	= 0x5CACEE;
-    static SteelBlue3	= 0x4F94CD;
-    static SteelBlue4	= 0x36648B;
-    static DeepSkyBlue1	= 0x00BFFF;
-    static DeepSkyBlue2	= 0x00B2EE;
-    static DeepSkyBlue3	= 0x009ACD;
-    static DeepSkyBlue4	= 0x00688B;
-    static SkyBlue1	= 0x87CEFF;
-    static SkyBlue2	= 0x7EC0EE;
-    static SkyBlue3	= 0x6CA6CD;
-    static SkyBlue4	= 0x4A708B;
-    static LightSkyBlue1	= 0xB0E2FF;
-    static LightSkyBlue2	= 0xA4D3EE;
-    static LightSkyBlue3	= 0x8DB6CD;
-    static LightSkyBlue4	= 0x607B8B;
-    static SlateGray1	= 0xC6E2FF;
-    static SlateGray2	= 0xB9D3EE;
-    static SlateGray3	= 0x9FB6CD;
-    static SlateGray4	= 0x6C7B8B;
-    static LightSteelBlue1	= 0xCAE1FF;
-    static LightSteelBlue2	= 0xBCD2EE;
-    static LightSteelBlue3	= 0xA2B5CD;
-    static LightSteelBlue4	= 0x6E7B8B;
-    static LightBlue1	= 0xBFEFFF;
-    static LightBlue2	= 0xB2DFEE;
-    static LightBlue3	= 0x9AC0CD;
-    static LightBlue4	= 0x68838B;
-    static LightCyan1	= 0xE0FFFF;
-    static LightCyan2	= 0xD1EEEE;
-    static LightCyan3	= 0xB4CDCD;
-    static LightCyan4	= 0x7A8B8B;
-    static PaleTurquoise1	= 0xBBFFFF;
-    static PaleTurquoise2	= 0xAEEEEE;
-    static PaleTurquoise3	= 0x96CDCD;
-    static PaleTurquoise4	= 0x668B8B;
-    static CadetBlue1	= 0x98F5FF;
-    static CadetBlue2	= 0x8EE5EE;
-    static CadetBlue3	= 0x7AC5CD;
-    static CadetBlue4	= 0x53868B;
-    static Turquoise1	= 0x00F5FF;
-    static Turquoise2	= 0x00E5EE;
-    static Turquoise3	= 0x00C5CD;
-    static Turquoise4	= 0x00868B;
-    static Cyan1	= 0x00FFFF;
-    static Cyan2	= 0x00EEEE;
-    static Cyan3	= 0x00CDCD;
-    static Cyan4	= 0x008B8B;
-    static DarkSlateGray1	= 0x97FFFF;
-    static DarkSlateGray2	= 0x8DEEEE;
-    static DarkSlateGray3	= 0x79CDCD;
-    static DarkSlateGray4	= 0x528B8B;
-    static Aquamarine1	= 0x7FFFD4;
-    static Aquamarine2	= 0x76EEC6;
-    static Aquamarine3	= 0x66CDAA;
-    static Aquamarine4	= 0x458B74;
-    static DarkSeaGreen1	= 0xC1FFC1;
-    static DarkSeaGreen2	= 0xB4EEB4;
-    static DarkSeaGreen3	= 0x9BCD9B;
-    static DarkSeaGreen4	= 0x698B69;
-    static SeaGreen1	= 0x54FF9F;
-    static SeaGreen2	= 0x4EEE94;
-    static SeaGreen3	= 0x43CD80;
-    static SeaGreen4	= 0x2E8B57;
-    static PaleGreen1	= 0x9AFF9A;
-    static PaleGreen2	= 0x90EE90;
-    static PaleGreen3	= 0x7CCD7C;
-    static PaleGreen4	= 0x548B54;
-    static SpringGreen1	= 0x00FF7F;
-    static SpringGreen2	= 0x00EE76;
-    static SpringGreen3	= 0x00CD66;
-    static SpringGreen4	= 0x008B45;
-    static Green1	= 0x00FF00;
-    static Green2	= 0x00EE00;
-    static Green3	= 0x00CD00;
-    static Green4	= 0x008B00;
-    static Chartreuse1	= 0x7FFF00;
-    static Chartreuse2	= 0x76EE00;
-    static Chartreuse3	= 0x66CD00;
-    static Chartreuse4	= 0x458B00;
-    static OliveDrab1	= 0xC0FF3E;
-    static OliveDrab2	= 0xB3EE3A;
-    static OliveDrab3	= 0x9ACD32;
-    static OliveDrab4	= 0x698B22;
-    static DarkOliveGreen1	= 0xCAFF70;
-    static DarkOliveGreen2	= 0xBCEE68;
-    static DarkOliveGreen3	= 0xA2CD5A;
-    static DarkOliveGreen4	= 0x6E8B3D;
-    static Khaki1	= 0xFFF68F;
-    static Khaki2	= 0xEEE685;
-    static Khaki3	= 0xCDC673;
-    static Khaki4	= 0x8B864E;
-    static LightGoldenrod1	= 0xFFEC8B;
-    static LightGoldenrod2	= 0xEEDC82;
-    static LightGoldenrod3	= 0xCDBE70;
-    static LightGoldenrod4	= 0x8B814C;
-    static LightYellow1	= 0xFFFFE0;
-    static LightYellow2	= 0xEEEED1;
-    static LightYellow3	= 0xCDCDB4;
-    static LightYellow4	= 0x8B8B7A;
-    static Yellow1	= 0xFFFF00;
-    static Yellow2	= 0xEEEE00;
-    static Yellow3	= 0xCDCD00;
-    static Yellow4	= 0x8B8B00;
-    static Gold1	= 0xFFD700;
-    static Gold2	= 0xEEC900;
-    static Gold3	= 0xCDAD00;
-    static Gold4	= 0x8B7500;
-    static Goldenrod1	= 0xFFC125;
-    static Goldenrod2	= 0xEEB422;
-    static Goldenrod3	= 0xCD9B1D;
-    static Goldenrod4	= 0x8B6914;
-    static DarkGoldenrod1	= 0xFFB90F;
-    static DarkGoldenrod2	= 0xEEAD0E;
-    static DarkGoldenrod3	= 0xCD950C;
-    static DarkGoldenrod4	= 0x8B658B;
-    static RosyBrown1	= 0xFFC1C1;
-    static RosyBrown2	= 0xEEB4B4;
-    static RosyBrown3	= 0xCD9B9B;
-    static RosyBrown4	= 0x8B6969;
-    static IndianRed1	= 0xFF6A6A;
-    static IndianRed2	= 0xEE6363;
-    static IndianRed3	= 0xCD5555;
-    static IndianRed4	= 0x8B3A3A;
-    static Sienna1	= 0xFF8247;
-    static Sienna2	= 0xEE7942;
-    static Sienna3	= 0xCD6839;
-    static Sienna4	= 0x8B4726;
-    static Burlywood1	= 0xFFD39B;
-    static Burlywood2	= 0xEEC591;
-    static Burlywood3	= 0xCDAA7D;
-    static Burlywood4	= 0x8B7355;
-    static Wheat1	= 0xFFE7BA;
-    static Wheat2	= 0xEED8AE;
-    static Wheat3	= 0xCDBA96;
-    static Wheat4	= 0x8B7E66;
-    static Tan1	= 0xFFA54F;
-    static Tan2	= 0xEE9A49;
-    static Tan3	= 0xCD853F;
-    static Tan4	= 0x8B5A2B;
-    static Chocolate1	= 0xFF7F24;
-    static Chocolate2	= 0xEE7621;
-    static Chocolate3	= 0xCD661D;
-    static Chocolate4	= 0x8B4513;
-    static Firebrick1	= 0xFF3030;
-    static Firebrick2	= 0xEE2C2C;
-    static Firebrick3	= 0xCD2626;
-    static Firebrick4	= 0x8B1A1A;
-    static Brown1	= 0xFF4040;
-    static Brown2	= 0xEE3B3B;
-    static Brown3	= 0xCD3333;
-    static Brown4	= 0x8B2323;
-    static Salmon1	= 0xFF8C69;
-    static Salmon2	= 0xEE8262;
-    static Salmon3	= 0xCD7054;
-    static Salmon4	= 0x8B4C39;
-    static LightSalmon1	= 0xFFA07A;
-    static LightSalmon2	= 0xEE9572;
-    static LightSalmon3	= 0xCD8162;
-    static LightSalmon4	= 0x8B5742;
-    static Orange1	= 0xFFA500;
-    static Orange2	= 0xEE9A00;
-    static Orange3	= 0xCD8500;
-    static Orange4	= 0x8B5A00;
-    static DarkOrange1	= 0xFF7F00;
-    static DarkOrange2	= 0xEE7600;
-    static DarkOrange3	= 0xCD6600;
-    static DarkOrange4	= 0x8B4500;
-    static Coral1	= 0xFF7256;
-    static Coral2	= 0xEE6A50;
-    static Coral3	= 0xCD5B45;
-    static Coral4	= 0x8B3E2F;
-    static Tomato1	= 0xFF6347;
-    static Tomato2	= 0xEE5C42;
-    static Tomato3	= 0xCD4F39;
-    static Tomato4	= 0x8B3626;
-    static OrangeRed1	= 0xFF4500;
-    static OrangeRed2	= 0xEE4000;
-    static OrangeRed3	= 0xCD3700;
-    static OrangeRed4	= 0x8B2500;
-    static Red1	= 0xFF0000;
-    static Red2	= 0xEE0000;
-    static Red3	= 0xCD0000;
-    static Red4	= 0x8B0000;
-    static DeepPink1	= 0xFF1493;
-    static DeepPink2	= 0xEE1289;
-    static DeepPink3	= 0xCD1076;
-    static DeepPink4	= 0x8B0A50;
-    static HotPink1	= 0xFF6EB4;
-    static HotPink2	= 0xEE6AA7;
-    static HotPink3	= 0xCD6090;
-    static HotPink4	= 0x8B3A62;
-    static Pink1	= 0xFFB5C5;
-    static Pink2	= 0xEEA9B8;
-    static Pink3	= 0xCD919E;
-    static Pink4	= 0x8B636C;
-    static LightPink1	= 0xFFAEB9;
-    static LightPink2	= 0xEEA2AD;
-    static LightPink3	= 0xCD8C95;
-    static LightPink4	= 0x8B5F65;
-    static PaleVioletRed1	= 0xFF82AB;
-    static PaleVioletRed2	= 0xEE799F;
-    static PaleVioletRed3	= 0xCD6889;
-    static PaleVioletRed4	= 0x8B475D;
-    static Maroon1	= 0xFF34B3;
-    static Maroon2	= 0xEE30A7;
-    static Maroon3	= 0xCD2990;
-    static Maroon4	= 0x8B1C62;
-    static VioletRed1	= 0xFF3E96;
-    static VioletRed2	= 0xEE3A8C;
-    static VioletRed3	= 0xCD3278;
-    static VioletRed4	= 0x8B2252;
-    static Magenta1	= 0xFF00FF;
-    static Magenta2	= 0xEE00EE;
-    static Magenta3	= 0xCD00CD;
-    static Magenta4	= 0x8B008B;
-    static Orchid1	= 0xFF83FA;
-    static Orchid2	= 0xEE7AE9;
-    static Orchid3	= 0xCD69C9;
-    static Orchid4	= 0x8B4789;
-    static Plum1	= 0xFFBBFF;
-    static Plum2	= 0xEEAEEE;
-    static Plum3	= 0xCD96CD;
-    static Plum4	= 0x8B668B;
-    static MediumOrchid1	= 0xE066FF;
-    static MediumOrchid2	= 0xD15FEE;
-    static MediumOrchid3	= 0xB452CD;
-    static MediumOrchid4	= 0x7A378B;
-    static DarkOrchid1	= 0xBF3EFF;
-    static DarkOrchid2	= 0xB23AEE;
-    static DarkOrchid3	= 0x9A32CD;
-    static DarkOrchid4	= 0x68228B;
-    static Purple1	= 0x9B30FF;
-    static Purple2	= 0x912CEE;
-    static Purple3	= 0x7D26CD;
-    static Purple4	= 0x551A8B;
-    static MediumPurple1	= 0xAB82FF;
-    static MediumPurple2	= 0x9F79EE;
-    static MediumPurple3	= 0x8968CD;
-    static MediumPurple4	= 0x5D478B;
-    static Thistle1	= 0xFFE1FF;
-    static Thistle2	= 0xEED2EE;
-    static Thistle3	= 0xCDB5CD;
-    static Thistle4	= 0x8B7B8B;
-    static grey11	= 0x1C1C1C;
-    static grey21	= 0x363636;;
-    static grey31	= 0x4F4F4F;;
-    static grey41	= 0x696969;
-    static grey51	= 0x828282;
-    static grey61	= 0x9C9C9C;
-    static grey71	= 0xB5B5B5;
-    static gray81	= 0xCFCFCF;
-    static gray91	= 0xE8E8E8;
-    static DarkGrey	= 0xA9A9A9;
-    static DarkBlue	= 0x00008B;
-    static DarkCyan	= 0x008B8B;
-    static DarkMagenta	= 0x8B008B;
-    static DarkRed	= 0x8B0000;
-    static LightGreen	= 0x90EE90;
-
-}
-
 /**
  * 本类用于加载geojson文件，主要为了加载行政区划边界
  * 参考链接：https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_shapes.html
@@ -39718,11 +40315,10 @@ class WegeoMap {
         if(!option.providers || option.providers.length == 0){
             throw("providers is null or empty, please give a provider");
         }
-        if(option.heightProvider && option.heightProvider!=null){
-            map = new MapView(MapView.HEIGHT_TIN , option.providers, option.heightProvider);
-        } else {
-            map = new MapView(MapView.PLANAR , option.providers);
+        if(option.heightProvider === null || option.heightProvider === undefined){
+            option.heightProvider = new DefaultPlaneProvider();
         }
+        map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, true, this.camera);
@@ -39752,7 +40348,10 @@ class WegeoMap {
         if(!option.providers || option.providers.length == 0){
             throw("providers is null or empty, please give a provider");
         }
-        let map = new MapView(MapView.SPHERICAL , option.providers);
+        if(option.heightProvider === null || option.heightProvider === undefined){
+            option.heightProvider = new DefaultSphereProvider();
+        }
+        let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
         map.lod = new LODSphere();
         // map.updateMatrixWorld(true);
         this.baseMap = new Layer(1, container, canvas, map, false);
@@ -40275,4 +40874,4 @@ class Skybox {
 	}
 }
 
-export { AngleUtils, Animate, BingMapsProvider, CancelablePromise, CanvasUtils, CesiumHeightProvider, Config, DebugProvider, Element, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxProvider, MapHeightNode$1 as MapHeightNode, MapHeightNodeShader, MapHeightTinNode, MapNode, MapNodeGeometry, MapNodeHeightGeometry, MapNodeHeightTinGeometry, MapPlaneNode, MapProvider, MapSphereNode$1 as MapSphereNode, MapSphereNodeGeometry, MapSphereNodeHeightGeometry, MapTilerProvider, MapView, OpenMapTilesProvider, OpenStreetMapsProvider, QuadTreePosition, RoadImageProvider, Skybox, TerrainUtils, TextureUtils, TianDiTuHeightProvider, TianDiTuProvider, UnitsUtils, VectorUtils, WegeoMap, XHRUtils };
+export { AngleUtils, Animate, BingMapsMarsProvider, BingMapsProvider$1 as BingMapsProvider, CancelablePromise, CanvasUtils, CesiumPlaneProvider, Colors, Config, DebugProvider, DefaultPlaneProvider, DefaultSphereProvider, Element, Error$1 as Error, ErrorCode, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxPlaneProvider, MapBoxProvider, MapBoxSphereProvider, MapHeightNode$1 as MapHeightNode, MapHeightNodeShader, MapHeightTinNode, MapNode, MapNodeGeometry, MapNodeHeightGeometry$1 as MapNodeHeightGeometry, MapNodeHeightTinGeometry, MapPlaneNode, MapProvider, MapSphereNode$1 as MapSphereNode, MapSphereNodeGeometry, MapSphereNodeHeightGeometry, MapTilerProvider, MapView, OpenMapTilesProvider, OpenStreetMapsProvider, PlaneProvider, QuadTreePosition, RoadImageProvider, Skybox, SphereProvider, SyncQueue, TerrainUtils, TextureUtils, TianDiTuHeightProvider, TianDiTuProvider, UnitsUtils, VectorUtils, WegeoMap, XHRUtils };
