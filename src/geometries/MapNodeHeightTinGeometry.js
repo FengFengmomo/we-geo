@@ -19,6 +19,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		const normals = [];
 		const uvs = [];
 		if (terrain === null || terrain === undefined || terrain.vertexData === null || terrain.vertexData === undefined) {
+			console.error('terrain is null');
 			MapNodeGeometry.buildPlane(1, 1, 16, 16, indices, vertices, normals, uvs);
 			if (skirt) {
 				MapNodeGeometry.buildSkirt(1, 1, 16, 16, skirtDepth, indices, vertices, normals, uvs);
@@ -34,6 +35,12 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 			if (terrain.header) {
 				this.userData.terrain = {};
 			    this.userData.terrain.header = terrain.header;
+				this.userData.terrain.vertexCount = terrain.vertexData.vertexCount;
+				this.userData.terrain.triangleCount = terrain.indexData.triangleCount;
+				this.userData.terrain.westVertexCount = terrain.edgeIndices.westVertexCount;
+				this.userData.terrain.southVertexCount = terrain.edgeIndices.southVertexCount;
+				this.userData.terrain.eastVertexCount = terrain.edgeIndices.eastVertexCount;
+				this.userData.terrain.northVertexCount = terrain.edgeIndices.northVertexCount;
 			}
 		}
 		// 构建平面
