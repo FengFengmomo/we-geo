@@ -7,7 +7,8 @@ import { PlaneProvider } from "./PlaneProvider";
 import { MapNodeGeometry } from "../../geometries/MapNodeGeometry";
 import { MapNodeHeightTinGeometry } from "../../geometries/MapNodeHeightTinGeometry";
 import { TerrainUtils } from "../../utils/TerrainUtils";
-import { DefaultPlaneProvider } from "./DefaultPlaneProvider"
+import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
+import { UpSampleTin } from "../../utils/UpSampleTin";
 
 // import Fetch from "../utils/Fetch.js";
 export class CesiumPlaneProvider extends PlaneProvider {
@@ -23,7 +24,8 @@ export class CesiumPlaneProvider extends PlaneProvider {
     authority = false;
     syncQueue = new SyncQueue(1);
     layers = null;
-    scale = 2.0;
+    skirt = true;
+    scale = 3.0;
     static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
     constructor(options) {
         super(options);
@@ -91,35 +93,61 @@ export class CesiumPlaneProvider extends PlaneProvider {
         });
     }
 
-    fetchGeometry(zoom, x, y){
+    fetchGeometry(zoom, x, y, parentGeometry, location){
         let url = this.getAddress(zoom, x, y);
         return this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {
-                let headers = {
-                    'accept': 'application/vnd.quantized-mesh,application/octet-stream;q=0.9,*/*;q=0.01',
-                    'Authorization': 'Bearer ' + this.access_token,
-                    'Referer': 'http://127.0.0.1:8080/terrain.html',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
-                };
-                fetch(url, {'headers':headers}).then(res=> res.arrayBuffer()).then(data=> {
-                    let geometry = this.createGeometry(data);
-                    resolve(geometry); 
-                });
+                if (zoom > 15){
+                    let sam = new UpSampleTin(parentGeometry);
+                    let result = sam.getGeometry(location);
+                    resolve(result);
+                }
+                else {
+                    let headers = {
+                        'accept': 'application/vnd.quantized-mesh,application/octet-stream;q=0.9,*/*;q=0.01',
+                        'Authorization': 'Bearer ' + this.access_token,
+                        'Referer': 'http://127.0.0.1:8080/terrain.html',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+                    };
+                    fetch(url, {'headers':headers})
+                    .then(res=> {
+                            if (res.status === 404){
+                                let sam = new UpSampleTin(parentGeometry);
+                                try {
+                                    let result = sam.getGeometry(location);
+                                    resolve(result);
+                                } catch (err) {
+                                    console.error("get geometry error", zoom,x,y,err);
+                                }
+                            } else {
+                                res.arrayBuffer().then(data=> {
+                                    let geometry = this.createGeometry(data, zoom, x, y);
+                                    resolve(geometry); 
+                                });
+                            }
+                        }
+                    );
+                    // .then(res=> res.arrayBuffer()).then(data=> {
+                    //     let geometry = this.createGeometry(data, zoom, x, y);
+                    //     resolve(geometry); 
+                    // });
+                }
+                
             });
         });
         
     }
 
-    createGeometry(dataBuffer){
+    createGeometry(dataBuffer, zoom, x, y){
         let geometry;
         try 
 		{
 			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.littleEndian);
-			geometry = new MapNodeHeightTinGeometry(terrain, false, 10.0, false, this.scale);
+			geometry = new MapNodeHeightTinGeometry(terrain, this.skirt, 10.0, false, this.scale);
 		}
 		catch (e) 
 		{
-			console.error('Error loading height data.', this.level,this.x,this.y, e);
+			console.error('Error loading height data.', zoom, x, y, e);
 			geometry = CesiumPlaneProvider.geometry;
 		}
         return geometry;

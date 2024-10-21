@@ -7,9 +7,9 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 	 * Map node geometry constructor.
 	 *
 	 * @param terrain - 稀疏网格的高程数据， 基于cesium terrain world（小端存储） 与 天地图 terrain world（大端存储）制作的稀疏网格数据
-	 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是10，calculateNormals默认是true
+	 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是50，calculateNormals默认是true
 	 */
-	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true, scale = 2.0)
+	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true, scale = 3.0)
 	{
 		super();
 		this.scale = scale;
@@ -67,6 +67,19 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 
 	buildPlane(vertexData, indicesData, indices, vertices, normals, uvs) {
 	    let vertexCount = vertexData.vertexCount;
+		let sliced = vertexData.sliced;
+		if (sliced) {
+		    vertices.push(...vertexData.vertex);
+			for (let i = 0; i < vertexCount; i++) {
+				let x = vertices[i*3];
+				let y = vertices[i*3+1];
+				let z = vertices[i*3+2];
+				normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
+				uvs.push(x+0.5, 0.5-z); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
+			}
+			indices.push(...indicesData.indices);
+			return;
+		}
 		let xarr = vertexData.xarr;
 		let yarr = vertexData.yarr;
 		let harr = vertexData.harr;
@@ -80,21 +93,19 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 			normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
 			uvs.push(x+0.5, 0.5-z); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 		}
-		// let triangleCount = indicesData.triangleCount;
-		// let indexs = indicesData.indices;
-		// for (let i = 0; i < triangleCount; i+=3) {
-		//     let index0 = indexs[i];
-		//     let index1 = indexs[i+1];
-		//     let index2 = indexs[i+2];
-		//     indices.push(index0, index1, index2);
-		// }
+		
 		indices.push(...indicesData.indices);
 	}
 
 	buildSkirt(edgeIndices, skirtDepth, indices, vertices, normals, uvs){
 		let westVertexCount = edgeIndices.westVertexCount;
 		let westIndices = edgeIndices.west;
-		let start = vertices.length/3; // 顶点数组的长度除以3，得到顶点的个数
+		westIndices.sort((a, b) => {
+			let z1 = vertices[a*3+2];
+			let z2 = vertices[b*3+2];
+			return z1-z2;
+		});
+		let start = vertices.length/3; // 顶点数组的长度除以3，得到顶点的个数. x负向
 		for (let i = 0; i < westVertexCount; i++) {
 		    let index = westIndices[i];
 			let x = vertices[index*3];
@@ -102,7 +113,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 			let z = vertices[index*3+2];
 			let u = uvs[index*2];
 			let v = uvs[index*2+1];
-			vertices.push(x, h-skirtDepth, z);
+			vertices.push(x, -skirtDepth, z);
 			normals.push(0, 1, 0);
 			uvs.push(u, v);
 		}
@@ -111,12 +122,17 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		    let b = westIndices[i+1];
 			let c = start + i;				// a   b
 		    let d = start + i + 1;			// c   d
-		    indices.push(b, c, a, b, d, c); // 逆时针顺序
+		    indices.push(a, c, b, c, d, b); // 逆时针顺序
 		}
 
-		// south
+		// south z正向
 		let southVertexCount = edgeIndices.southVertexCount;
 		let southIndices = edgeIndices.south;
+		southIndices.sort((a, b) => {
+			let x1 = vertices[a*3];
+			let x2 = vertices[b*3];
+			return x1-x2;
+		});
 		start = vertices.length/3;
 		for (let i = 0; i < southVertexCount; i++) {
 		    let index = southIndices[i];
@@ -125,7 +141,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 			let z = vertices[index*3+2];
 			let u = uvs[index*2];
 			let v = uvs[index*2+1];
-			vertices.push(x, h-skirtDepth, z);
+			vertices.push(x, -skirtDepth, z);
 			normals.push(0, 1, 0);
 			uvs.push(u, v);
 		}
@@ -137,9 +153,14 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		    indices.push(b, c, a, b, d, c); // 逆时针顺序
 		}
 
-		// east
+		// east x正向
 		let eastVertexCount = edgeIndices.eastVertexCount;
 		let eastIndices = edgeIndices.east;
+		eastIndices.sort((a, b) => {
+			let z1 = vertices[a*3+2];
+			let z2 = vertices[b*3+2];
+			return z1-z2;
+		});
 		start = vertices.length/3;
 		for (let i = 0; i < eastVertexCount; i++) {
 		    let index = eastIndices[i];
@@ -148,7 +169,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 			let z = vertices[index*3+2];
 			let u = uvs[index*2];
 			let v = uvs[index*2+1];
-			vertices.push(x, h-skirtDepth, z);
+			vertices.push(x, -skirtDepth, z);
 			normals.push(0, 1, 0);
 			uvs.push(u, v);
 		}
@@ -157,12 +178,18 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		    let b = eastIndices[i+1];
 			let c = start + i;				// a   b
 		    let d = start + i + 1;			// c   d
-		    indices.push(b, c, a, b, d, c); // 逆时针顺序
+		    // indices.push(a, c, b, c, d, b); // 逆时针顺序
+		    indices.push(a, b, c, d, c, b); // 逆时针顺序
 		}
 
-		// north
+		// north z负向
 		let northVertexCount = edgeIndices.northVertexCount;
 		let northIndices = edgeIndices.north;
+		northIndices.sort((a, b) => {
+			let x1 = vertices[a*3];
+			let x2 = vertices[b*3];
+			return x1-x2;
+		});
 		start = vertices.length/3;
 		for (let i = 0; i < northVertexCount; i++) {
 		    let index = northIndices[i];
@@ -171,7 +198,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 			let z = vertices[index*3+2];
 			let u = uvs[index*2];
 			let v = uvs[index*2+1];
-			vertices.push(x, h-skirtDepth, z);
+			vertices.push(x, -skirtDepth, z);
 			normals.push(0, 1, 0);
 			uvs.push(u, v);
 		}
@@ -180,7 +207,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		    let b = northIndices[i+1];
 			let c = start + i;				// a   b
 		    let d = start + i + 1;			// c   d
-		    indices.push(b, c, a, b, d, c); // 逆时针顺序
+		    indices.push(a, c, b, c, d, b); // 逆时针顺序
 		}
 	}
 	/**

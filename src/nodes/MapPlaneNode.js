@@ -55,7 +55,7 @@ export class MapPlaneNode extends MapNode
 			this.geometry = this.mapView.heightProvider.getDefaultGeometry();//MapPlaneNode.geometry;
 			return;
 		}
-		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, this.parentNode.geometry, this.location);
 
 	}
 

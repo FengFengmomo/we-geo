@@ -4,6 +4,7 @@ import { MapProvider } from '../MapProvider';
 import { CanvasUtils } from '../../utils/CanvasUtils';
 import { DefaultPlaneProvider } from './DefaultPlaneProvider';
 import { MapNodeGeometry } from '../../geometries/MapNodeGeometry';
+import { MapNodeHeightGeometry } from '../../geometries/MapNodeHeightGeometry';
 /**
  * Map box service tile provider. Map tiles can be fetched from style or from a map id.
  *
@@ -159,10 +160,11 @@ export class MapBoxPlaneProvider extends PlaneProvider
 	fetchGeometry(zoom, x, y){
 		return new Promise((resolve, reject) => 
 		{
+			let that = this;
 			const image = document.createElement('img');
 			image.onload = function() 
 			{
-				let geometry = this.createGeometry(image);
+				let geometry = that.createGeometry(image);
 				resolve(geometry);
 			};
 			image.onerror = function() 
