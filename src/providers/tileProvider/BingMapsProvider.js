@@ -1,6 +1,5 @@
 import {MapProvider} from '../MapProvider';
 import {XHRUtils} from '../../utils/XHRUtils';
-import {MapBoxProvider} from '../heightProvider/MapBoxPlaneProvider';
 import {CanvasUtils} from '../../utils/CanvasUtils';
 import { ErrorCode } from '../../utils/ErrorCode';
 

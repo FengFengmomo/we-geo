@@ -1796,7 +1796,7 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 	async initialize()
 	{
 		super.initialize();
-		await this.createGeometry(this.level, this.x, this.y);
+		await this.createGeometry();
 		await this.loadData();
 		
 		this.nodeReady();
@@ -1809,7 +1809,7 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 	 * @param x - X tile position.
 	 * @param y - Y tile position.
 	 */
-	async createGeometry(zoom, x, y)
+	async createGeometry()
 	{
 
 		if (this.mapView.heightProvider === null) 
@@ -1942,7 +1942,7 @@ class MapSphereNodeHeightGeometry extends three.BufferGeometry
 	 * @param widthSegments - Number of subdivisions along the width.
 	 * @param heightSegments - Number of subdivisions along the height.
 	 */
-	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds,imageData) 
+	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, mercatorBounds, imageData) 
 	{
 		super();
 
@@ -1957,8 +1957,9 @@ class MapSphereNodeHeightGeometry extends three.BufferGeometry
 		const vertices = [];
 		const normals = [];
 		const uvs = [];
-
+		const data = imageData.data;
 		// Generate vertices, normals and uvs
+		let h_index = 0;
 		for (let iy = 0; iy <= heightSegments; iy++) 
 		{
 			const verticesRow = [];
@@ -1972,45 +1973,16 @@ class MapSphereNodeHeightGeometry extends three.BufferGeometry
 				vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
 				vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
 				vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-
-				// vertex.x = radius * Math.sin(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
-				// vertex.y = radius * Math.sin(thetaStart + v * thetaLength);  // 维度
-				// vertex.z = radius * Math.cos(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
-
-				// vertices.push(vertex.x, vertex.y, vertex.z);
-
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
 				normals.push(normal.x, normal.y, normal.z);
-
-				// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
-				// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
-				
-				// 当使用6371008作为地球半径的时候会发现经纬度定位会相差几十上百公里，然后更改为6378137的时候发现定位距离真实定位非常接近，但仍然处于不准确的状态
-				// 参考博客：https://www.cnblogs.com/arxive/p/6694225.html
-				// 参考文档https://pro.arcgis.com/zh-cn/pro-app/latest/help/mapping/properties/mercator.htm
-				// 发生小范围数据的便宜的原因之一就是该投影本身角度并不等角 （Web 墨卡托坐标系并不等角）
-				// 此外，如果地理坐标系是基于椭圆体的，它还具有一个投影参数，用于标识球体半径所使用的内容。默认值为零 (0) 时，将使用长半轴
-				// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 				let vetexC = vertex.clone();
-				// let radiusSuqred = UnitsUtils.EARTH_RADIUS_Squared;
-				// let nX = vertex.x;
-				// let nY = vertex.y;
-				// let nZ = vertex.z;
-				// const KX = radiusSuqred.x * vertex.x;
-				// const KY = radiusSuqred.y * vertex.y;
-				// const KZ = radiusSuqred.z * vertex.z;
-				// const gamma = Math.sqrt(KX * nX + KY * nY + KZ * nZ);
-				// const oneOverGamma = 1.0 / gamma;
-				// const rSurfaceX = KX * oneOverGamma;
-				// const rSurfaceY = KY * oneOverGamma;
-				// const rSurfaceZ = KZ * oneOverGamma;
-				// const position = new Vector3();
-				// position.x = rSurfaceX ;
-				// position.y = rSurfaceY ;
-				// position.z = rSurfaceZ ;
-				// vertex.multiply(UnitsUtils.EARTH_RADIUS_V);
-				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+				// 计算实际高度，
+				let r = data[h_index * 4 + 0] ;
+				let g = data[h_index * 4 + 1] ;
+				let b = data[h_index * 4 + 2] ;
+				let height = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
+				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+height);
 				vertices.push(vertex.x, vertex.y, vertex.z);
 				// modify uv
 				vetexC.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
@@ -2024,13 +1996,8 @@ class MapSphereNodeHeightGeometry extends three.BufferGeometry
 				let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
 				let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
 				uvs.push(x, y);
-				// modify uv end
-				
-				// let latitude = Math.acos(vertex.y);
-				// let longitude = Math.atan(-vertex.z, vertex.x);
-				// uvs.push(longitude, latitude);
-				// uvs.push(u, 1 - v);
 				verticesRow.push(index++);
+				h_index++;
 			}
 
 			grid.push(verticesRow);
@@ -4875,239 +4842,6 @@ class XHRUtils
 	}
 }
 
-class PlaneProvider extends MapProvider{
-    constructor() {
-        super();
-    }
-    fetchGeometry(zoom, x, y) {
-        return new Promise((resolve, reject) => {
-            resolve(null);
-        })
-    }
-}
-
-/**
- * Default implementation of PlaneProvider
- * 默认的平面数据提供器，纯平面，无高程。
- */ 
-class DefaultPlaneProvider extends PlaneProvider {
-
-    /**
-     * Map node plane geometry.
-     */
-    static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
-
-
-    constructor() {
-        super();
-    }
-
-    fetchGeometry(zoom, x, y) {
-        return Promise.resolve(DefaultPlaneProvider.geometry);
-    }
-
-    getDefaultGeometry() {
-        return DefaultPlaneProvider.geometry;
-    }
-}
-
-/**
- * Map box service tile provider. Map tiles can be fetched from style or from a map id.
- *
- * API Reference
- *  - https://www.mapbox.com/
- */
-class MapBoxPlaneProvider extends PlaneProvider 
-{
-	/**
-	 * Base adress of the mapbox service.
-	 */
-	static ADDRESS = 'https://api.mapbox.com/';
-
-	/**
-	 * Access the map data using a map style.
-	 */
-	static STYLE = 100;
-
-	/**
-	 * Access the map data using a map id.
-	 */
-	static MAP_ID = 101;
-
-	/**
-	 * Server API access token.
-	 */
-	apiToken;
-
-	/**
-	 * Map image tile format, the formats available are:
-	 *  - png True color PNG
-	 *  - png32 32 color indexed PNG
-	 *  - png64 64 color indexed PNG
-	 *  - png128 128 color indexed PNG
-	 *  - png256 256 color indexed PNG
-	 *  - jpg70 70% quality JPG
-	 *  - jpg80 80% quality JPG
-	 *  - jpg90 90% quality JPG
-	 *  - pngraw Raw png (no interpolation)
-	 */
-	format;
-
-	/**
-	 * Flag to indicate if should use high resolution tiles
-	 */
-	useHDPI;
-
-	/**
-	 * Map tile access mode
-	 *  - MapBoxProvider.STYLE
-	 *  - MapBoxProvider.MAP_ID
-	 */
-	mode;
-
-	/**
-	 * Map identifier composed of \{username\}.\{style\}
-	 *
-	 * Some examples of the mapbox identifiers:
-	 *  - mapbox.mapbox-streets-v7
-	 *  - mapbox.satellite
-	 *  - mapbox.mapbox-terrain-v2
-	 *  - mapbox.mapbox-traffic-v1
-	 *  - mapbox.terrain-rgb
-	 */
-	mapId;
-
-	/**
-	 * Map style to be used composed of \{username\}/\{style_id\}
-	 *
-	 * Some example of the syles available:
-	 *  - mapbox/streets-v10
-	 *  - mapbox/outdoors-v10
-	 *  - mapbox/light-v9
-	 *  - mapbox/dark-v9
-	 *  - mapbox/satellite-v9
-	 *  - mapbox/satellite-streets-v10
-	 *  - mapbox/navigation-preview-day-v4
-	 *  - mapbox/navigation-preview-night-v4
-	 *  - mapbox/navigation-guidance-day-v4
-	 *  - mapbox/navigation-guidance-night-v4
-	 */
-	style;
-
-	/**
-	 * Mapbox api version
-	 *  - mapbox/navigation-guidance-night-v4
-	 */
-	version;
-
-	geometrySize = 16;
-
-	tileSize = 256;
-	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
-	/**
-	 * @param apiToken - Map box api token.
-	 * @param id - Map style or map ID if the mode is set to MAP_ID.
-	 * @param mode - Map tile access mode.
-	 * @param format - Image format.
-	 * @param useHDPI - If true uses high DPI mode.
-	 */
-	constructor(apiToken = '', id = '', mode = MapBoxPlaneProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
-	{
-		super();
-
-		this.apiToken = apiToken;
-		this.format = format;
-		this.useHDPI = useHDPI;
-		this.mode = mode;
-		this.mapId = id;
-		this.style = id;
-		this.version = version;
-	}
-
-	async getMetaData()
-	{
-		const address = MapBoxPlaneProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
-
-		const data = await XHRUtils.get(address);
-		
-		const meta = JSON.parse(data);
-		this.name = meta.name;
-		this.minZoom = meta.minZoom;
-		this.maxZoom = meta.maxZoom;
-		this.bounds = meta.bounds;
-		this.center = meta.center;
-	}
-
-	fetchTile(zoom, x, y)
-	{
-		return new Promise((resolve, reject) => 
-		{
-			const image = document.createElement('img');
-			image.onload = function() 
-			{
-				resolve(image);
-			};
-			image.onerror = function() 
-			{
-				reject();
-			};
-			image.crossOrigin = 'Anonymous';
-
-			if (this.mode === MapBoxPlaneProvider.STYLE) 
-			{
-				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
-			}
-			else 
-			{
-				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
-			}
-		});
-	}
-	fetchGeometry(zoom, x, y){
-		return new Promise((resolve, reject) => 
-		{
-			let that = this;
-			const image = document.createElement('img');
-			image.onload = function() 
-			{
-				let geometry = that.createGeometry(image);
-				resolve(geometry);
-			};
-			image.onerror = function() 
-			{
-				reject();
-			};
-			image.crossOrigin = 'Anonymous';
-
-			if (this.mode === MapBoxPlaneProvider.STYLE) 
-			{
-				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
-			}
-			else 
-			{
-				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
-			}
-		});
-	}
-
-	createGeometry(image){
-		const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
-
-		const context = canvas.getContext('2d');
-		context.imageSmoothingEnabled = false;
-		context.drawImage(image, 0, 0, this.tileSize, this.tileSize, 0, 0, canvas.width, canvas.height);
-
-		const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
-
-		let geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
-		return geometry;
-	}
-
-	getDefaultGeometry() {
-        return DefaultPlaneProvider.geometry;
-    }
-}
-
 class ErrorCode {
     static  UNKNOWN_ERROR = 'UNKNOWN_ERROR';
     static  INVALID_REQUEST = 'INVALID_REQUEST';
@@ -6242,6 +5976,42 @@ class SyncQueue {
     }
   }
 
+class PlaneProvider extends MapProvider{
+    constructor() {
+        super();
+    }
+    fetchGeometry(zoom, x, y) {
+        return new Promise((resolve, reject) => {
+            resolve(null);
+        })
+    }
+}
+
+/**
+ * Default implementation of PlaneProvider
+ * 默认的平面数据提供器，纯平面，无高程。
+ */ 
+class DefaultPlaneProvider extends PlaneProvider {
+
+    /**
+     * Map node plane geometry.
+     */
+    static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
+
+
+    constructor() {
+        super();
+    }
+
+    fetchGeometry(zoom, x, y) {
+        return Promise.resolve(DefaultPlaneProvider.geometry);
+    }
+
+    getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
+    }
+}
+
 /**
  * 该几何体分割主要用于不规则三角形几何体的分割
  * 坐标点的范围确定在x: [-0.5, 0.5], z:[-0.5,0.5] 之间, y 用来表示高程
@@ -6686,7 +6456,7 @@ class Builder {
 // import Fetch from "../utils/Fetch.js";
 class CesiumPlaneProvider extends PlaneProvider {
     // address = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
-    address = "{z}/{x}/{y}.terrain?extensions=octvertexnormals-metadata-watermask&v=1.2.0";
+    address = "{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
     baseUrl = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/";
     minZoom = 0;
     maxZoom = 19;
@@ -6924,8 +6694,9 @@ class DefaultSphereProvider extends SphereProvider {
 
 	createSphereGeometry(zoom, x, y) {
 		const range = Math.pow(2, zoom);
-		const max = 40;
-		const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+		// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+		// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
+		const segments = 64;
 
 
 	
@@ -7022,6 +6793,203 @@ class HeightDebugProvider extends PlaneProvider
 
 		return canvas;
 	}
+}
+
+/**
+ * Map box service tile provider. Map tiles can be fetched from style or from a map id.
+ *
+ * API Reference
+ *  - https://www.mapbox.com/
+ */
+class MapBoxPlaneProvider extends PlaneProvider 
+{
+	/**
+	 * Base adress of the mapbox service.
+	 */
+	static ADDRESS = 'https://api.mapbox.com/';
+
+	/**
+	 * Access the map data using a map style.
+	 */
+	static STYLE = 100;
+
+	/**
+	 * Access the map data using a map id.
+	 */
+	static MAP_ID = 101;
+
+	/**
+	 * Server API access token.
+	 */
+	apiToken;
+
+	/**
+	 * Map image tile format, the formats available are:
+	 *  - png True color PNG
+	 *  - png32 32 color indexed PNG
+	 *  - png64 64 color indexed PNG
+	 *  - png128 128 color indexed PNG
+	 *  - png256 256 color indexed PNG
+	 *  - jpg70 70% quality JPG
+	 *  - jpg80 80% quality JPG
+	 *  - jpg90 90% quality JPG
+	 *  - pngraw Raw png (no interpolation)
+	 */
+	format;
+
+	/**
+	 * Flag to indicate if should use high resolution tiles
+	 */
+	useHDPI;
+
+	/**
+	 * Map tile access mode
+	 *  - MapBoxProvider.STYLE
+	 *  - MapBoxProvider.MAP_ID
+	 */
+	mode;
+
+	/**
+	 * Map identifier composed of \{username\}.\{style\}
+	 *
+	 * Some examples of the mapbox identifiers:
+	 *  - mapbox.mapbox-streets-v7
+	 *  - mapbox.satellite
+	 *  - mapbox.mapbox-terrain-v2
+	 *  - mapbox.mapbox-traffic-v1
+	 *  - mapbox.terrain-rgb
+	 */
+	mapId;
+
+	/**
+	 * Map style to be used composed of \{username\}/\{style_id\}
+	 *
+	 * Some example of the syles available:
+	 *  - mapbox/streets-v10
+	 *  - mapbox/outdoors-v10
+	 *  - mapbox/light-v9
+	 *  - mapbox/dark-v9
+	 *  - mapbox/satellite-v9
+	 *  - mapbox/satellite-streets-v10
+	 *  - mapbox/navigation-preview-day-v4
+	 *  - mapbox/navigation-preview-night-v4
+	 *  - mapbox/navigation-guidance-day-v4
+	 *  - mapbox/navigation-guidance-night-v4
+	 */
+	style;
+
+	/**
+	 * Mapbox api version
+	 *  - mapbox/navigation-guidance-night-v4
+	 */
+	version;
+
+	geometrySize = 16;
+
+	tileSize = 256;
+	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
+	/**
+	 * @param apiToken - Map box api token.
+	 * @param id - Map style or map ID if the mode is set to MAP_ID.
+	 * @param mode - Map tile access mode.
+	 * @param format - Image format.
+	 * @param useHDPI - If true uses high DPI mode.
+	 */
+	constructor(apiToken = '', id = '', mode = MapBoxPlaneProvider.STYLE, format = 'png', useHDPI = false, version = 'v4') 
+	{
+		super();
+
+		this.apiToken = apiToken;
+		this.format = format;
+		this.useHDPI = useHDPI;
+		this.mode = mode;
+		this.mapId = id;
+		this.style = id;
+		this.version = version;
+	}
+
+	async getMetaData()
+	{
+		const address = MapBoxPlaneProvider.ADDRESS + this.version + '/' + this.mapId + '.json?access_token=' + this.apiToken;
+
+		const data = await XHRUtils.get(address);
+		
+		const meta = JSON.parse(data);
+		this.name = meta.name;
+		this.minZoom = meta.minZoom;
+		this.maxZoom = meta.maxZoom;
+		this.bounds = meta.bounds;
+		this.center = meta.center;
+	}
+
+	fetchTile(zoom, x, y)
+	{
+		return new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxPlaneProvider.STYLE) 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+	}
+	fetchGeometry(zoom, x, y){
+		return new Promise((resolve, reject) => 
+		{
+			let that = this;
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				let geometry = that.createGeometry(image);
+				resolve(geometry);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxPlaneProvider.STYLE) 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxPlaneProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+	}
+
+	createGeometry(image){
+		const canvas = CanvasUtils.createOffscreenCanvas(this.geometrySize + 1, this.geometrySize + 1); 
+
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, this.tileSize, this.tileSize, 0, 0, canvas.width, canvas.height);
+
+		const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+		let geometry = new MapNodeHeightGeometry(1, 1, this.geometrySize, this.geometrySize, true, 10.0, imageData, true);
+		return geometry;
+	}
+
+	getDefaultGeometry() {
+        return DefaultPlaneProvider.geometry;
+    }
 }
 
 /**
@@ -7173,8 +7141,80 @@ class MapBoxSphereProvider extends SphereProvider {
 	}
 
 	fetchGeometry(zoom, x, y){
-		
+		let promise = new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxSphereProvider.STYLE) 
+			{
+				image.src = MapBoxSphereProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxSphereProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+		let that = this;
+		return new Promise((resolve, reject) =>{
+			promise.then((image) => {
+			    let geometry = that.createGeometry(zoom, x, y, image);
+				resolve(geometry);
+			});
+		});
 	}
+
+	createGeometry(zoom, x, y, image){
+		const range = Math.pow(2, zoom);
+		// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+		// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
+		const segments = 64;
+
+
+	
+		// X
+		// const phiLength = 1 / range * 2 * Math.PI;
+		// const phiStart = x * phiLength;
+		
+		// // 经度
+		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+		const phiStart = lon1;
+		const phiLength = lon2 - lon1;
+	
+		// Y
+		// const thetaLength = 1 / range * Math.PI;
+		// const thetaStart = y * thetaLength;
+		// 维度
+		const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+		const thetaLength = lat1 - lat2;
+		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+		let vBounds = new three.Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+
+		const canvas = CanvasUtils.createOffscreenCanvas(segments + 1, segments + 1); 
+
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, this.tileSize, this.tileSize, 0, 0, canvas.width, canvas.height);
+
+		const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+		let geometry = new MapSphereNodeHeightGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds, imageData);
+		return geometry;
+	}
+
+	getDefaultGeometry() {
+        return DefaultSphereProvider.geometry;
+    }
 }
 
 // 瓦片获取

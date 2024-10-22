@@ -13,7 +13,7 @@ import { UpSampleTin } from "../../utils/UpSampleTin";
 // import Fetch from "../utils/Fetch.js";
 export class CesiumPlaneProvider extends PlaneProvider {
     // address = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
-    address = "{z}/{x}/{y}.terrain?extensions=octvertexnormals-metadata-watermask&v=1.2.0";
+    address = "{z}/{x}/{y}.terrain?extensions=metadata&v=1.2.0";
     baseUrl = "https://assets.ion.cesium.com/us-east-1/asset_depot/1/CesiumWorldTerrain/v1.2/";
     minZoom = 0;
     maxZoom = 19;

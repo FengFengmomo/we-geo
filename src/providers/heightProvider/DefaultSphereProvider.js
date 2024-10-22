@@ -48,7 +48,9 @@ export class DefaultSphereProvider extends SphereProvider {
 	createSphereGeometry(zoom, x, y) {
 		const range = Math.pow(2, zoom);
 		const max = 40;
-		const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+		// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+		// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
+		const segments = 64;
 
 
 	

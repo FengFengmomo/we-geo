@@ -55,7 +55,7 @@ export class MapSphereNode extends MapNode
 	async initialize()
 	{
 		super.initialize();
-		await this.createGeometry(this.level, this.x, this.y);
+		await this.createGeometry();
 		await this.loadData();
 		
 		this.nodeReady();
@@ -68,7 +68,7 @@ export class MapSphereNode extends MapNode
 	 * @param x - X tile position.
 	 * @param y - Y tile position.
 	 */
-	async createGeometry(zoom, x, y)
+	async createGeometry()
 	{
 
 		if (this.mapView.heightProvider === null) 

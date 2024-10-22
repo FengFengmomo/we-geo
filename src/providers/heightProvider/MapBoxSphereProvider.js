@@ -2,6 +2,12 @@ import {XHRUtils} from '../../utils/XHRUtils';
 import { MapBoxPlaneProvider } from './MapBoxPlaneProvider';
 import { MapProvider } from '../MapProvider';
 import { SphereProvider } from './SphereProvider';
+import { DefaultSphereProvider } from './DefaultSphereProvider';
+import { MapSphereNodeHeightGeometry } from '../../geometries/MapSphereNodeHeightGeometry';
+import { UnitsUtils } from '../../utils/UnitsUtils';
+import { CanvasUtils } from '../../utils/CanvasUtils';
+import { Vector4 } from 'three';
+
 
 /**
  * Map box service tile provider. Map tiles can be fetched from style or from a map id.
@@ -152,6 +158,79 @@ export class MapBoxSphereProvider extends SphereProvider {
 	}
 
 	fetchGeometry(zoom, x, y){
-		
+		let promise = new Promise((resolve, reject) => 
+		{
+			const image = document.createElement('img');
+			image.onload = function() 
+			{
+				resolve(image);
+			};
+			image.onerror = function() 
+			{
+				reject();
+			};
+			image.crossOrigin = 'Anonymous';
+
+			if (this.mode === MapBoxSphereProvider.STYLE) 
+			{
+				image.src = MapBoxSphereProvider.ADDRESS + 'styles/v1/' + this.style + '/tiles/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x?access_token=' : '?access_token=') + this.apiToken;
+			}
+			else 
+			{
+				image.src = MapBoxSphereProvider.ADDRESS + 'v4/' + this.mapId + '/' + zoom + '/' + x + '/' + y + (this.useHDPI ? '@2x.' : '.') + this.format + '?access_token=' + this.apiToken;
+			}
+		});
+		let that = this;
+		return new Promise((resolve, reject) =>{
+			promise.then((image) => {
+			    let geometry = that.createGeometry(zoom, x, y, image);
+				resolve(geometry);
+			});
+		});
 	}
+
+	createGeometry(zoom, x, y, image){
+		const range = Math.pow(2, zoom);
+		const max = 40;
+		// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
+		// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
+		const segments = 64;
+
+
+	
+		// X
+		// const phiLength = 1 / range * 2 * Math.PI;
+		// const phiStart = x * phiLength;
+		
+		// // 经度
+		const lon1 = x > 0 ? UnitsUtils.mercatorToLongitude(zoom, x) + Math.PI : 0;
+		const lon2 = x < range - 1 ? UnitsUtils.mercatorToLongitude(zoom, x+1) + Math.PI : 2 * Math.PI;
+		const phiStart = lon1;
+		const phiLength = lon2 - lon1;
+	
+		// Y
+		// const thetaLength = 1 / range * Math.PI;
+		// const thetaStart = y * thetaLength;
+		// 维度
+		const lat1 = y > 0 ? UnitsUtils.mercatorToLatitude(zoom, y) : Math.PI / 2;
+		const lat2 = y < range - 1 ? UnitsUtils.mercatorToLatitude(zoom, y+1) : -Math.PI / 2;
+		const thetaLength = lat1 - lat2;
+		const thetaStart = Math.PI - (lat1 + Math.PI / 2);
+		let vBounds = new Vector4(...UnitsUtils.tileBounds(zoom, x, y));
+
+		const canvas = CanvasUtils.createOffscreenCanvas(segments + 1, segments + 1); 
+
+		const context = canvas.getContext('2d');
+		context.imageSmoothingEnabled = false;
+		context.drawImage(image, 0, 0, this.tileSize, this.tileSize, 0, 0, canvas.width, canvas.height);
+
+		const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // 图像变成17*17像素
+
+		let geometry = new MapSphereNodeHeightGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds, imageData);
+		return geometry;
+	}
+
+	getDefaultGeometry() {
+        return DefaultSphereProvider.geometry;
+    }
 }

@@ -1,6 +1,5 @@
 import {MapProvider} from '../MapProvider';
 import {XHRUtils} from '../../utils/XHRUtils';
-import {MapBoxProvider} from '../heightProvider/MapBoxPlaneProvider';
 
 /**
  * Bing maps tile provider.
