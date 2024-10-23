@@ -125,7 +125,7 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		    indices.push(a, c, b, c, d, b); // 逆时针顺序
 		}
 
-		// south z正向
+		// north z负向, 南北方向的索引名错了，此处南边的点应该是北面的点。北面的点是南边的点，应该将名字进行修改
 		let southVertexCount = edgeIndices.southVertexCount;
 		let southIndices = edgeIndices.south;
 		southIndices.sort((a, b) => {
@@ -148,8 +148,8 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		for (let i = 0; i < southVertexCount-1; i++) {
 		    let a = southIndices[i];
 		    let b = southIndices[i+1];
-			let c = start + i;				// a   b
-		    let d = start + i + 1;			// c   d
+			let c = start + i;				// b   a
+		    let d = start + i + 1;			// d   c
 		    indices.push(b, c, a, b, d, c); // 逆时针顺序
 		}
 
@@ -176,13 +176,13 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		for (let i = 0; i < eastVertexCount-1; i++) {
 		    let a = eastIndices[i];
 		    let b = eastIndices[i+1];
-			let c = start + i;				// a   b
-		    let d = start + i + 1;			// c   d
+			let c = start + i;				// b   a
+		    let d = start + i + 1;			// d   c
 		    // indices.push(a, c, b, c, d, b); // 逆时针顺序
 		    indices.push(a, b, c, d, c, b); // 逆时针顺序
 		}
 
-		// north z负向
+		// south z正向
 		let northVertexCount = edgeIndices.northVertexCount;
 		let northIndices = edgeIndices.north;
 		northIndices.sort((a, b) => {

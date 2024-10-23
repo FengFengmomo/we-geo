@@ -732,7 +732,7 @@ class MapNodeGeometry extends BufferGeometry
 
 		let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
 
-		// Down X 负向x轴
+		// Down, 这里应该是北面的裙边， z的值一直为-0.5， x的值从-0.5到0.5
 		for (let ix = 0; ix < gridX; ix++) 
 		{
 			const x = ix * segmentWidth - widthHalf;
@@ -757,7 +757,7 @@ class MapNodeGeometry extends BufferGeometry
 		// 经过操作， start已经增加了gridx（17）个点 为306
 		start = vertices.length / 3;
 
-		// Up X 正向x轴
+		// Up ，这里为南边的裙边
 		for (let ix = 0; ix < gridX; ix++) 
 		{
 			const x = ix * segmentWidth - widthHalf; //
@@ -784,7 +784,7 @@ class MapNodeGeometry extends BufferGeometry
 		// 经过上轮添加，再次增加了gridx（17）个点， 为306+17=323
 		start = vertices.length / 3;
 
-		// Down Z 负向z轴
+		// Down X，这里为西边的裙边
 		for (let iz = 0; iz < gridZ; iz++) 
 		{
 			const z = iz * segmentHeight - heightHalf;
@@ -809,7 +809,7 @@ class MapNodeGeometry extends BufferGeometry
 		// 经过上轮添加，再次增加了gridx（17*2）个点， 为323+17=340
 		start = vertices.length / 3;
 
-		// Up Z 正向z轴
+		// Up x, 这里是东边的裙边
 		for (let iz = 0; iz < gridZ; iz++) 
 		{
 			const z = iz * segmentHeight - heightHalf;
@@ -2023,11 +2023,156 @@ class MapSphereNodeHeightGeometry extends BufferGeometry
 			}
 		}
 
+		this.buildSkirt(widthSegments, heightSegments, 500, indices, vertices, normals, uvs);
+
 		this.setIndex(indices);
 		this.setAttribute('position', new Float32BufferAttribute(vertices, 3));
 		this.setAttribute('normal', new Float32BufferAttribute(normals, 3));
 		this.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
 	}
+
+	// skirts to mask off missalignments between tiles.
+	// 构建裙边以掩盖错位。 和let geom = new THREE.PlaneBufferGeometry(1, 1, 256, 256); 此处很像，当构建裙边以后就是256个段，否则就是255个段
+	// 该方法分别是向下构建一个裙边，不是上面一行代码，是横向平面构建裙边。
+	/**
+	 * 
+	 * @param {*} widthSegments 宽度段数，默认1
+	 * @param {*} heightSegments 高度段数，默认1
+	 * @param {*} skirtDepth 裙边深度
+	 * @param {*} indices 索引数组
+	 * @param {*} vertices 顶点数组
+	 * @param {*} normals 法线数组
+	 * @param {*} uvs 贴图坐标数组
+	 */
+	buildSkirt(widthSegments = 1.0, heightSegments = 1.0, skirtDepth=10, indices=[], vertices=[], normals=[], uvs=[])
+	{
+		let zero = new Vector3(0, 0, 0);
+		let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
+
+		// 瓦片最左侧的点，排列方式为从北面到南面， 西侧的裙边
+		for (let ix = 0; ix <= widthSegments; ix++) 
+		{
+			let index = ix * (widthSegments+1);
+			let vertexX = vertices[index * 3];
+			let vertexY = vertices[index * 3 + 1];
+			let vertexZ = vertices[index * 3 + 2];
+			let u = uvs[index * 2];
+			let v = uvs[index * 2 + 1];
+			let vertex = new Vector3(vertexX, vertexY, vertexZ);
+			let distance = vertex.distanceTo(zero);
+			let normal = vertex.normalize();
+			normals.push(normal.x, normal.y, normal.z);
+			vertex.multiplyScalar(distance- skirtDepth);
+			vertices.push(vertex.x, vertex.y, vertex.z);
+			uvs.push(u, v);
+		}
+
+		// Indices
+		for (let ix = 0; ix < widthSegments; ix++) 
+		{
+			const a = ix * (widthSegments + 1);
+			const d = (ix + 1) * (widthSegments + 1);
+			const b = ix + start;
+			const c = ix + start + 1;
+			indices.push(a, b, d, b, c, d);
+		}
+
+		// 瓦片最右侧的点，排列方式为从北面到南面， 东侧的裙边
+		start = vertices.length / 3;
+		for (let ix = 0; ix <= widthSegments; ix++) 
+		{
+			let index = (ix+1) * (widthSegments+1)-1; // 最右侧的点
+			//  假设widthSegments为16， index 取值结果则为：16,33,50
+			let vertexX = vertices[index * 3];
+			let vertexY = vertices[index * 3 + 1];
+			let vertexZ = vertices[index * 3 + 2];
+			let u = uvs[index * 2];
+			let v = uvs[index * 2 + 1];
+			let vertex = new Vector3(vertexX, vertexY, vertexZ);
+			let distance = vertex.distanceTo(zero);
+			let normal = vertex.normalize();
+			normals.push(normal.x, normal.y, normal.z);
+			vertex.multiplyScalar(distance- skirtDepth);
+			vertices.push(vertex.x, vertex.y, vertex.z);
+			uvs.push(u, v);
+		}
+		
+
+		for (let ix = 0; ix < widthSegments; ix++) 
+		{
+			const a = (ix+1) * (widthSegments+1)-1;
+			const d = (ix+2) * (widthSegments+1)-1;
+			const b = ix + start;
+			const c = ix + start + 1;
+			//d   a
+			//c   b
+			indices.push(d, b, a, d, c, b);
+			// indices.push(a,b,d,b,c, d);
+			// indices: [272, 306, 273, 306, 307, 273], [273, 307, 274, 307, 308, 274], [274, 308, 275, 308, 309, 275]
+		}
+
+		// 瓦片最下侧的点，排列方式为从西面到东面， 南侧的裙边
+		let offset = widthSegments * (widthSegments + 1);
+		start = vertices.length / 3;
+		for (let iz = 0; iz <= widthSegments; iz++) 
+		{
+			let index = offset + iz;
+			let vertexX = vertices[index * 3];
+			let vertexY = vertices[index * 3 + 1];
+			let vertexZ = vertices[index * 3 + 2];
+			let u = uvs[index * 2];
+			let v = uvs[index * 2 + 1];
+			let vertex = new Vector3(vertexX, vertexY, vertexZ);
+			let distance = vertex.distanceTo(zero);
+			let normal = vertex.normalize();
+			normals.push(normal.x, normal.y, normal.z);
+			vertex.multiplyScalar(distance- skirtDepth);
+			vertices.push(vertex.x, vertex.y, vertex.z);
+			uvs.push(u, v);
+		}
+
+		for (let iz = 0; iz < heightSegments; iz++) 
+		{
+			const a = offset + iz;
+			const d = offset + iz + 1;
+			const b = iz + start;
+			const c = iz + start + 1;
+
+			indices.push(a, b, d, b, c, d);
+			// indices: [0, 323, 17, 323, 324, 17], [17, 324, 34, 324, 325, 34], [34, 325, 51, 325, 326, 51]
+		}
+
+		// 瓦片最上侧的点，排列方式为从西面到东面， 北侧的裙边
+		start = vertices.length / 3;
+		for (let iz = 0; iz <= widthSegments; iz++) 
+		{
+			let index = iz;
+			let vertexX = vertices[index * 3];
+			let vertexY = vertices[index * 3 + 1];
+			let vertexZ = vertices[index * 3 + 2];
+			let u = uvs[index * 2];
+			let v = uvs[index * 2 + 1];
+			let vertex = new Vector3(vertexX, vertexY, vertexZ);
+			let distance = vertex.distanceTo(zero);
+			let normal = vertex.normalize();
+			normals.push(normal.x, normal.y, normal.z);
+			vertex.multiplyScalar(distance- skirtDepth);
+			vertices.push(vertex.x, vertex.y, vertex.z);
+			uvs.push(u, v);
+		}
+
+		for (let iz = 0; iz < widthSegments; iz++) 
+		{
+			const a = iz ;
+			const d = iz + 1;
+			const b = iz + start;
+			const c = iz + start + 1;
+			
+			indices.push(d, b, a, d, c, b);
+			// indices: [33, 340, 16, 33, 341, 340], [50, 341, 33, 50, 342, 341], [67, 342, 50, 67, 343, 342]
+		}
+	}
+
 
 	/**
 	 * 计算position的长度
@@ -3639,7 +3784,7 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 		    indices.push(a, c, b, c, d, b); // 逆时针顺序
 		}
 
-		// south z正向
+		// north z负向, 南北方向的索引名错了，此处南边的点应该是北面的点。北面的点是南边的点，应该将名字进行修改
 		let southVertexCount = edgeIndices.southVertexCount;
 		let southIndices = edgeIndices.south;
 		southIndices.sort((a, b) => {
@@ -3662,8 +3807,8 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 		for (let i = 0; i < southVertexCount-1; i++) {
 		    let a = southIndices[i];
 		    let b = southIndices[i+1];
-			let c = start + i;				// a   b
-		    let d = start + i + 1;			// c   d
+			let c = start + i;				// b   a
+		    let d = start + i + 1;			// d   c
 		    indices.push(b, c, a, b, d, c); // 逆时针顺序
 		}
 
@@ -3690,13 +3835,13 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 		for (let i = 0; i < eastVertexCount-1; i++) {
 		    let a = eastIndices[i];
 		    let b = eastIndices[i+1];
-			let c = start + i;				// a   b
-		    let d = start + i + 1;			// c   d
+			let c = start + i;				// b   a
+		    let d = start + i + 1;			// d   c
 		    // indices.push(a, c, b, c, d, b); // 逆时针顺序
 		    indices.push(a, b, c, d, c, b); // 逆时针顺序
 		}
 
-		// north z负向
+		// south z正向
 		let northVertexCount = edgeIndices.northVertexCount;
 		let northIndices = edgeIndices.north;
 		northIndices.sort((a, b) => {
@@ -7174,7 +7319,7 @@ class MapBoxSphereProvider extends SphereProvider {
 		const range = Math.pow(2, zoom);
 		// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
 		// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
-		const segments = 64;
+		const segments = 16;
 
 
 	
@@ -7210,6 +7355,7 @@ class MapBoxSphereProvider extends SphereProvider {
 		return geometry;
 	}
 
+	
 	getDefaultGeometry() {
         return DefaultSphereProvider.geometry;
     }

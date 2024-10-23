@@ -135,7 +135,7 @@ export class MapNodeGeometry extends BufferGeometry
 
 		let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
 
-		// Down X 负向x轴
+		// Down, 这里应该是北面的裙边， z的值一直为-0.5， x的值从-0.5到0.5
 		for (let ix = 0; ix < gridX; ix++) 
 		{
 			const x = ix * segmentWidth - widthHalf;
@@ -160,7 +160,7 @@ export class MapNodeGeometry extends BufferGeometry
 		// 经过操作， start已经增加了gridx（17）个点 为306
 		start = vertices.length / 3;
 
-		// Up X 正向x轴
+		// Up ，这里为南边的裙边
 		for (let ix = 0; ix < gridX; ix++) 
 		{
 			const x = ix * segmentWidth - widthHalf; //
@@ -187,7 +187,7 @@ export class MapNodeGeometry extends BufferGeometry
 		// 经过上轮添加，再次增加了gridx（17）个点， 为306+17=323
 		start = vertices.length / 3;
 
-		// Down Z 负向z轴
+		// Down X，这里为西边的裙边
 		for (let iz = 0; iz < gridZ; iz++) 
 		{
 			const z = iz * segmentHeight - heightHalf;
@@ -212,7 +212,7 @@ export class MapNodeGeometry extends BufferGeometry
 		// 经过上轮添加，再次增加了gridx（17*2）个点， 为323+17=340
 		start = vertices.length / 3;
 
-		// Up Z 正向z轴
+		// Up x, 这里是东边的裙边
 		for (let iz = 0; iz < gridZ; iz++) 
 		{
 			const z = iz * segmentHeight - heightHalf;
