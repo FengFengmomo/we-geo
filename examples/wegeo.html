@@ -126,7 +126,8 @@
 		let{model, runtime} = await map.baseMap.loadTiles({
 			jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
 		});
-		map.baseMap.camera.position.set(model.position.x, model.position.y, model.position.z);
+		// map.baseMap.camera.position.set(model.position.x, model.position.y, model.position.z);
+		map.baseMap.camera.position.copy(model.position.clone().addScalar(1000));
 		// let direction = UnitsUtils.datumsToVector( 45.993553258799736+ 0.04, 90.14134050768502+0.10085);
 		// let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+100);
 		// map.baseMap.camera.position.copy(location);

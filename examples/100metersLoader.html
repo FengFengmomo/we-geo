@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title></title>
+	<style></style>
+</head>
+<body>
+	<div id="mapContainer">
+
+	</div>
+	<!-- GUI -->
+	<!-- <div id="mapContainer">
+		<div id="map">
+			<canvas id="canvas" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+		</div>
+		<div id="layers">
+			<div>
+				<canvas id="canvas1" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+			</div>
+			<div>
+				<canvas id="canvas2" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+			</div>
+		</div>
+	</div> -->
+	
+	<!-- Code -->
+	<!-- <script  src="./js/wegeo.js"></script> -->
+	<!-- "three": "../build/three.module.js", -->
+	<!-- "three/addons/": "../build/jsm/", -->
+	 <!-- <script src="../build/three.js"></script> -->
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "../../../build/three.module.js",
+				"three/addons/": "../build/jsm/",
+				"Geo": "../../../build/wegeo.module.js"
+			}
+		}
+	</script>
+
+	<script type="module">
+        import * as THREE from 'three';
+		// 需要全量构建geo，目前不能把threejs排除在外
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, UnitsUtils} from 'Geo';
+		let provider = new BingMapsProvider();
+		// 地名服务
+		let nameprovider = new TianDiTuProvider({
+			service:'cva_w',
+			token: '588e61bc464868465169f209fe694dd0'
+		});
+
+		// map.addView(provider);
+		let edgeprovider = new TianDiTuProvider({
+			service:'ibo_w',
+			token: '588e61bc464868465169f209fe694dd0'
+		});
+		// Config.outLine.on = true;
+		const map = new WegeoMap(); 
+		// map.addBaseSphereMap({
+		// 	providers: [provider,nameprovider, edgeprovider]
+		// });
+		map.addBaseMap({
+			providers: [provider]
+		});
+        // let lat = 45+ (58 + 18.3902/60)/60;
+        // let lng = 90+ (8 + 44.5931/60)/60;
+
+		// map.moveTo(lat,lng,2000);
+		map.resize();
+		map.animate();
+        let lat = 47.749952613459755, lon = 86.79955202215524; // 50
+        // let lat = 47.75065, lon = 89.798711;  // 150
+        // let lat = 47.75134937, lon = 89.7978713;  // 250
+        var coords = UnitsUtils.datumsToSpherical(lat, lon);
+        map.moveTo(lat, lon, 2000);
+        let pic = new THREE.TextureLoader().load( './png/pic/50.JPG' );
+        let mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -51.06461931520822* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+
+        coords = UnitsUtils.datumsToSpherical(47.750650715215855, 86.79871105538518);
+        // map.moveTo(47.75065, 89.798711, 2000);
+        pic = new THREE.TextureLoader().load( './png/pic/150.JPG' );
+        mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -51.07507056476633* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+
+        coords = UnitsUtils.datumsToSpherical(47.7513493711862, 86.79787131133402);
+        // map.moveTo(47.75065, 89.798711, 2000);
+        pic = new THREE.TextureLoader().load( './png/pic/250.JPG' );
+        mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -51.11069444475657* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+        // map.moveToByCoords(coords);
+
+
+// map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
+// pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA
+	</script>
+</body>
+</html>

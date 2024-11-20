@@ -1,6 +1,8 @@
 import strip from '@rollup/plugin-strip';
 import typescript from '@rollup/plugin-typescript';
-import resolve from '@rollup/plugin-node-resolve'
+import resolve from '@rollup/plugin-node-resolve';
+// import {terser } from 'rollup-plugin-terser'; 
+// 使用压缩可以将1400kb压缩到700KB
 
 export default [
 	{
@@ -16,7 +18,8 @@ export default [
 			}),
 			resolve({
 				browser: true,
-			})
+			}),
+			// terser()
 		],
 		output: [
 			{

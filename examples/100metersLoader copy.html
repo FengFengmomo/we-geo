@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title></title>
+	<style></style>
+</head>
+<body>
+	<div id="mapContainer">
+
+	</div>
+	<!-- GUI -->
+	<!-- <div id="mapContainer">
+		<div id="map">
+			<canvas id="canvas" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+		</div>
+		<div id="layers">
+			<div>
+				<canvas id="canvas1" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+			</div>
+			<div>
+				<canvas id="canvas2" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+			</div>
+		</div>
+	</div> -->
+	
+	<!-- Code -->
+	<!-- <script  src="./js/wegeo.js"></script> -->
+	<!-- "three": "../build/three.module.js", -->
+	<!-- "three/addons/": "../build/jsm/", -->
+	 <!-- <script src="../build/three.js"></script> -->
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "../../../build/three.module.js",
+				"three/addons/": "../build/jsm/",
+				"Geo": "../../../build/wegeo.module.js"
+			}
+		}
+	</script>
+
+	<script type="module">
+        import * as THREE from 'three';
+		// 需要全量构建geo，目前不能把threejs排除在外
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, UnitsUtils} from 'Geo';
+		let provider = new BingMapsProvider();
+		// 地名服务
+		let nameprovider = new TianDiTuProvider({
+			service:'cva_w',
+			token: '588e61bc464868465169f209fe694dd0'
+		});
+
+		// map.addView(provider);
+		let edgeprovider = new TianDiTuProvider({
+			service:'ibo_w',
+			token: '588e61bc464868465169f209fe694dd0'
+		});
+		// Config.outLine.on = true;
+		const map = new WegeoMap(); 
+		// map.addBaseSphereMap({
+		// 	providers: [provider,nameprovider, edgeprovider]
+		// });
+		map.addBaseMap({
+			providers: [provider]
+		});
+        // let lat = 45+ (58 + 18.3902/60)/60;
+        // let lng = 90+ (8 + 44.5931/60)/60;
+
+		// map.moveTo(lat,lng,2000);
+		map.resize();
+		map.animate();
+		let offset = -40;
+        let lat = 45.02246106285063, lon = 90.06593763614629; // 50
+        // let lat = 47.75065, lon = 89.798711;  // 150
+        // let lat = 47.75134937, lon = 89.7978713;  // 250
+        var coords = UnitsUtils.datumsToSpherical(lat, lon);
+        map.moveTo(lat, lon, 2000);
+        let pic = new THREE.TextureLoader().load( './png/pic/6.JPG' );
+        let mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x + offset, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -124.79721173975335* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+
+        coords = UnitsUtils.datumsToSpherical(45.021722872613005, 90.06519850193204);
+        // map.moveTo(47.75065, 89.798711, 2000);
+        pic = new THREE.TextureLoader().load( './png/pic/7.JPG' );
+        mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x + offset, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -126.40320450605887* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+
+        coords = UnitsUtils.datumsToSpherical(45.02104301295168, 90.06440761099371);
+        // map.moveTo(47.75065, 89.798711, 2000);
+        pic = new THREE.TextureLoader().load( './png/pic/8.JPG' );
+        mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x + offset, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -119.9320062086162* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+        // map.moveToByCoords(coords);
+
+		coords = UnitsUtils.datumsToSpherical(45.020309648453186, 90.0637904253534);
+        // map.moveTo(47.75065, 89.798711, 2000);
+        pic = new THREE.TextureLoader().load( './png/pic/9.JPG' );
+        mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/2,176/2),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            } )
+        );
+        mesh.position.set(coords.x + offset, 5* Math.random(), -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -104.09909164197268* (Math.PI / 180));
+        // mesh.scale.set();
+        map.baseMap.add(mesh);
+
+
+// map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
+// pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA
+	</script>
+</body>
+</html>

@@ -3,6 +3,7 @@ import { Element } from "../utils/Element";
 import {MapControls} from 'three/examples/jsm/controls/MapControls.js';
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { OrbitControls } from '../../build/jsm/controls/OrbitControls.js';
+import Stats from '../../build/jsm/libs/stats.module.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Clock,
     Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
@@ -57,6 +58,8 @@ export class Layer  extends BasLayer{
         this.scene = new Scene();
         this.mapView = mapView;
         this.camera = camera;
+        this.stats = new Stats();
+        document.body.appendChild( this.stats.dom );
         if(this.mapView){
             this.scene.add(this.mapView);
             this.mapView.updateMatrixWorld(true);
@@ -166,86 +169,6 @@ export class Layer  extends BasLayer{
         this.scene.remove(Object3D);  
     }
 
-    openWaterConfig(){
-        /**
-         * 打开渲染水系配置
-         */
-        // this.renderer.setPixelRatio( window.devicePixelRatio );
-        this.renderer.toneMapping = ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 0.5;
-        
-        // 添加天空
-        this.sky = new Sky();
-        this.sky.translateX = true;
-        this.sky.translateY = true;
-        this.sky.translateZ = true;
-        this.sky.rotateX = Math.PI / 2;
-        this.sky.scale.setScalar( Config.EARTH_RADIUS * 2 * Math.PI ); // 天空放大倍数
-        this.scene.add( this.sky );
-        const skyUniforms = this.sky.material.uniforms;
-        // 天空的配置
-        skyUniforms[ 'turbidity' ].value = 10;
-        skyUniforms[ 'rayleigh' ].value = 2;
-        skyUniforms[ 'mieCoefficient' ].value = 0.005;
-        skyUniforms[ 'mieDirectionalG' ].value = 0.8;
-        // 旋转 设置为y朝上
-        // sky.material.uniforms["up"].value = new THREE.Vector3(0, 1, 0);
-        
-        // 天空映射， 更新太阳位置
-        this.pmremGenerator = new PMREMGenerator( this.renderer );
-        this.sceneEnv = new Scene();
-        this.renderTarget = null;
-        this.sun = new Vector3();
-        this.updateSun(Config.SUNDEGREE, Config.SUNAZIMUTH);
-    }
-
-    updateSun(elevation, azimuth) {
-
-        const phi = MathUtils.degToRad( 90 - elevation );
-        const theta = MathUtils.degToRad( azimuth );
-
-        this.sun.setFromSphericalCoords( 1, phi, theta );
-
-        this.sky.material.uniforms[ 'sunPosition' ].value.copy( this.sun );
-        for (let water of this.waters){
-            water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
-        }
-        if ( this.renderTarget !== null ) this.renderTarget.dispose();
-
-        this.sceneEnv.add( this.sky );
-        this.renderTarget = this.pmremGenerator.fromScene( this.sceneEnv );
-        this.scene.add( this.sky );
-
-        this.scene.environment = this.renderTarget.texture;
-
-
-    }
-
-    /**
-     * 添加水系
-     * @param {*} water 
-     * @returns 
-     */
-    addWater(water) {
-        if(water ==null || water ==undefined){
-            return;
-        }
-        this.scene.add(water);
-        this.waters.push(water);
-    }
-
-    removeWater(water) {
-        if(water ==null || water ==undefined){
-            return;
-        }
-        this.scene.remove(water);
-        let index = this.waters.indexOf(water);
-        if (index > -1) {
-            this.waters.splice(index, 1);
-        }
-    }
-
-
     // 支持3dtiles，点云，geojson
     async loadTiles(option){
         const result = await Loader3DTiles.load({
@@ -345,14 +268,12 @@ export class Layer  extends BasLayer{
 
     animate(){
         this.animateId = requestAnimationFrame(this.animate.bind(this));
+        this.stats.update();
         if(this.base){
             this.controls.update();
         }
         if (this.base){ 
             TWEEN.update(); //目前只有在基础地图中添加相机移动的动画，所以暂且只在base地图中进行渲染，后期可改成每个图层都进行渲染，或者必要时进行渲染。 
-        }
-        for(let water of this.waters){
-            water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
         }
         for(let runtime of this.tilesRuntimeS){
             const dt = this.clock.getDelta();

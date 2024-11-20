@@ -26,7 +26,7 @@ import {GeoLorder} from '../loader/GeoLorder';
   const queryParams = new URLSearchParams(document.location.search);
 
   const canvasParent = document.querySelector('#canvas-parent');
-  const statsParent = document.querySelector('#stats-widget')
+  // const statsParent = document.querySelector('#stats-widget')
 
   const scene = new Scene();
   scene.background = new Color( 0xf0f0f0 );
@@ -60,9 +60,9 @@ controls.update();
   canvasParent.appendChild(renderer.domElement);
 
   const threeJsStats = new Stats();
-  threeJsStats.domElement.style.position = 'absolute';
-  threeJsStats.domElement.style.top = '10px';
-  threeJsStats.domElement.style.left = '10px';
+  // threeJsStats.domElement.style.position = 'absolute';
+  // threeJsStats.domElement.style.top = '10px';
+  // threeJsStats.domElement.style.left = '10px';
 
   canvasParent.appendChild( threeJsStats.domElement );
 
@@ -137,7 +137,7 @@ controls.update();
   }
 
 
-  statsParent.style.visibility = 'visible';
+  // statsParent.style.visibility = 'visible';
 
 
 
