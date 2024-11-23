@@ -65,10 +65,13 @@
 			providers: [provider],
 			heightProvider: heightProvider
 		});
+		map.moveTo(45.993553258799736,90.14134050768502,10000000);
 		window.onresize = () => { map.resize(); }
-		map.resize();
 		map.animate();
 		
+		const axesHelper = new THREE.AxesHelper( 2 * Math.PI * UnitsUtils.EARTH_RADIUS);
+		axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
+		map.baseMap.add( axesHelper );
 
 // map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
 	</script>

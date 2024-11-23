@@ -1260,7 +1260,13 @@
 				this.geometry = this.mapView.heightProvider.getDefaultGeometry();//MapPlaneNode.geometry;
 				return;
 			}
-			this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, this.parentNode.geometry, this.location);
+			let parentGeo;
+			if (this.parentNode !== null){
+			    parentGeo = this.parentNode.geometry;
+			} else {
+				parentGeo = null;
+			}
+			this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
 
 		}
 
@@ -1308,9 +1314,9 @@
 		 * graphics 提前增加节点
 		 **/
 		createChildNodesGraphic() {
-			let level = 0;
-			let x = 0;
-			let y = 0;
+			let level = this.level + 1;
+			let x = this.x * 2;
+			let y = this.y * 2;
 			const Constructor = Object.getPrototypeOf(this).constructor;
 
 			let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
@@ -4627,14 +4633,11 @@
 				
 				// this.geometry = this.root.constructor.baseGeometry;
 				this.geometry = this.heightProvider.getDefaultGeometry();
-				let ts = this.heightProvider.tilingScheme;
+				this.heightProvider.tilingScheme;
 				this.scale.copy(this.root.constructor.baseScale);
 				this.root.mapView = this;
 				this.add(this.root); // 将mapnode添加到mapview中
 				this.root.initialize(); // 将根mapnode初始化
-				if (ts instanceof GraphicTilingScheme) {
-					this.root.createChildNodesGraphic();
-				}
 				
 			}
 		}
@@ -5955,6 +5958,9 @@
 	    }
 	    // 拿到的既是图片数据
 	    fetchTile(zoom, x, y){
+	        if (this.service.endsWith("_c")){
+	            zoom = zoom + 1;
+	        }
 	        let url = this.getAddress(zoom, x, y);
 	        return new Promise((resolve, reject) => 
 			{

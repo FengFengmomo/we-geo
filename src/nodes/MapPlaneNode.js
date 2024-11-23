@@ -55,7 +55,13 @@ export class MapPlaneNode extends MapNode
 			this.geometry = this.mapView.heightProvider.getDefaultGeometry();//MapPlaneNode.geometry;
 			return;
 		}
-		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, this.parentNode.geometry, this.location);
+		let parentGeo;
+		if (this.parentNode !== null){
+		    parentGeo = this.parentNode.geometry;
+		} else{
+			parentGeo = null;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
 
 	}
 
@@ -103,9 +109,9 @@ export class MapPlaneNode extends MapNode
 	 * graphics 提前增加节点
 	 **/
 	createChildNodesGraphic() {
-		let level = 0;
-		let x = 0;
-		let y = 0;
+		let level = this.level + 1;
+		let x = this.x * 2;
+		let y = this.y * 2;
 		const Constructor = Object.getPrototypeOf(this).constructor;
 
 		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
