@@ -2,6 +2,25 @@
 
 var three = require('three');
 
+let MercatorTilingScheme$1 = class MercatorTilingScheme {
+    numOfZeroXTiles = 1;
+    numOfZeroYTiles = 1;
+    scaleX = 1;
+    constructor(options) {
+        if (options) {
+            Object.assign(this, options);
+        }
+    }
+
+    getNumberOfXTilesAtLevel(level) {
+        return 1 << level;
+    }
+
+    getNumberOfYTilesAtLevel(level) {
+        return 1 << level;
+    }
+};
+
 /**
  * A map provider is a object that handles the access to map tiles of a specific service.
  *
@@ -40,6 +59,12 @@ class MapProvider
 	 * Map center point.
 	 */
 	center = [];
+
+
+	/**
+	 *  tilingScheme - Tiling scheme of the map.
+	 */
+	tilingScheme = new MercatorTilingScheme$1();
 
 	/**
 	 * Get a tile for the x, y, zoom based on the provider configuration.
@@ -1127,11 +1152,15 @@ class UnitsUtils
 	 * @param y - the y coordinate of the tile
 	 * @returns list of bounds - [startX, sizeX, startY, sizeY]
 	 */
-	static tileBounds(zoom, x, y){
+	static tileBounds(zoom, x, y, isMercator = true){
+		let scale = 2;
+		if(isMercator){
+		    scale = 1;
+		}
 		const tileSize = UnitsUtils.getTileSize(zoom);
-		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize * scale;
 		const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
-		return [minX, tileSize, minY, tileSize];
+		return [minX, tileSize * scale, minY, tileSize];
 	}
 
 	/**
@@ -1174,9 +1203,6 @@ class UnitsUtils
 	static toDegrees(radians){
 		return radians * 180.0/Math.PI;
 	}
-
-	
-	
 }
 
 /*
@@ -1270,6 +1296,31 @@ class MapPlaneNode extends MapNode
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, 0.25);
+		this.add(node);
+		node.updateMatrix();
+		node.updateMatrixWorld(true);
+	}
+
+	/**
+	 * 
+	 * graphics 提前增加节点
+	 **/
+	createChildNodesGraphic() {
+		let level = 0;
+		let x = 0;
+		let y = 0;
+		const Constructor = Object.getPrototypeOf(this).constructor;
+
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+		node.scale.set(0.5, 1.0, 1.0);
+		node.position.set(-0.25, 0, 0);
+		this.add(node);
+		node.updateMatrix();
+		node.updateMatrixWorld(true);
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+		node.scale.set(0.5, 1.0, 1.0);
+		node.position.set(0.25, 0, 0);
 		this.add(node);
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
@@ -1645,43 +1696,12 @@ class MapSphereNodeGeometry extends three.BufferGeometry
 				vertex.y = radius * Math.cos(thetaStart + v * thetaLength);  // 维度
 				vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
 
-				// vertex.x = radius * Math.sin(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
-				// vertex.y = radius * Math.sin(thetaStart + v * thetaLength);  // 维度
-				// vertex.z = radius * Math.cos(phiStart + u * phiLength) * Math.cos(thetaStart + v * thetaLength);
-
-				// vertices.push(vertex.x, vertex.y, vertex.z);
-
+				
 				// Normal
 				normal.set(vertex.x, vertex.y, vertex.z).normalize();
 				normals.push(normal.x, normal.y, normal.z);
-
-				// 计算tile两边的弧度值， 每次新的坐标重新计算y上的弧度值， 然后根据弧度值计算uv坐标
-				// y上的弧度值计算出来以后，值应该是最大弧度和最小弧度之差，以后y减去最小弧度值再除以该比例
-				
-				// 当使用6371008作为地球半径的时候会发现经纬度定位会相差几十上百公里，然后更改为6378137的时候发现定位距离真实定位非常接近，但仍然处于不准确的状态
-				// 参考博客：https://www.cnblogs.com/arxive/p/6694225.html
-				// 参考文档https://pro.arcgis.com/zh-cn/pro-app/latest/help/mapping/properties/mercator.htm
-				// 发生小范围数据的便宜的原因之一就是该投影本身角度并不等角 （Web 墨卡托坐标系并不等角）
-				// 此外，如果地理坐标系是基于椭圆体的，它还具有一个投影参数，用于标识球体半径所使用的内容。默认值为零 (0) 时，将使用长半轴
-				// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 				let vetexC = vertex.clone();
-				// let radiusSuqred = UnitsUtils.EARTH_RADIUS_Squared;
-				// let nX = vertex.x;
-				// let nY = vertex.y;
-				// let nZ = vertex.z;
-				// const KX = radiusSuqred.x * vertex.x;
-				// const KY = radiusSuqred.y * vertex.y;
-				// const KZ = radiusSuqred.z * vertex.z;
-				// const gamma = Math.sqrt(KX * nX + KY * nY + KZ * nZ);
-				// const oneOverGamma = 1.0 / gamma;
-				// const rSurfaceX = KX * oneOverGamma;
-				// const rSurfaceY = KY * oneOverGamma;
-				// const rSurfaceZ = KZ * oneOverGamma;
-				// const position = new Vector3();
-				// position.x = rSurfaceX ;
-				// position.y = rSurfaceY ;
-				// position.z = rSurfaceZ ;
-				// vertex.multiply(UnitsUtils.EARTH_RADIUS_V);
+				
 				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 				vertices.push(vertex.x, vertex.y, vertex.z);
 				// modify uv
@@ -1696,12 +1716,6 @@ class MapSphereNodeGeometry extends three.BufferGeometry
 				let y = (mercator_y - mercatorBounds.z) / mercatorBounds.w;
 				let x = (mercator_x - mercatorBounds.x) / mercatorBounds.y;
 				uvs.push(x, y);
-				// modify uv end
-				
-				// let latitude = Math.acos(vertex.y);
-				// let longitude = Math.atan(-vertex.z, vertex.x);
-				// uvs.push(longitude, latitude);
-				// uvs.push(u, 1 - v);
 				verticesRow.push(index++);
 			}
 
@@ -1908,6 +1922,20 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
+		this.add(node);
+	}
+
+	createChildNodesGraphic()
+	{
+		let level = 0;
+		let x = 0;
+		let y = 0;
+		const Constructor = Object.getPrototypeOf(this).constructor;
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+		this.add(node);
+		// return;
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 		this.add(node);
 	}
 	
@@ -4414,6 +4442,25 @@ class MapHeightTinNode extends MapNode
 	}
 }
 
+class GraphicTilingScheme {
+    numOfZeroXTiles = 2;
+    numOfZeroYTiles = 1;
+    scaleX = 2;
+    constructor(options) {
+        if (options) {
+            Object.assign(this, options);
+        }
+    }
+
+    getNumberOfXTilesAtLevel(level) {
+        return this.numOfZeroXTiles << level;
+    }
+
+    getNumberOfYTilesAtLevel(level) {
+        return this.numOfZeroYTiles << level;
+    }
+}
+
 /**
  * Map viewer is used to read and display map tiles from a server.
  *
@@ -4578,11 +4625,15 @@ class MapView extends three.Mesh
 			
 			// this.geometry = this.root.constructor.baseGeometry;
 			this.geometry = this.heightProvider.getDefaultGeometry();
-			
+			let ts = this.heightProvider.tilingScheme;
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
+			if (ts instanceof GraphicTilingScheme) {
+				this.root.createChildNodesGraphic();
+			}
+			
 		}
 	}
 
@@ -5254,7 +5305,7 @@ class BingMapsMarsProvider extends MapProvider
 	 * @param apiKey - Bing API key.
 	 * @param type - Type provider.
 	 */
-	constructor(apiKey = '', type = BingMapsProvider.AERIAL) 
+	constructor(apiKey = '', type = BingMapsMarsProvider.AERIAL) 
 	{
 		super();
 
@@ -6124,6 +6175,7 @@ class SyncQueue {
 class PlaneProvider extends MapProvider{
     constructor() {
         super();
+        
     }
     fetchGeometry(zoom, x, y) {
         return new Promise((resolve, reject) => {
@@ -6143,9 +6195,12 @@ class DefaultPlaneProvider extends PlaneProvider {
      */
     static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 
-
-    constructor() {
+    constructor(options = {}) {
         super();
+        Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined) {
+            this.tilingScheme = new MercatorTilingScheme$1();
+        }
     }
 
     fetchGeometry(zoom, x, y) {
@@ -6614,10 +6669,14 @@ class CesiumPlaneProvider extends PlaneProvider {
     layers = null;
     skirt = true;
     scale = 3.0;
+    
     static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined){
+            this.tilingScheme = new GraphicTilingScheme();
+        }
         let that = this;
         this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {
@@ -6820,8 +6879,12 @@ class DefaultSphereProvider extends SphereProvider {
     static segments = 160;
     // static segments = 64;
 
-    constructor() {
+    constructor(options = {}) {
         super();
+		Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined) {
+            this.tilingScheme = new MercatorTilingScheme();
+        }
     }
 
 	/**
@@ -6895,11 +6958,15 @@ class HeightDebugProvider extends PlaneProvider
 	 */
 	toColor = new three.Color(0x00ff00);
 
-	constructor(provider) 
+	constructor(provider, tilingScheme) 
 	{
 		super();
 
 		this.provider = provider;
+		if (tilingScheme){
+			this.tilingScheme = tilingScheme;
+		}
+
 	}
 
 	async fetchTile(zoom, x, y)
@@ -7032,6 +7099,7 @@ class MapBoxPlaneProvider extends PlaneProvider
 	geometrySize = 16;
 
 	tileSize = 256;
+
 	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 	/**
 	 * @param apiToken - Map box api token.
@@ -14261,6 +14329,7 @@ class TianDiTuHeightProvider extends MapProvider {
     constructor(options) {
         super(options);
         Object.assign(this, options);
+        this.tilingScheme = new GraphicTilingScheme();
     }
     getAddress(zoom, x, y) {
         let num = Math.floor(Math.random() * 8);
@@ -48569,6 +48638,7 @@ exports.GeolocationUtils = GeolocationUtils;
 exports.GeoserverWMSProvider = GeoserverWMSProvider;
 exports.GeoserverWMTSProvider = GeoserverWMTSProvider;
 exports.GoogleMapsProvider = GoogleMapsProvider;
+exports.GraphicTilingScheme = GraphicTilingScheme;
 exports.HeightDebugProvider = HeightDebugProvider;
 exports.HereMapsProvider = HereMapsProvider;
 exports.LODControl = LODControl;
@@ -48594,6 +48664,7 @@ exports.MapSphereNodeGeometry = MapSphereNodeGeometry;
 exports.MapSphereNodeHeightGeometry = MapSphereNodeHeightGeometry;
 exports.MapTilerProvider = MapTilerProvider;
 exports.MapView = MapView;
+exports.MercatorTilingScheme = MercatorTilingScheme$1;
 exports.OpenMapTilesProvider = OpenMapTilesProvider;
 exports.OpenStreetMapsProvider = OpenStreetMapsProvider;
 exports.PlaneProvider = PlaneProvider;

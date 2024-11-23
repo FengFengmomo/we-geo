@@ -169,6 +169,20 @@ export class MapSphereNode extends MapNode
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
 		this.add(node);
 	}
+
+	createChildNodesGraphic()
+	{
+		let level = 0;
+		let x = 0;
+		let y = 0;
+		const Constructor = Object.getPrototypeOf(this).constructor;
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+		this.add(node);
+		// return;
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
+		this.add(node);
+	}
 	
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.

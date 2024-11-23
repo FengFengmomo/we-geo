@@ -13,6 +13,7 @@ import {MapProvider} from './providers/MapProvider';
 import {LODControl} from './lod/LODControl';
 import {MapMartiniHeightNode} from './nodes/MapMartiniHeightNode';
 import { MapHeightTinNode } from './nodes/MapHeightTinNode';
+import { GraphicTilingScheme } from './scheme/GraphicTilingScheme';
 /**
  * Map viewer is used to read and display map tiles from a server.
  *
@@ -177,11 +178,15 @@ export class MapView extends Mesh
 			
 			// this.geometry = this.root.constructor.baseGeometry;
 			this.geometry = this.heightProvider.getDefaultGeometry();
-			
+			let ts = this.heightProvider.tilingScheme;
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
+			if (ts instanceof GraphicTilingScheme) {
+				this.root.createChildNodesGraphic();
+			}
+			
 		}
 	}
 

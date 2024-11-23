@@ -30,3 +30,5 @@ export {Config} from './environment/config';
 
 export {Animate } from './animation/Animate';
 export {Skybox} from './sky/Skybox'
+
+export * from './scheme/index';

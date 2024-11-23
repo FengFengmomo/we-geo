@@ -267,11 +267,15 @@ export class UnitsUtils
 	 * @param y - the y coordinate of the tile
 	 * @returns list of bounds - [startX, sizeX, startY, sizeY]
 	 */
-	static tileBounds(zoom, x, y){
+	static tileBounds(zoom, x, y, isMercator = true){
+		let scale = 2;
+		if(isMercator){
+		    scale = 1;
+		}
 		const tileSize = UnitsUtils.getTileSize(zoom);
-		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
+		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize * scale;
 		const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
-		return [minX, tileSize, minY, tileSize];
+		return [minX, tileSize * scale, minY, tileSize];
 	}
 
 	/**
@@ -314,7 +318,4 @@ export class UnitsUtils
 	static toDegrees(radians){
 		return radians * 180.0/Math.PI;
 	}
-
-	
-	
 }

@@ -97,6 +97,31 @@ export class MapPlaneNode extends MapNode
 		node.updateMatrix();
 		node.updateMatrixWorld(true);
 	}
+
+	/**
+	 * 
+	 * graphics 提前增加节点
+	 **/
+	createChildNodesGraphic() {
+		let level = 0;
+		let x = 0;
+		let y = 0;
+		const Constructor = Object.getPrototypeOf(this).constructor;
+
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+		node.scale.set(0.5, 1.0, 1.0);
+		node.position.set(-0.25, 0, 0);
+		this.add(node);
+		node.updateMatrix();
+		node.updateMatrixWorld(true);
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+		node.scale.set(0.5, 1.0, 1.0);
+		node.position.set(0.25, 0, 0);
+		this.add(node);
+		node.updateMatrix();
+		node.updateMatrixWorld(true);
+	}
 	
 
 	/**
