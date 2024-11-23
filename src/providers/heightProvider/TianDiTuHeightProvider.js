@@ -5,6 +5,7 @@ import { MapProvider } from "../MapProvider";
 import pako from "pako";
 import { MapNodeHeightGeometry } from "../../geometries/MapNodeHeightGeometry";
 import { QuadTreePosition } from "../../nodes/MapNode";
+import { GraphicTilingScheme } from "../../scheme/GraphicTilingScheme";
 
 // import Fetch from "../utils/Fetch.js";
 export class TianDiTuHeightProvider extends MapProvider {
@@ -27,6 +28,7 @@ export class TianDiTuHeightProvider extends MapProvider {
     constructor(options) {
         super(options);
         Object.assign(this, options);
+        this.tilingScheme = new GraphicTilingScheme();
     }
     getAddress(zoom, x, y) {
         let num = Math.floor(Math.random() * 8);

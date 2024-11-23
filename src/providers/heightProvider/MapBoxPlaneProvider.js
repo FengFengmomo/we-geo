@@ -5,6 +5,7 @@ import { CanvasUtils } from '../../utils/CanvasUtils';
 import { DefaultPlaneProvider } from './DefaultPlaneProvider';
 import { MapNodeGeometry } from '../../geometries/MapNodeGeometry';
 import { MapNodeHeightGeometry } from '../../geometries/MapNodeHeightGeometry';
+import { MercatorTilingScheme } from '../../scheme/MercatorTilingScheme';
 /**
  * Map box service tile provider. Map tiles can be fetched from style or from a map id.
  *
@@ -97,6 +98,7 @@ export class MapBoxPlaneProvider extends PlaneProvider
 	geometrySize = 16;
 
 	tileSize = 256;
+
 	static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 	/**
 	 * @param apiToken - Map box api token.

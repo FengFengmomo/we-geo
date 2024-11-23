@@ -1,3 +1,4 @@
+import { MercatorTilingScheme } from "../scheme/MercatorTilingScheme";
 
 
 /**
@@ -38,6 +39,12 @@ export class MapProvider
 	 * Map center point.
 	 */
 	center = [];
+
+
+	/**
+	 *  tilingScheme - Tiling scheme of the map.
+	 */
+	tilingScheme = new MercatorTilingScheme();
 
 	/**
 	 * Get a tile for the x, y, zoom based on the provider configuration.

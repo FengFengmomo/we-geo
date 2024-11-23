@@ -28,8 +28,12 @@ export class DefaultSphereProvider extends SphereProvider {
     static segments = 160;
     // static segments = 64;
 
-    constructor() {
+    constructor(options = {}) {
         super();
+		Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined) {
+            this.tilingScheme = new MercatorTilingScheme();
+        }
     }
 
 	/**

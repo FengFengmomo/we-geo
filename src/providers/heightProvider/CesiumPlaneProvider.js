@@ -9,6 +9,7 @@ import { MapNodeHeightTinGeometry } from "../../geometries/MapNodeHeightTinGeome
 import { TerrainUtils } from "../../utils/TerrainUtils";
 import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
 import { UpSampleTin } from "../../utils/UpSampleTin";
+import { GraphicTilingScheme } from "../../scheme/GraphicTilingScheme";
 
 // import Fetch from "../utils/Fetch.js";
 export class CesiumPlaneProvider extends PlaneProvider {
@@ -26,10 +27,14 @@ export class CesiumPlaneProvider extends PlaneProvider {
     layers = null;
     skirt = true;
     scale = 3.0;
+    
     static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined){
+            this.tilingScheme = new GraphicTilingScheme();
+        }
         let that = this;
         this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {

@@ -1,4 +1,5 @@
 import { MapNodeGeometry } from "../../geometries/MapNodeGeometry";
+import { MercatorTilingScheme } from "../../scheme/MercatorTilingScheme";
 import { PlaneProvider } from "./PlaneProvider";
 
 /**
@@ -12,9 +13,12 @@ export class DefaultPlaneProvider extends PlaneProvider {
      */
     static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
 
-
-    constructor() {
+    constructor(options = {}) {
         super();
+        Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined) {
+            this.tilingScheme = new MercatorTilingScheme();
+        }
     }
 
     fetchGeometry(zoom, x, y) {
