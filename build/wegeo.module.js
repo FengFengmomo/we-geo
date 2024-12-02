@@ -1,6 +1,6 @@
 import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
 
-let MercatorTilingScheme$1 = class MercatorTilingScheme {
+class MercatorTilingScheme {
     numOfZeroXTiles = 1;
     numOfZeroYTiles = 1;
     scaleX = 1;
@@ -19,7 +19,7 @@ let MercatorTilingScheme$1 = class MercatorTilingScheme {
     getNumberOfYTilesAtLevel(level) {
         return 1 << level;
     }
-};
+}
 
 /**
  * A map provider is a object that handles the access to map tiles of a specific service.
@@ -64,7 +64,7 @@ class MapProvider
 	/**
 	 *  tilingScheme - Tiling scheme of the map.
 	 */
-	tilingScheme = new MercatorTilingScheme$1();
+	tilingScheme = new MercatorTilingScheme();
 
 	/**
 	 * Get a tile for the x, y, zoom based on the provider configuration.
@@ -6234,7 +6234,7 @@ class DefaultPlaneProvider extends PlaneProvider {
         super();
         Object.assign(this, options);
         if (options.tilingScheme == null || options.tilingScheme === undefined) {
-            this.tilingScheme = new MercatorTilingScheme$1();
+            this.tilingScheme = new MercatorTilingScheme();
         }
     }
 
@@ -48719,4 +48719,4 @@ class Skybox {
 	}
 }
 
-export { AngleUtils, Animate, BingMapsMarsProvider, BingMapsProvider$1 as BingMapsProvider, CancelablePromise, CanvasUtils, CesiumPlaneProvider, Colors, Config, DebugProvider, DefaultPlaneProvider, DefaultSphereProvider, Element, Error$1 as Error, ErrorCode, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, GraphicTilingScheme, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxPlaneProvider, MapBoxProvider, MapBoxSphereProvider, MapHeightNode$1 as MapHeightNode, MapHeightNodeShader, MapHeightTinNode, MapNode, MapNodeGeometry, MapNodeHeightGeometry, MapNodeHeightTinGeometry, MapPlaneNode, MapProvider, MapSphereNode$1 as MapSphereNode, MapSphereNodeGeometry, MapSphereNodeHeightGeometry, MapTilerProvider, MapView, Mercator, MercatorTilingScheme$1 as MercatorTilingScheme, OpenMapTilesProvider, OpenStreetMapsProvider, PlaneProvider, QuadTreePosition, RoadImageProvider, Skybox, SphereProvider, SyncQueue, TerrainUtils, TextureUtils, TianDiTuHeightProvider, TianDiTuProvider, UnitsUtils, VectorUtils, WegeoMap, XHRUtils };
+export { AngleUtils, Animate, BingMapsMarsProvider, BingMapsProvider$1 as BingMapsProvider, CancelablePromise, CanvasUtils, CesiumPlaneProvider, Colors, Config, DebugProvider, DefaultPlaneProvider, DefaultSphereProvider, Element, Error$1 as Error, ErrorCode, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, GraphicTilingScheme, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxPlaneProvider, MapBoxProvider, MapBoxSphereProvider, MapHeightNode$1 as MapHeightNode, MapHeightNodeShader, MapHeightTinNode, MapNode, MapNodeGeometry, MapNodeHeightGeometry, MapNodeHeightTinGeometry, MapPlaneNode, MapProvider, MapSphereNode$1 as MapSphereNode, MapSphereNodeGeometry, MapSphereNodeHeightGeometry, MapTilerProvider, MapView, Mercator, MercatorTilingScheme, OpenMapTilesProvider, OpenStreetMapsProvider, PlaneProvider, QuadTreePosition, RoadImageProvider, Skybox, SphereProvider, SyncQueue, TerrainUtils, TextureUtils, TianDiTuHeightProvider, TianDiTuProvider, UnitsUtils, VectorUtils, WegeoMap, XHRUtils };

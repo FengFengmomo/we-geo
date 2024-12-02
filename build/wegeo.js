@@ -4,7 +4,7 @@
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Geo = {}, global.THREE));
 })(this, (function (exports, three) { 'use strict';
 
-	let MercatorTilingScheme$1 = class MercatorTilingScheme {
+	class MercatorTilingScheme {
 	    numOfZeroXTiles = 1;
 	    numOfZeroYTiles = 1;
 	    scaleX = 1;
@@ -23,7 +23,7 @@
 	    getNumberOfYTilesAtLevel(level) {
 	        return 1 << level;
 	    }
-	};
+	}
 
 	/**
 	 * A map provider is a object that handles the access to map tiles of a specific service.
@@ -68,7 +68,7 @@
 		/**
 		 *  tilingScheme - Tiling scheme of the map.
 		 */
-		tilingScheme = new MercatorTilingScheme$1();
+		tilingScheme = new MercatorTilingScheme();
 
 		/**
 		 * Get a tile for the x, y, zoom based on the provider configuration.
@@ -6238,7 +6238,7 @@
 	        super();
 	        Object.assign(this, options);
 	        if (options.tilingScheme == null || options.tilingScheme === undefined) {
-	            this.tilingScheme = new MercatorTilingScheme$1();
+	            this.tilingScheme = new MercatorTilingScheme();
 	        }
 	    }
 
@@ -48770,7 +48770,7 @@ Char: ${this.c}`;
 	exports.MapTilerProvider = MapTilerProvider;
 	exports.MapView = MapView;
 	exports.Mercator = Mercator;
-	exports.MercatorTilingScheme = MercatorTilingScheme$1;
+	exports.MercatorTilingScheme = MercatorTilingScheme;
 	exports.OpenMapTilesProvider = OpenMapTilesProvider;
 	exports.OpenStreetMapsProvider = OpenStreetMapsProvider;
 	exports.PlaneProvider = PlaneProvider;

@@ -2,6 +2,7 @@ import { SphereProvider } from './SphereProvider';
 import { UnitsUtils } from '../../utils/UnitsUtils';
 import { MapSphereNodeGeometry } from '../../geometries/MapSphereNodeGeometry';
 import { Vector4, Vector3 } from 'three';
+import { MercatorTilingScheme } from '../../scheme/MercatorTilingScheme';
 /**
  * Default implementation of the SphereProvider interface.
  * 默认的球体提供者实现，无高程的数据，纯球体
