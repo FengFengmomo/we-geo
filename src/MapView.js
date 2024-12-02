@@ -184,13 +184,13 @@ export class MapView extends Mesh
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
 			if (ts instanceof GraphicTilingScheme) {
-				// let scale_c = this.root.constructor.baseScale.clone();
-				// scale_c.x = scale_c.x *2;
-				// this.scale.copy(scale_c);
-				// this.root.scale.set(0.5, 1.0, 1.0);
-				// this.root.position.set(-0.25, 0, 0);
-				// this.root.updateMatrix();
-				// this.root.updateMatrixWorld(true);
+				let scale_c = this.root.constructor.baseScale.clone();
+				scale_c.z = scale_c.z /2;
+				this.scale.copy(scale_c);
+				this.root.scale.set(0.5, 1.0, 1.0);
+				this.root.position.set(-0.25, 0, 0);
+				this.root.updateMatrix();
+				this.root.updateMatrixWorld(true);
 				// // this.scale.copy(this.root.constructor.baseScale);
 				// this.root.level = -1;
 				// this.root.visible = false;
@@ -198,15 +198,15 @@ export class MapView extends Mesh
 				// this.root.isMesh = false;
 				// this.root.nodesLoaded = 2;
 				// this.root.createChildNodesGraphic();
-				// const Constructor = Object.getPrototypeOf(this.root).constructor;
+				const Constructor = Object.getPrototypeOf(this.root).constructor;
 
-				// let node = new Constructor(null, this);
-				// node.x = 1;
-				// node.scale.set(0.5, 1.0, 1.0);
-				// node.position.set(0.25, 0, 0);
-				// this.add(node);
-				// node.updateMatrix();
-				// node.updateMatrixWorld(true);
+				let node = new Constructor(null, this);
+				node.x = 1;
+				node.scale.set(0.5, 1.0, 1.0);
+				node.position.set(0.25, 0, 0);
+				this.add(node);
+				node.updateMatrix();
+				node.updateMatrixWorld(true);
 				// @ts-ignore
 
 			}

@@ -13,3 +13,4 @@ export { TextureUtils } from './TextureUtils.js';
 export { UnitsUtils } from './UnitsUtils.js';
 export { VectorUtils } from './VectorUtils.js';
 export { XHRUtils } from './XHRUtils.js';
+export { Mercator } from './Mecator.js';

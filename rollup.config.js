@@ -27,12 +27,12 @@ export default [
 				file: 'build/wegeo.module.js',
 				indent: '\t'
 			},
-			{
-				format: 'cjs',
-				name: 'Geo',
-				file: 'build/wegeo.cjs',
-				indent: '\t'
-			},
+			// {
+			// 	format: 'cjs',
+			// 	name: 'Geo',
+			// 	file: 'build/wegeo.cjs',
+			// 	indent: '\t'
+			// },
 			{
 				globals: {three: 'THREE'},
 				format: 'umd',

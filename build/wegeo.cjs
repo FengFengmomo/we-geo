@@ -6,6 +6,8 @@ let MercatorTilingScheme$1 = class MercatorTilingScheme {
     numOfZeroXTiles = 1;
     numOfZeroYTiles = 1;
     scaleX = 1;
+    scaleY = 1;
+    scaleZ = 1;
     constructor(options) {
         if (options) {
             Object.assign(this, options);
@@ -977,13 +979,15 @@ class UnitsUtils
 	 *	经纬度转为世界坐标（x,y） 
 	 * @param latitude - Latitude value in degrees. 纬度
 	 * @param longitude - Longitude value in degrees. 经度
+	 * @param scaleY 二维地图概念下的y坐标放缩倍数。由于GraphicTilingScheme和MercatorTilingScheme的level 1瓦片个数不同，所以导致表达出来的长宽高也不一样。
+	 * 成正方形的地图，长宽高是按照2πR*2πR来设计的，而长方形的地图是按照2πR*πR来设计的，所以需要根据地图的形状来调整y坐标的放缩倍数。
 	 */
-	static datumsToSpherical(latitude, longitude)
+	static datumsToSpherical(latitude, longitude, scaleY = 1.0)
 	{
 		const x = longitude * UnitsUtils.EARTH_ORIGIN / 180.0;
 		let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360.0)) / (Math.PI / 180.0);
 
-		y = y * UnitsUtils.EARTH_ORIGIN / 180.0;
+		y = y * UnitsUtils.EARTH_ORIGIN * scaleY / 180.0;
 
 		return new three.Vector2(x, y);
 	}
@@ -4451,7 +4455,9 @@ class MapHeightTinNode extends MapNode
 class GraphicTilingScheme {
     numOfZeroXTiles = 2;
     numOfZeroYTiles = 1;
-    scaleX = 2;
+    scaleX = 1;
+    scaleY = 1;
+    scaleZ = 0.5;
     constructor(options) {
         if (options) {
             Object.assign(this, options);
@@ -4631,11 +4637,38 @@ class MapView extends three.Mesh
 			
 			// this.geometry = this.root.constructor.baseGeometry;
 			this.geometry = this.heightProvider.getDefaultGeometry();
-			this.heightProvider.tilingScheme;
+			let ts = this.heightProvider.tilingScheme;
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
 			this.root.initialize(); // 将根mapnode初始化
+			if (ts instanceof GraphicTilingScheme) {
+				let scale_c = this.root.constructor.baseScale.clone();
+				scale_c.z = scale_c.z /2;
+				this.scale.copy(scale_c);
+				this.root.scale.set(0.5, 1.0, 1.0);
+				this.root.position.set(-0.25, 0, 0);
+				this.root.updateMatrix();
+				this.root.updateMatrixWorld(true);
+				// // this.scale.copy(this.root.constructor.baseScale);
+				// this.root.level = -1;
+				// this.root.visible = false;
+				// this.root.subdivided = true;
+				// this.root.isMesh = false;
+				// this.root.nodesLoaded = 2;
+				// this.root.createChildNodesGraphic();
+				const Constructor = Object.getPrototypeOf(this.root).constructor;
+
+				let node = new Constructor(null, this);
+				node.x = 1;
+				node.scale.set(0.5, 1.0, 1.0);
+				node.position.set(0.25, 0, 0);
+				this.add(node);
+				node.updateMatrix();
+				node.updateMatrixWorld(true);
+				// @ts-ignore
+
+			}
 			
 		}
 	}
@@ -45662,8 +45695,13 @@ class Layer  extends BasLayer{
 
     moveTo(lat, lon, height = 38472.48763833733){
         // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
+        let ts = this.mapView.heightProvider.tilingScheme;
+        let scale = 1.0;
+        if (ts instanceof GraphicTilingScheme){
+            scale = 0.5;
+        }
         var coords = UnitsUtils.datumsToSpherical(lat,lon);
-        this.camera.position.set(coords.x, height, -coords.y);
+        this.camera.position.set(coords.x, height, -coords.y* scale);
         this.controls.target.set(this.camera.position.x, 0, this.camera.position.z);
     }
 

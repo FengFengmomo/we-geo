@@ -61,9 +61,10 @@ export class WegeoMap {
                 layer.camera.position.copy( this.baseMap.camera.position );
                 layer.camera.rotation.copy( this.baseMap.camera.rotation );
             }
+            // console.log(this.baseMap.camera.position);
         });
-        this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
-        this.selectModel(RaycasterUtils.casterMesh);
+        // this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
+        // this.selectModel(RaycasterUtils.casterMesh);
     }
     /**
      * 参数提供两个，一个是providers，一个是heightProvider
@@ -112,8 +113,8 @@ export class WegeoMap {
             RIGHT: MOUSE.ROTATE
         };
         this.baseMap.camera.position.set(0, 0, UnitsUtils.EARTH_RADIUS_A + 1e7);
-        this.listener = new Listener(this.baseMap.canvas);
-        this.selectModel(RaycasterUtils.casterMesh);
+        // this.listener = new Listener(this.baseMap.canvas);
+        // this.selectModel(RaycasterUtils.casterMesh);
         let sky = new Skybox().loadBox();
         this.baseMap.scene.background = sky;
     }
@@ -245,6 +246,11 @@ export class WegeoMap {
     
 
     // 添加图片（影像）图层
+    /**
+     * @deprecated 不打算采用多canvas的方式
+     * @param {*} mapView 
+     * @returns 
+     */
     addImageLayer(mapView){
         let [id, container, canvas] = Element.addLayerCanvas();
         let layer = new Layer(id, container, canvas, mapView);
@@ -260,6 +266,11 @@ export class WegeoMap {
     }
 
     // 添加向量图层
+    /**
+     * @deprecated 不建议用,不打算采用多canvas的方式
+     * @param {*} mapView 
+     * @returns 
+     */
     addVectorLayer(mapView){
         let [id, container, canvas] = Element.addLayerCanvas();
         let layer = new Layer(id, container, canvas, mapView);
@@ -278,6 +289,12 @@ export class WegeoMap {
 
 
     // 添加模型图层
+    /**
+     * @deprecated 不建议用,不打算采用多canvas的方式
+     * @param {*} mode 
+     * @param {*} option 
+     * @returns 
+     */
     addModelLayer(mode, option){
         let [id, container, canvas] = Element.addLayerCanvas();
         let layer; 
@@ -302,6 +319,10 @@ export class WegeoMap {
     }
 
     // 目前暂时限定为新疆地区, 只绘制边界
+    /**
+     * @deprecated 不建议用,不打算采用多canvas的方式
+     * @param {*} mode 
+     */
     async addRegionLayer(mode = GeoLorder.LineReal){
         let [id, container, canvas] = Element.addLayerCanvas();
         // 不再依赖mapview构建视图
@@ -322,7 +343,10 @@ export class WegeoMap {
         let obj = await loader.loadRegionJson(path, Colors.Red, mode);
         layer.add(obj);
     }
-
+    /**
+     * @deprecated 不建议用,不打算采用多canvas的方式
+     * @param {*} mode 
+     */
     async addWaterLayer(mode = WaterLorder.FLAT){
         let [id, container, canvas] = Element.addLayerCanvas();
         // 不再依赖mapview构建视图
