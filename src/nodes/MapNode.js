@@ -146,7 +146,7 @@ export class MapNode extends Mesh
 	isMesh = true;
 
 
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = new MeshBasicMaterial({wireframe: false})) 
 	{
 		super(geometry, material);
 

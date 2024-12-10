@@ -31,10 +31,9 @@
 	<script type="importmap">
 		{
 			"imports": {
-				"three": "../build/three.module.js",
-				"three/addons/": "../build/jsm/",
-				"Geo": "../build/wegeo.module.js",
-				"THREEi":"./js/createhole.js"
+				"three": "../../../build/three.module.js",
+				"three/addons/": "../../../build/jsm/",
+				"Geo": "../../../build/wegeo.module.js"
 			}
 		}
 	</script>
@@ -43,7 +42,6 @@
 		// 需要全量构建geo，目前不能把threejs排除在外
 		import {WegeoMap,MapView, TianDiTuProvider, MapBoxPlaneProvider, TianDiTuHeightProvider, Config, BingMapsProvider, AngleUtils, DebugProvider, Mercator,  UnitsUtils,DefaultPlaneProvider, GraphicTilingScheme, CesiumPlaneProvider} from 'Geo';
 		import * as THREE from 'three';
-		import * as THREEi from 'THREEi';
 		
 		let providerbin = new BingMapsProvider();
 		// 地名服务
@@ -81,7 +79,7 @@
 		// map.moveTo(31.24169-4.268,121.49491,10000);
 		// map.moveTo(31.24169,121.49491,100000);
 		// map.moveTo(39.90710,116.39143,10000);
-		map.moveTo(43.905036,88.109167,100000);
+		map.moveTo(43.905036,88.109167,10000);
 		// map.moveTo(39.908692,116.397477,100000);
 		// let point = Mercator.project({lat:45.993553258799736, lng: 90.14134050768502});
 		// console.log("project point:",point);

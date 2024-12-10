@@ -11,6 +11,10 @@ export class DebugProvider extends MapProvider
 	/**
 	 * Resolution in px of each tile.
 	 */
+	constructor(border = true){
+		super();
+		this.border = border;
+	}
 	resolution = 256;
 
 	fetchTile(zoom, x, y)
@@ -23,8 +27,15 @@ export class DebugProvider extends MapProvider
 
 		const color = green.lerpHSL(red, (zoom - this.minZoom) / (this.maxZoom - this.minZoom));
 
-		context.fillStyle = color.getStyle();
+		// context.fillStyle = color.getStyle();
+		context.fillStyle = "rgba(255,255,255,0)";
 		context.fillRect(0, 0, this.resolution, this.resolution);
+		if (this.border){
+		    context.strokeStyle = 'yellow';
+			context.strokeRect(0, 0, 256, 256);
+			context.stroke();
+		}
+		
 
 		context.fillStyle = '#000000';
 		context.textAlign = 'center';
@@ -32,7 +43,7 @@ export class DebugProvider extends MapProvider
 		context.font = 'bold ' + this.resolution * 0.1 + 'px arial';
 		context.fillText('(' + zoom + ')', this.resolution / 2, this.resolution * 0.4);
 		context.fillText('(' + x + ', ' + y + ')', this.resolution / 2, this.resolution * 0.6);
-
+		
 		return Promise.resolve(canvas);
 	}
 }

@@ -87,10 +87,10 @@
 				const mesh = new THREE.Mesh( geometry, material );
 				scene.add( mesh );
 
-				control.attach( mesh );
-
+				
 				const gizmo = control.getHelper();
 				scene.add( gizmo );
+				control.attach( mesh );
 
 				window.addEventListener( 'resize', onWindowResize );
 

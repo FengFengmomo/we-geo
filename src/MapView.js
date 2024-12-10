@@ -182,7 +182,7 @@ export class MapView extends Mesh
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
-			this.root.initialize(); // 将根mapnode初始化
+			// this.root.initialize(); // 将根mapnode初始化
 			if (ts instanceof GraphicTilingScheme) {
 				let scale_c = this.root.constructor.baseScale.clone();
 				scale_c.z = scale_c.z /2;

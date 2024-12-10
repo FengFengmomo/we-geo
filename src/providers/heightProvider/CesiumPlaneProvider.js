@@ -99,6 +99,7 @@ export class CesiumPlaneProvider extends PlaneProvider {
     }
 
     fetchGeometry(zoom, x, y, parentGeometry, location){
+        y = Math.pow(2, zoom) - y - 1; // cesium的y轴和wmts的y轴是相反的，所以需要转换一下
         let url = this.getAddress(zoom, x, y);
         return this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {
@@ -149,6 +150,7 @@ export class CesiumPlaneProvider extends PlaneProvider {
 		{
 			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.littleEndian);
 			geometry = new MapNodeHeightTinGeometry(terrain, this.skirt, 10.0, false, this.scale);
+			// geometry = new MapNodeHeightTinGeometry(terrain, false, 10.0, false, this.scale);
 		}
 		catch (e) 
 		{

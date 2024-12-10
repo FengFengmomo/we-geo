@@ -1,15 +1,13 @@
-// 瓦片获取
-// http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=您的密钥
-
 import { MapProvider } from "../MapProvider";
 import pako from "pako";
 import { MapNodeHeightGeometry } from "../../geometries/MapNodeHeightGeometry";
 import { QuadTreePosition } from "../../nodes/MapNode";
 import { GraphicTilingScheme } from "../../scheme/GraphicTilingScheme";
+import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
 
 // import Fetch from "../utils/Fetch.js";
-export class TianDiTuHeightProvider extends MapProvider {
-    address = "https://t3.tianditu.gov.cn/mapservice/swdx?tk={token}&x={x}&y={y}&l={z}";
+export class TianDiTuHeightProvider extends DefaultPlaneProvider {
+    address = "https://t3.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
     minZoom = 0;
     maxZoom = 19;
     tileSize = 256;
@@ -54,24 +52,36 @@ export class TianDiTuHeightProvider extends MapProvider {
      * @returns 
      */
     fetchGeometry(zoom, x, y, parentGeometry, location){
-		let urlLeft = this.getAddress(zoom, 2*x, y);
-		let urlRight = this.getAddress(zoom, 2*x+1, y);
-        let promise1 = this.getPromise(urlLeft);
-        let promise2 = this.getPromise(urlRight);
-        return  new Promise((resolve, reject) => {
-            Promise.all([promise1, promise2]).then((data) => {
-                let left = data[0];
-                let right = data[1];
-                if (left === null || right === null){
-                    let geometry = this.upSample(parentGeometry, location);
-                    resolve(geometry);
+        // zoom 等于12以后，请求的是13级别的高程数据，这时候已经没有数据了，后续就不再请求了
+        let url = this.getAddress(zoom+1, x, y);
+		return new Promise((resolve, reject) => 
+		{
+			fetch(url).then(res=> {
+                    if (res.status === 404){
+                        console.error("get geometry error", zoom,x,y);
+                        reject(null);
+                    } 
+                    else {
+                        res.arrayBuffer().then(data=> {
+                            let width = 63;
+                            let height = 63;
+                            if (zoom === 11){
+                                width =127;
+                                height = 127;
+                            }
+                            let buffer;
+                            if (zoom >= 12){
+                                this.upSample(parentGeometry, location);
+                            } else {
+                                buffer = this.getData(data, width, height);
+                            }
+                            let geometry = this.createGeometry(buffer, width, height);
+                            resolve(geometry); 
+                        });
+                    }
                 }
-                let mergeData = this.mergeData(left, right);
-                let geometry = this.createGeometry(mergeData, zoom, x, y);
-                resolve(geometry);
-                // return geometry;
-            });
-        });
+            );
+	    });
     }
     getPromise(url){
         return new Promise((resolve, reject) => 
@@ -91,101 +101,44 @@ export class TianDiTuHeightProvider extends MapProvider {
             );
 	    });
     }
-
+    // 不进行上采样了，只到18级别
     upSample(parentGeometry, location){
         let ifrom,jfrom;
-        let width = this.width/2, height = this.height/2;
+        let pwidth = parentGeometry.widthSegments, pheight = parentGeometry.heightSegments;
+        let width = parentGeometry.widthSegments/2, height = parentGeometry.heightSegments/2;
         if (location === QuadTreePosition.topLeft){
             ifrom = 0;
             jfrom = 0;
         }
         if (location === QuadTreePosition.topRight){
-            ifrom = width;
-            jfrom = 0;
-        }
-        if (location === QuadTreePosition.bottomLeft){
             ifrom = 0;
             jfrom = height;
         }
-        if (location === QuadTreePosition.bottomRight){
-            ifrom = width;
-            jfrom = height;
+        if (location === QuadTreePosition.bottomLeft){
+            ifrom = height;
+            jfrom = 0;
         }
-        let newHeight = new Uint8Array(width * height * 4); // 求rgba的结果
+        if (location === QuadTreePosition.bottomRight){
+            ifrom = height;
+            jfrom = width;
+        }
         let pos = parentGeometry.getAttribute("position");
         let index = 0;
-        let Curheight, NN_R, i_height_new;
-        for (let i = 0; i < height-1; i++){
-
-            // 此处循环将产生每行this.width-1个点
-            for (let j = 0; j < width-1; j++){
-                Curheight = pos[(ifrom + i * this.width + j) *3 + 1 ];
-                i_height_new = (Curheight + 10000) / 0.1;
-                NN_R = index * 4;
-                newHeight[NN_R] = i_height_new / (256 * 256);
-                newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                newHeight[NN_R + 3] = 255;
-                index++;
-                let Leftheight = pos[(ifrom + i * this.width + j + 1 ) *3 + 1 ];
-                i_height_new = ((Curheight + Leftheight)/2 + 10000) / 0.1;
-                NN_R = index * 4;
-                newHeight[NN_R] = i_height_new / (256 * 256);
-                newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                newHeight[NN_R + 3] = 255;
-            }
-            // 此处将最右边的点补齐
-            Curheight = pos[(ifrom + i * this.width + width - 1) *3 + 1 ];
-            i_height_new = (Curheight + 10000) / 0.1;
-            NN_R = index * 4;
-            newHeight[NN_R] = i_height_new / (256 * 256);
-            newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-            newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-            newHeight[NN_R + 3] = 255;
-            index++;
-
-            // 此处产生上下两行中间的差值点
-            for (let j = 0; j < width-1; j++){
-                Curheight = pos[(ifrom + i * this.width + j) *3 + 1 ];
-                let Downheight = pos[(ifrom + (i + 1) * this.width + j) *3 + 1 ];
-                NN_R = index * 4;
-                i_height_new = ((Curheight + Downheight)/2 + 10000) / 0.1;
-                newHeight[NN_R] = i_height_new / (256 * 256);
-                newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                newHeight[NN_R + 3] = 255;
+        var myBuffer = new Uint8Array(width * height); // 只保留高度数值，其他不变
+        for (let i = 0; i < width; i++){
+            for (let j = 0; j < height; j++){
+                myBuffer[index] = pos[((i+ifrom)*pwidth+(j+jfrom))*3+1]; // 采样
                 index++;
             }
-            // 此处将两行中间差值点的最右边的点补齐
-            Curheight = pos[(ifrom + i * this.width + width - 1) *3 + 1 ];
-            let Downheight = pos[(ifrom + (i + 1) * this.width + width - 1) *3 + 1 ];
-            NN_R = index * 4;
-            i_height_new = ((Curheight + Downheight)/2 + 10000) / 0.1;
-            newHeight[NN_R] = i_height_new / (256 * 256);
-            newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-            newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-            newHeight[NN_R + 3] = 255;
         }
-        for (let j = 0; j < width-1; j++){
-            Curheight = pos[(ifrom + (height - 1) * this.width + j) *3 + 1 ];
-            i_height_new = (Curheight + 10000) / 0.1;
-            NN_R = index * 4;
-            newHeight[NN_R] = i_height_new / (256 * 256);
-            newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-            newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-            newHeight[NN_R + 3] = 255;
-            index++;
-        }
-        let geometry = new MapNodeHeightGeometry(1.0, 1.0, this.width -1, this.height - 1, true, 10, {data: newHeight}, true);
-        return geometry;
+        return myBuffer;
     }
     /**
      * 获取数据，并压缩到一半，高为height，宽为width/2
      * @param {*} dataBuffer 
      * @returns 
      */
-    getData(dataBuffer) {
+    getData(dataBuffer, tileW, tileH) {
         var view = new DataView(dataBuffer);
         var zBuffer = new Uint8Array(view.byteLength);
         var index = 0;
@@ -197,16 +150,16 @@ export class TianDiTuHeightProvider extends MapProvider {
             return undefined
         }
         var dZlib = pako.inflate(zBuffer);
-        console.error(dZlib);
+        // console.error(dZlib);
         var DataSize = 2;
         if (dZlib.length !== 150 * 150 * DataSize){
             return undefined;
         }
         //创建DateView
-        let width= this.width/2, height = this.height;
+        let width= tileW+1, height = tileH+1;
         var myW = width;
         var myH = height;
-        var myBuffer = new Uint8Array(myW * myH * 4);
+        var myBuffer = new Uint8Array(myW * myH);
         var i_height;
         var NN, NN_R;
         var jj_n, ii_n;
@@ -228,11 +181,14 @@ export class TianDiTuHeightProvider extends MapProvider {
                 //数据结果整理成Cesium内部形式
                 NN_R = (jj * myW + ii) * 4
                 //Cesium内部就是这么表示的
-                var i_height_new = (i_height + 1000) / 0.001;
-                myBuffer[NN_R] = i_height_new / (256 * 256);
-                myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                myBuffer[NN_R + 3] = 255;
+                // var i_height_new = (i_height + 1000) / 0.03;
+                var i_height_new = (i_height + 1000) / 0.3-10000;
+                // myBuffer[NN_R] = i_height_new / (256 * 256);
+                // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
+                // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
+                // myBuffer[NN_R + 3] = 255;
+                myBuffer[index] = i_height_new; //真实高度
+                index++;
                 // let newHeight = i_height*100 + 90000;
                 // heights[index] = i_height; //真实高度
                 // index++;
@@ -243,33 +199,12 @@ export class TianDiTuHeightProvider extends MapProvider {
         // console.error("myBuffer: ", myBuffer);
         return myBuffer;
     }
-    mergeData(dataLeft, dataRight) {
-        let result = new Uint8Array(this.width * this.height * 4);
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width/2; j++) {
-                let index = (i * this.width + j) * 4;
-                let indexLeft = (i * this.width/2 + j) * 4;
-                result[index] = dataLeft[indexLeft];
-                result[index+1] = dataLeft[indexLeft+1];
-                result[index+2] = dataLeft[indexLeft+2];
-                result[index+3] = dataLeft[indexLeft+3];
-            }
-        }
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width/2; j++) {
-                let index = (i * this.width + j) * 4;
-                let indexLeft = (i * this.width + j + this.width/2) * 4;
-                result[index] = dataRight[indexLeft];
-                result[index+1] = dataRight[indexLeft+1];
-                result[index+2] = dataRight[indexLeft+2];
-                result[index+3] = dataRight[indexLeft+3];
-            }
-        }
-        return result;
-    }
 
-    createGeometry(dataBuffer) {
-        let geometry = new MapNodeHeightGeometry(1.0,1.0, width-1, height-1,true,10,{data:dataBuffer}, true);
+    createGeometry(dataBuffer, width=63, height=63) {
+        if (dataBuffer === undefined) {
+            return DefaultPlaneProvider.geometry;
+        }
+        let geometry = new MapNodeHeightGeometry(1.0,1.0, width, height,true,100000,{data:dataBuffer, dataTypes: 1}, true);
         return geometry;
     }
 }

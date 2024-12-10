@@ -3,6 +3,8 @@ import {MapNodeGeometry} from './MapNodeGeometry';
 
 export class MapNodeHeightGeometry extends BufferGeometry
 {
+	widthSegments;
+	heightSegments;
 	/**
 	 * Map node geometry constructor.
 	 *
@@ -15,7 +17,8 @@ export class MapNodeHeightGeometry extends BufferGeometry
 	constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0, imageData = null, calculateNormals = true)
 	{
 		super();
-
+		this.widthSegments = widthSegments;
+		this.heightSegments = heightSegments;
 		// Buffers
 		const indices = [];
 		const vertices = [];
@@ -26,17 +29,26 @@ export class MapNodeHeightGeometry extends BufferGeometry
 		MapNodeGeometry.buildPlane(width, height, widthSegments, heightSegments, indices, vertices, normals, uvs);
 
 		const data = imageData.data;
+		let tiandituExact = false;
+		if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
+			tiandituExact = true;
+		}
 		// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
-		for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) 
+		for (let i = 0, j = 0,k=0; i < data.length && j < vertices.length; i += 4, j += 3,k++) 
 		{
-			const r = data[i];
-			const g = data[i + 1];
-			const b = data[i + 2];
-
-			// The value will be composed of the bits RGB
-			const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-
-			vertices[j + 1] = value;
+			if(tiandituExact){
+			    vertices[j + 1] = data[k];
+			} else{
+				const r = data[i];
+				const g = data[i + 1];
+				const b = data[i + 2];
+	
+				// The value will be composed of the bits RGB
+				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
+	
+				vertices[j + 1] = value;
+			}
+			
 		}
 
 		// Generate the skirt

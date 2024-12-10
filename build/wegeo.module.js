@@ -1,4 +1,4 @@
-import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
+import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial as MeshBasicMaterial$1, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, EventDispatcher, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
 
 class MercatorTilingScheme {
     numOfZeroXTiles = 1;
@@ -365,7 +365,7 @@ class MapNode extends Mesh
 	isMesh = true;
 
 
-	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = null) 
+	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0, geometry = null, material = new MeshBasicMaterial({wireframe: false})) 
 	{
 		super(geometry, material);
 
@@ -1220,7 +1220,7 @@ class MapPlaneNode extends MapNode
 {
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root,  level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial({wireframe: false})); // basic material 是不受光照影响的
+		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial$1({wireframe: false})); // basic material 是不受光照影响的
 
 		this.matrixAutoUpdate = false;
 		this.isMesh = true;
@@ -1347,6 +1347,8 @@ class MapPlaneNode extends MapNode
 
 class MapNodeHeightGeometry extends BufferGeometry
 {
+	widthSegments;
+	heightSegments;
 	/**
 	 * Map node geometry constructor.
 	 *
@@ -1359,7 +1361,8 @@ class MapNodeHeightGeometry extends BufferGeometry
 	constructor(width = 1.0, height = 1.0, widthSegments = 1.0, heightSegments = 1.0, skirt = false, skirtDepth = 10.0, imageData = null, calculateNormals = true)
 	{
 		super();
-
+		this.widthSegments = widthSegments;
+		this.heightSegments = heightSegments;
 		// Buffers
 		const indices = [];
 		const vertices = [];
@@ -1370,17 +1373,26 @@ class MapNodeHeightGeometry extends BufferGeometry
 		MapNodeGeometry.buildPlane(width, height, widthSegments, heightSegments, indices, vertices, normals, uvs);
 
 		const data = imageData.data;
+		let tiandituExact = false;
+		if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
+			tiandituExact = true;
+		}
 		// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
-		for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) 
+		for (let i = 0, j = 0,k=0; i < data.length && j < vertices.length; i += 4, j += 3,k++) 
 		{
-			const r = data[i];
-			const g = data[i + 1];
-			const b = data[i + 2];
-
-			// The value will be composed of the bits RGB
-			const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-
-			vertices[j + 1] = value;
+			if(tiandituExact){
+			    vertices[j + 1] = data[k];
+			} else {
+				const r = data[i];
+				const g = data[i + 1];
+				const b = data[i + 2];
+	
+				// The value will be composed of the bits RGB
+				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
+	
+				vertices[j + 1] = value;
+			}
+			
 		}
 
 		// Generate the skirt
@@ -1800,7 +1812,7 @@ let MapSphereNode$1 = class MapSphereNode extends MapNode
 
 	constructor(parentNode = null, mapView = null, location = QuadTreePosition.root, level = 0, x = 0, y = 0) 
 	{
-		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location, level, x, y, mapView.heightProvider.getDefaultGeometry(), new MeshBasicMaterial$1({wireframe: false}));
 	
 		this.applyScaleNode();
 		this.matrixAutoUpdate = false;
@@ -2256,7 +2268,7 @@ class MapSphereNodeHeight extends MapNode
 	{
 		
 		
-		super(parentNode, mapView, location, level, x, y, MapSphereNode.baseGeometry, new MeshBasicMaterial({wireframe: false}));
+		super(parentNode, mapView, location, level, x, y, MapSphereNode.baseGeometry, new MeshBasicMaterial$1({wireframe: false}));
 		// super(parentNode, mapView, location, level, x, y, MapSphereNode.createGeometry(level, x, y), material);
 	
 		this.applyScaleNode();
@@ -3704,7 +3716,7 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 	 * @param terrain - 稀疏网格的高程数据， 基于cesium terrain world（小端存储） 与 天地图 terrain world（大端存储）制作的稀疏网格数据
 	 * @param skirt - Skirt around the plane to mask gaps between tiles. 默认是true， skirtDepth默认是50，calculateNormals默认是true
 	 */
-	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true, scale = 3.0)
+	constructor(terrain = null, skirt = false, skirtDepth = 10.0,  calculateNormals = true, scale = 1.0)
 	{
 		super();
 		this.scale = scale;
@@ -3784,9 +3796,10 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 		    let x = 1.0 * xarr[i]/32767 - 0.5;
 		    let z = 1.0 * yarr[i]/32767 - 0.5;
 		    let h = 1.0 * harr[i]/32767 * (MaxHeight - MinHeight) + MinHeight;
-		    vertices.push(x, h * this.scale, z);
+		    vertices.push(x, h * this.scale, -z);
 			normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
-			uvs.push(x+0.5, 0.5-z); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
+			// uvs.push(x+0.5, 0.5-z); 这行是原来的uv， 这个时候会发现地形南北颠倒了// 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
+			uvs.push(x+0.5, 1-(0.5-z)); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 		}
 		
 		indices.push(...indicesData.indices);
@@ -4084,15 +4097,16 @@ class TerrainUtils {
                 highest++;
             }
         }
-        let indexReverse = new Array(triangleCount*3);
-        for (let i = 0; i < triangleCount*3; i+=3){
-            indexReverse[i] = indices[i+2];
-            indexReverse[i+1] = indices[i+1];
-            indexReverse[i+2] = indices[i];
-        }
+        // let indexReverse = new Array(triangleCount*3);
+        // for (let i = 0; i < triangleCount*3; i+=3){
+        //     indexReverse[i] = indices[i+2];
+        //     indexReverse[i+1] = indices[i+1];
+        //     indexReverse[i+2] = indices[i];
+        // }
         let indexData = {
             triangleCount: triangleCount,
-            indices: indexReverse,
+            indices: indices,
+            // indices: indexReverse,
             highest: highest
         };
         // console.log("vertexCount:" + vertexCount + " indexCount:" + triangleCount);
@@ -4570,7 +4584,7 @@ class MapView extends Mesh
 	 */
 	constructor(root = MapView.PLANAR, providers = new OpenStreetMapsProvider(), heightProvider = null) 
 	{
-		super(undefined, new MeshBasicMaterial({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
+		super(undefined, new MeshBasicMaterial$1({transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false}));
 
 		this.lod = new LODRaycast();
 		// this.lod = new LODRadial();
@@ -4637,7 +4651,7 @@ class MapView extends Mesh
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
-			this.root.initialize(); // 将根mapnode初始化
+			// this.root.initialize(); // 将根mapnode初始化
 			if (ts instanceof GraphicTilingScheme) {
 				let scale_c = this.root.constructor.baseScale.clone();
 				scale_c.z = scale_c.z /2;
@@ -5443,6 +5457,10 @@ class DebugProvider extends MapProvider
 	/**
 	 * Resolution in px of each tile.
 	 */
+	constructor(border = true){
+		super();
+		this.border = border;
+	}
 	resolution = 256;
 
 	fetchTile(zoom, x, y)
@@ -5453,10 +5471,17 @@ class DebugProvider extends MapProvider
 		const green = new Color(0x00ff00);
 		const red = new Color(0xff0000);
 
-		const color = green.lerpHSL(red, (zoom - this.minZoom) / (this.maxZoom - this.minZoom));
+		green.lerpHSL(red, (zoom - this.minZoom) / (this.maxZoom - this.minZoom));
 
-		context.fillStyle = color.getStyle();
+		// context.fillStyle = color.getStyle();
+		context.fillStyle = "rgba(255,255,255,0)";
 		context.fillRect(0, 0, this.resolution, this.resolution);
+		if (this.border){
+		    context.strokeStyle = 'yellow';
+			context.strokeRect(0, 0, 256, 256);
+			context.stroke();
+		}
+		
 
 		context.fillStyle = '#000000';
 		context.textAlign = 'center';
@@ -5464,7 +5489,7 @@ class DebugProvider extends MapProvider
 		context.font = 'bold ' + this.resolution * 0.1 + 'px arial';
 		context.fillText('(' + zoom + ')', this.resolution / 2, this.resolution * 0.4);
 		context.fillText('(' + x + ', ' + y + ')', this.resolution / 2, this.resolution * 0.6);
-
+		
 		return Promise.resolve(canvas);
 	}
 }
@@ -6776,6 +6801,7 @@ class CesiumPlaneProvider extends PlaneProvider {
     }
 
     fetchGeometry(zoom, x, y, parentGeometry, location){
+        y = Math.pow(2, zoom) - y - 1; // cesium的y轴和wmts的y轴是相反的，所以需要转换一下
         let url = this.getAddress(zoom, x, y);
         return this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {
@@ -6826,6 +6852,7 @@ class CesiumPlaneProvider extends PlaneProvider {
 		{
 			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.littleEndian);
 			geometry = new MapNodeHeightTinGeometry(terrain, this.skirt, 10.0, false, this.scale);
+			// geometry = new MapNodeHeightTinGeometry(terrain, false, 10.0, false, this.scale);
 		}
 		catch (e) 
 		{
@@ -14341,11 +14368,9 @@ var pako = {
 	constants: constants_1
 };
 
-// 瓦片获取
-
 // import Fetch from "../utils/Fetch.js";
-class TianDiTuHeightProvider extends MapProvider {
-    address = "https://t3.tianditu.gov.cn/mapservice/swdx?tk={token}&x={x}&y={y}&l={z}";
+class TianDiTuHeightProvider extends DefaultPlaneProvider {
+    address = "https://t3.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
     minZoom = 0;
     maxZoom = 19;
     tileSize = 256;
@@ -14390,24 +14415,36 @@ class TianDiTuHeightProvider extends MapProvider {
      * @returns 
      */
     fetchGeometry(zoom, x, y, parentGeometry, location){
-		let urlLeft = this.getAddress(zoom, 2*x, y);
-		let urlRight = this.getAddress(zoom, 2*x+1, y);
-        let promise1 = this.getPromise(urlLeft);
-        let promise2 = this.getPromise(urlRight);
-        return  new Promise((resolve, reject) => {
-            Promise.all([promise1, promise2]).then((data) => {
-                let left = data[0];
-                let right = data[1];
-                if (left === null || right === null){
-                    let geometry = this.upSample(parentGeometry, location);
-                    resolve(geometry);
+        // zoom 等于12以后，请求的是13级别的高程数据，这时候已经没有数据了，后续就不再请求了
+        let url = this.getAddress(zoom+1, x, y);
+		return new Promise((resolve, reject) => 
+		{
+			fetch(url).then(res=> {
+                    if (res.status === 404){
+                        console.error("get geometry error", zoom,x,y);
+                        reject(null);
+                    } 
+                    else {
+                        res.arrayBuffer().then(data=> {
+                            let width = 63;
+                            let height = 63;
+                            if (zoom === 11){
+                                width =127;
+                                height = 127;
+                            }
+                            let buffer;
+                            if (zoom >= 12){
+                                this.upSample(parentGeometry, location);
+                            } else {
+                                buffer = this.getData(data, width, height);
+                            }
+                            let geometry = this.createGeometry(buffer, width, height);
+                            resolve(geometry); 
+                        });
+                    }
                 }
-                let mergeData = this.mergeData(left, right);
-                let geometry = this.createGeometry(mergeData, zoom, x, y);
-                resolve(geometry);
-                // return geometry;
-            });
-        });
+            );
+	    });
     }
     getPromise(url){
         return new Promise((resolve, reject) => 
@@ -14427,97 +14464,44 @@ class TianDiTuHeightProvider extends MapProvider {
             );
 	    });
     }
-
+    // 不进行上采样了，只到18级别
     upSample(parentGeometry, location){
-        let ifrom;
-        let width = this.width/2, height = this.height/2;
+        let ifrom,jfrom;
+        let pwidth = parentGeometry.widthSegments; parentGeometry.heightSegments;
+        let width = parentGeometry.widthSegments/2, height = parentGeometry.heightSegments/2;
         if (location === QuadTreePosition.topLeft){
             ifrom = 0;
+            jfrom = 0;
         }
         if (location === QuadTreePosition.topRight){
-            ifrom = width;
+            ifrom = 0;
+            jfrom = height;
         }
         if (location === QuadTreePosition.bottomLeft){
-            ifrom = 0;
+            ifrom = height;
+            jfrom = 0;
         }
         if (location === QuadTreePosition.bottomRight){
-            ifrom = width;
+            ifrom = height;
+            jfrom = width;
         }
-        let newHeight = new Uint8Array(width * height * 4); // 求rgba的结果
         let pos = parentGeometry.getAttribute("position");
         let index = 0;
-        let Curheight, NN_R, i_height_new;
-        for (let i = 0; i < height-1; i++){
-
-            // 此处循环将产生每行this.width-1个点
-            for (let j = 0; j < width-1; j++){
-                Curheight = pos[(ifrom + i * this.width + j) *3 + 1 ];
-                i_height_new = (Curheight + 10000) / 0.1;
-                NN_R = index * 4;
-                newHeight[NN_R] = i_height_new / (256 * 256);
-                newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                newHeight[NN_R + 3] = 255;
-                index++;
-                let Leftheight = pos[(ifrom + i * this.width + j + 1 ) *3 + 1 ];
-                i_height_new = ((Curheight + Leftheight)/2 + 10000) / 0.1;
-                NN_R = index * 4;
-                newHeight[NN_R] = i_height_new / (256 * 256);
-                newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                newHeight[NN_R + 3] = 255;
-            }
-            // 此处将最右边的点补齐
-            Curheight = pos[(ifrom + i * this.width + width - 1) *3 + 1 ];
-            i_height_new = (Curheight + 10000) / 0.1;
-            NN_R = index * 4;
-            newHeight[NN_R] = i_height_new / (256 * 256);
-            newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-            newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-            newHeight[NN_R + 3] = 255;
-            index++;
-
-            // 此处产生上下两行中间的差值点
-            for (let j = 0; j < width-1; j++){
-                Curheight = pos[(ifrom + i * this.width + j) *3 + 1 ];
-                let Downheight = pos[(ifrom + (i + 1) * this.width + j) *3 + 1 ];
-                NN_R = index * 4;
-                i_height_new = ((Curheight + Downheight)/2 + 10000) / 0.1;
-                newHeight[NN_R] = i_height_new / (256 * 256);
-                newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                newHeight[NN_R + 3] = 255;
+        var myBuffer = new Uint8Array(width * height); // 只保留高度数值，其他不变
+        for (let i = 0; i < width; i++){
+            for (let j = 0; j < height; j++){
+                myBuffer[index] = pos[((i+ifrom)*pwidth+(j+jfrom))*3+1]; // 采样
                 index++;
             }
-            // 此处将两行中间差值点的最右边的点补齐
-            Curheight = pos[(ifrom + i * this.width + width - 1) *3 + 1 ];
-            let Downheight = pos[(ifrom + (i + 1) * this.width + width - 1) *3 + 1 ];
-            NN_R = index * 4;
-            i_height_new = ((Curheight + Downheight)/2 + 10000) / 0.1;
-            newHeight[NN_R] = i_height_new / (256 * 256);
-            newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-            newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-            newHeight[NN_R + 3] = 255;
         }
-        for (let j = 0; j < width-1; j++){
-            Curheight = pos[(ifrom + (height - 1) * this.width + j) *3 + 1 ];
-            i_height_new = (Curheight + 10000) / 0.1;
-            NN_R = index * 4;
-            newHeight[NN_R] = i_height_new / (256 * 256);
-            newHeight[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-            newHeight[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-            newHeight[NN_R + 3] = 255;
-            index++;
-        }
-        let geometry = new MapNodeHeightGeometry(1.0, 1.0, this.width -1, this.height - 1, true, 10, {data: newHeight}, true);
-        return geometry;
+        return myBuffer;
     }
     /**
      * 获取数据，并压缩到一半，高为height，宽为width/2
      * @param {*} dataBuffer 
      * @returns 
      */
-    getData(dataBuffer) {
+    getData(dataBuffer, tileW, tileH) {
         var view = new DataView(dataBuffer);
         var zBuffer = new Uint8Array(view.byteLength);
         var index = 0;
@@ -14529,18 +14513,18 @@ class TianDiTuHeightProvider extends MapProvider {
             return undefined
         }
         var dZlib = pako.inflate(zBuffer);
-        console.error(dZlib);
+        // console.error(dZlib);
         var DataSize = 2;
         if (dZlib.length !== 150 * 150 * DataSize){
             return undefined;
         }
         //创建DateView
-        let width= this.width/2, height = this.height;
+        let width= tileW+1, height = tileH+1;
         var myW = width;
         var myH = height;
-        var myBuffer = new Uint8Array(myW * myH * 4);
+        var myBuffer = new Uint8Array(myW * myH);
         var i_height;
-        var NN, NN_R;
+        var NN;
         var jj_n, ii_n;
         // var jj_f, ii_f;
         // let heights = new Float32Array(width * height);
@@ -14557,14 +14541,15 @@ class TianDiTuHeightProvider extends MapProvider {
                 if (i_height > 10000 || i_height < -2000) {
                     i_height = 0;
                 }
-                //数据结果整理成Cesium内部形式
-                NN_R = (jj * myW + ii) * 4;
                 //Cesium内部就是这么表示的
-                var i_height_new = (i_height + 1000) / 0.001;
-                myBuffer[NN_R] = i_height_new / (256 * 256);
-                myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                myBuffer[NN_R + 3] = 255;
+                // var i_height_new = (i_height + 1000) / 0.03;
+                var i_height_new = (i_height + 1000) / 0.3-10000;
+                // myBuffer[NN_R] = i_height_new / (256 * 256);
+                // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
+                // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
+                // myBuffer[NN_R + 3] = 255;
+                myBuffer[index] = i_height_new; //真实高度
+                index++;
                 // let newHeight = i_height*100 + 90000;
                 // heights[index] = i_height; //真实高度
                 // index++;
@@ -14575,33 +14560,12 @@ class TianDiTuHeightProvider extends MapProvider {
         // console.error("myBuffer: ", myBuffer);
         return myBuffer;
     }
-    mergeData(dataLeft, dataRight) {
-        let result = new Uint8Array(this.width * this.height * 4);
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width/2; j++) {
-                let index = (i * this.width + j) * 4;
-                let indexLeft = (i * this.width/2 + j) * 4;
-                result[index] = dataLeft[indexLeft];
-                result[index+1] = dataLeft[indexLeft+1];
-                result[index+2] = dataLeft[indexLeft+2];
-                result[index+3] = dataLeft[indexLeft+3];
-            }
-        }
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width/2; j++) {
-                let index = (i * this.width + j) * 4;
-                let indexLeft = (i * this.width + j + this.width/2) * 4;
-                result[index] = dataRight[indexLeft];
-                result[index+1] = dataRight[indexLeft+1];
-                result[index+2] = dataRight[indexLeft+2];
-                result[index+3] = dataRight[indexLeft+3];
-            }
-        }
-        return result;
-    }
 
-    createGeometry(dataBuffer) {
-        let geometry = new MapNodeHeightGeometry(1.0,1.0, width-1, height-1,true,10,{data:dataBuffer}, true);
+    createGeometry(dataBuffer, width=63, height=63) {
+        if (dataBuffer === undefined) {
+            return DefaultPlaneProvider.geometry;
+        }
+        let geometry = new MapNodeHeightGeometry(1.0,1.0, width, height,true,100000,{data:dataBuffer, dataTypes: 1}, true);
         return geometry;
     }
 }
@@ -15551,1538 +15515,6 @@ const _startEvent$1 = { type: 'start' };
 const _endEvent$1 = { type: 'end' };
 const _ray$1 = new Ray();
 const _plane$1 = new Plane();
-const _TILT_LIMIT$1 = Math.cos( 70 * MathUtils.DEG2RAD );
-
-const _v$1 = new Vector3();
-const _twoPI$1 = 2 * Math.PI;
-
-const _STATE$1 = {
-	NONE: - 1,
-	ROTATE: 0,
-	DOLLY: 1,
-	PAN: 2,
-	TOUCH_ROTATE: 3,
-	TOUCH_PAN: 4,
-	TOUCH_DOLLY_PAN: 5,
-	TOUCH_DOLLY_ROTATE: 6
-};
-const _EPS$1 = 0.000001;
-
-let OrbitControls$1 = class OrbitControls extends Controls {
-
-	constructor( object, domElement = null ) {
-
-		super( object, domElement );
-
-		this.state = _STATE$1.NONE;
-
-		// Set to false to disable this control
-		this.enabled = true;
-
-		// "target" sets the location of focus, where the object orbits around
-		this.target = new Vector3();
-
-		// Sets the 3D cursor (similar to Blender), from which the maxTargetRadius takes effect
-		this.cursor = new Vector3();
-
-		// How far you can dolly in and out ( PerspectiveCamera only )
-		this.minDistance = 0;
-		this.maxDistance = Infinity;
-
-		// How far you can zoom in and out ( OrthographicCamera only )
-		this.minZoom = 0;
-		this.maxZoom = Infinity;
-
-		// Limit camera target within a spherical area around the cursor
-		this.minTargetRadius = 0;
-		this.maxTargetRadius = Infinity;
-
-		// How far you can orbit vertically, upper and lower limits.
-		// Range is 0 to Math.PI radians.
-		this.minPolarAngle = 0; // radians
-		this.maxPolarAngle = Math.PI; // radians
-
-		// How far you can orbit horizontally, upper and lower limits.
-		// If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
-		this.minAzimuthAngle = - Infinity; // radians
-		this.maxAzimuthAngle = Infinity; // radians
-
-		// Set to true to enable damping (inertia)
-		// If damping is enabled, you must call controls.update() in your animation loop
-		this.enableDamping = false;
-		this.dampingFactor = 0.05;
-
-		// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
-		// Set to false to disable zooming
-		this.enableZoom = true;
-		this.zoomSpeed = 1.0;
-
-		// Set to false to disable rotating
-		this.enableRotate = true;
-		this.rotateSpeed = 1.0;
-
-		// Set to false to disable panning
-		this.enablePan = true;
-		this.panSpeed = 1.0;
-		this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
-		this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
-		this.zoomToCursor = false;
-
-		// Set to true to automatically rotate around the target
-		// If auto-rotate is enabled, you must call controls.update() in your animation loop
-		this.autoRotate = false;
-		this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
-
-		// The four arrow keys
-		this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
-
-		// Mouse buttons
-		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
-
-		// Touch fingers
-		this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
-
-		// for reset
-		this.target0 = this.target.clone();
-		this.position0 = this.object.position.clone();
-		this.zoom0 = this.object.zoom;
-
-		// the target DOM element for key events
-		this._domElementKeyEvents = null;
-
-		// internals
-
-		this._lastPosition = new Vector3();
-		this._lastQuaternion = new Quaternion();
-		this._lastTargetPosition = new Vector3();
-
-		// so camera.up is the orbit axis
-		this._quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
-		this._quatInverse = this._quat.clone().invert();
-
-		// current position in spherical coordinates
-		this._spherical = new Spherical();
-		this._sphericalDelta = new Spherical();
-
-		this._scale = 1;
-		this._panOffset = new Vector3();
-
-		this._rotateStart = new Vector2();
-		this._rotateEnd = new Vector2();
-		this._rotateDelta = new Vector2();
-
-		this._panStart = new Vector2();
-		this._panEnd = new Vector2();
-		this._panDelta = new Vector2();
-
-		this._dollyStart = new Vector2();
-		this._dollyEnd = new Vector2();
-		this._dollyDelta = new Vector2();
-
-		this._dollyDirection = new Vector3();
-		this._mouse = new Vector2();
-		this._performCursorZoom = false;
-
-		this._pointers = [];
-		this._pointerPositions = {};
-
-		this._controlActive = false;
-
-		// event listeners
-
-		this._onPointerMove = onPointerMove$1.bind( this );
-		this._onPointerDown = onPointerDown$1.bind( this );
-		this._onPointerUp = onPointerUp$1.bind( this );
-		this._onContextMenu = onContextMenu$1.bind( this );
-		this._onMouseWheel = onMouseWheel$1.bind( this );
-		this._onKeyDown = onKeyDown$1.bind( this );
-
-		this._onTouchStart = onTouchStart$1.bind( this );
-		this._onTouchMove = onTouchMove$1.bind( this );
-
-		this._onMouseDown = onMouseDown$1.bind( this );
-		this._onMouseMove = onMouseMove$1.bind( this );
-
-		this._interceptControlDown = interceptControlDown$1.bind( this );
-		this._interceptControlUp = interceptControlUp$1.bind( this );
-
-		//
-
-		if ( this.domElement !== null ) {
-
-			this.connect();
-
-		}
-
-		this.update();
-
-	}
-
-	connect() {
-
-		this.domElement.addEventListener( 'pointerdown', this._onPointerDown );
-		this.domElement.addEventListener( 'pointercancel', this._onPointerUp );
-
-		this.domElement.addEventListener( 'contextmenu', this._onContextMenu );
-		this.domElement.addEventListener( 'wheel', this._onMouseWheel, { passive: false } );
-
-		const document = this.domElement.getRootNode(); // offscreen canvas compatibility
-		document.addEventListener( 'keydown', this._interceptControlDown, { passive: true, capture: true } );
-
-		this.domElement.style.touchAction = 'none'; // disable touch scroll
-
-	}
-
-	disconnect() {
-
-		this.domElement.removeEventListener( 'pointerdown', this._onPointerDown );
-		this.domElement.removeEventListener( 'pointermove', this._onPointerMove );
-		this.domElement.removeEventListener( 'pointerup', this._onPointerUp );
-		this.domElement.removeEventListener( 'pointercancel', this._onPointerUp );
-
-		this.domElement.removeEventListener( 'wheel', this._onMouseWheel );
-		this.domElement.removeEventListener( 'contextmenu', this._onContextMenu );
-
-		this.stopListenToKeyEvents();
-
-		const document = this.domElement.getRootNode(); // offscreen canvas compatibility
-		document.removeEventListener( 'keydown', this._interceptControlDown, { capture: true } );
-
-		this.domElement.style.touchAction = 'auto';
-
-	}
-
-	dispose() {
-
-		this.disconnect();
-
-	}
-
-	getPolarAngle() {
-
-		return this._spherical.phi;
-
-	}
-
-	getAzimuthalAngle() {
-
-		return this._spherical.theta;
-
-	}
-
-	getDistance() {
-
-		return this.object.position.distanceTo( this.target );
-
-	}
-
-	listenToKeyEvents( domElement ) {
-
-		domElement.addEventListener( 'keydown', this._onKeyDown );
-		this._domElementKeyEvents = domElement;
-
-	}
-
-	stopListenToKeyEvents() {
-
-		if ( this._domElementKeyEvents !== null ) {
-
-			this._domElementKeyEvents.removeEventListener( 'keydown', this._onKeyDown );
-			this._domElementKeyEvents = null;
-
-		}
-
-	}
-
-	saveState() {
-
-		this.target0.copy( this.target );
-		this.position0.copy( this.object.position );
-		this.zoom0 = this.object.zoom;
-
-	}
-
-	reset() {
-
-		this.target.copy( this.target0 );
-		this.object.position.copy( this.position0 );
-		this.object.zoom = this.zoom0;
-
-		this.object.updateProjectionMatrix();
-		this.dispatchEvent( _changeEvent$1 );
-
-		this.update();
-
-		this.state = _STATE$1.NONE;
-
-	}
-
-	update( deltaTime = null ) {
-
-		const position = this.object.position;
-
-		_v$1.copy( position ).sub( this.target );
-
-		// rotate offset to "y-axis-is-up" space
-		_v$1.applyQuaternion( this._quat );
-
-		// angle from z-axis around y-axis
-		this._spherical.setFromVector3( _v$1 );
-
-		if ( this.autoRotate && this.state === _STATE$1.NONE ) {
-
-			this._rotateLeft( this._getAutoRotationAngle( deltaTime ) );
-
-		}
-
-		if ( this.enableDamping ) {
-
-			this._spherical.theta += this._sphericalDelta.theta * this.dampingFactor;
-			this._spherical.phi += this._sphericalDelta.phi * this.dampingFactor;
-
-		} else {
-
-			this._spherical.theta += this._sphericalDelta.theta;
-			this._spherical.phi += this._sphericalDelta.phi;
-
-		}
-
-		// restrict theta to be between desired limits
-
-		let min = this.minAzimuthAngle;
-		let max = this.maxAzimuthAngle;
-
-		if ( isFinite( min ) && isFinite( max ) ) {
-
-			if ( min < - Math.PI ) min += _twoPI$1; else if ( min > Math.PI ) min -= _twoPI$1;
-
-			if ( max < - Math.PI ) max += _twoPI$1; else if ( max > Math.PI ) max -= _twoPI$1;
-
-			if ( min <= max ) {
-
-				this._spherical.theta = Math.max( min, Math.min( max, this._spherical.theta ) );
-
-			} else {
-
-				this._spherical.theta = ( this._spherical.theta > ( min + max ) / 2 ) ?
-					Math.max( min, this._spherical.theta ) :
-					Math.min( max, this._spherical.theta );
-
-			}
-
-		}
-
-		// restrict phi to be between desired limits
-		this._spherical.phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, this._spherical.phi ) );
-
-		this._spherical.makeSafe();
-
-
-		// move target to panned location
-
-		if ( this.enableDamping === true ) {
-
-			this.target.addScaledVector( this._panOffset, this.dampingFactor );
-
-		} else {
-
-			this.target.add( this._panOffset );
-
-		}
-
-		// Limit the target distance from the cursor to create a sphere around the center of interest
-		this.target.sub( this.cursor );
-		this.target.clampLength( this.minTargetRadius, this.maxTargetRadius );
-		this.target.add( this.cursor );
-
-		let zoomChanged = false;
-		// adjust the camera position based on zoom only if we're not zooming to the cursor or if it's an ortho camera
-		// we adjust zoom later in these cases
-		if ( this.zoomToCursor && this._performCursorZoom || this.object.isOrthographicCamera ) {
-
-			this._spherical.radius = this._clampDistance( this._spherical.radius );
-
-		} else {
-
-			const prevRadius = this._spherical.radius;
-			this._spherical.radius = this._clampDistance( this._spherical.radius * this._scale );
-			zoomChanged = prevRadius != this._spherical.radius;
-
-		}
-
-		_v$1.setFromSpherical( this._spherical );
-
-		// rotate offset back to "camera-up-vector-is-up" space
-		_v$1.applyQuaternion( this._quatInverse );
-
-		position.copy( this.target ).add( _v$1 );
-
-		this.object.lookAt( this.target );
-
-		if ( this.enableDamping === true ) {
-
-			this._sphericalDelta.theta *= ( 1 - this.dampingFactor );
-			this._sphericalDelta.phi *= ( 1 - this.dampingFactor );
-
-			this._panOffset.multiplyScalar( 1 - this.dampingFactor );
-
-		} else {
-
-			this._sphericalDelta.set( 0, 0, 0 );
-
-			this._panOffset.set( 0, 0, 0 );
-
-		}
-
-		// adjust camera position
-		if ( this.zoomToCursor && this._performCursorZoom ) {
-
-			let newRadius = null;
-			if ( this.object.isPerspectiveCamera ) {
-
-				// move the camera down the pointer ray
-				// this method avoids floating point error
-				const prevRadius = _v$1.length();
-				newRadius = this._clampDistance( prevRadius * this._scale );
-
-				const radiusDelta = prevRadius - newRadius;
-				this.object.position.addScaledVector( this._dollyDirection, radiusDelta );
-				this.object.updateMatrixWorld();
-
-				zoomChanged = !! radiusDelta;
-
-			} else if ( this.object.isOrthographicCamera ) {
-
-				// adjust the ortho camera position based on zoom changes
-				const mouseBefore = new Vector3( this._mouse.x, this._mouse.y, 0 );
-				mouseBefore.unproject( this.object );
-
-				const prevZoom = this.object.zoom;
-				this.object.zoom = Math.max( this.minZoom, Math.min( this.maxZoom, this.object.zoom / this._scale ) );
-				this.object.updateProjectionMatrix();
-
-				zoomChanged = prevZoom !== this.object.zoom;
-
-				const mouseAfter = new Vector3( this._mouse.x, this._mouse.y, 0 );
-				mouseAfter.unproject( this.object );
-
-				this.object.position.sub( mouseAfter ).add( mouseBefore );
-				this.object.updateMatrixWorld();
-
-				newRadius = _v$1.length();
-
-			} else {
-
-				console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled.' );
-				this.zoomToCursor = false;
-
-			}
-
-			// handle the placement of the target
-			if ( newRadius !== null ) {
-
-				if ( this.screenSpacePanning ) {
-
-					// position the orbit target in front of the new camera position
-					this.target.set( 0, 0, - 1 )
-						.transformDirection( this.object.matrix )
-						.multiplyScalar( newRadius )
-						.add( this.object.position );
-
-				} else {
-
-					// get the ray and translation plane to compute target
-					_ray$1.origin.copy( this.object.position );
-					_ray$1.direction.set( 0, 0, - 1 ).transformDirection( this.object.matrix );
-
-					// if the camera is 20 degrees above the horizon then don't adjust the focus target to avoid
-					// extremely large values
-					if ( Math.abs( this.object.up.dot( _ray$1.direction ) ) < _TILT_LIMIT$1 ) {
-
-						this.object.lookAt( this.target );
-
-					} else {
-
-						_plane$1.setFromNormalAndCoplanarPoint( this.object.up, this.target );
-						_ray$1.intersectPlane( _plane$1, this.target );
-
-					}
-
-				}
-
-			}
-
-		} else if ( this.object.isOrthographicCamera ) {
-
-			const prevZoom = this.object.zoom;
-			this.object.zoom = Math.max( this.minZoom, Math.min( this.maxZoom, this.object.zoom / this._scale ) );
-
-			if ( prevZoom !== this.object.zoom ) {
-
-				this.object.updateProjectionMatrix();
-				zoomChanged = true;
-
-			}
-
-		}
-
-		this._scale = 1;
-		this._performCursorZoom = false;
-
-		// update condition is:
-		// min(camera displacement, camera rotation in radians)^2 > EPS
-		// using small-angle approximation cos(x/2) = 1 - x^2 / 8
-
-		if ( zoomChanged ||
-			this._lastPosition.distanceToSquared( this.object.position ) > _EPS$1 ||
-			8 * ( 1 - this._lastQuaternion.dot( this.object.quaternion ) ) > _EPS$1 ||
-			this._lastTargetPosition.distanceToSquared( this.target ) > _EPS$1 ) {
-
-			this.dispatchEvent( _changeEvent$1 );
-
-			this._lastPosition.copy( this.object.position );
-			this._lastQuaternion.copy( this.object.quaternion );
-			this._lastTargetPosition.copy( this.target );
-
-			return true;
-
-		}
-
-		return false;
-
-	}
-
-	_getAutoRotationAngle( deltaTime ) {
-
-		if ( deltaTime !== null ) {
-
-			return ( _twoPI$1 / 60 * this.autoRotateSpeed ) * deltaTime;
-
-		} else {
-
-			return _twoPI$1 / 60 / 60 * this.autoRotateSpeed;
-
-		}
-
-	}
-
-	_getZoomScale( delta ) {
-
-		const normalizedDelta = Math.abs( delta * 0.01 );
-		return Math.pow( 0.95, this.zoomSpeed * normalizedDelta );
-
-	}
-
-	_rotateLeft( angle ) {
-
-		this._sphericalDelta.theta -= angle;
-
-	}
-
-	_rotateUp( angle ) {
-
-		this._sphericalDelta.phi -= angle;
-
-	}
-
-	_panLeft( distance, objectMatrix ) {
-
-		_v$1.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
-		_v$1.multiplyScalar( - distance );
-
-		this._panOffset.add( _v$1 );
-
-	}
-
-	_panUp( distance, objectMatrix ) {
-
-		if ( this.screenSpacePanning === true ) {
-
-			_v$1.setFromMatrixColumn( objectMatrix, 1 );
-
-		} else {
-
-			_v$1.setFromMatrixColumn( objectMatrix, 0 );
-			_v$1.crossVectors( this.object.up, _v$1 );
-
-		}
-
-		_v$1.multiplyScalar( distance );
-
-		this._panOffset.add( _v$1 );
-
-	}
-
-	// deltaX and deltaY are in pixels; right and down are positive
-	_pan( deltaX, deltaY ) {
-
-		const element = this.domElement;
-
-		if ( this.object.isPerspectiveCamera ) {
-
-			// perspective
-			const position = this.object.position;
-			_v$1.copy( position ).sub( this.target );
-			let targetDistance = _v$1.length();
-
-			// half of the fov is center to top of screen
-			targetDistance *= Math.tan( ( this.object.fov / 2 ) * Math.PI / 180.0 );
-
-			// we use only clientHeight here so aspect ratio does not distort speed
-			this._panLeft( 2 * deltaX * targetDistance / element.clientHeight, this.object.matrix );
-			this._panUp( 2 * deltaY * targetDistance / element.clientHeight, this.object.matrix );
-
-		} else if ( this.object.isOrthographicCamera ) {
-
-			// orthographic
-			this._panLeft( deltaX * ( this.object.right - this.object.left ) / this.object.zoom / element.clientWidth, this.object.matrix );
-			this._panUp( deltaY * ( this.object.top - this.object.bottom ) / this.object.zoom / element.clientHeight, this.object.matrix );
-
-		} else {
-
-			// camera neither orthographic nor perspective
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
-			this.enablePan = false;
-
-		}
-
-	}
-
-	_dollyOut( dollyScale ) {
-
-		if ( this.object.isPerspectiveCamera || this.object.isOrthographicCamera ) {
-
-			this._scale /= dollyScale;
-
-		} else {
-
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
-			this.enableZoom = false;
-
-		}
-
-	}
-
-	_dollyIn( dollyScale ) {
-
-		if ( this.object.isPerspectiveCamera || this.object.isOrthographicCamera ) {
-
-			this._scale *= dollyScale;
-
-		} else {
-
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
-			this.enableZoom = false;
-
-		}
-
-	}
-
-	_updateZoomParameters( x, y ) {
-
-		if ( ! this.zoomToCursor ) {
-
-			return;
-
-		}
-
-		this._performCursorZoom = true;
-
-		const rect = this.domElement.getBoundingClientRect();
-		const dx = x - rect.left;
-		const dy = y - rect.top;
-		const w = rect.width;
-		const h = rect.height;
-
-		this._mouse.x = ( dx / w ) * 2 - 1;
-		this._mouse.y = - ( dy / h ) * 2 + 1;
-
-		this._dollyDirection.set( this._mouse.x, this._mouse.y, 1 ).unproject( this.object ).sub( this.object.position ).normalize();
-
-	}
-
-	_clampDistance( dist ) {
-
-		return Math.max( this.minDistance, Math.min( this.maxDistance, dist ) );
-
-	}
-
-	//
-	// event callbacks - update the object state
-	//
-
-	_handleMouseDownRotate( event ) {
-
-		this._rotateStart.set( event.clientX, event.clientY );
-
-	}
-
-	_handleMouseDownDolly( event ) {
-
-		this._updateZoomParameters( event.clientX, event.clientX );
-		this._dollyStart.set( event.clientX, event.clientY );
-
-	}
-
-	_handleMouseDownPan( event ) {
-
-		this._panStart.set( event.clientX, event.clientY );
-
-	}
-
-	_handleMouseMoveRotate( event ) {
-
-		this._rotateEnd.set( event.clientX, event.clientY );
-
-		this._rotateDelta.subVectors( this._rotateEnd, this._rotateStart ).multiplyScalar( this.rotateSpeed );
-
-		const element = this.domElement;
-
-		this._rotateLeft( _twoPI$1 * this._rotateDelta.x / element.clientHeight ); // yes, height
-
-		this._rotateUp( _twoPI$1 * this._rotateDelta.y / element.clientHeight );
-
-		this._rotateStart.copy( this._rotateEnd );
-
-		this.update();
-
-	}
-
-	_handleMouseMoveDolly( event ) {
-
-		this._dollyEnd.set( event.clientX, event.clientY );
-
-		this._dollyDelta.subVectors( this._dollyEnd, this._dollyStart );
-
-		if ( this._dollyDelta.y > 0 ) {
-
-			this._dollyOut( this._getZoomScale( this._dollyDelta.y ) );
-
-		} else if ( this._dollyDelta.y < 0 ) {
-
-			this._dollyIn( this._getZoomScale( this._dollyDelta.y ) );
-
-		}
-
-		this._dollyStart.copy( this._dollyEnd );
-
-		this.update();
-
-	}
-
-	_handleMouseMovePan( event ) {
-
-		this._panEnd.set( event.clientX, event.clientY );
-
-		this._panDelta.subVectors( this._panEnd, this._panStart ).multiplyScalar( this.panSpeed );
-
-		this._pan( this._panDelta.x, this._panDelta.y );
-
-		this._panStart.copy( this._panEnd );
-
-		this.update();
-
-	}
-
-	_handleMouseWheel( event ) {
-
-		this._updateZoomParameters( event.clientX, event.clientY );
-
-		if ( event.deltaY < 0 ) {
-
-			this._dollyIn( this._getZoomScale( event.deltaY ) );
-
-		} else if ( event.deltaY > 0 ) {
-
-			this._dollyOut( this._getZoomScale( event.deltaY ) );
-
-		}
-
-		this.update();
-
-	}
-
-	_handleKeyDown( event ) {
-
-		let needsUpdate = false;
-
-		switch ( event.code ) {
-
-			case this.keys.UP:
-
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-					this._rotateUp( _twoPI$1 * this.rotateSpeed / this.domElement.clientHeight );
-
-				} else {
-
-					this._pan( 0, this.keyPanSpeed );
-
-				}
-
-				needsUpdate = true;
-				break;
-
-			case this.keys.BOTTOM:
-
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-					this._rotateUp( - _twoPI$1 * this.rotateSpeed / this.domElement.clientHeight );
-
-				} else {
-
-					this._pan( 0, - this.keyPanSpeed );
-
-				}
-
-				needsUpdate = true;
-				break;
-
-			case this.keys.LEFT:
-
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-					this._rotateLeft( _twoPI$1 * this.rotateSpeed / this.domElement.clientHeight );
-
-				} else {
-
-					this._pan( this.keyPanSpeed, 0 );
-
-				}
-
-				needsUpdate = true;
-				break;
-
-			case this.keys.RIGHT:
-
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-					this._rotateLeft( - _twoPI$1 * this.rotateSpeed / this.domElement.clientHeight );
-
-				} else {
-
-					this._pan( - this.keyPanSpeed, 0 );
-
-				}
-
-				needsUpdate = true;
-				break;
-
-		}
-
-		if ( needsUpdate ) {
-
-			// prevent the browser from scrolling on cursor keys
-			event.preventDefault();
-
-			this.update();
-
-		}
-
-
-	}
-
-	_handleTouchStartRotate( event ) {
-
-		if ( this._pointers.length === 1 ) {
-
-			this._rotateStart.set( event.pageX, event.pageY );
-
-		} else {
-
-			const position = this._getSecondPointerPosition( event );
-
-			const x = 0.5 * ( event.pageX + position.x );
-			const y = 0.5 * ( event.pageY + position.y );
-
-			this._rotateStart.set( x, y );
-
-		}
-
-	}
-
-	_handleTouchStartPan( event ) {
-
-		if ( this._pointers.length === 1 ) {
-
-			this._panStart.set( event.pageX, event.pageY );
-
-		} else {
-
-			const position = this._getSecondPointerPosition( event );
-
-			const x = 0.5 * ( event.pageX + position.x );
-			const y = 0.5 * ( event.pageY + position.y );
-
-			this._panStart.set( x, y );
-
-		}
-
-	}
-
-	_handleTouchStartDolly( event ) {
-
-		const position = this._getSecondPointerPosition( event );
-
-		const dx = event.pageX - position.x;
-		const dy = event.pageY - position.y;
-
-		const distance = Math.sqrt( dx * dx + dy * dy );
-
-		this._dollyStart.set( 0, distance );
-
-	}
-
-	_handleTouchStartDollyPan( event ) {
-
-		if ( this.enableZoom ) this._handleTouchStartDolly( event );
-
-		if ( this.enablePan ) this._handleTouchStartPan( event );
-
-	}
-
-	_handleTouchStartDollyRotate( event ) {
-
-		if ( this.enableZoom ) this._handleTouchStartDolly( event );
-
-		if ( this.enableRotate ) this._handleTouchStartRotate( event );
-
-	}
-
-	_handleTouchMoveRotate( event ) {
-
-		if ( this._pointers.length == 1 ) {
-
-			this._rotateEnd.set( event.pageX, event.pageY );
-
-		} else {
-
-			const position = this._getSecondPointerPosition( event );
-
-			const x = 0.5 * ( event.pageX + position.x );
-			const y = 0.5 * ( event.pageY + position.y );
-
-			this._rotateEnd.set( x, y );
-
-		}
-
-		this._rotateDelta.subVectors( this._rotateEnd, this._rotateStart ).multiplyScalar( this.rotateSpeed );
-
-		const element = this.domElement;
-
-		this._rotateLeft( _twoPI$1 * this._rotateDelta.x / element.clientHeight ); // yes, height
-
-		this._rotateUp( _twoPI$1 * this._rotateDelta.y / element.clientHeight );
-
-		this._rotateStart.copy( this._rotateEnd );
-
-	}
-
-	_handleTouchMovePan( event ) {
-
-		if ( this._pointers.length === 1 ) {
-
-			this._panEnd.set( event.pageX, event.pageY );
-
-		} else {
-
-			const position = this._getSecondPointerPosition( event );
-
-			const x = 0.5 * ( event.pageX + position.x );
-			const y = 0.5 * ( event.pageY + position.y );
-
-			this._panEnd.set( x, y );
-
-		}
-
-		this._panDelta.subVectors( this._panEnd, this._panStart ).multiplyScalar( this.panSpeed );
-
-		this._pan( this._panDelta.x, this._panDelta.y );
-
-		this._panStart.copy( this._panEnd );
-
-	}
-
-	_handleTouchMoveDolly( event ) {
-
-		const position = this._getSecondPointerPosition( event );
-
-		const dx = event.pageX - position.x;
-		const dy = event.pageY - position.y;
-
-		const distance = Math.sqrt( dx * dx + dy * dy );
-
-		this._dollyEnd.set( 0, distance );
-
-		this._dollyDelta.set( 0, Math.pow( this._dollyEnd.y / this._dollyStart.y, this.zoomSpeed ) );
-
-		this._dollyOut( this._dollyDelta.y );
-
-		this._dollyStart.copy( this._dollyEnd );
-
-		const centerX = ( event.pageX + position.x ) * 0.5;
-		const centerY = ( event.pageY + position.y ) * 0.5;
-
-		this._updateZoomParameters( centerX, centerY );
-
-	}
-
-	_handleTouchMoveDollyPan( event ) {
-
-		if ( this.enableZoom ) this._handleTouchMoveDolly( event );
-
-		if ( this.enablePan ) this._handleTouchMovePan( event );
-
-	}
-
-	_handleTouchMoveDollyRotate( event ) {
-
-		if ( this.enableZoom ) this._handleTouchMoveDolly( event );
-
-		if ( this.enableRotate ) this._handleTouchMoveRotate( event );
-
-	}
-
-	// pointers
-
-	_addPointer( event ) {
-
-		this._pointers.push( event.pointerId );
-
-	}
-
-	_removePointer( event ) {
-
-		delete this._pointerPositions[ event.pointerId ];
-
-		for ( let i = 0; i < this._pointers.length; i ++ ) {
-
-			if ( this._pointers[ i ] == event.pointerId ) {
-
-				this._pointers.splice( i, 1 );
-				return;
-
-			}
-
-		}
-
-	}
-
-	_isTrackingPointer( event ) {
-
-		for ( let i = 0; i < this._pointers.length; i ++ ) {
-
-			if ( this._pointers[ i ] == event.pointerId ) return true;
-
-		}
-
-		return false;
-
-	}
-
-	_trackPointer( event ) {
-
-		let position = this._pointerPositions[ event.pointerId ];
-
-		if ( position === undefined ) {
-
-			position = new Vector2();
-			this._pointerPositions[ event.pointerId ] = position;
-
-		}
-
-		position.set( event.pageX, event.pageY );
-
-	}
-
-	_getSecondPointerPosition( event ) {
-
-		const pointerId = ( event.pointerId === this._pointers[ 0 ] ) ? this._pointers[ 1 ] : this._pointers[ 0 ];
-
-		return this._pointerPositions[ pointerId ];
-
-	}
-
-	//
-
-	_customWheelEvent( event ) {
-
-		const mode = event.deltaMode;
-
-		// minimal wheel event altered to meet delta-zoom demand
-		const newEvent = {
-			clientX: event.clientX,
-			clientY: event.clientY,
-			deltaY: event.deltaY,
-		};
-
-		switch ( mode ) {
-
-			case 1: // LINE_MODE
-				newEvent.deltaY *= 16;
-				break;
-
-			case 2: // PAGE_MODE
-				newEvent.deltaY *= 100;
-				break;
-
-		}
-
-		// detect if event was triggered by pinching
-		if ( event.ctrlKey && ! this._controlActive ) {
-
-			newEvent.deltaY *= 10;
-
-		}
-
-		return newEvent;
-
-	}
-
-};
-
-function onPointerDown$1( event ) {
-
-	if ( this.enabled === false ) return;
-
-	if ( this._pointers.length === 0 ) {
-
-		this.domElement.setPointerCapture( event.pointerId );
-
-		this.domElement.addEventListener( 'pointermove', this._onPointerMove );
-		this.domElement.addEventListener( 'pointerup', this._onPointerUp );
-
-	}
-
-	//
-
-	if ( this._isTrackingPointer( event ) ) return;
-
-	//
-
-	this._addPointer( event );
-
-	if ( event.pointerType === 'touch' ) {
-
-		this._onTouchStart( event );
-
-	} else {
-
-		this._onMouseDown( event );
-
-	}
-
-}
-
-function onPointerMove$1( event ) {
-
-	if ( this.enabled === false ) return;
-
-	if ( event.pointerType === 'touch' ) {
-
-		this._onTouchMove( event );
-
-	} else {
-
-		this._onMouseMove( event );
-
-	}
-
-}
-
-function onPointerUp$1( event ) {
-
-	this._removePointer( event );
-
-	switch ( this._pointers.length ) {
-
-		case 0:
-
-			this.domElement.releasePointerCapture( event.pointerId );
-
-			this.domElement.removeEventListener( 'pointermove', this._onPointerMove );
-			this.domElement.removeEventListener( 'pointerup', this._onPointerUp );
-
-			this.dispatchEvent( _endEvent$1 );
-
-			this.state = _STATE$1.NONE;
-
-			break;
-
-		case 1:
-
-			const pointerId = this._pointers[ 0 ];
-			const position = this._pointerPositions[ pointerId ];
-
-			// minimal placeholder event - allows state correction on pointer-up
-			this._onTouchStart( { pointerId: pointerId, pageX: position.x, pageY: position.y } );
-
-			break;
-
-	}
-
-}
-
-function onMouseDown$1( event ) {
-
-	let mouseAction;
-
-	switch ( event.button ) {
-
-		case 0:
-
-			mouseAction = this.mouseButtons.LEFT;
-			break;
-
-		case 1:
-
-			mouseAction = this.mouseButtons.MIDDLE;
-			break;
-
-		case 2:
-
-			mouseAction = this.mouseButtons.RIGHT;
-			break;
-
-		default:
-
-			mouseAction = - 1;
-
-	}
-
-	switch ( mouseAction ) {
-
-		case MOUSE.DOLLY:
-
-			if ( this.enableZoom === false ) return;
-
-			this._handleMouseDownDolly( event );
-
-			this.state = _STATE$1.DOLLY;
-
-			break;
-
-		case MOUSE.ROTATE:
-
-			if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-				if ( this.enablePan === false ) return;
-
-				this._handleMouseDownPan( event );
-
-				this.state = _STATE$1.PAN;
-
-			} else {
-
-				if ( this.enableRotate === false ) return;
-
-				this._handleMouseDownRotate( event );
-
-				this.state = _STATE$1.ROTATE;
-
-			}
-
-			break;
-
-		case MOUSE.PAN:
-
-			if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-				if ( this.enableRotate === false ) return;
-
-				this._handleMouseDownRotate( event );
-
-				this.state = _STATE$1.ROTATE;
-
-			} else {
-
-				if ( this.enablePan === false ) return;
-
-				this._handleMouseDownPan( event );
-
-				this.state = _STATE$1.PAN;
-
-			}
-
-			break;
-
-		default:
-
-			this.state = _STATE$1.NONE;
-
-	}
-
-	if ( this.state !== _STATE$1.NONE ) {
-
-		this.dispatchEvent( _startEvent$1 );
-
-	}
-
-}
-
-function onMouseMove$1( event ) {
-
-	switch ( this.state ) {
-
-		case _STATE$1.ROTATE:
-
-			if ( this.enableRotate === false ) return;
-
-			this._handleMouseMoveRotate( event );
-
-			break;
-
-		case _STATE$1.DOLLY:
-
-			if ( this.enableZoom === false ) return;
-
-			this._handleMouseMoveDolly( event );
-
-			break;
-
-		case _STATE$1.PAN:
-
-			if ( this.enablePan === false ) return;
-
-			this._handleMouseMovePan( event );
-
-			break;
-
-	}
-
-}
-
-function onMouseWheel$1( event ) {
-
-	if ( this.enabled === false || this.enableZoom === false || this.state !== _STATE$1.NONE ) return;
-
-	event.preventDefault();
-
-	this.dispatchEvent( _startEvent$1 );
-
-	this._handleMouseWheel( this._customWheelEvent( event ) );
-
-	this.dispatchEvent( _endEvent$1 );
-
-}
-
-function onKeyDown$1( event ) {
-
-	if ( this.enabled === false || this.enablePan === false ) return;
-
-	this._handleKeyDown( event );
-
-}
-
-function onTouchStart$1( event ) {
-
-	this._trackPointer( event );
-
-	switch ( this._pointers.length ) {
-
-		case 1:
-
-			switch ( this.touches.ONE ) {
-
-				case TOUCH.ROTATE:
-
-					if ( this.enableRotate === false ) return;
-
-					this._handleTouchStartRotate( event );
-
-					this.state = _STATE$1.TOUCH_ROTATE;
-
-					break;
-
-				case TOUCH.PAN:
-
-					if ( this.enablePan === false ) return;
-
-					this._handleTouchStartPan( event );
-
-					this.state = _STATE$1.TOUCH_PAN;
-
-					break;
-
-				default:
-
-					this.state = _STATE$1.NONE;
-
-			}
-
-			break;
-
-		case 2:
-
-			switch ( this.touches.TWO ) {
-
-				case TOUCH.DOLLY_PAN:
-
-					if ( this.enableZoom === false && this.enablePan === false ) return;
-
-					this._handleTouchStartDollyPan( event );
-
-					this.state = _STATE$1.TOUCH_DOLLY_PAN;
-
-					break;
-
-				case TOUCH.DOLLY_ROTATE:
-
-					if ( this.enableZoom === false && this.enableRotate === false ) return;
-
-					this._handleTouchStartDollyRotate( event );
-
-					this.state = _STATE$1.TOUCH_DOLLY_ROTATE;
-
-					break;
-
-				default:
-
-					this.state = _STATE$1.NONE;
-
-			}
-
-			break;
-
-		default:
-
-			this.state = _STATE$1.NONE;
-
-	}
-
-	if ( this.state !== _STATE$1.NONE ) {
-
-		this.dispatchEvent( _startEvent$1 );
-
-	}
-
-}
-
-function onTouchMove$1( event ) {
-
-	this._trackPointer( event );
-
-	switch ( this.state ) {
-
-		case _STATE$1.TOUCH_ROTATE:
-
-			if ( this.enableRotate === false ) return;
-
-			this._handleTouchMoveRotate( event );
-
-			this.update();
-
-			break;
-
-		case _STATE$1.TOUCH_PAN:
-
-			if ( this.enablePan === false ) return;
-
-			this._handleTouchMovePan( event );
-
-			this.update();
-
-			break;
-
-		case _STATE$1.TOUCH_DOLLY_PAN:
-
-			if ( this.enableZoom === false && this.enablePan === false ) return;
-
-			this._handleTouchMoveDollyPan( event );
-
-			this.update();
-
-			break;
-
-		case _STATE$1.TOUCH_DOLLY_ROTATE:
-
-			if ( this.enableZoom === false && this.enableRotate === false ) return;
-
-			this._handleTouchMoveDollyRotate( event );
-
-			this.update();
-
-			break;
-
-		default:
-
-			this.state = _STATE$1.NONE;
-
-	}
-
-}
-
-function onContextMenu$1( event ) {
-
-	if ( this.enabled === false ) return;
-
-	event.preventDefault();
-
-}
-
-function interceptControlDown$1( event ) {
-
-	if ( event.key === 'Control' ) {
-
-		this._controlActive = true;
-
-		const document = this.domElement.getRootNode(); // offscreen canvas compatibility
-
-		document.addEventListener( 'keyup', this._interceptControlUp, { passive: true, capture: true } );
-
-	}
-
-}
-
-function interceptControlUp$1( event ) {
-
-	if ( event.key === 'Control' ) {
-
-		this._controlActive = false;
-
-		const document = this.domElement.getRootNode(); // offscreen canvas compatibility
-
-		document.removeEventListener( 'keyup', this._interceptControlUp, { passive: true, capture: true } );
-
-	}
-
-}
-
-// MapControls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-//
-//    Orbit - right mouse, or left mouse + ctrl/meta/shiftKey / touch: two-finger rotate
-//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-//    Pan - left mouse, or arrow keys / touch: one-finger move
-
-class MapControls extends OrbitControls$1 {
-
-	constructor( object, domElement ) {
-
-		super( object, domElement );
-
-		this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
-
-		this.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
-
-		this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_ROTATE };
-
-	}
-
-}
-
-// OrbitControls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-//
-//    Orbit - left mouse / touch: one-finger move
-//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
-
-const _changeEvent = { type: 'change' };
-const _startEvent = { type: 'start' };
-const _endEvent = { type: 'end' };
-const _ray = new Ray();
-const _plane = new Plane();
 const _TILT_LIMIT = Math.cos( 70 * MathUtils.DEG2RAD );
 
 const _v = new Vector3();
@@ -17100,7 +15532,7 @@ const _STATE = {
 };
 const _EPS = 0.000001;
 
-class OrbitControls extends Controls {
+let OrbitControls$1 = class OrbitControls extends Controls {
 
 	constructor( object, domElement = null ) {
 
@@ -17341,7 +15773,7 @@ class OrbitControls extends Controls {
 		this.object.zoom = this.zoom0;
 
 		this.object.updateProjectionMatrix();
-		this.dispatchEvent( _changeEvent );
+		this.dispatchEvent( _changeEvent$1 );
 
 		this.update();
 
@@ -17524,19 +15956,19 @@ class OrbitControls extends Controls {
 				} else {
 
 					// get the ray and translation plane to compute target
-					_ray.origin.copy( this.object.position );
-					_ray.direction.set( 0, 0, - 1 ).transformDirection( this.object.matrix );
+					_ray$1.origin.copy( this.object.position );
+					_ray$1.direction.set( 0, 0, - 1 ).transformDirection( this.object.matrix );
 
 					// if the camera is 20 degrees above the horizon then don't adjust the focus target to avoid
 					// extremely large values
-					if ( Math.abs( this.object.up.dot( _ray.direction ) ) < _TILT_LIMIT ) {
+					if ( Math.abs( this.object.up.dot( _ray$1.direction ) ) < _TILT_LIMIT ) {
 
 						this.object.lookAt( this.target );
 
 					} else {
 
-						_plane.setFromNormalAndCoplanarPoint( this.object.up, this.target );
-						_ray.intersectPlane( _plane, this.target );
+						_plane$1.setFromNormalAndCoplanarPoint( this.object.up, this.target );
+						_ray$1.intersectPlane( _plane$1, this.target );
 
 					}
 
@@ -17570,7 +16002,7 @@ class OrbitControls extends Controls {
 			8 * ( 1 - this._lastQuaternion.dot( this.object.quaternion ) ) > _EPS ||
 			this._lastTargetPosition.distanceToSquared( this.target ) > _EPS ) {
 
-			this.dispatchEvent( _changeEvent );
+			this.dispatchEvent( _changeEvent$1 );
 
 			this._lastPosition.copy( this.object.position );
 			this._lastQuaternion.copy( this.object.quaternion );
@@ -18171,7 +16603,7 @@ class OrbitControls extends Controls {
 
 	}
 
-}
+};
 
 function onPointerDown( event ) {
 
@@ -18235,7 +16667,7 @@ function onPointerUp( event ) {
 			this.domElement.removeEventListener( 'pointermove', this._onPointerMove );
 			this.domElement.removeEventListener( 'pointerup', this._onPointerUp );
 
-			this.dispatchEvent( _endEvent );
+			this.dispatchEvent( _endEvent$1 );
 
 			this.state = _STATE.NONE;
 
@@ -18346,7 +16778,7 @@ function onMouseDown( event ) {
 
 	if ( this.state !== _STATE.NONE ) {
 
-		this.dispatchEvent( _startEvent );
+		this.dispatchEvent( _startEvent$1 );
 
 	}
 
@@ -18390,11 +16822,11 @@ function onMouseWheel( event ) {
 
 	event.preventDefault();
 
-	this.dispatchEvent( _startEvent );
+	this.dispatchEvent( _startEvent$1 );
 
 	this._handleMouseWheel( this._customWheelEvent( event ) );
 
-	this.dispatchEvent( _endEvent );
+	this.dispatchEvent( _endEvent$1 );
 
 }
 
@@ -18484,7 +16916,7 @@ function onTouchStart( event ) {
 
 	if ( this.state !== _STATE.NONE ) {
 
-		this.dispatchEvent( _startEvent );
+		this.dispatchEvent( _startEvent$1 );
 
 	}
 
@@ -18575,6 +17007,1587 @@ function interceptControlUp( event ) {
 		const document = this.domElement.getRootNode(); // offscreen canvas compatibility
 
 		document.removeEventListener( 'keyup', this._interceptControlUp, { passive: true, capture: true } );
+
+	}
+
+}
+
+// MapControls performs orbiting, dollying (zooming), and panning.
+// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//
+//    Orbit - right mouse, or left mouse + ctrl/meta/shiftKey / touch: two-finger rotate
+//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+//    Pan - left mouse, or arrow keys / touch: one-finger move
+
+class MapControls extends OrbitControls$1 {
+
+	constructor( object, domElement ) {
+
+		super( object, domElement );
+
+		this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
+
+		this.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
+
+		this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_ROTATE };
+
+	}
+
+}
+
+// OrbitControls performs orbiting, dollying (zooming), and panning.
+// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//
+//    Orbit - left mouse / touch: one-finger move
+//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
+
+// 原修改方案为看着某个点 参考链接：https://github.com/sciecode/three.js/commit/dccf1578343bb9b7c79bb2eb2004d5ee34a76e6a#diff-ffef32863dd826c87a45cfb28c4ddd83
+// 现在是在旋转的时候观察点也会改变。
+const _changeEvent = { type: 'change' };
+const _startEvent = { type: 'start' };
+const _endEvent = { type: 'end' };
+const _ray = new Ray();
+const _plane = new Plane();
+const TILT_LIMIT = Math.cos( 70 * MathUtils.DEG2RAD );
+
+class OrbitControls extends EventDispatcher {
+
+	constructor( object, domElement ) {
+
+		super();
+
+		this.object = object;
+		this.domElement = domElement;
+		this.domElement.style.touchAction = 'none'; // disable touch scroll
+
+		// Set to false to disable this control
+		this.enabled = true;
+
+		// "target" sets the location of focus, where the object orbits around
+		this.target = new Vector3();
+		this.pivot = new Vector3();
+
+		// Sets the 3D cursor (similar to Blender), from which the maxTargetRadius takes effect
+		this.cursor = new Vector3();
+
+		// How far you can dolly in and out ( PerspectiveCamera only )
+		this.minDistance = 0;
+		this.maxDistance = Infinity;
+
+		// How far you can zoom in and out ( OrthographicCamera only )
+		this.minZoom = 0;
+		this.maxZoom = Infinity;
+
+		// Limit camera target within a spherical area around the cursor
+		this.minTargetRadius = 0;
+		this.maxTargetRadius = Infinity;
+
+		// How far you can orbit vertically, upper and lower limits.
+		// Range is 0 to Math.PI radians.
+		this.minPolarAngle = 0; // radians
+		this.maxPolarAngle = Math.PI; // radians
+
+		// How far you can orbit horizontally, upper and lower limits.
+		// If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
+		this.minAzimuthAngle = - Infinity; // radians
+		this.maxAzimuthAngle = Infinity; // radians
+
+		// Set to true to enable damping (inertia)
+		// If damping is enabled, you must call controls.update() in your animation loop
+		this.enableDamping = false;
+		this.dampingFactor = 0.05;
+
+		// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
+		// Set to false to disable zooming
+		this.enableZoom = true;
+		this.zoomSpeed = 1.0;
+
+		// Set to false to disable rotating
+		this.enableRotate = true;
+		this.rotateSpeed = 1.0;
+
+		// Set to false to disable panning
+		this.enablePan = true;
+		this.panSpeed = 1.0;
+		this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
+		this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+		this.zoomToCursor = false;
+
+		// Set to true to automatically rotate around the target
+		// If auto-rotate is enabled, you must call controls.update() in your animation loop
+		this.autoRotate = false;
+		this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
+
+		// The four arrow keys
+		this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
+
+		// Mouse buttons
+		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+
+		// Touch fingers
+		this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+
+		// for reset
+		this.target0 = this.target.clone();
+		this.pivot0 = this.pivot.clone();
+		this.position0 = this.object.position.clone();
+		this.zoom0 = this.object.zoom;
+
+		// the target DOM element for key events
+		this._domElementKeyEvents = null;
+
+		//
+		// public methods
+		//
+
+		this.getPolarAngle = function () {
+
+			return spherical.phi;
+
+		};
+
+		this.getAzimuthalAngle = function () {
+
+			return spherical.theta;
+
+		};
+
+		this.getDistance = function () {
+
+			return this.object.position.distanceTo( this.target );
+
+		};
+
+		this.listenToKeyEvents = function ( domElement ) {
+
+			domElement.addEventListener( 'keydown', onKeyDown );
+			this._domElementKeyEvents = domElement;
+
+		};
+
+		this.stopListenToKeyEvents = function () {
+
+			this._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
+			this._domElementKeyEvents = null;
+
+		};
+
+		this.saveState = function () {
+
+			scope.target0.copy( scope.target );
+			scope.pivot0.copy( scope.pivot );
+			scope.position0.copy( scope.object.position );
+			scope.zoom0 = scope.object.zoom;
+
+		};
+
+		this.reset = function () {
+
+			scope.target.copy( scope.target0 );
+			scope.pivot.copy( scope.pivot0 );
+			scope.object.position.copy( scope.position0 );
+			scope.object.zoom = scope.zoom0;
+
+			scope.object.updateProjectionMatrix();
+			scope.dispatchEvent( _changeEvent );
+
+			scope.update();
+
+			state = STATE.NONE;
+
+		};
+
+		// // 设置相机位置
+		// this.setAngle = function (phi, theta, distance) {
+
+		// 	var r = distance || scope.object.position.distanceTo(scope.target);
+	
+		// 	var x = r * Math.cos(phi - Math.PI / 2) * Math.sin(theta) + scope.target.x;
+		// 	var y = r * Math.sin(phi + Math.PI / 2) + scope.target.y;
+		// 	var z = r * Math.cos(phi - Math.PI / 2) * Math.cos(theta) + scope.target.z;
+	
+		// 	scope.object.position.set(x, y, z);
+	
+		// 	scope.object.lookAt(scope.target);
+	
+		// };
+	
+
+		// this method is exposed, but perhaps it would be better if we can make it private...
+		this.update = function () {
+
+			const offset = new Vector3();
+			const offsetTarget = new Vector3();
+
+			// so camera.up is the orbit axis
+			const quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
+			const quatInverse = quat.clone().invert();
+
+			const quatTarget = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
+			const quatInverseTarget = quat.clone().invert();
+
+			const lastPosition = new Vector3();
+			const lastQuaternion = new Quaternion();
+			const lastTargetPosition = new Vector3();
+
+			const twoPI = 2 * Math.PI;
+
+			return function update( deltaTime = null ) {
+
+				const position = scope.object.position;
+				// offset 本来为计算相机位置到旋转点的偏移，
+				//  根据该思路，计算目标点到旋转点的偏移
+				// offset.copy( position ).sub( scope.target );
+				offset.copy( position ).sub( scope.pivot );
+				// rotate offset to "y-axis-is-up" space
+				offset.applyQuaternion( quat );
+				// angle from z-axis around y-axis
+				spherical.setFromVector3( offset );
+				// 当是鼠标右键时，目标点不跟着旋转变化
+				let notRightClick = !(this.target.x ==0 && this.target.y == 0 && this.target.z == 0) && this.getMouseId() !== 2;
+				// let notRightClick = true;
+				if (notRightClick){
+					offsetTarget.copy( scope.target ).sub( scope.pivot );
+					offsetTarget.applyQuaternion( quatTarget );
+					sphericalTarget.setFromVector3( offsetTarget );
+				}
+				
+
+				
+				
+
+				if ( scope.autoRotate && state === STATE.NONE ) {
+
+					rotateLeft( getAutoRotationAngle( deltaTime ) );
+
+				}
+
+				if ( scope.enableDamping ) {
+
+					spherical.theta += sphericalDelta.theta * scope.dampingFactor;
+					spherical.phi += sphericalDelta.phi * scope.dampingFactor;
+					if (notRightClick){
+						sphericalTarget.theta += sphericalDelta.theta * scope.dampingFactor;
+						sphericalTarget.phi += sphericalDelta.phi * scope.dampingFactor;
+					}
+
+				} else {
+
+					spherical.theta += sphericalDelta.theta;
+					spherical.phi += sphericalDelta.phi;
+					if (notRightClick){
+						sphericalTarget.theta += sphericalDelta.theta;
+						sphericalTarget.phi += sphericalDelta.phi;
+					}
+					
+
+				}
+
+				// restrict theta to be between desired limits
+
+				let min = scope.minAzimuthAngle;
+				let max = scope.maxAzimuthAngle;
+
+				if ( isFinite( min ) && isFinite( max ) ) {
+
+					if ( min < - Math.PI ) min += twoPI; else if ( min > Math.PI ) min -= twoPI;
+
+					if ( max < - Math.PI ) max += twoPI; else if ( max > Math.PI ) max -= twoPI;
+
+					if ( min <= max ) {
+
+						spherical.theta = Math.max( min, Math.min( max, spherical.theta ) );
+
+					} else {
+
+						spherical.theta = ( spherical.theta > ( min + max ) / 2 ) ?
+							Math.max( min, spherical.theta ) :
+							Math.min( max, spherical.theta );
+						if (notRightClick){
+							sphericalTarget.theta = ( sphericalTarget.theta > ( min + max ) / 2 ) ?
+							Math.max( min, sphericalTarget.theta ) :
+							Math.min( max, sphericalTarget.theta );
+						}
+						
+
+					}
+
+				}
+
+				// restrict phi to be between desired limits
+				spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
+
+				spherical.makeSafe();
+				if (notRightClick){
+					sphericalTarget.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, sphericalTarget.phi ) );
+					sphericalTarget.makeSafe();
+				}
+				
+
+
+				// move target to panned location
+
+				if ( scope.enableDamping === true ) {
+
+					scope.target.addScaledVector( panOffset, scope.dampingFactor );
+
+				} else {
+
+					scope.pivot.add( panOffset );
+
+				}
+
+				// Limit the target distance from the cursor to create a sphere around the center of interest
+				scope.target.sub( scope.cursor );
+				scope.target.clampLength( scope.minTargetRadius, scope.maxTargetRadius );
+				scope.target.add( scope.cursor );
+				scope.pivot.sub( scope.cursor );
+				scope.pivot.clampLength( scope.minTargetRadius, scope.maxTargetRadius );
+				scope.pivot.add( scope.cursor );
+
+				// adjust the camera position based on zoom only if we're not zooming to the cursor or if it's an ortho camera
+				// we adjust zoom later in these cases
+				if ( scope.zoomToCursor && performCursorZoom || scope.object.isOrthographicCamera ) {
+
+					spherical.radius = clampDistance( spherical.radius );
+					sphericalTarget.radius = clampDistance( sphericalTarget.radius );
+
+				} else {
+
+					spherical.radius = clampDistance( spherical.radius * scale );
+					sphericalTarget.radius = clampDistance( sphericalTarget.radius * scale );
+
+				}
+
+				// sphericalTarget.phi = spherical.phi;
+				// sphericalTarget.theta = spherical.theta;
+				// sphericalTarget.radius =  clampDistance( sphericalTarget.radius * scale );
+				// sphericalTarget.makeSafe();
+
+				offset.setFromSpherical( spherical );
+				
+
+				// rotate offset back to "camera-up-vector-is-up" space
+				offset.applyQuaternion( quatInverse );
+				if(notRightClick){
+					offsetTarget.setFromSpherical( sphericalTarget );
+					offsetTarget.applyQuaternion( quatInverseTarget );
+				}
+				// position.copy( scope.target ).add( offset );
+				position.copy( scope.pivot  ).add( offset );
+				if(notRightClick){
+				    scope.target.copy( scope.pivot ).add( offsetTarget );
+				}
+				
+				scope.object.lookAt( scope.target );
+
+				if ( scope.enableDamping === true ) {
+
+					sphericalDelta.theta *= ( 1 - scope.dampingFactor );
+					sphericalDelta.phi *= ( 1 - scope.dampingFactor );
+
+					panOffset.multiplyScalar( 1 - scope.dampingFactor );
+
+				} else {
+
+					sphericalDelta.set( 0, 0, 0 );
+
+					panOffset.set( 0, 0, 0 );
+
+				}
+
+				// adjust camera position
+				let zoomChanged = false;
+				if ( scope.zoomToCursor && performCursorZoom ) {
+
+					let newRadius = null;
+					if ( scope.object.isPerspectiveCamera ) {
+
+						// move the camera down the pointer ray
+						// this method avoids floating point error
+						const prevRadius = offset.length();
+						newRadius = clampDistance( prevRadius * scale );
+
+						const radiusDelta = prevRadius - newRadius;
+						scope.object.position.addScaledVector( dollyDirection, radiusDelta );
+						scope.object.updateMatrixWorld();
+
+					} else if ( scope.object.isOrthographicCamera ) {
+
+						// adjust the ortho camera position based on zoom changes
+						const mouseBefore = new Vector3( mouse.x, mouse.y, 0 );
+						mouseBefore.unproject( scope.object );
+
+						scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
+						scope.object.updateProjectionMatrix();
+						zoomChanged = true;
+
+						const mouseAfter = new Vector3( mouse.x, mouse.y, 0 );
+						mouseAfter.unproject( scope.object );
+
+						scope.object.position.sub( mouseAfter ).add( mouseBefore );
+						scope.object.updateMatrixWorld();
+
+						newRadius = offset.length();
+
+					} else {
+
+						console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled.' );
+						scope.zoomToCursor = false;
+
+					}
+
+					// handle the placement of the target
+					if ( newRadius !== null ) {
+
+						if ( this.screenSpacePanning ) {
+
+							// position the orbit target in front of the new camera position
+							scope.target.set( 0, 0, - 1 )
+								.transformDirection( scope.object.matrix )
+								.multiplyScalar( newRadius )
+								.add( scope.object.position );
+							scope.pivot.set( 0, 0, - 1 )
+								.transformDirection( scope.object.matrix )
+								.multiplyScalar( newRadius )
+								.add( scope.object.position );
+
+						} else {
+
+							// get the ray and translation plane to compute target
+							_ray.origin.copy( scope.object.position );
+							_ray.direction.set( 0, 0, - 1 ).transformDirection( scope.object.matrix );
+
+							// if the camera is 20 degrees above the horizon then don't adjust the focus target to avoid
+							// extremely large values
+							if ( Math.abs( scope.object.up.dot( _ray.direction ) ) < TILT_LIMIT ) {
+
+								object.lookAt( scope.target );
+
+							} else {
+
+								_plane.setFromNormalAndCoplanarPoint( scope.object.up, scope.target );
+								_ray.intersectPlane( _plane, scope.pivot );
+
+							}
+
+						}
+
+					}
+
+				} else if ( scope.object.isOrthographicCamera ) {
+
+					scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
+					scope.object.updateProjectionMatrix();
+					zoomChanged = true;
+
+				}
+
+				scale = 1;
+				performCursorZoom = false;
+
+				// update condition is:
+				// min(camera displacement, camera rotation in radians)^2 > EPS
+				// using small-angle approximation cos(x/2) = 1 - x^2 / 8
+
+				if ( zoomChanged ||
+					lastPosition.distanceToSquared( scope.object.position ) > EPS ||
+					8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ||
+					lastTargetPosition.distanceToSquared( scope.pivot ) > 0 ) {
+
+					scope.dispatchEvent( _changeEvent );
+
+					lastPosition.copy( scope.object.position );
+					lastQuaternion.copy( scope.object.quaternion );
+					lastTargetPosition.copy( scope.pivot );
+
+					return true;
+
+				}
+
+				return false;
+
+			};
+
+		}();
+
+		this.dispose = function () {
+
+			scope.domElement.removeEventListener( 'contextmenu', onContextMenu );
+
+			scope.domElement.removeEventListener( 'pointerdown', onPointerDown );
+			scope.domElement.removeEventListener( 'pointercancel', onPointerUp );
+			scope.domElement.removeEventListener( 'wheel', onMouseWheel );
+
+			scope.domElement.removeEventListener( 'pointermove', onPointerMove );
+			scope.domElement.removeEventListener( 'pointerup', onPointerUp );
+
+
+			if ( scope._domElementKeyEvents !== null ) {
+
+				scope._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
+				scope._domElementKeyEvents = null;
+
+			}
+
+			//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
+
+		};
+
+		//
+		// internals
+		//
+		this.getState = function () {
+
+			return state;
+
+		};
+		// 该方法主要是为了获取到是鼠标的哪个按键触发了事件，左键，右键，滚轮。
+		this.getMouseId = function () {
+
+			return mouseId;
+		};
+
+		const scope = this;
+
+		const STATE = {
+			NONE: - 1,
+			ROTATE: 0,
+			DOLLY: 1,
+			PAN: 2,
+			TOUCH_ROTATE: 3,
+			TOUCH_PAN: 4,
+			TOUCH_DOLLY_PAN: 5,
+			TOUCH_DOLLY_ROTATE: 6
+		};
+
+		let state = STATE.NONE;
+		let mouseId = - 1;
+		const EPS = 0.000001;
+
+		// current position in spherical coordinates
+		const spherical = new Spherical();
+		const sphericalTarget = new Spherical();
+		const sphericalDelta = new Spherical();
+
+		let scale = 1;
+		const panOffset = new Vector3();
+
+		const rotateStart = new Vector2();
+		const rotateEnd = new Vector2();
+		const rotateDelta = new Vector2();
+
+		const panStart = new Vector2();
+		const panEnd = new Vector2();
+		const panDelta = new Vector2();
+
+		const dollyStart = new Vector2();
+		const dollyEnd = new Vector2();
+		const dollyDelta = new Vector2();
+
+		const dollyDirection = new Vector3();
+		const mouse = new Vector2();
+		let performCursorZoom = false;
+
+		const pointers = [];
+		const pointerPositions = {};
+
+		let controlActive = false;
+
+		function getAutoRotationAngle( deltaTime ) {
+
+			if ( deltaTime !== null ) {
+
+				return ( 2 * Math.PI / 60 * scope.autoRotateSpeed ) * deltaTime;
+
+			} else {
+
+				return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+
+			}
+
+		}
+
+		function getZoomScale( delta ) {
+
+			const normalizedDelta = Math.abs( delta * 0.01 );
+			return Math.pow( 0.95, scope.zoomSpeed * normalizedDelta );
+
+		}
+
+		function rotateLeft( angle ) {
+
+			sphericalDelta.theta -= angle;
+
+		}
+
+		function rotateUp( angle ) {
+
+			sphericalDelta.phi -= angle;
+
+		}
+
+		const panLeft = function () {
+
+			const v = new Vector3();
+
+			return function panLeft( distance, objectMatrix ) {
+
+				v.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
+				v.multiplyScalar( - distance );
+
+				panOffset.add( v );
+
+			};
+
+		}();
+
+		const panUp = function () {
+
+			const v = new Vector3();
+
+			return function panUp( distance, objectMatrix ) {
+
+				if ( scope.screenSpacePanning === true ) {
+
+					v.setFromMatrixColumn( objectMatrix, 1 );
+
+				} else {
+
+					v.setFromMatrixColumn( objectMatrix, 0 );
+					v.crossVectors( scope.object.up, v );
+
+				}
+
+				v.multiplyScalar( distance );
+
+				panOffset.add( v );
+
+			};
+
+		}();
+
+		// deltaX and deltaY are in pixels; right and down are positive
+		const pan = function () {
+
+			const offset = new Vector3();
+
+			return function pan( deltaX, deltaY ) {
+
+				const element = scope.domElement;
+
+				if ( scope.object.isPerspectiveCamera ) {
+
+					// perspective
+					const position = scope.object.position;
+					offset.copy( position ).sub( scope.target );
+					let targetDistance = offset.length();
+
+					// half of the fov is center to top of screen
+					targetDistance *= Math.tan( ( scope.object.fov / 2 ) * Math.PI / 180.0 );
+
+					// we use only clientHeight here so aspect ratio does not distort speed
+					panLeft( 2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix );
+					panUp( 2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix );
+
+				} else if ( scope.object.isOrthographicCamera ) {
+
+					// orthographic
+					panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
+					panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
+
+				} else {
+
+					// camera neither orthographic nor perspective
+					console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
+					scope.enablePan = false;
+
+				}
+
+			};
+
+		}();
+
+		function dollyOut( dollyScale ) {
+
+			if ( scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera ) {
+
+				scale /= dollyScale;
+
+			} else {
+
+				console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+				scope.enableZoom = false;
+
+			}
+
+		}
+
+		function dollyIn( dollyScale ) {
+
+			if ( scope.object.isPerspectiveCamera || scope.object.isOrthographicCamera ) {
+
+				scale *= dollyScale;
+
+			} else {
+
+				console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+				scope.enableZoom = false;
+
+			}
+
+		}
+
+		function updateZoomParameters( x, y ) {
+
+			if ( ! scope.zoomToCursor ) {
+
+				return;
+
+			}
+
+			performCursorZoom = true;
+
+			const rect = scope.domElement.getBoundingClientRect();
+			const dx = x - rect.left;
+			const dy = y - rect.top;
+			const w = rect.width;
+			const h = rect.height;
+
+			mouse.x = ( dx / w ) * 2 - 1;
+			mouse.y = - ( dy / h ) * 2 + 1;
+
+			dollyDirection.set( mouse.x, mouse.y, 1 ).unproject( scope.object ).sub( scope.object.position ).normalize();
+
+		}
+
+		function clampDistance( dist ) {
+
+			return Math.max( scope.minDistance, Math.min( scope.maxDistance, dist ) );
+
+		}
+
+		//
+		// event callbacks - update the object state
+		//
+
+		function handleMouseDownRotate( event ) {
+
+			rotateStart.set( event.clientX, event.clientY );
+
+		}
+
+		function handleMouseDownDolly( event ) {
+
+			updateZoomParameters( event.clientX, event.clientX );
+			dollyStart.set( event.clientX, event.clientY );
+
+		}
+
+		function handleMouseDownPan( event ) {
+
+			panStart.set( event.clientX, event.clientY );
+
+		}
+
+		function handleMouseMoveRotate( event ) {
+
+			rotateEnd.set( event.clientX, event.clientY );
+
+			rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+
+			const element = scope.domElement;
+
+			rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+
+			rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+			rotateStart.copy( rotateEnd );
+
+			scope.update();
+
+		}
+
+		function handleMouseMoveDolly( event ) {
+
+			dollyEnd.set( event.clientX, event.clientY );
+
+			dollyDelta.subVectors( dollyEnd, dollyStart );
+
+			if ( dollyDelta.y > 0 ) {
+
+				dollyOut( getZoomScale( dollyDelta.y ) );
+
+			} else if ( dollyDelta.y < 0 ) {
+
+				dollyIn( getZoomScale( dollyDelta.y ) );
+
+			}
+
+			dollyStart.copy( dollyEnd );
+
+			scope.update();
+
+		}
+
+		function handleMouseMovePan( event ) {
+
+			panEnd.set( event.clientX, event.clientY );
+
+			panDelta.subVectors( panEnd, panStart ).multiplyScalar( scope.panSpeed );
+
+			pan( panDelta.x, panDelta.y );
+
+			panStart.copy( panEnd );
+
+			scope.update();
+
+		}
+
+		function handleMouseWheel( event ) {
+
+			updateZoomParameters( event.clientX, event.clientY );
+
+			if ( event.deltaY < 0 ) {
+
+				dollyIn( getZoomScale( event.deltaY ) );
+
+			} else if ( event.deltaY > 0 ) {
+
+				dollyOut( getZoomScale( event.deltaY ) );
+
+			}
+
+			scope.update();
+
+		}
+
+		function handleKeyDown( event ) {
+
+			let needsUpdate = false;
+
+			switch ( event.code ) {
+
+				case scope.keys.UP:
+
+					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+						rotateUp( 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+					} else {
+
+						pan( 0, scope.keyPanSpeed );
+
+					}
+
+					needsUpdate = true;
+					break;
+
+				case scope.keys.BOTTOM:
+
+					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+						rotateUp( - 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+					} else {
+
+						pan( 0, - scope.keyPanSpeed );
+
+					}
+
+					needsUpdate = true;
+					break;
+
+				case scope.keys.LEFT:
+
+					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+						rotateLeft( 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+					} else {
+
+						pan( scope.keyPanSpeed, 0 );
+
+					}
+
+					needsUpdate = true;
+					break;
+
+				case scope.keys.RIGHT:
+
+					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+						rotateLeft( - 2 * Math.PI * scope.rotateSpeed / scope.domElement.clientHeight );
+
+					} else {
+
+						pan( - scope.keyPanSpeed, 0 );
+
+					}
+
+					needsUpdate = true;
+					break;
+
+			}
+
+			if ( needsUpdate ) {
+
+				// prevent the browser from scrolling on cursor keys
+				event.preventDefault();
+
+				scope.update();
+
+			}
+
+
+		}
+
+		function handleTouchStartRotate( event ) {
+
+			if ( pointers.length === 1 ) {
+
+				rotateStart.set( event.pageX, event.pageY );
+
+			} else {
+
+				const position = getSecondPointerPosition( event );
+
+				const x = 0.5 * ( event.pageX + position.x );
+				const y = 0.5 * ( event.pageY + position.y );
+
+				rotateStart.set( x, y );
+
+			}
+
+		}
+
+		function handleTouchStartPan( event ) {
+
+			if ( pointers.length === 1 ) {
+
+				panStart.set( event.pageX, event.pageY );
+
+			} else {
+
+				const position = getSecondPointerPosition( event );
+
+				const x = 0.5 * ( event.pageX + position.x );
+				const y = 0.5 * ( event.pageY + position.y );
+
+				panStart.set( x, y );
+
+			}
+
+		}
+
+		function handleTouchStartDolly( event ) {
+
+			const position = getSecondPointerPosition( event );
+
+			const dx = event.pageX - position.x;
+			const dy = event.pageY - position.y;
+
+			const distance = Math.sqrt( dx * dx + dy * dy );
+
+			dollyStart.set( 0, distance );
+
+		}
+
+		function handleTouchStartDollyPan( event ) {
+
+			if ( scope.enableZoom ) handleTouchStartDolly( event );
+
+			if ( scope.enablePan ) handleTouchStartPan( event );
+
+		}
+
+		function handleTouchStartDollyRotate( event ) {
+
+			if ( scope.enableZoom ) handleTouchStartDolly( event );
+
+			if ( scope.enableRotate ) handleTouchStartRotate( event );
+
+		}
+
+		function handleTouchMoveRotate( event ) {
+
+			if ( pointers.length == 1 ) {
+
+				rotateEnd.set( event.pageX, event.pageY );
+
+			} else {
+
+				const position = getSecondPointerPosition( event );
+
+				const x = 0.5 * ( event.pageX + position.x );
+				const y = 0.5 * ( event.pageY + position.y );
+
+				rotateEnd.set( x, y );
+
+			}
+
+			rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+
+			const element = scope.domElement;
+
+			rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+
+			rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+			rotateStart.copy( rotateEnd );
+
+		}
+
+		function handleTouchMovePan( event ) {
+
+			if ( pointers.length === 1 ) {
+
+				panEnd.set( event.pageX, event.pageY );
+
+			} else {
+
+				const position = getSecondPointerPosition( event );
+
+				const x = 0.5 * ( event.pageX + position.x );
+				const y = 0.5 * ( event.pageY + position.y );
+
+				panEnd.set( x, y );
+
+			}
+
+			panDelta.subVectors( panEnd, panStart ).multiplyScalar( scope.panSpeed );
+
+			pan( panDelta.x, panDelta.y );
+
+			panStart.copy( panEnd );
+
+		}
+
+		function handleTouchMoveDolly( event ) {
+
+			const position = getSecondPointerPosition( event );
+
+			const dx = event.pageX - position.x;
+			const dy = event.pageY - position.y;
+
+			const distance = Math.sqrt( dx * dx + dy * dy );
+
+			dollyEnd.set( 0, distance );
+
+			dollyDelta.set( 0, Math.pow( dollyEnd.y / dollyStart.y, scope.zoomSpeed ) );
+
+			dollyOut( dollyDelta.y );
+
+			dollyStart.copy( dollyEnd );
+
+			const centerX = ( event.pageX + position.x ) * 0.5;
+			const centerY = ( event.pageY + position.y ) * 0.5;
+
+			updateZoomParameters( centerX, centerY );
+
+		}
+
+		function handleTouchMoveDollyPan( event ) {
+
+			if ( scope.enableZoom ) handleTouchMoveDolly( event );
+
+			if ( scope.enablePan ) handleTouchMovePan( event );
+
+		}
+
+		function handleTouchMoveDollyRotate( event ) {
+
+			if ( scope.enableZoom ) handleTouchMoveDolly( event );
+
+			if ( scope.enableRotate ) handleTouchMoveRotate( event );
+
+		}
+
+		//
+		// event handlers - FSM: listen for events and reset state
+		//
+
+		function onPointerDown( event ) {
+
+			if ( scope.enabled === false ) return;
+
+			if ( pointers.length === 0 ) {
+
+				scope.domElement.setPointerCapture( event.pointerId );
+
+				scope.domElement.addEventListener( 'pointermove', onPointerMove );
+				scope.domElement.addEventListener( 'pointerup', onPointerUp );
+
+			}
+
+			//
+
+			addPointer( event );
+
+			if ( event.pointerType === 'touch' ) {
+
+				onTouchStart( event );
+
+			} else {
+
+				onMouseDown( event );
+
+			}
+
+		}
+
+		function onPointerMove( event ) {
+
+			if ( scope.enabled === false ) return;
+
+			if ( event.pointerType === 'touch' ) {
+
+				onTouchMove( event );
+
+			} else {
+
+				onMouseMove( event );
+
+			}
+
+		}
+
+		function onPointerUp( event ) {
+
+			removePointer( event );
+
+			if ( pointers.length === 0 ) {
+
+				scope.domElement.releasePointerCapture( event.pointerId );
+
+				scope.domElement.removeEventListener( 'pointermove', onPointerMove );
+				scope.domElement.removeEventListener( 'pointerup', onPointerUp );
+
+			}
+
+			scope.dispatchEvent( _endEvent );
+
+			state = STATE.NONE;
+
+		}
+
+		function onMouseDown( event ) {
+
+			let mouseAction;
+			mouseId = event.buttons;
+
+			switch ( event.button ) {
+
+				case 0:
+
+					mouseAction = scope.mouseButtons.LEFT;
+					break;
+
+				case 1:
+
+					mouseAction = scope.mouseButtons.MIDDLE;
+					break;
+
+				case 2:
+
+					mouseAction = scope.mouseButtons.RIGHT;
+					break;
+
+				default:
+
+					mouseAction = - 1;
+
+			}
+
+			switch ( mouseAction ) {
+
+				case MOUSE.DOLLY:
+
+					if ( scope.enableZoom === false ) return;
+
+					handleMouseDownDolly( event );
+
+					state = STATE.DOLLY;
+
+					break;
+
+				case MOUSE.ROTATE:
+
+					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+						if ( scope.enablePan === false ) return;
+
+						handleMouseDownPan( event );
+
+						state = STATE.PAN;
+
+					} else {
+
+						if ( scope.enableRotate === false ) return;
+
+						handleMouseDownRotate( event );
+
+						state = STATE.ROTATE;
+
+					}
+
+					break;
+
+				case MOUSE.PAN:
+
+					if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
+
+						if ( scope.enableRotate === false ) return;
+
+						handleMouseDownRotate( event );
+
+						state = STATE.ROTATE;
+
+					} else {
+
+						if ( scope.enablePan === false ) return;
+
+						handleMouseDownPan( event );
+
+						state = STATE.PAN;
+
+					}
+
+					break;
+
+				default:
+
+					state = STATE.NONE;
+
+			}
+
+			if ( state !== STATE.NONE ) {
+
+				scope.dispatchEvent( _startEvent );
+
+			}
+
+		}
+
+		function onMouseMove( event ) {
+			mouseId = event.buttons;
+			switch ( state ) {
+
+				case STATE.ROTATE:
+
+					if ( scope.enableRotate === false ) return;
+
+					handleMouseMoveRotate( event );
+
+					break;
+
+				case STATE.DOLLY:
+
+					if ( scope.enableZoom === false ) return;
+
+					handleMouseMoveDolly( event );
+
+					break;
+
+				case STATE.PAN:
+
+					if ( scope.enablePan === false ) return;
+
+					handleMouseMovePan( event );
+
+					break;
+
+			}
+
+		}
+
+		function onMouseWheel( event ) {
+			mouseId = event.buttons;
+
+			if ( scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE ) return;
+
+			event.preventDefault();
+
+			scope.dispatchEvent( _startEvent );
+
+			handleMouseWheel( customWheelEvent( event ) );
+
+			scope.dispatchEvent( _endEvent );
+
+		}
+
+		function customWheelEvent( event ) {
+
+			const mode = event.deltaMode;
+
+			// minimal wheel event altered to meet delta-zoom demand
+			const newEvent = {
+				clientX: event.clientX,
+				clientY: event.clientY,
+				deltaY: event.deltaY,
+			};
+
+			switch ( mode ) {
+
+				case 1: // LINE_MODE
+					newEvent.deltaY *= 16;
+					break;
+
+				case 2: // PAGE_MODE
+					newEvent.deltaY *= 100;
+					break;
+
+			}
+
+			// detect if event was triggered by pinching
+			if ( event.ctrlKey && !controlActive ) {
+
+				newEvent.deltaY *= 10;
+
+			}
+
+			return newEvent;
+
+		}
+
+		function interceptControlDown( event ) {
+
+			if ( event.key === "Control" ) {
+
+				controlActive = true;
+				
+				document.addEventListener('keyup', interceptControlUp, { passive: true, capture: true });
+
+			}
+
+		}
+
+		function interceptControlUp( event ) {
+
+			if ( event.key === "Control" ) {
+
+				controlActive = false;
+				
+				document.removeEventListener('keyup', interceptControlUp, { passive: true, capture: true });
+
+			}
+
+		}
+
+		function onKeyDown( event ) {
+
+			if ( scope.enabled === false || scope.enablePan === false ) return;
+
+			handleKeyDown( event );
+
+		}
+
+		function onTouchStart( event ) {
+
+			trackPointer( event );
+
+			switch ( pointers.length ) {
+
+				case 1:
+
+					switch ( scope.touches.ONE ) {
+
+						case TOUCH.ROTATE:
+
+							if ( scope.enableRotate === false ) return;
+
+							handleTouchStartRotate( event );
+
+							state = STATE.TOUCH_ROTATE;
+
+							break;
+
+						case TOUCH.PAN:
+
+							if ( scope.enablePan === false ) return;
+
+							handleTouchStartPan( event );
+
+							state = STATE.TOUCH_PAN;
+
+							break;
+
+						default:
+
+							state = STATE.NONE;
+
+					}
+
+					break;
+
+				case 2:
+
+					switch ( scope.touches.TWO ) {
+
+						case TOUCH.DOLLY_PAN:
+
+							if ( scope.enableZoom === false && scope.enablePan === false ) return;
+
+							handleTouchStartDollyPan( event );
+
+							state = STATE.TOUCH_DOLLY_PAN;
+
+							break;
+
+						case TOUCH.DOLLY_ROTATE:
+
+							if ( scope.enableZoom === false && scope.enableRotate === false ) return;
+
+							handleTouchStartDollyRotate( event );
+
+							state = STATE.TOUCH_DOLLY_ROTATE;
+
+							break;
+
+						default:
+
+							state = STATE.NONE;
+
+					}
+
+					break;
+
+				default:
+
+					state = STATE.NONE;
+
+			}
+
+			if ( state !== STATE.NONE ) {
+
+				scope.dispatchEvent( _startEvent );
+
+			}
+
+		}
+
+		function onTouchMove( event ) {
+
+			trackPointer( event );
+
+			switch ( state ) {
+
+				case STATE.TOUCH_ROTATE:
+
+					if ( scope.enableRotate === false ) return;
+
+					handleTouchMoveRotate( event );
+
+					scope.update();
+
+					break;
+
+				case STATE.TOUCH_PAN:
+
+					if ( scope.enablePan === false ) return;
+
+					handleTouchMovePan( event );
+
+					scope.update();
+
+					break;
+
+				case STATE.TOUCH_DOLLY_PAN:
+
+					if ( scope.enableZoom === false && scope.enablePan === false ) return;
+
+					handleTouchMoveDollyPan( event );
+
+					scope.update();
+
+					break;
+
+				case STATE.TOUCH_DOLLY_ROTATE:
+
+					if ( scope.enableZoom === false && scope.enableRotate === false ) return;
+
+					handleTouchMoveDollyRotate( event );
+
+					scope.update();
+
+					break;
+
+				default:
+
+					state = STATE.NONE;
+
+			}
+
+		}
+
+		function onContextMenu( event ) {
+
+			if ( scope.enabled === false ) return;
+
+			event.preventDefault();
+
+		}
+
+		function addPointer( event ) {
+
+			pointers.push( event.pointerId );
+
+		}
+
+		function removePointer( event ) {
+
+			delete pointerPositions[ event.pointerId ];
+
+			for ( let i = 0; i < pointers.length; i ++ ) {
+
+				if ( pointers[ i ] == event.pointerId ) {
+
+					pointers.splice( i, 1 );
+					return;
+
+				}
+
+			}
+
+		}
+
+		function trackPointer( event ) {
+
+			let position = pointerPositions[ event.pointerId ];
+
+			if ( position === undefined ) {
+
+				position = new Vector2();
+				pointerPositions[ event.pointerId ] = position;
+
+			}
+
+			position.set( event.pageX, event.pageY );
+
+		}
+
+		function getSecondPointerPosition( event ) {
+
+			const pointerId = ( event.pointerId === pointers[ 0 ] ) ? pointers[ 1 ] : pointers[ 0 ];
+
+			return pointerPositions[ pointerId ];
+
+		}
+
+		//
+
+		scope.domElement.addEventListener( 'contextmenu', onContextMenu );
+
+		scope.domElement.addEventListener( 'pointerdown', onPointerDown );
+		scope.domElement.addEventListener( 'pointercancel', onPointerUp );
+		scope.domElement.addEventListener( 'wheel', onMouseWheel, { passive: false } );
+
+		document.addEventListener( 'keydown', interceptControlDown, { passive: true, capture: true } );
+
+		// force an update at start
+
+		this.update();
 
 	}
 
@@ -21188,7 +21201,7 @@ class UnrealBloomPass extends Pass {
 		this._oldClearColor = new Color();
 		this.oldClearAlpha = 1;
 
-		this.basic = new MeshBasicMaterial();
+		this.basic = new MeshBasicMaterial$1();
 
 		this.fsQuad = new FullScreenQuad( null );
 
@@ -22607,7 +22620,7 @@ class GLTFMaterialsUnlitExtension {
 
 	getMaterialType() {
 
-		return MeshBasicMaterial;
+		return MeshBasicMaterial$1;
 
 	}
 
@@ -25539,7 +25552,7 @@ class GLTFParser {
 
 		}
 
-		if ( materialDef.normalTexture !== undefined && materialType !== MeshBasicMaterial ) {
+		if ( materialDef.normalTexture !== undefined && materialType !== MeshBasicMaterial$1 ) {
 
 			pending.push( parser.assignTexture( materialParams, 'normalMap', materialDef.normalTexture ) );
 
@@ -25555,7 +25568,7 @@ class GLTFParser {
 
 		}
 
-		if ( materialDef.occlusionTexture !== undefined && materialType !== MeshBasicMaterial ) {
+		if ( materialDef.occlusionTexture !== undefined && materialType !== MeshBasicMaterial$1 ) {
 
 			pending.push( parser.assignTexture( materialParams, 'aoMap', materialDef.occlusionTexture ) );
 
@@ -25567,14 +25580,14 @@ class GLTFParser {
 
 		}
 
-		if ( materialDef.emissiveFactor !== undefined && materialType !== MeshBasicMaterial ) {
+		if ( materialDef.emissiveFactor !== undefined && materialType !== MeshBasicMaterial$1 ) {
 
 			const emissiveFactor = materialDef.emissiveFactor;
 			materialParams.emissive = new Color().setRGB( emissiveFactor[ 0 ], emissiveFactor[ 1 ], emissiveFactor[ 2 ], LinearSRGBColorSpace );
 
 		}
 
-		if ( materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial ) {
+		if ( materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial$1 ) {
 
 			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, SRGBColorSpace ) );
 
@@ -44982,7 +44995,7 @@ function No(e) {
 function wB(e) {
   const t = new Group$1(), n = new PlaneGeometry(10, 5), s = new Vector3(...e.projectPointOntoPlane([0, 0, 0])), r = new Vector3(e.normal.x, e.normal.y, e.normal.z), i = new Vector3().copy(s).add(r);
   n.lookAt(i), n.translate(s.x, s.y, s.z);
-  const o = new MeshBasicMaterial({ color: 65535, side: DoubleSide }), a = new Mesh(n, o), c = new ArrowHelper(r, s, 5, 16776960);
+  const o = new MeshBasicMaterial$1({ color: 65535, side: DoubleSide }), a = new Mesh(n, o), c = new ArrowHelper(r, s, 5, 16776960);
   return t.add(c), t.add(a), t;
 }
 function Uo(e) {
@@ -45440,7 +45453,7 @@ class qB {
     });
     let E, R, B;
     n.gltfLoader ? E = n.gltfLoader : (E = new GLTFLoader(), n.basisTranscoderPath && (R = new KTX2Loader(), R.detectSupport(i ?? new WebGLRenderer()), R.setTranscoderPath(n.basisTranscoderPath + "/"), R.setWorkerLimit(1), E.setKTX2Loader(R)), n.dracoDecoderPath && (B = new DRACOLoader(), B.setDecoderPath(n.dracoDecoderPath + "/"), B.setWorkerLimit(n.maxConcurrency), E.setDRACOLoader(B)));
-    const C = new MeshBasicMaterial({ transparent: n.transparent }), M = {
+    const C = new MeshBasicMaterial$1({ transparent: n.transparent }), M = {
       maximumMemoryUsage: n.maximumMemoryUsage,
       maximumScreenSpaceError: n.maximumScreenSpaceError,
       memoryAdjustedScreenSpaceError: n.memoryAdjustedScreenSpaceError,
@@ -45712,7 +45725,7 @@ class qB {
       a.setIndex(
         new BufferAttribute(o.polygons.triangles.value, 1)
       );
-      const u = new MeshBasicMaterial({
+      const u = new MeshBasicMaterial$1({
         transparent: !0,
         vertexColors: !0,
         opacity: 0.5,
