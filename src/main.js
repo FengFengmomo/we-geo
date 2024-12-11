@@ -13,6 +13,8 @@ export {MapNodeHeightGeometry} from './geometries/MapNodeHeightGeometry';
 export {MapSphereNodeGeometry} from './geometries/MapSphereNodeGeometry';
 export {MapNodeHeightTinGeometry} from './geometries/MapNodeHeightTinGeometry';
 export {MapSphereNodeHeightGeometry} from './geometries/MapSphereNodeHeightGeometry';
+export {MapSphereNodeGraphicsGeometry} from './geometries/MapSphereNodeGraphicsGeometry';
+export {MapSphereNodeHeightGraphicsGeometry} from './geometries/MapSphereNodeHeightGraphicsGeometry';
 
 export {MapNode, QuadTreePosition} from './nodes/MapNode';
 export {MapHeightNode} from './nodes/MapHeightNode';

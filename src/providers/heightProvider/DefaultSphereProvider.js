@@ -55,7 +55,7 @@ export class DefaultSphereProvider extends SphereProvider {
 		const max = 40;
 		// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
 		// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
-		const segments = 64;
+		const segments = 63;
 
 
 	

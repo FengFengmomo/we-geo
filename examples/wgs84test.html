@@ -57,7 +57,7 @@
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 		// Config.outLine.on = true;
-		let test = new DebugProvider(false);
+		let test = new DebugProvider(true);
 		let heightProvider = new DefaultPlaneProvider({
 			tilingScheme: new GraphicTilingScheme()
 		});
@@ -65,13 +65,14 @@
 			tilingScheme: new GraphicTilingScheme()
 		});
 		let tdth = new TianDiTuHeightProvider();
+		provider.maxZoom = 17;
 		// let token = 'pk.eyJ1Ijoia29yeXdrYSIsImEiOiJja2p1ajdlOWozMnF2MzBtajRvOTVzZDRpIn0.nnlX7TDuZ3zuGkZGr_oA3A';
 		// let token = 'pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA';
 		// let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
 		const map = new WegeoMap(); 
 		map.addBaseMap({
-			providers: [provider],
-			heightProvider: cesiumProvider
+			providers: [provider,test],
+			heightProvider: tdth
 		});
 		let imageLayer = new THREE.Group();
 		map.baseMap.add(imageLayer);
@@ -81,7 +82,7 @@
 		// map.moveTo(31.24169-4.268,121.49491,10000);
 		// map.moveTo(31.24169,121.49491,100000);
 		// map.moveTo(39.90710,116.39143,10000);
-		map.moveTo(43.905036,88.109167,100000);
+		map.moveTo(43.905036,88.109167,10000);
 		// map.moveTo(39.908692,116.397477,100000);
 		// let point = Mercator.project({lat:45.993553258799736, lng: 90.14134050768502});
 		// console.log("project point:",point);

@@ -33,23 +33,24 @@ export class MapNodeHeightGeometry extends BufferGeometry
 		if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
 			tiandituExact = true;
 		}
-		// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
-		for (let i = 0, j = 0,k=0; i < data.length && j < vertices.length; i += 4, j += 3,k++) 
-		{
-			if(tiandituExact){
-			    vertices[j + 1] = data[k];
-			} else{
+		if (tiandituExact){
+			for (let  j = 0,k=0; k < data.length && j < vertices.length; j += 3,k++) {
+				vertices[j + 1] = data[k];
+			}
+		} else {
+		    for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) {
 				const r = data[i];
 				const g = data[i + 1];
 				const b = data[i + 2];
-	
+
 				// The value will be composed of the bits RGB
 				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-	
+
 				vertices[j + 1] = value;
 			}
-			
 		}
+		// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
+		
 
 		// Generate the skirt
 		// 设置裙边。
