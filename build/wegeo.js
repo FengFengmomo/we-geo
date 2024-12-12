@@ -1861,7 +1861,13 @@
 				this.geometry = this.mapView.heightProvider.getDefaultGeometry();
 				return;
 			}
-			this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+			let parentGeo;
+			if (this.parentNode !== null){
+			    parentGeo = this.parentNode.geometry;
+			} else {
+				parentGeo = null;
+			}
+			this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y, parentGeo, this.location);
 			// const range = Math.pow(2, zoom);
 			// const max = 40;
 			// const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
@@ -4599,7 +4605,7 @@
 			this.heightProvider = heightProvider;
 			// 设置根节点，准备开始分裂
 			this.setRoot(root);
-			this.preSubdivide();
+			this.preSubdivide(this.root);
 		}
 
 		/**
@@ -4656,6 +4662,7 @@
 				this.scale.copy(this.root.constructor.baseScale);
 				this.root.mapView = this;
 				this.add(this.root); // 将mapnode添加到mapview中
+				this.root.subdivide(); // 分裂根节点
 				// this.root.initialize(); // 将根mapnode初始化
 				if (ts instanceof GraphicTilingScheme) {
 					let scale_c = this.root.constructor.baseScale.clone();
@@ -4681,6 +4688,8 @@
 					this.add(node);
 					node.updateMatrix();
 					node.updateMatrixWorld(true);
+					// this.preSubdivide(node);
+					node.subdivide(); // 增加代码是由于在球体情况下部分节点没有创建，导致不显示，所以先预先创建Level1节点。
 					// @ts-ignore
 
 				}
@@ -4695,7 +4704,7 @@
 		 * 如果数据提供者最小zoom为1，则预分裂只需要分裂到level1，如果为2，则需要分裂到level2
 		 * 同理如果minzoom最小为5，则直接会分裂到level5
 		 */
-		preSubdivide()
+		preSubdivide(root)
 		{
 			function subdivide(node, depth) 
 			{
@@ -4719,7 +4728,7 @@
 			const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 			if (minZoom > 0) 
 			{
-				subdivide(this.root, minZoom);
+				subdivide(root, minZoom);
 			}
 		}
 
@@ -6921,6 +6930,249 @@
 	}
 
 	/**
+	 * Map node geometry is a geometry used to represent the spherical map nodes.
+	 */
+	class MapSphereNodeGraphicsGeometry extends three.BufferGeometry 
+	{
+		widthSegments;
+		heightSegments;
+		/**
+		 * Map sphere geometry constructor.
+		 * 
+		 * @param radius - Radius of the sphere.
+		 * @param width - Width of the node.
+		 * @param height - Height of the node.
+		 * @param widthSegments - Number of subdivisions along the width.
+		 * @param heightSegments - Number of subdivisions along the height.
+		 */
+		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, imageData) 
+		{
+			super();
+
+			const thetaEnd = thetaStart + thetaLength;
+			let index = 0;
+			const grid = [];
+			const vertex = new three.Vector3();
+			const normal = new three.Vector3();
+
+			// Buffers
+			const indices = [];
+			const vertices = [];
+			const normals = [];
+			const uvs = [];
+
+			// Generate vertices, normals and uvs
+			for (let iy = 0; iy <= heightSegments; iy++) 
+			{
+				const verticesRow = [];
+				const v = iy / heightSegments;
+
+				for (let ix = 0; ix <= widthSegments; ix++) 
+				{
+					const u = ix / widthSegments;
+
+					// Vertex
+					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
+					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+					// Normal
+					normal.set(vertex.x, vertex.y, vertex.z).normalize();
+					normals.push(normal.x, normal.y, normal.z);
+					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+					vertices.push(vertex.x, vertex.y, vertex.z);
+					// UV
+					uvs.push(u, 1 - v);
+					verticesRow.push(index++);
+				}
+
+				grid.push(verticesRow);
+			}
+
+			// Indices
+			for (let iy = 0; iy < heightSegments; iy++) 
+			{
+				for (let ix = 0; ix < widthSegments; ix++) 
+				{
+					const a = grid[iy][ix + 1];
+					const b = grid[iy][ix];
+					const c = grid[iy + 1][ix];
+					const d = grid[iy + 1][ix + 1];
+
+					if (iy !== 0 || thetaStart > 0) 
+					{
+						indices.push(a, b, d);
+					}
+
+					if (iy !== heightSegments - 1 || thetaEnd < Math.PI) 
+					{
+						indices.push(b, c, d);
+					}
+				}
+			}
+
+
+			this.buildSkirt(widthSegments, heightSegments, 500, indices, vertices, normals, uvs);
+
+			this.setIndex(indices);
+			this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
+			this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
+			this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
+		}
+
+		// skirts to mask off missalignments between tiles.
+		// 构建裙边以掩盖错位。 和let geom = new THREE.PlaneBufferGeometry(1, 1, 256, 256); 此处很像，当构建裙边以后就是256个段，否则就是255个段
+		// 该方法分别是向下构建一个裙边，不是上面一行代码，是横向平面构建裙边。
+		/**
+		 * 
+		 * @param {*} widthSegments 宽度段数，默认1
+		 * @param {*} heightSegments 高度段数，默认1
+		 * @param {*} skirtDepth 裙边深度
+		 * @param {*} indices 索引数组
+		 * @param {*} vertices 顶点数组
+		 * @param {*} normals 法线数组
+		 * @param {*} uvs 贴图坐标数组
+		 */
+		buildSkirt(widthSegments = 1.0, heightSegments = 1.0, skirtDepth=10, indices=[], vertices=[], normals=[], uvs=[])
+		{
+			let zero = new three.Vector3(0, 0, 0);
+			let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
+
+			// 瓦片最左侧的点，排列方式为从北面到南面， 西侧的裙边
+			for (let ix = 0; ix <= widthSegments; ix++) 
+			{
+				let index = ix * (widthSegments+1);
+				let vertexX = vertices[index * 3];
+				let vertexY = vertices[index * 3 + 1];
+				let vertexZ = vertices[index * 3 + 2];
+				let u = uvs[index * 2];
+				let v = uvs[index * 2 + 1];
+				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
+				let distance = vertex.distanceTo(zero);
+				let normal = vertex.normalize();
+				normals.push(normal.x, normal.y, normal.z);
+				vertex.multiplyScalar(distance- skirtDepth);
+				vertices.push(vertex.x, vertex.y, vertex.z);
+				uvs.push(u, v);
+			}
+
+			// Indices
+			for (let ix = 0; ix < widthSegments; ix++) 
+			{
+				const a = ix * (widthSegments + 1);
+				const d = (ix + 1) * (widthSegments + 1);
+				const b = ix + start;
+				const c = ix + start + 1;
+				indices.push(a, b, d, b, c, d);
+			}
+
+			// 瓦片最右侧的点，排列方式为从北面到南面， 东侧的裙边
+			start = vertices.length / 3;
+			for (let ix = 0; ix <= widthSegments; ix++) 
+			{
+				let index = (ix+1) * (widthSegments+1)-1; // 最右侧的点
+				//  假设widthSegments为16， index 取值结果则为：16,33,50
+				let vertexX = vertices[index * 3];
+				let vertexY = vertices[index * 3 + 1];
+				let vertexZ = vertices[index * 3 + 2];
+				let u = uvs[index * 2];
+				let v = uvs[index * 2 + 1];
+				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
+				let distance = vertex.distanceTo(zero);
+				let normal = vertex.normalize();
+				normals.push(normal.x, normal.y, normal.z);
+				vertex.multiplyScalar(distance- skirtDepth);
+				vertices.push(vertex.x, vertex.y, vertex.z);
+				uvs.push(u, v);
+			}
+			
+
+			for (let ix = 0; ix < widthSegments; ix++) 
+			{
+				const a = (ix+1) * (widthSegments+1)-1;
+				const d = (ix+2) * (widthSegments+1)-1;
+				const b = ix + start;
+				const c = ix + start + 1;
+				//d   a
+				//c   b
+				indices.push(d, b, a, d, c, b);
+				// indices.push(a,b,d,b,c, d);
+				// indices: [272, 306, 273, 306, 307, 273], [273, 307, 274, 307, 308, 274], [274, 308, 275, 308, 309, 275]
+			}
+
+			// 瓦片最下侧的点，排列方式为从西面到东面， 南侧的裙边
+			let offset = widthSegments * (widthSegments + 1);
+			start = vertices.length / 3;
+			for (let iz = 0; iz <= widthSegments; iz++) 
+			{
+				let index = offset + iz;
+				let vertexX = vertices[index * 3];
+				let vertexY = vertices[index * 3 + 1];
+				let vertexZ = vertices[index * 3 + 2];
+				let u = uvs[index * 2];
+				let v = uvs[index * 2 + 1];
+				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
+				let distance = vertex.distanceTo(zero);
+				let normal = vertex.normalize();
+				normals.push(normal.x, normal.y, normal.z);
+				vertex.multiplyScalar(distance- skirtDepth);
+				vertices.push(vertex.x, vertex.y, vertex.z);
+				uvs.push(u, v);
+			}
+
+			for (let iz = 0; iz < heightSegments; iz++) 
+			{
+				const a = offset + iz;
+				const d = offset + iz + 1;
+				const b = iz + start;
+				const c = iz + start + 1;
+
+				indices.push(a, b, d, b, c, d);
+				// indices: [0, 323, 17, 323, 324, 17], [17, 324, 34, 324, 325, 34], [34, 325, 51, 325, 326, 51]
+			}
+
+			// 瓦片最上侧的点，排列方式为从西面到东面， 北侧的裙边
+			start = vertices.length / 3;
+			for (let iz = 0; iz <= widthSegments; iz++) 
+			{
+				let index = iz;
+				let vertexX = vertices[index * 3];
+				let vertexY = vertices[index * 3 + 1];
+				let vertexZ = vertices[index * 3 + 2];
+				let u = uvs[index * 2];
+				let v = uvs[index * 2 + 1];
+				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
+				let distance = vertex.distanceTo(zero);
+				let normal = vertex.normalize();
+				normals.push(normal.x, normal.y, normal.z);
+				vertex.multiplyScalar(distance- skirtDepth);
+				vertices.push(vertex.x, vertex.y, vertex.z);
+				uvs.push(u, v);
+			}
+
+			for (let iz = 0; iz < widthSegments; iz++) 
+			{
+				const a = iz ;
+				const d = iz + 1;
+				const b = iz + start;
+				const c = iz + start + 1;
+				
+				indices.push(d, b, a, d, c, b);
+				// indices: [33, 340, 16, 33, 341, 340], [50, 341, 33, 50, 342, 341], [67, 342, 50, 67, 343, 342]
+			}
+		}
+
+
+		/**
+		 * 计算position的长度
+		 * @param {*} postion  
+		 */
+		distance(postion){
+			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
+			return distance;
+		}
+	}
+
+	/**
 	 * Default implementation of the SphereProvider interface.
 	 * 默认的球体提供者实现，无高程的数据，纯球体
 	 */
@@ -6963,7 +7215,13 @@
 		 */
 	    fetchGeometry(zoom, x, y) {
 	        return new Promise((resolve, reject) => {
-	            resolve(this.createSphereGeometry(zoom, x, y));
+				let geometry;
+				if (this.tilingScheme instanceof MercatorTilingScheme){
+					geometry = this.createSphereGeometry(zoom, x, y);
+				} else {
+					geometry = this.createSphereGraphicsGeometry(zoom, x, y);
+				}
+	            resolve(geometry);
 	        });
 	    }
 
@@ -6996,6 +7254,22 @@
 			let vBounds = new three.Vector4(...UnitsUtils.tileBounds(zoom, x, y));
 
 			return new MapSphereNodeGeometry(1, segments, segments, phiStart, phiLength, thetaStart, thetaLength, vBounds);
+		}
+
+		createSphereGraphicsGeometry(zoom, x, y){
+			const range = Math.pow(2, zoom);
+	                                
+			const segmentsWidth = 15;
+			const segmentsHeight = 15;
+			// x 
+			// 这里的公式应该是 360度除以2^（zoom+1）。2* Math.PI / (range * 2)。range乘2 是由于GeographicTileScheme的瓦片切割方式，在每个层级都比y多了2倍。
+			// 因为进行简化后的公式与y进行了统一，得到：Math.PI/range
+			const phiLength = Math.PI / range ;
+			const phiStart = x * phiLength;
+			// Y
+			const thetaLength = Math.PI / range;
+			const thetaStart = y * thetaLength;
+			return new MapSphereNodeGraphicsGeometry(1, segmentsWidth, segmentsHeight, phiStart, phiLength, thetaStart, thetaLength);
 		}
 
 		getDefaultGeometry() {
@@ -14583,7 +14857,7 @@
 	/**
 	 * Map node geometry is a geometry used to represent the spherical map nodes.
 	 */
-	class MapSphereNodeGraphicsGeometry extends three.BufferGeometry 
+	class MapSphereNodeHeightGraphicsGeometry extends three.BufferGeometry 
 	{
 		widthSegments;
 		heightSegments;
@@ -14599,7 +14873,8 @@
 		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, imageData) 
 		{
 			super();
-
+			this.widthSegments = widthSegments;
+			this.heightSegments = heightSegments;
 			const thetaEnd = thetaStart + thetaLength;
 			let index = 0;
 			const grid = [];
@@ -14611,7 +14886,14 @@
 			const vertices = [];
 			const normals = [];
 			const uvs = [];
-
+			let data = imageData.data;
+			let tiandituExact = false;
+			if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
+				tiandituExact = true;
+			}
+			if(imageData.upSample !== undefined){
+				imageData.upSample;
+			}
 			// Generate vertices, normals and uvs
 			for (let iy = 0; iy <= heightSegments; iy++) 
 			{
@@ -14626,10 +14908,25 @@
 					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
 					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
 					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-					// Normal
 					normal.set(vertex.x, vertex.y, vertex.z).normalize();
 					normals.push(normal.x, normal.y, normal.z);
-					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+					let height;
+					if(tiandituExact){
+						if (data == undefined){
+							height = 0;
+						} else {
+							height = data[index]; // 只是天地图的数据
+						}
+					} else {
+						// 计算实际高度，像高度图这种数据，比如mapbox的数据，需要从rgb中计算高度值
+					    let r = data[index * 4 + 0] ;
+						let g = data[index * 4 + 1] ;
+						let b = data[index * 4 + 2] ;
+						height = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
+
+					}
+					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+height);
+					// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 					vertices.push(vertex.x, vertex.y, vertex.z);
 					// UV
 					uvs.push(u, 1 - v);
@@ -14823,261 +15120,240 @@
 		}
 	}
 
-	/**
-	 * Map node geometry is a geometry used to represent the spherical map nodes.
-	 */
-	class MapSphereNodeHeightGraphicsGeometry extends three.BufferGeometry 
-	{
-		widthSegments;
-		heightSegments;
-		/**
-		 * Map sphere geometry constructor.
-		 * 
-		 * @param radius - Radius of the sphere.
-		 * @param width - Width of the node.
-		 * @param height - Height of the node.
-		 * @param widthSegments - Number of subdivisions along the width.
-		 * @param heightSegments - Number of subdivisions along the height.
-		 */
-		constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, imageData) 
-		{
-			super();
-
-			const thetaEnd = thetaStart + thetaLength;
-			let index = 0;
-			const grid = [];
-			const vertex = new three.Vector3();
-			const normal = new three.Vector3();
-
-			// Buffers
-			const indices = [];
-			const vertices = [];
-			const normals = [];
-			const uvs = [];
-			let data = imageData.data;
-			let tiandituExact = false;
-			if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
-				tiandituExact = true;
-			}
-			// Generate vertices, normals and uvs
-			for (let iy = 0; iy <= heightSegments; iy++) 
+	// import Fetch from "../utils/Fetch.js";
+	class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
+	    address = "https://t3.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
+	    minZoom = 0;
+	    maxZoom = 19;
+	    tileSize = 256;
+	    width = 64;
+	    height = 64;
+	    token = "588e61bc464868465169f209fe694dd0";
+	    littleEndian = false;
+	    _terrainDataStructure = {
+	        heightScale: 1.0 / 1000.0,
+	        heightOffset: -1000.0,
+	        elementsPerHeight: 3,
+	        stride: 4,
+	        elementMultiplier: 256.0,
+	        isBigEndian: true
+	    }
+	    constructor(options) {
+	        super(options);
+	        Object.assign(this, options);
+	        this.tilingScheme = new GraphicTilingScheme();
+	    }
+	    getAddress(zoom, x, y) {
+	        let num = Math.floor(Math.random() * 8);
+	        return this.address.replace("t3", "t" + num).replace("{z}", zoom).replace("{x}", x).replace("{y}", y).replace("{token}", this.token);
+	    }
+	    
+	    fetchTile(zoom, x, y){
+	        this.getAddress(zoom, x, y);
+	        return new Promise((resolve, reject) => 
 			{
-				const verticesRow = [];
-				const v = iy / heightSegments;
-
-				for (let ix = 0; ix <= widthSegments; ix++) 
-				{
-					const u = ix / widthSegments;
-
-					// Vertex
-					vertex.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-					vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
-					vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-					normal.set(vertex.x, vertex.y, vertex.z).normalize();
-					normals.push(normal.x, normal.y, normal.z);
-					let height;
-					if(tiandituExact){
-						height = data[index]; // 只是天地图的数据
-					} else {
-						// 计算实际高度，像高度图这种数据，比如mapbox的数据，需要从rgb中计算高度值
-					    let r = data[index * 4 + 0] ;
-						let g = data[index * 4 + 1] ;
-						let b = data[index * 4 + 2] ;
-						height = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
-
-					}
-					vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+height);
-					vertices.push(vertex.x, vertex.y, vertex.z);
-					// UV
-					uvs.push(u, 1 - v);
-					verticesRow.push(index++);
-				}
-
-				grid.push(verticesRow);
-			}
-
-			// Indices
-			for (let iy = 0; iy < heightSegments; iy++) 
+				fetch(address).then(res=> res.arrayBuffer()).then(data=> {
+					resolve(data);
+	            });
+			});
+	    }
+	    /**
+	     * 由于天地图的数据为gzip压缩，所以需要解压
+	     * 由于天地图的高程数据为GeographicTileScheme的瓦片切割方式，所以需要向Mecator的切片格式转换。
+	     * 转换方式为(2x,y) 与(2x+1,y)两个高程数据瓦片融合到一个。
+	     * @param {*} zoom 
+	     * @param {*} x 
+	     * @param {*} y 
+	     * @returns 
+	     */
+	    fetchGeometry(zoom, x, y, parentGeometry, location){
+	        // zoom 等于12以后，请求的是13级别的高程数据，这时候已经没有数据了，后续就不再请求了
+	        let url = this.getAddress(zoom+1, x, y);
+			return new Promise((resolve, reject) => 
 			{
-				for (let ix = 0; ix < widthSegments; ix++) 
-				{
-					const a = grid[iy][ix + 1];
-					const b = grid[iy][ix];
-					const c = grid[iy + 1][ix];
-					const d = grid[iy + 1][ix + 1];
-
-					if (iy !== 0 || thetaStart > 0) 
-					{
-						indices.push(a, b, d);
-					}
-
-					if (iy !== heightSegments - 1 || thetaEnd < Math.PI) 
-					{
-						indices.push(b, c, d);
-					}
-				}
-			}
-
-
-			this.buildSkirt(widthSegments, heightSegments, 500, indices, vertices, normals, uvs);
-
-			this.setIndex(indices);
-			this.setAttribute('position', new three.Float32BufferAttribute(vertices, 3));
-			this.setAttribute('normal', new three.Float32BufferAttribute(normals, 3));
-			this.setAttribute('uv', new three.Float32BufferAttribute(uvs, 2));
-		}
-
-		// skirts to mask off missalignments between tiles.
-		// 构建裙边以掩盖错位。 和let geom = new THREE.PlaneBufferGeometry(1, 1, 256, 256); 此处很像，当构建裙边以后就是256个段，否则就是255个段
-		// 该方法分别是向下构建一个裙边，不是上面一行代码，是横向平面构建裙边。
-		/**
-		 * 
-		 * @param {*} widthSegments 宽度段数，默认1
-		 * @param {*} heightSegments 高度段数，默认1
-		 * @param {*} skirtDepth 裙边深度
-		 * @param {*} indices 索引数组
-		 * @param {*} vertices 顶点数组
-		 * @param {*} normals 法线数组
-		 * @param {*} uvs 贴图坐标数组
-		 */
-		buildSkirt(widthSegments = 1.0, heightSegments = 1.0, skirtDepth=10, indices=[], vertices=[], normals=[], uvs=[])
-		{
-			let zero = new three.Vector3(0, 0, 0);
-			let start = vertices.length / 3; // 17 * 17 * 3 / 3 = 289 共289个坐标点
-
-			// 瓦片最左侧的点，排列方式为从北面到南面， 西侧的裙边
-			for (let ix = 0; ix <= widthSegments; ix++) 
+	            if (zoom >= 12){
+	                const range = Math.pow(2, zoom);
+	                // x 
+	                // 这里的公式应该是 360度除以2^（zoom+1）。2* Math.PI / (range * 2)。range乘2 是由于GeographicTileScheme的瓦片切割方式，在每个层级都比y多了2倍。
+	                // 因为进行简化后的公式与y进行了统一，得到：Math.PI/range
+	                const phiLength = Math.PI / range ;
+	                const phiStart = x * phiLength;
+	            
+	                // Y
+	                const thetaLength = Math.PI / range;
+	                const thetaStart = y * thetaLength;
+	                let buffer = this.upSample(parentGeometry, location);
+	                let width = (parentGeometry.widthSegments+1)/2-1;
+	                let height = (parentGeometry.heightSegments+1)/2-1;
+	                let geometry = this.createGeometry(width, height,phiStart, phiLength, thetaStart, thetaLength,buffer, true);
+	                resolve(geometry);
+	            } else {
+	                fetch(url).then(res=> {
+	                        if (res.status === 404){
+	                            console.error("get geometry error", zoom,x,y);
+	                            reject(null);
+	                        } 
+	                        else {
+	                            res.arrayBuffer().then(data=> {
+	                                let width = 15;
+	                                let height = 15;
+	                                if (zoom === 11){
+	                                    width =63;
+	                                    height = 63;
+	                                }
+	                                let buffer = this.getData(data, width, height);
+	                                
+	                                const range = Math.pow(2, zoom);
+	                                
+	                                const segmentsWidth = width;
+	                                const segmentsHeight = height;
+	                            
+	                                // x 
+	                                // 这里的公式应该是 360度除以2^（zoom+1）。2* Math.PI / (range * 2)。range乘2 是由于GeographicTileScheme的瓦片切割方式，在每个层级都比y多了2倍。
+	                                // 因为进行简化后的公式与y进行了统一，得到：Math.PI/range
+	                                const phiLength = Math.PI / range ;
+	                                const phiStart = x * phiLength;
+	                            
+	                                // Y
+	                                const thetaLength = Math.PI / range;
+	                                const thetaStart = y * thetaLength;
+	                                let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+	                                resolve(geometry); 
+	                            });
+	                        }
+	                    }
+	                );
+	            }
+		    });
+	    }
+	    getPromise(url){
+	        return new Promise((resolve, reject) => 
 			{
-				let index = ix * (widthSegments+1);
-				let vertexX = vertices[index * 3];
-				let vertexY = vertices[index * 3 + 1];
-				let vertexZ = vertices[index * 3 + 2];
-				let u = uvs[index * 2];
-				let v = uvs[index * 2 + 1];
-				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
-				let distance = vertex.distanceTo(zero);
-				let normal = vertex.normalize();
-				normals.push(normal.x, normal.y, normal.z);
-				vertex.multiplyScalar(distance- skirtDepth);
-				vertices.push(vertex.x, vertex.y, vertex.z);
-				uvs.push(u, v);
-			}
+				fetch(url).then(res=> {
+	                    if (res.status === 404){
+	                        console.error("get geometry error", zoom,x,y);
+	                        reject(null);
+	                    } 
+	                    else {
+	                        res.arrayBuffer().then(data=> {
+	                            let half = this.getData(data);
+	                            resolve(half); 
+	                        });
+	                    }
+	                }
+	            );
+		    });
+	    }
+	    // 不进行上采样了，只到18级别
+	    upSample(parentGeometry, location){
+	        let ifrom,jfrom;
+	        let pwidth = parentGeometry.widthSegments+1; parentGeometry.heightSegments+1;
+	        let width = (parentGeometry.widthSegments+1)/2, height = (parentGeometry.heightSegments+1)/2;
+	        if (location === QuadTreePosition.topLeft){
+	            ifrom = 0;
+	            jfrom = 0;
+	        }
+	        if (location === QuadTreePosition.topRight){
+	            ifrom = 0;
+	            jfrom = height;
+	        }
+	        if (location === QuadTreePosition.bottomLeft){
+	            ifrom = height;
+	            jfrom = 0;
+	        }
+	        if (location === QuadTreePosition.bottomRight){
+	            ifrom = height;
+	            jfrom = width;
+	        }
+	        let pos = parentGeometry.getAttribute("position").array;
+	        let index = 0;
+	        var myBuffer = new Float32Array(width * height); // 只保留高度数值，其他不变
+	        const vector = new three.Vector3();
+	        for (let i = 0; i < width; i++){
+	            for (let j = 0; j < height; j++){
+	                let pointIndex = (i+ifrom)*pwidth+j+jfrom;
+	                let pindex = pointIndex*3+1;
+	                vector.x = pos[pindex-1];
+	                vector.y = pos[pindex];
+	                vector.z = pos[pindex+1];
+	                vector.normalize();
+	                let normal = vector.clone();
+	                vector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+	                let height = ((pos[pindex] - vector.y)/normal.y + (pos[pindex-1]-vector.x)/normal.x+ (pos[pindex+1]-vector.z)/normal.z)/3;
+	                myBuffer[index] = height; // 采样
+	                // myBuffer[index] = pos[pindex]; // 采样
+	                index++;
+	            }
+	        }
+	        return myBuffer;
+	    }
+	    /**
+	     * 获取数据，并压缩到一半，高为height，宽为width/2
+	     * @param {*} dataBuffer 
+	     * @returns 
+	     */
+	    getData(dataBuffer, tileW, tileH) {
+	        var view = new DataView(dataBuffer);
+	        var zBuffer = new Uint8Array(view.byteLength);
+	        var index = 0;
+	        while (index < view.byteLength) {
+	            zBuffer[index] = view.getUint8(index, true);
+	            index++;
+	        }
+	        if (zBuffer.length < 1000) {
+	            return undefined
+	        }
+	        var dZlib = pako.inflate(zBuffer);
+	        // console.error(dZlib);
+	        var DataSize = 2;
+	        if (dZlib.length !== 150 * 150 * DataSize){
+	            return undefined;
+	        }
+	        //创建DateView
+	        let width= tileW+1, height = tileH+1;
+	        var myW = width;
+	        var myH = height;
+	        var myBuffer = new Float32Array(myW * myH);
+	        var i_height;
+	        var NN;
+	        var jj_n, ii_n;
+	        // var jj_f, ii_f;
+	        // let heights = new Float32Array(width * height);
+	        index = 0;
+	        for (var jj = 0; jj < myH; jj++) {
+	            jj_n = Math.round(150/height * jj); // 从这每行150个高程点里面，取出来64个点。
+	            for (var ii = 0; ii < myW; ii++) {
+	                // jj_n = parseInt((150 * jj) / 64); // 从这每行150个高程点里面，取出来64个点。
+	                // ii_n = parseInt((150 * ii) / 64);
+	                ii_n = Math.round(150/width * ii);
+	                NN = DataSize * (jj_n * 150 + ii_n); // 实际上每行是150*2个点，然后每两个连续点组成一个高程点
+	                i_height = dZlib[NN] + dZlib[NN + 1] * 256;
+	                //定个范围，在地球上高程应都在-1000——10000之间
+	                if (i_height > 10000 || i_height < -2000) {
+	                    i_height = 0;
+	                }
+	                //Cesium内部就是这么表示的
+	                // var i_height_new = (i_height + 1000) / 0.03;
+	                var i_height_new = (i_height + 1000) / 0.4-1e4/2;
+	                
+	                myBuffer[index] = i_height_new; //真实高度
+	                index++;
+	            }
+	        }
+	        // let vBuffer =  myBuffer; // 解析出来一个64x64的rgba的数据，共64*64*4 = 16384个数据。
+	        // console.error(vBuffer);
+	        // console.error("myBuffer: ", myBuffer);
+	        return myBuffer;
+	    }
 
-			// Indices
-			for (let ix = 0; ix < widthSegments; ix++) 
-			{
-				const a = ix * (widthSegments + 1);
-				const d = (ix + 1) * (widthSegments + 1);
-				const b = ix + start;
-				const c = ix + start + 1;
-				indices.push(a, b, d, b, c, d);
-			}
-
-			// 瓦片最右侧的点，排列方式为从北面到南面， 东侧的裙边
-			start = vertices.length / 3;
-			for (let ix = 0; ix <= widthSegments; ix++) 
-			{
-				let index = (ix+1) * (widthSegments+1)-1; // 最右侧的点
-				//  假设widthSegments为16， index 取值结果则为：16,33,50
-				let vertexX = vertices[index * 3];
-				let vertexY = vertices[index * 3 + 1];
-				let vertexZ = vertices[index * 3 + 2];
-				let u = uvs[index * 2];
-				let v = uvs[index * 2 + 1];
-				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
-				let distance = vertex.distanceTo(zero);
-				let normal = vertex.normalize();
-				normals.push(normal.x, normal.y, normal.z);
-				vertex.multiplyScalar(distance- skirtDepth);
-				vertices.push(vertex.x, vertex.y, vertex.z);
-				uvs.push(u, v);
-			}
-			
-
-			for (let ix = 0; ix < widthSegments; ix++) 
-			{
-				const a = (ix+1) * (widthSegments+1)-1;
-				const d = (ix+2) * (widthSegments+1)-1;
-				const b = ix + start;
-				const c = ix + start + 1;
-				//d   a
-				//c   b
-				indices.push(d, b, a, d, c, b);
-				// indices.push(a,b,d,b,c, d);
-				// indices: [272, 306, 273, 306, 307, 273], [273, 307, 274, 307, 308, 274], [274, 308, 275, 308, 309, 275]
-			}
-
-			// 瓦片最下侧的点，排列方式为从西面到东面， 南侧的裙边
-			let offset = widthSegments * (widthSegments + 1);
-			start = vertices.length / 3;
-			for (let iz = 0; iz <= widthSegments; iz++) 
-			{
-				let index = offset + iz;
-				let vertexX = vertices[index * 3];
-				let vertexY = vertices[index * 3 + 1];
-				let vertexZ = vertices[index * 3 + 2];
-				let u = uvs[index * 2];
-				let v = uvs[index * 2 + 1];
-				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
-				let distance = vertex.distanceTo(zero);
-				let normal = vertex.normalize();
-				normals.push(normal.x, normal.y, normal.z);
-				vertex.multiplyScalar(distance- skirtDepth);
-				vertices.push(vertex.x, vertex.y, vertex.z);
-				uvs.push(u, v);
-			}
-
-			for (let iz = 0; iz < heightSegments; iz++) 
-			{
-				const a = offset + iz;
-				const d = offset + iz + 1;
-				const b = iz + start;
-				const c = iz + start + 1;
-
-				indices.push(a, b, d, b, c, d);
-				// indices: [0, 323, 17, 323, 324, 17], [17, 324, 34, 324, 325, 34], [34, 325, 51, 325, 326, 51]
-			}
-
-			// 瓦片最上侧的点，排列方式为从西面到东面， 北侧的裙边
-			start = vertices.length / 3;
-			for (let iz = 0; iz <= widthSegments; iz++) 
-			{
-				let index = iz;
-				let vertexX = vertices[index * 3];
-				let vertexY = vertices[index * 3 + 1];
-				let vertexZ = vertices[index * 3 + 2];
-				let u = uvs[index * 2];
-				let v = uvs[index * 2 + 1];
-				let vertex = new three.Vector3(vertexX, vertexY, vertexZ);
-				let distance = vertex.distanceTo(zero);
-				let normal = vertex.normalize();
-				normals.push(normal.x, normal.y, normal.z);
-				vertex.multiplyScalar(distance- skirtDepth);
-				vertices.push(vertex.x, vertex.y, vertex.z);
-				uvs.push(u, v);
-			}
-
-			for (let iz = 0; iz < widthSegments; iz++) 
-			{
-				const a = iz ;
-				const d = iz + 1;
-				const b = iz + start;
-				const c = iz + start + 1;
-				
-				indices.push(d, b, a, d, c, b);
-				// indices: [33, 340, 16, 33, 341, 340], [50, 341, 33, 50, 342, 341], [67, 342, 50, 67, 343, 342]
-			}
-		}
-
-
-		/**
-		 * 计算position的长度
-		 * @param {*} postion  
-		 */
-		distance(postion){
-			let distance = Math.sqrt(Math.pow(postion.x, 2) + Math.pow(postion.y, 2) + Math.pow(postion.z, 2));
-			return distance;
-		}
+	    createGeometry(widthSegments = 63, heightSegments = 63, phiStart, phiLength, thetaStart, thetaLength,dataBuffer, upsample = false) {
+	        // if (dataBuffer === undefined) {
+	        //     return DefaultSphereProvider.geometry;
+	        // }
+	        let geometry = new MapSphereNodeHeightGraphicsGeometry(1.0, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, {data:dataBuffer, dataTypes: 1, upsample: upsample});
+	        // let geometry = new MapSphereNodeGraphicsGeometry(1.0, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, {data:dataBuffer, dataTypes: 1});
+	        return geometry;
+	    }
 	}
 
 	class AngleUtils {
@@ -49303,6 +49579,7 @@ Char: ${this.c}`;
 	exports.TerrainUtils = TerrainUtils;
 	exports.TextureUtils = TextureUtils;
 	exports.TianDiTuHeightProvider = TianDiTuHeightProvider;
+	exports.TianDiTuHeightSphereProvider = TianDiTuHeightSphereProvider;
 	exports.TianDiTuProvider = TianDiTuProvider;
 	exports.UnitsUtils = UnitsUtils;
 	exports.VectorUtils = VectorUtils;

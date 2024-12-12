@@ -20,7 +20,8 @@ export class MapSphereNodeHeightGraphicsGeometry extends BufferGeometry
 	constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, imageData) 
 	{
 		super();
-
+		this.widthSegments = widthSegments;
+		this.heightSegments = heightSegments;
 		const thetaEnd = thetaStart + thetaLength;
 		let index = 0;
 		const grid = [];
@@ -36,6 +37,10 @@ export class MapSphereNodeHeightGraphicsGeometry extends BufferGeometry
 		let tiandituExact = false;
 		if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
 			tiandituExact = true;
+		}
+		let upSample = false;
+		if(imageData.upSample !== undefined){
+			upSample = imageData.upSample;
 		}
 		// Generate vertices, normals and uvs
 		for (let iy = 0; iy <= heightSegments; iy++) 
@@ -55,7 +60,11 @@ export class MapSphereNodeHeightGraphicsGeometry extends BufferGeometry
 				normals.push(normal.x, normal.y, normal.z);
 				let height;
 				if(tiandituExact){
-					height = data[index]; // 只是天地图的数据
+					if (data == undefined){
+						height = 0;
+					} else {
+						height = data[index]; // 只是天地图的数据
+					}
 				} else {
 					// 计算实际高度，像高度图这种数据，比如mapbox的数据，需要从rgb中计算高度值
 				    let r = data[index * 4 + 0] ;
@@ -65,6 +74,7 @@ export class MapSphereNodeHeightGraphicsGeometry extends BufferGeometry
 
 				}
 				vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+height);
+				// vertex.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
 				vertices.push(vertex.x, vertex.y, vertex.z);
 				// UV
 				uvs.push(u, 1 - v);

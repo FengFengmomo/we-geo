@@ -83,7 +83,13 @@ export class MapSphereNode extends MapNode
 			this.geometry = this.mapView.heightProvider.getDefaultGeometry();
 			return;
 		}
-		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+		let parentGeo;
+		if (this.parentNode !== null){
+		    parentGeo = this.parentNode.geometry;
+		} else{
+			parentGeo = null;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y, parentGeo, this.location);
 		// const range = Math.pow(2, zoom);
 		// const max = 40;
 		// const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);

@@ -125,7 +125,7 @@ export class MapView extends Mesh
 		this.heightProvider = heightProvider;
 		// 设置根节点，准备开始分裂
 		this.setRoot(root);
-		this.preSubdivide();
+		this.preSubdivide(this.root);
 	}
 
 	/**
@@ -182,6 +182,7 @@ export class MapView extends Mesh
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
+			this.root.subdivide(); // 分裂根节点
 			// this.root.initialize(); // 将根mapnode初始化
 			if (ts instanceof GraphicTilingScheme) {
 				let scale_c = this.root.constructor.baseScale.clone();
@@ -207,6 +208,8 @@ export class MapView extends Mesh
 				this.add(node);
 				node.updateMatrix();
 				node.updateMatrixWorld(true);
+				// this.preSubdivide(node);
+				node.subdivide(); // 增加代码是由于在球体情况下部分节点没有创建，导致不显示，所以先预先创建Level1节点。
 				// @ts-ignore
 
 			}
@@ -221,7 +224,7 @@ export class MapView extends Mesh
 	 * 如果数据提供者最小zoom为1，则预分裂只需要分裂到level1，如果为2，则需要分裂到level2
 	 * 同理如果minzoom最小为5，则直接会分裂到level5
 	 */
-	preSubdivide()
+	preSubdivide(root)
 	{
 		function subdivide(node, depth) 
 		{
@@ -245,7 +248,7 @@ export class MapView extends Mesh
 		const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 		if (minZoom > 0) 
 		{
-			subdivide(this.root, minZoom);
+			subdivide(root, minZoom);
 		}
 	}
 

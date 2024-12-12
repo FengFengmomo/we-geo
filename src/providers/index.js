@@ -22,4 +22,5 @@ export { MapBoxSphereProvider } from './heightProvider/MapBoxSphereProvider';
 export { PlaneProvider } from './heightProvider/PlaneProvider'
 export { SphereProvider } from './heightProvider/SphereProvider';
 export { TianDiTuHeightProvider } from './heightProvider/TianDiTuHeightProvider';
+export { TianDiTuHeightSphereProvider } from './heightProvider/TianDiTuHeightSphereProvider';
 

@@ -41,7 +41,7 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, MapBoxPlaneProvider, TianDiTuHeightProvider, Config, BingMapsProvider, AngleUtils, DebugProvider, Mercator,  UnitsUtils,DefaultPlaneProvider, GraphicTilingScheme, CesiumPlaneProvider} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, MapBoxPlaneProvider,DefaultSphereProvider, TianDiTuHeightSphereProvider, TianDiTuHeightProvider, Config, BingMapsProvider, AngleUtils, DebugProvider, Mercator,  UnitsUtils,DefaultPlaneProvider, GraphicTilingScheme, CesiumPlaneProvider} from 'Geo';
 		import * as THREE from 'three';
 		import * as THREEi from 'THREEi';
 		
@@ -49,44 +49,44 @@
 		// 地名服务
 		let provider = new TianDiTuProvider({
 			service:'img_c',
-			// token: '8cd838260d2b482fc3368c47973cc822'
-			token: '588e61bc464868465169f209fe694dd0'
+			token: '8cd838260d2b482fc3368c47973cc822'
+			// token: '588e61bc464868465169f209fe694dd0'
 		});
 
+		// 地名服务
+		let nameprovider = new TianDiTuProvider({
+			service:'cva_c',
+			token: '588e61bc464868465169f209fe694dd0'
+		});
 		// let edgeprovider = new TianDiTuProvider({
 		// 	service:'ibo_w',
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 		// Config.outLine.on = true;
 		let test = new DebugProvider(true);
-		let heightProvider = new DefaultPlaneProvider({
+		let heightProvider = new DefaultSphereProvider({
 			tilingScheme: new GraphicTilingScheme()
+			// tilingScheme: new GraphicTilingScheme()
 		});
-		let cesiumProvider = new CesiumPlaneProvider({
-			tilingScheme: new GraphicTilingScheme()
-		});
-		let tdth = new TianDiTuHeightProvider();
+		// let cesiumProvider = new CesiumPlaneProvider({
+		// 	tilingScheme: new GraphicTilingScheme()
+		// });
+		let tdth = new TianDiTuHeightSphereProvider();
 		provider.maxZoom = 17;
 		// let token = 'pk.eyJ1Ijoia29yeXdrYSIsImEiOiJja2p1ajdlOWozMnF2MzBtajRvOTVzZDRpIn0.nnlX7TDuZ3zuGkZGr_oA3A';
 		// let token = 'pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA';
 		// let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
 		const map = new WegeoMap(); 
-		map.addBaseMap({
-			providers: [provider,test],
+		map.addBaseSphereMap({
+			providers: [provider, nameprovider,test],
 			heightProvider: tdth
 		});
-		let imageLayer = new THREE.Group();
-		map.baseMap.add(imageLayer);
+		// let imageLayer = new THREE.Group();
+		// map.baseMap.add(imageLayer);
 		
-		// map.moveTo(45.993553258799736-4.268,90.14134050768502,10000);
-		// map.moveTo(45.993553258799736,90.14134050768502,10000);
-		// map.moveTo(31.24169-4.268,121.49491,10000);
-		// map.moveTo(31.24169,121.49491,100000);
-		// map.moveTo(39.90710,116.39143,10000);
-		map.moveTo(43.905036,88.109167,10000);
-		// map.moveTo(39.908692,116.397477,100000);
-		// let point = Mercator.project({lat:45.993553258799736, lng: 90.14134050768502});
-		// console.log("project point:",point);
+		
+		map.fromDegrees(43.905036,88.109167,10000);
+		
 		window.onresize = () => { map.resize(); }
 		map.animate();
 		map.resize();

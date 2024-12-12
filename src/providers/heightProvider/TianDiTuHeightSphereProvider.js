@@ -4,10 +4,14 @@ import { MapNodeHeightGeometry } from "../../geometries/MapNodeHeightGeometry";
 import { QuadTreePosition } from "../../nodes/MapNode";
 import { GraphicTilingScheme } from "../../scheme/GraphicTilingScheme";
 import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
-import { MapSphereNodeHeightGeometry, MapSphereNodeHeightGraphicsGeometry } from "../../geometries/MapSphereNodeHeightGraphicsGeometry";
+import { MapSphereNodeHeightGraphicsGeometry } from "../../geometries/MapSphereNodeHeightGraphicsGeometry";
+import { DefaultSphereProvider } from "./DefaultSphereProvider";
+import {MapSphereNodeGraphicsGeometry} from "../../geometries/MapSphereNodeGraphicsGeometry";
+import { Vector3 } from "three";
+import { UnitsUtils } from "../../utils/UnitsUtils";
 
 // import Fetch from "../utils/Fetch.js";
-export class TianDiTuHeightProvider extends DefaultPlaneProvider {
+export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
     address = "https://t3.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
     minZoom = 0;
     maxZoom = 19;
@@ -57,45 +61,59 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
         let url = this.getAddress(zoom+1, x, y);
 		return new Promise((resolve, reject) => 
 		{
-			fetch(url).then(res=> {
-                    if (res.status === 404){
-                        console.error("get geometry error", zoom,x,y);
-                        reject(null);
-                    } 
-                    else {
-                        res.arrayBuffer().then(data=> {
-                            let width = 63;
-                            let height = 63;
-                            if (zoom === 11){
-                                width =127;
-                                height = 127;
-                            }
-                            let buffer;
-                            if (zoom >= 12){
-                                buffer = this.upSample(parentGeometry, location);
-                            } else {
-                                buffer = this.getData(data, width, height);
-                            }
-                            const range = Math.pow(2, zoom);
+            if (zoom >= 12){
+                const range = Math.pow(2, zoom);
+                // x 
+                // 这里的公式应该是 360度除以2^（zoom+1）。2* Math.PI / (range * 2)。range乘2 是由于GeographicTileScheme的瓦片切割方式，在每个层级都比y多了2倍。
+                // 因为进行简化后的公式与y进行了统一，得到：Math.PI/range
+                const phiLength = Math.PI / range ;
+                const phiStart = x * phiLength;
+            
+                // Y
+                const thetaLength = Math.PI / range;
+                const thetaStart = y * thetaLength;
+                let buffer = this.upSample(parentGeometry, location);
+                let width = (parentGeometry.widthSegments+1)/2-1;
+                let height = (parentGeometry.heightSegments+1)/2-1;
+                let geometry = this.createGeometry(width, height,phiStart, phiLength, thetaStart, thetaLength,buffer, true);
+                resolve(geometry);
+            } else{
+                fetch(url).then(res=> {
+                        if (res.status === 404){
+                            console.error("get geometry error", zoom,x,y);
+                            reject(null);
+                        } 
+                        else {
+                            res.arrayBuffer().then(data=> {
+                                let width = 15;
+                                let height = 15;
+                                if (zoom === 11){
+                                    width =63;
+                                    height = 63;
+                                }
+                                let buffer = this.getData(data, width, height);
+                                
+                                const range = Math.pow(2, zoom);
+                                
+                                const segmentsWidth = width;
+                                const segmentsHeight = height;
                             
-                            const segmentsWidth = width;
-                            const segmentsHeight = height;
-                        
-                            // x 
-                            // 这里的公式应该是 360度除以2^（zoom+1）。2* Math.PI / (range * 2)。range乘2 是由于GeographicTileScheme的瓦片切割方式，在每个层级都比y多了2倍。
-                            // 因为进行简化后的公式与y进行了统一，得到：Math.PI/range
-                            const phiLength = Math.PI / range * 2;
-                            const phiStart = x * phiLength;
-                        
-                            // Y
-                            const thetaLength = Math.PI / range;
-                            const thetaStart = y * thetaLength;
-                            let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
-                            resolve(geometry); 
-                        });
+                                // x 
+                                // 这里的公式应该是 360度除以2^（zoom+1）。2* Math.PI / (range * 2)。range乘2 是由于GeographicTileScheme的瓦片切割方式，在每个层级都比y多了2倍。
+                                // 因为进行简化后的公式与y进行了统一，得到：Math.PI/range
+                                const phiLength = Math.PI / range ;
+                                const phiStart = x * phiLength;
+                            
+                                // Y
+                                const thetaLength = Math.PI / range;
+                                const thetaStart = y * thetaLength;
+                                let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                resolve(geometry); 
+                            });
+                        }
                     }
-                }
-            );
+                );
+            }
 	    });
     }
     getPromise(url){
@@ -119,8 +137,8 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
     // 不进行上采样了，只到18级别
     upSample(parentGeometry, location){
         let ifrom,jfrom;
-        let pwidth = parentGeometry.widthSegments, pheight = parentGeometry.heightSegments;
-        let width = parentGeometry.widthSegments/2, height = parentGeometry.heightSegments/2;
+        let pwidth = parentGeometry.widthSegments+1, pheight = parentGeometry.heightSegments+1;
+        let width = (parentGeometry.widthSegments+1)/2, height = (parentGeometry.heightSegments+1)/2;
         if (location === QuadTreePosition.topLeft){
             ifrom = 0;
             jfrom = 0;
@@ -137,12 +155,23 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
             ifrom = height;
             jfrom = width;
         }
-        let pos = parentGeometry.getAttribute("position");
+        let pos = parentGeometry.getAttribute("position").array;
         let index = 0;
-        var myBuffer = new Uint8Array(width * height); // 只保留高度数值，其他不变
+        var myBuffer = new Float32Array(width * height); // 只保留高度数值，其他不变
+        const vector = new Vector3();
         for (let i = 0; i < width; i++){
             for (let j = 0; j < height; j++){
-                myBuffer[index] = pos[((i+ifrom)*pwidth+(j+jfrom))*3+1]; // 采样
+                let pointIndex = (i+ifrom)*pwidth+j+jfrom;
+                let pindex = pointIndex*3+1;
+                vector.x = pos[pindex-1];
+                vector.y = pos[pindex];
+                vector.z = pos[pindex+1];
+                vector.normalize();
+                let normal = vector.clone();
+                vector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+                let height = ((pos[pindex] - vector.y)/normal.y + (pos[pindex-1]-vector.x)/normal.x+ (pos[pindex+1]-vector.z)/normal.z)/3;
+                myBuffer[index] = height; // 采样
+                // myBuffer[index] = pos[pindex]; // 采样
                 index++;
             }
         }
@@ -174,7 +203,7 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
         let width= tileW+1, height = tileH+1;
         var myW = width;
         var myH = height;
-        var myBuffer = new Uint8Array(myW * myH);
+        var myBuffer = new Float32Array(myW * myH);
         var i_height;
         var NN, NN_R;
         var jj_n, ii_n;
@@ -196,17 +225,11 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
                 //数据结果整理成Cesium内部形式
                 NN_R = (jj * myW + ii) * 4
                 //Cesium内部就是这么表示的
-                var i_height_new = (i_height + 1000) / 0.03;
-                // var i_height_new = i_height_new* 0.1 - 1e4;
-                // myBuffer[NN_R] = i_height_new / (256 * 256);
-                // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
-                // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
-                // myBuffer[NN_R + 3] = 255;
+                // var i_height_new = (i_height + 1000) / 0.03;
+                var i_height_new = (i_height + 1000) / 0.4-1e4/2
+                
                 myBuffer[index] = i_height_new; //真实高度
                 index++;
-                // let newHeight = i_height*100 + 90000;
-                // heights[index] = i_height; //真实高度
-                // index++;
             }
         }
         // let vBuffer =  myBuffer; // 解析出来一个64x64的rgba的数据，共64*64*4 = 16384个数据。
@@ -215,11 +238,12 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
         return myBuffer;
     }
 
-    createGeometry(widthSegments = 63, heightSegments = 63, phiStart, phiLength, thetaStart, thetaLength,dataBuffer) {
-        if (dataBuffer === undefined) {
-            return DefaultPlaneProvider.geometry;
-        }
-        let geometry = new MapSphereNodeHeightGraphicsGeometry(1.0, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, {data:dataBuffer, dataTypes: 1});
+    createGeometry(widthSegments = 63, heightSegments = 63, phiStart, phiLength, thetaStart, thetaLength,dataBuffer, upsample = false) {
+        // if (dataBuffer === undefined) {
+        //     return DefaultSphereProvider.geometry;
+        // }
+        let geometry = new MapSphereNodeHeightGraphicsGeometry(1.0, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, {data:dataBuffer, dataTypes: 1, upsample: upsample});
+        // let geometry = new MapSphereNodeGraphicsGeometry(1.0, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength, {data:dataBuffer, dataTypes: 1});
         return geometry;
     }
 }
