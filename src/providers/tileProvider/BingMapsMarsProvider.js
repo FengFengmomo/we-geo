@@ -1,5 +1,6 @@
 import {MapProvider} from '../MapProvider';
 import {XHRUtils} from '../../utils/XHRUtils';
+import { MercatorTilingScheme } from '../../scheme/MercatorTilingScheme';
 
 /**
  * Bing maps tile provider.
@@ -63,7 +64,7 @@ export class BingMapsMarsProvider extends MapProvider
 	 * @param apiKey - Bing API key.
 	 * @param type - Type provider.
 	 */
-	constructor(apiKey = '', type = BingMapsProvider.AERIAL) 
+	constructor(apiKey = '', type = BingMapsMarsProvider.AERIAL) 
 	{
 		super();
 

@@ -41,6 +41,7 @@
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
 		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider} from 'Geo';
+		import * as THREE from 'three';
 		let provider = new BingMapsProvider();
 		// 地名服务
 		let nameprovider = new TianDiTuProvider({
@@ -61,9 +62,12 @@
 		map.addBaseMap({
 			providers: [provider]
 		});
-		map.moveTo(45.993553258799736,90.14134050768502,10000);
+		map.moveTo(45.993553258799736,90.14134050768502,1000000);
 		map.resize();
 		map.animate();
+		const axesHelper = new THREE.AxesHelper( 6371008*2);
+		axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
+		// map.baseMap.add( axesHelper );
 // map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
 // pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA
 	</script>

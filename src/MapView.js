@@ -13,6 +13,7 @@ import {MapProvider} from './providers/MapProvider';
 import {LODControl} from './lod/LODControl';
 import {MapMartiniHeightNode} from './nodes/MapMartiniHeightNode';
 import { MapHeightTinNode } from './nodes/MapHeightTinNode';
+import { GraphicTilingScheme } from './scheme/GraphicTilingScheme';
 /**
  * Map viewer is used to read and display map tiles from a server.
  *
@@ -124,7 +125,7 @@ export class MapView extends Mesh
 		this.heightProvider = heightProvider;
 		// 设置根节点，准备开始分裂
 		this.setRoot(root);
-		this.preSubdivide();
+		this.preSubdivide(this.root);
 	}
 
 	/**
@@ -177,11 +178,42 @@ export class MapView extends Mesh
 			
 			// this.geometry = this.root.constructor.baseGeometry;
 			this.geometry = this.heightProvider.getDefaultGeometry();
-			
+			let ts = this.heightProvider.tilingScheme;
 			this.scale.copy(this.root.constructor.baseScale);
 			this.root.mapView = this;
 			this.add(this.root); // 将mapnode添加到mapview中
-			this.root.initialize(); // 将根mapnode初始化
+			this.root.subdivide(); // 分裂根节点
+			// this.root.initialize(); // 将根mapnode初始化
+			if (ts instanceof GraphicTilingScheme) {
+				let scale_c = this.root.constructor.baseScale.clone();
+				scale_c.z = scale_c.z /2;
+				this.scale.copy(scale_c);
+				this.root.scale.set(0.5, 1.0, 1.0);
+				this.root.position.set(-0.25, 0, 0);
+				this.root.updateMatrix();
+				this.root.updateMatrixWorld(true);
+				// // this.scale.copy(this.root.constructor.baseScale);
+				// this.root.level = -1;
+				// this.root.visible = false;
+				// this.root.subdivided = true;
+				// this.root.isMesh = false;
+				// this.root.nodesLoaded = 2;
+				// this.root.createChildNodesGraphic();
+				const Constructor = Object.getPrototypeOf(this.root).constructor;
+
+				let node = new Constructor(null, this);
+				node.x = 1;
+				node.scale.set(0.5, 1.0, 1.0);
+				node.position.set(0.25, 0, 0);
+				this.add(node);
+				node.updateMatrix();
+				node.updateMatrixWorld(true);
+				// this.preSubdivide(node);
+				node.subdivide(); // 增加代码是由于在球体情况下部分节点没有创建，导致不显示，所以先预先创建Level1节点。
+				// @ts-ignore
+
+			}
+			
 		}
 	}
 
@@ -192,7 +224,7 @@ export class MapView extends Mesh
 	 * 如果数据提供者最小zoom为1，则预分裂只需要分裂到level1，如果为2，则需要分裂到level2
 	 * 同理如果minzoom最小为5，则直接会分裂到level5
 	 */
-	preSubdivide()
+	preSubdivide(root)
 	{
 		function subdivide(node, depth) 
 		{
@@ -216,7 +248,7 @@ export class MapView extends Mesh
 		const minZoom = Math.max(this.providers[0].minZoom, this.heightProvider?.minZoom ?? -Infinity);
 		if (minZoom > 0) 
 		{
-			subdivide(this.root, minZoom);
+			subdivide(root, minZoom);
 		}
 	}
 

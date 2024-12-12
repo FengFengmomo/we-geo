@@ -13,6 +13,8 @@ export {MapNodeHeightGeometry} from './geometries/MapNodeHeightGeometry';
 export {MapSphereNodeGeometry} from './geometries/MapSphereNodeGeometry';
 export {MapNodeHeightTinGeometry} from './geometries/MapNodeHeightTinGeometry';
 export {MapSphereNodeHeightGeometry} from './geometries/MapSphereNodeHeightGeometry';
+export {MapSphereNodeGraphicsGeometry} from './geometries/MapSphereNodeGraphicsGeometry';
+export {MapSphereNodeHeightGraphicsGeometry} from './geometries/MapSphereNodeHeightGraphicsGeometry';
 
 export {MapNode, QuadTreePosition} from './nodes/MapNode';
 export {MapHeightNode} from './nodes/MapHeightNode';
@@ -30,3 +32,5 @@ export {Config} from './environment/config';
 
 export {Animate } from './animation/Animate';
 export {Skybox} from './sky/Skybox'
+
+export * from './scheme/index';

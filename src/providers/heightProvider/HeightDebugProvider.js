@@ -25,11 +25,15 @@ export class HeightDebugProvider extends PlaneProvider
 	 */
 	toColor = new Color(0x00ff00);
 
-	constructor(provider) 
+	constructor(provider, tilingScheme) 
 	{
 		super();
 
 		this.provider = provider;
+		if (tilingScheme){
+			this.tilingScheme = tilingScheme;
+		}
+
 	}
 
 	async fetchTile(zoom, x, y)

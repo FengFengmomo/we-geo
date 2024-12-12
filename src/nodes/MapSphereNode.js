@@ -83,7 +83,13 @@ export class MapSphereNode extends MapNode
 			this.geometry = this.mapView.heightProvider.getDefaultGeometry();
 			return;
 		}
-		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y);
+		let parentGeo;
+		if (this.parentNode !== null){
+		    parentGeo = this.parentNode.geometry;
+		} else{
+			parentGeo = null;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y, parentGeo, this.location);
 		// const range = Math.pow(2, zoom);
 		// const max = 40;
 		// const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);
@@ -167,6 +173,20 @@ export class MapSphereNode extends MapNode
 		this.add(node);
 
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight,  level, x + 1, y + 1);
+		this.add(node);
+	}
+
+	createChildNodesGraphic()
+	{
+		let level = 0;
+		let x = 0;
+		let y = 0;
+		const Constructor = Object.getPrototypeOf(this).constructor;
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft,  level, x, y);
+		this.add(node);
+		// return;
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight,  level, x + 1, y);
 		this.add(node);
 	}
 	

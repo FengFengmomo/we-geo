@@ -9,6 +9,7 @@ import { MapNodeHeightTinGeometry } from "../../geometries/MapNodeHeightTinGeome
 import { TerrainUtils } from "../../utils/TerrainUtils";
 import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
 import { UpSampleTin } from "../../utils/UpSampleTin";
+import { GraphicTilingScheme } from "../../scheme/GraphicTilingScheme";
 
 // import Fetch from "../utils/Fetch.js";
 export class CesiumPlaneProvider extends PlaneProvider {
@@ -26,10 +27,14 @@ export class CesiumPlaneProvider extends PlaneProvider {
     layers = null;
     skirt = true;
     scale = 3.0;
+    
     static geometry = new MapNodeGeometry(1, 1, 1, 1, false);
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         Object.assign(this, options);
+        if (options.tilingScheme == null || options.tilingScheme === undefined){
+            this.tilingScheme = new GraphicTilingScheme();
+        }
         let that = this;
         this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {
@@ -94,6 +99,7 @@ export class CesiumPlaneProvider extends PlaneProvider {
     }
 
     fetchGeometry(zoom, x, y, parentGeometry, location){
+        y = Math.pow(2, zoom) - y - 1; // cesium的y轴和wmts的y轴是相反的，所以需要转换一下
         let url = this.getAddress(zoom, x, y);
         return this.syncQueue.enqueue(() => {
             return new Promise((resolve, reject) => {
@@ -144,6 +150,7 @@ export class CesiumPlaneProvider extends PlaneProvider {
 		{
 			let terrain = TerrainUtils.extractTerrainInfo(dataBuffer, this.littleEndian);
 			geometry = new MapNodeHeightTinGeometry(terrain, this.skirt, 10.0, false, this.scale);
+			// geometry = new MapNodeHeightTinGeometry(terrain, false, 10.0, false, this.scale);
 		}
 		catch (e) 
 		{

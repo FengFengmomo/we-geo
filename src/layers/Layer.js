@@ -14,7 +14,7 @@ import {Config} from '../environment/config'
 import BasLayer from "./basLayer";
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { Loader3DTiles } from 'three-loader-3dtiles';
-
+import { GraphicTilingScheme } from "../scheme";
 
 
 export class Layer  extends BasLayer{
@@ -118,7 +118,19 @@ export class Layer  extends BasLayer{
 
     moveTo(lat, lon, height = 38472.48763833733){
         // var coords = UnitsUtils.datumsToSpherical(44.266119,90.139228);
-        var coords = UnitsUtils.datumsToSpherical(lat,lon);
+        let ts = this.mapView.heightProvider.tilingScheme;
+        // let scale = 1.0;
+        var coords;
+        if (ts instanceof GraphicTilingScheme){
+            // coords = UnitsUtils.mecatorLL2XY(lat, lon);
+            // coords = UnitsUtils.datumsToSpherical(lat-4.268, lon);
+            let x = lon * UnitsUtils.EARTH_ORIGIN / 180.0;
+            let y = lat/90 * UnitsUtils.EARTH_ORIGIN/2;
+            coords = new Vector2(x, y);
+        } else{
+            coords = UnitsUtils.datumsToSpherical(lat,lon);
+        
+        }
         this.camera.position.set(coords.x, height, -coords.y);
         this.controls.target.set(this.camera.position.x, 0, this.camera.position.z);
     }

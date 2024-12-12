@@ -55,7 +55,13 @@ export class MapPlaneNode extends MapNode
 			this.geometry = this.mapView.heightProvider.getDefaultGeometry();//MapPlaneNode.geometry;
 			return;
 		}
-		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, this.parentNode.geometry, this.location);
+		let parentGeo;
+		if (this.parentNode !== null){
+		    parentGeo = this.parentNode.geometry;
+		} else{
+			parentGeo = null;
+		}
+		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
 
 	}
 
@@ -93,6 +99,31 @@ export class MapPlaneNode extends MapNode
 		node = new Constructor(this, this.mapView, QuadTreePosition.bottomRight, level, x + 1, y + 1);
 		node.scale.set(0.5, 1.0, 0.5);
 		node.position.set(0.25, 0, 0.25);
+		this.add(node);
+		node.updateMatrix();
+		node.updateMatrixWorld(true);
+	}
+
+	/**
+	 * 
+	 * graphics 提前增加节点
+	 **/
+	createChildNodesGraphic() {
+		let level = this.level + 1;
+		let x = this.x * 2;
+		let y = this.y * 2;
+		const Constructor = Object.getPrototypeOf(this).constructor;
+
+		let node = new Constructor(this, this.mapView, QuadTreePosition.topLeft, level, x, y);
+		node.scale.set(0.5, 1.0, 1.0);
+		node.position.set(-0.25, 0, 0);
+		this.add(node);
+		node.updateMatrix();
+		node.updateMatrixWorld(true);
+
+		node = new Constructor(this, this.mapView, QuadTreePosition.topRight, level, x + 1, y);
+		node.scale.set(0.5, 1.0, 1.0);
+		node.position.set(0.25, 0, 0);
 		this.add(node);
 		node.updateMatrix();
 		node.updateMatrixWorld(true);

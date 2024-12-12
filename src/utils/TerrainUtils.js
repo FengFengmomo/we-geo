@@ -116,15 +116,16 @@ export class TerrainUtils {
                 highest++;
             }
         }
-        let indexReverse = new Array(triangleCount*3);
-        for (let i = 0; i < triangleCount*3; i+=3){
-            indexReverse[i] = indices[i+2];
-            indexReverse[i+1] = indices[i+1];
-            indexReverse[i+2] = indices[i];
-        }
+        // let indexReverse = new Array(triangleCount*3);
+        // for (let i = 0; i < triangleCount*3; i+=3){
+        //     indexReverse[i] = indices[i+2];
+        //     indexReverse[i+1] = indices[i+1];
+        //     indexReverse[i+2] = indices[i];
+        // }
         let indexData = {
             triangleCount: triangleCount,
-            indices: indexReverse,
+            indices: indices,
+            // indices: indexReverse,
             highest: highest
         }
         // console.log("vertexCount:" + vertexCount + " indexCount:" + triangleCount);

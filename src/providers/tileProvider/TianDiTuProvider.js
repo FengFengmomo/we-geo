@@ -24,6 +24,9 @@ export class TianDiTuProvider extends MapProvider {
     }
     // 拿到的既是图片数据
     fetchTile(zoom, x, y){
+        if (this.service.endsWith("_c")){
+            zoom = zoom + 1;
+        }
         let url = this.getAddress(zoom, x, y);
         return new Promise((resolve, reject) => 
 		{
