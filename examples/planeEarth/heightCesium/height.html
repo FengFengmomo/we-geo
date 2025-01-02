@@ -68,7 +68,7 @@
 		// let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
 		const map = new WegeoMap(); 
 		map.addBaseMap({
-			providers: [provider,test],
+			providers: [provider],
 			heightProvider: cesiumProvider
 		});
 		let imageLayer = new THREE.Group();

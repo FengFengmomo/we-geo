@@ -9,6 +9,7 @@
 <body>
   <div id="cesiumContainer"></div>
   <script type="module">
+  
     // Your access token can be found at: https://ion.cesium.com/tokens.
     // Replace `your_access_token` with your Cesium ion access token.
 
@@ -64,7 +65,20 @@
 	// 			var height = dikaer.z;
 	// 			console.log("笛卡尔x："+ longitude+"笛卡尔y："+ latitude+"笛卡尔z："+  height);
 	// 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
+  // let result= Cesium.Cartesian3.fromDegrees(88.109167, 43.905036, 4000)
+  // console.log(result);
+  async function addThreeDTiles(url, option) {
+		viewer.scene.globe.depthTestAgainstTerrain = false
+			let tileset = {}
+			tileset = await Cesium.Cesium3DTileset.fromUrl(url, option);
+			viewer.scene.primitives.add(tileset);
+			viewer.zoomTo(tileset);
+			return tileset
+		}
+    const threeDTiles = addThreeDTiles('./data/cesiumlab_trean_3dtiles/tileset.json', {
+			maximumScreenSpaceError:  16,
+			maximumNumberOfLoadedTiles :  1024
+		})
   </script>
  </div>
 </body>

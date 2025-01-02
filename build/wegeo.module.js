@@ -1152,15 +1152,12 @@ class UnitsUtils
 	 * @param y - the y coordinate of the tile
 	 * @returns list of bounds - [startX, sizeX, startY, sizeY]
 	 */
-	static tileBounds(zoom, x, y, isMercator = true){
-		let scale = 2;
-		if(isMercator){
-		    scale = 1;
-		}
+	static tileBounds(zoom, x, y){
+		
 		const tileSize = UnitsUtils.getTileSize(zoom);
-		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize * scale;
+		const minX = -UnitsUtils.MERCATOR_MAX_EXTENT + x * tileSize;
 		const minY = UnitsUtils.MERCATOR_MAX_EXTENT - (y + 1) * tileSize;
-		return [minX, tileSize * scale, minY, tileSize];
+		return [minX, tileSize, minY, tileSize];
 	}
 
 	/**
@@ -14696,8 +14693,8 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
 		{
             if (zoom >= 12){
                 let buffer = this.upSample(parentGeometry, location);
-                let width = (parentGeometry.widthSegments+1)/2-1;
-                let height = (parentGeometry.heightSegments+1)/2-1;
+                let width = (parentGeometry.widthSegments)/2;
+                let height = (parentGeometry.heightSegments)/2;
                 let geometry = this.createGeometry(buffer, width, height);
                 resolve(geometry);
             } else {
@@ -14708,11 +14705,11 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
                     } 
                     else {
                         res.arrayBuffer().then(data=> {
-                            let width = 15;
-                            let height = 15;
+                            let width = 16;
+                            let height = 16;
                             if (zoom === 11){
-                                width =63;
-                                height = 63;
+                                width =64;
+                                height = 64;
                             }
                             let buffer = this.getData(data, width, height);
                             let geometry = this.createGeometry(buffer, width, height);
@@ -14744,8 +14741,9 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
     // 不进行上采样了，只到18级别
     upSample(parentGeometry, location){
         let ifrom,jfrom;
+        // 父节点的宽高,widthSegments是有多个段一般是2的N次方，实际里面的点个数就是widthSegments+1，如widthSegments=16,实际宽度的点个数就是17个。
         let pwidth = parentGeometry.widthSegments+1; parentGeometry.heightSegments+1;
-        let width = (parentGeometry.widthSegments+1)/2, height = (parentGeometry.heightSegments+1)/2;
+        let width = (parentGeometry.widthSegments)/2, height = (parentGeometry.heightSegments)/2;
         if (location === QuadTreePosition.topLeft){
             ifrom = 0;
             jfrom = 0;
@@ -14764,9 +14762,9 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
         }
         let pos = parentGeometry.getAttribute("position").array;
         let index = 0;
-        var myBuffer = new Float32Array(width * height); // 只保留高度数值，其他不变
-        for (let i = 0; i < width; i++){
-            for (let j = 0; j < height; j++){
+        var myBuffer = new Float32Array((width+1) * (height+1)); // 高度和宽度是2的N次方，点个数是width+1 * height+1
+        for (let i = 0; i <= width; i++){ // 采样width+1列
+            for (let j = 0; j <= height; j++){ // 采样height+1行
                 let pointIndex = (i+ifrom)*pwidth+j+jfrom;
                 let pindex = pointIndex*3+1;
                 myBuffer[index] = pos[pindex]; // 采样
@@ -14841,7 +14839,7 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
         return myBuffer;
     }
 
-    createGeometry(dataBuffer, width=63, height=63) {
+    createGeometry(dataBuffer, width=64, height=64) {
         if (dataBuffer === undefined) {
             return DefaultPlaneProvider.geometry;
         }
@@ -15179,8 +15177,8 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                 const thetaLength = Math.PI / range;
                 const thetaStart = y * thetaLength;
                 let buffer = this.upSample(parentGeometry, location);
-                let width = (parentGeometry.widthSegments+1)/2-1;
-                let height = (parentGeometry.heightSegments+1)/2-1;
+                let width = (parentGeometry.widthSegments)/2;
+                let height = (parentGeometry.heightSegments)/2;
                 let geometry = this.createGeometry(width, height,phiStart, phiLength, thetaStart, thetaLength,buffer, true);
                 resolve(geometry);
             } else {
@@ -15191,11 +15189,11 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                         } 
                         else {
                             res.arrayBuffer().then(data=> {
-                                let width = 15;
-                                let height = 15;
+                                let width = 16;
+                                let height = 16;
                                 if (zoom === 11){
-                                    width =63;
-                                    height = 63;
+                                    width =64;
+                                    height = 64;
                                 }
                                 let buffer = this.getData(data, width, height);
                                 
@@ -15244,7 +15242,7 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
     upSample(parentGeometry, location){
         let ifrom,jfrom;
         let pwidth = parentGeometry.widthSegments+1; parentGeometry.heightSegments+1;
-        let width = (parentGeometry.widthSegments+1)/2, height = (parentGeometry.heightSegments+1)/2;
+        let width = (parentGeometry.widthSegments)/2, height = (parentGeometry.heightSegments)/2;
         if (location === QuadTreePosition.topLeft){
             ifrom = 0;
             jfrom = 0;
@@ -15263,10 +15261,10 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
         }
         let pos = parentGeometry.getAttribute("position").array;
         let index = 0;
-        var myBuffer = new Float32Array(width * height); // 只保留高度数值，其他不变
+        var myBuffer = new Float32Array((width+1) * (height+1)); // 只保留高度数值，其他不变
         const vector = new Vector3();
-        for (let i = 0; i < width; i++){
-            for (let j = 0; j < height; j++){
+        for (let i = 0; i <= width; i++){
+            for (let j = 0; j <= height; j++){
                 let pointIndex = (i+ifrom)*pwidth+j+jfrom;
                 let pindex = pointIndex*3+1;
                 vector.x = pos[pindex-1];
@@ -15342,7 +15340,7 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
         return myBuffer;
     }
 
-    createGeometry(widthSegments = 63, heightSegments = 63, phiStart, phiLength, thetaStart, thetaLength,dataBuffer, upsample = false) {
+    createGeometry(widthSegments = 64, heightSegments = 64, phiStart, phiLength, thetaStart, thetaLength,dataBuffer, upsample = false) {
         // if (dataBuffer === undefined) {
         //     return DefaultSphereProvider.geometry;
         // }
