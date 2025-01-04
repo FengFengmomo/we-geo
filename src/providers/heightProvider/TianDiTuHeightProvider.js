@@ -193,7 +193,7 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
                 // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
                 // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
                 // myBuffer[NN_R + 3] = 255;
-                myBuffer[index] = i_height_new; //真实高度
+                myBuffer[index] = i_height_new+500; //真实高度
                 index++
                 // let newHeight = i_height*100 + 90000;
                 // heights[index] = i_height; //真实高度

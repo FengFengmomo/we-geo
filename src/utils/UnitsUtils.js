@@ -42,26 +42,6 @@ export class UnitsUtils
 	static EARTH_RADIUS_B = 6356752.314245;
 
 	/**
-	 * 最大高度
-	 */
-	static minimumHeight = 65536.0;
-	
-	/**
-	 * 最小高度
-	 */
-  	static maximumHeight = -65536.0;
-
-	/**
-	 * 全球实际的最大海拔高度
-	 */
-	static HEIGHT_MAX = 8800;
-
-	/**
-	 * 全球实际的最小海拔高度
-	 */ 
-	static HEIGHT_MIN = -4100;
-
-	/**
 	 * Earth equator perimeter in meters.
 	 */
 	static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
@@ -76,12 +56,7 @@ export class UnitsUtils
 	 */
 	static MERCATOR_MAX_EXTENT = 20037508.342789244;
 
-	static _ellipsoidRadiiSquared = new Vector3(
-		6378137.0 * 6378137.0,
-		// 6356752.3142451793 * 6356752.3142451793,
-		6378137.0 * 6378137.0,
-		6378137.0 * 6378137.0
-	  );
+	
 
 	static tileWidth(level){
 		return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
@@ -314,5 +289,18 @@ export class UnitsUtils
 	 */
 	static toDegrees(radians){
 		return radians * 180.0/Math.PI;
+	}
+
+	static latLngToWgs84XYZ(lat, lon){
+	    let x = lon * UnitsUtils.EARTH_ORIGIN / 180.0;
+        let z = lat/90 * UnitsUtils.EARTH_ORIGIN/2;
+		return new Vector2(x, z);
+	}
+
+	// 地图在xz平面，因此只需要计算xz即可
+	static wgs84XYZToLatLng(x, y, z){
+		let lon = x/UnitsUtils.EARTH_ORIGIN * 180.0;
+		let lat = z*2/UnitsUtils.EARTH_ORIGIN * 90.0;
+		return new Geolocation(lat, lon);
 	}
 }

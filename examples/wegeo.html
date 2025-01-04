@@ -66,68 +66,24 @@
 		map.animate();
 		// 解析geojson
 		// const geojson = await fetch('./examples/data/xinjiang.json').then( res => res.json() );
-		let points = [];
-		await fetch('./data/xinjiang.json').then(res => res.json())
-		.then(data => {
-			let features = data.features;
-			
-			features.forEach(feature=>{
-				let properties = feature.properties;
-                let geometry = feature.geometry;
-                let type = feature.type;
-                let coordinates = geometry.coordinates;
-                let typeGeometry = geometry.type;
-				if (typeGeometry === "MultiPolygon") { // 目前暂时仅仅支持行政区划方向的数据进行解析
-                    for(let multiPolygon of coordinates){
-                        const shapePonit = [];
-                        let polygon = multiPolygon[0]; // 每次取第一个图形，geojson里面是这样设置的
-                        for(let point of polygon){
-                            // 先维度后经度
-                            let phi = AngleUtils.degToRad(point[0]);  
-							let theta = AngleUtils.degToRad(90-point[1]);
-							shapePonit.push(theta);
-							shapePonit.push(phi);
-                        }
-                        points.push(shapePonit);
-                    }
-                }
-			});
-		});
 
-		const g = new THREE.BufferGeometry( );	
-		const parameters = {	
-			// d: 509680, // rough side length of the triangles, radius calculated from d and div4 
-			d: 403090, // rough side length of the triangles, radius calculated from d and div4 
-			div4: 25, // division of the quarter of the great circle (orthodrome) 
-			holes: points
-			// [
-			// 	// circular hole, 3 elements: [ theta, phi, div4Hole ], div4Hole <= div4	
-			// 	// [ 1.57, -0.25,  9 ],
-			// 	// [ 0.44,  4.84, 18 ],
-			// 	// [ 1.23,  1.62, 11 ],
-			// 	// points hole,: array of points theta, phi, ...  (last point is connected to first)
-			// 	[ 1.7,-1.2,  1.7,-2.1,  2.6,-2.1 ]
-			// ]
-		}
 
-		g.createSphereWithHoles = THREEi.createSphereWithHoles;
-		g.createSphereWithHoles( parameters ); // parameter object
-
-		const material = new THREE.MeshBasicMaterial( { side: THREE.DoubleSide, color: 0x450089, wireframe: false } );
-		const mesh = new THREE.Mesh( g, material );
-		material.transparent = true;
-		material.opacity = 0.5;
-		// map.baseMap.add( mesh );
-		let scale =0.995;
-		// let scale =0.9939;
-		// let scale =0.99385;
-		mesh.scale.set( scale,scale,scale );
 		
 		let{model, runtime} = await map.baseMap.loadTiles({
-			jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
+			// jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
+			jsonPath:'./data/s228_2_3dtiles/tileset.json'
 		});
 		// map.baseMap.camera.position.set(model.position.x, model.position.y, model.position.z);
-		map.baseMap.camera.position.copy(model.position.clone().addScalar(1000));
+		// model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat)+ Math.PI/20, 0, Math.PI );
+		model.rotation.x+=Math.PI/200;
+		let pos = model.position.clone();
+		let normal = pos.clone().normalize();
+		normal.multiplyScalar(200)
+		pos.add(normal);
+		// map.baseMap.camera.position.set(pos.x, pos.y, pos.z);
+		map.baseMap.camera.position.copy(pos);
+		// map.baseMap.controls.target.copy(pos);
+		// map.baseMap.controls.update();
 		// let direction = UnitsUtils.datumsToVector( 45.993553258799736+ 0.04, 90.14134050768502+0.10085);
 		// let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+100);
 		// map.baseMap.camera.position.copy(location);

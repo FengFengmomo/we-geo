@@ -49,12 +49,12 @@
 		// 地名服务
 		let provider = new TianDiTuProvider({
 			service:'img_c',
-			// token: '8cd838260d2b482fc3368c47973cc822'
-			token: '588e61bc464868465169f209fe694dd0'
+			token: '8cd838260d2b482fc3368c47973cc822'
+			// token: '588e61bc464868465169f209fe694dd0'
 		});
 
 		// let edgeprovider = new TianDiTuProvider({
-		// 	service:'ibo_w',
+		// 	service:'ibo_c',
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 		// Config.outLine.on = true;
@@ -91,6 +91,20 @@
 		map.animate();
 		map.resize();
 		
+		let{model, runtime} = await map.baseMap.loadTiles({
+			// jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
+			jsonPath:'./data/s228_2_3dtiles/tileset.json'
+		});
+		let poss = model.position.clone();
+		model.position.set(poss.x,poss.y,poss.z);
+		model.rotation.set(-Math.PI / 2, 0, -Math.PI/40 );
+		// map.baseMap.camera.position.set(model.position.x, model.position.y, model.position.z);
+		let pos = model.position.clone();
+		console.log(pos);
+		// map.baseMap.camera.position.set(pos.x, pos.y, pos.z);
+		// map.baseMap.camera.position.set(pos.x, pos.y, pos.z);
+		map.baseMap.camera.position.set(pos.x, 100000, pos.z);
+		map.baseMap.camera.lookAt(pos);
 		// const axesHelper = new THREE.AxesHelper( 2 * Math.PI * UnitsUtils.EARTH_RADIUS);
 		// axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
 		// map.baseMap.add( axesHelper );

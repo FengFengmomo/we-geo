@@ -6,6 +6,7 @@ examples/data/*.mp4
 examples/cesiumlab_trean_3dtiles/*
 examples/data/cesiumlab_trean_3dtiles/*
 examples/data/BlockB/
+examples/data/s228_2_3dtiles/
 libs/*/*
 docs/
 package-lock.json

@@ -31,7 +31,7 @@ export class Layer  extends BasLayer{
     camera;//相机
     controls;//控件
     animateId;//动画事件id
-    base = false; // 是否为底图
+    base; // 是否为底图
     ambientLight; // 环境光
     directionalLight; // 方向光
     modelLayer = false; // 模型图层
@@ -207,13 +207,26 @@ export class Layer  extends BasLayer{
         // 由于设计时z轴在世界经度的90度上，所以需要先逆向旋转90度。
         // model.rotation.set(0, MathUtils.degToRad(-90), 0);
         model.position.set(0,0,0);
+        if(this.base === "mercator"){
+            model.rotation.set(-Math.PI / 2, 0, Math.PI );
+            let pos = UnitsUtils.datumsToSpherical(lat, lon);
+            model.position.set(pos.x, height, -pos.y);
+        }
+        if(this.base === "wgs84"){
+            model.rotation.set(-Math.PI / 2, 0, Math.PI );
+            let pos = UnitsUtils.latLngToWgs84XYZ(lat, lon);
+            model.position.set(pos.x, height, -pos.y);
+        }
+        if(this.base === "spherical"){
+            model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
+            let direction = UnitsUtils.datumsToVector( lat, lon);
+            let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+10);
+            model.position.copy(location);
+        }
         // model.rotation.set(MathUtils.degToRad(lat+90)-Math.PI/2,  MathUtils.degToRad(lon) +Math.PI/2,0);
-        model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
-        let direction = UnitsUtils.datumsToVector( lat, lon);
-        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+10);
-        model.position.copy(location);
+        
         this.scene.add(model);
-        this.tilesRuntimeS.push(runtime);
+        this.tilesRuntimeS.push(runtime);  
         return result;
     }
 

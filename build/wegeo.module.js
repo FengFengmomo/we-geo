@@ -1,4 +1,4 @@
-import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial as MeshBasicMaterial$1, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, EventDispatcher, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial as LineBasicMaterial$1, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, ShapeGeometry, ExtrudeGeometry, CatmullRomCurve3, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
+import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial as MeshBasicMaterial$1, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, EventDispatcher, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
 
 class MercatorTilingScheme {
     numOfZeroXTiles = 1;
@@ -927,26 +927,6 @@ class UnitsUtils
 	static EARTH_RADIUS_B = 6356752.314245;
 
 	/**
-	 * 最大高度
-	 */
-	static minimumHeight = 65536.0;
-	
-	/**
-	 * 最小高度
-	 */
-  	static maximumHeight = -65536.0;
-
-	/**
-	 * 全球实际的最大海拔高度
-	 */
-	static HEIGHT_MAX = 8800;
-
-	/**
-	 * 全球实际的最小海拔高度
-	 */ 
-	static HEIGHT_MIN = -4100;
-
-	/**
 	 * Earth equator perimeter in meters.
 	 */
 	static EARTH_PERIMETER = 2 * Math.PI * UnitsUtils.EARTH_RADIUS;
@@ -961,12 +941,7 @@ class UnitsUtils
 	 */
 	static MERCATOR_MAX_EXTENT = 20037508.342789244;
 
-	static _ellipsoidRadiiSquared = new Vector3(
-		6378137.0 * 6378137.0,
-		// 6356752.3142451793 * 6356752.3142451793,
-		6378137.0 * 6378137.0,
-		6378137.0 * 6378137.0
-	  );
+	
 
 	static tileWidth(level){
 		return UnitsUtils.EARTH_PERIMETER  * Math.pow(2,-level);
@@ -1199,6 +1174,19 @@ class UnitsUtils
 	 */
 	static toDegrees(radians){
 		return radians * 180.0/Math.PI;
+	}
+
+	static latLngToWgs84XYZ(lat, lon){
+	    let x = lon * UnitsUtils.EARTH_ORIGIN / 180.0;
+        let z = lat/90 * UnitsUtils.EARTH_ORIGIN/2;
+		return new Vector2(x, z);
+	}
+
+	// 地图在xz平面，因此只需要计算xz即可
+	static wgs84XYZToLatLng(x, y, z){
+		let lon = x/UnitsUtils.EARTH_ORIGIN * 180.0;
+		let lat = z*2/UnitsUtils.EARTH_ORIGIN * 90.0;
+		return new Geolocation(lat, lon);
 	}
 }
 
@@ -14826,7 +14814,7 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
                 // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
                 // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
                 // myBuffer[NN_R + 3] = 255;
-                myBuffer[index] = i_height_new; //真实高度
+                myBuffer[index] = i_height_new+500; //真实高度
                 index++;
                 // let newHeight = i_height*100 + 90000;
                 // heights[index] = i_height; //真实高度
@@ -26173,7 +26161,7 @@ class GLTFParser {
 
 			if ( ! lineMaterial ) {
 
-				lineMaterial = new LineBasicMaterial$1();
+				lineMaterial = new LineBasicMaterial();
 				Material.prototype.copy.call( lineMaterial, material );
 				lineMaterial.color.copy( material.color );
 				lineMaterial.map = material.map;
@@ -28825,9 +28813,9 @@ class OBJLoader extends Loader {
 						material = this.materials.create( sourceMaterial.name );
 
 						// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
-						if ( isLine && material && ! ( material instanceof LineBasicMaterial$1 ) ) {
+						if ( isLine && material && ! ( material instanceof LineBasicMaterial ) ) {
 
-							const materialLine = new LineBasicMaterial$1();
+							const materialLine = new LineBasicMaterial();
 							Material.prototype.copy.call( materialLine, material );
 							materialLine.color.copy( material.color );
 							material = materialLine;
@@ -28848,7 +28836,7 @@ class OBJLoader extends Loader {
 
 						if ( isLine ) {
 
-							material = new LineBasicMaterial$1();
+							material = new LineBasicMaterial();
 
 						} else if ( isPoints ) {
 
@@ -45784,7 +45772,7 @@ function Uo(e) {
   e.content && (n = Math.min(e.content.byteLength / 5e5, 1));
   const s = new Color(n, 1, 0), r = new BoxGeometry(1, 1, 1), i = new Matrix4();
   t.halfAxes ? i.copy(Lc(t.halfAxes)) : t.radius && r.scale(t.radius * 2, t.radius * 2, t.radius * 2), r.applyMatrix4(i);
-  const o = new EdgesGeometry(r), a = new LineSegments(o, new LineBasicMaterial$1({ color: s }));
+  const o = new EdgesGeometry(r), a = new LineSegments(o, new LineBasicMaterial({ color: s }));
   return a.position.copy(new Vector3(...t.center)), a;
 }
 function Lc(e) {
@@ -46618,7 +46606,7 @@ class Layer  extends BasLayer{
     camera;//相机
     controls;//控件
     animateId;//动画事件id
-    base = false; // 是否为底图
+    base; // 是否为底图
     ambientLight; // 环境光
     directionalLight; // 方向光
     modelLayer = false; // 模型图层
@@ -46790,17 +46778,30 @@ class Layer  extends BasLayer{
         // 还未打包进行调试
         // 2024年8月21日10:25:52 已测试完毕，定位正常，模型显示正常，显示大小正常。
         let lat = runtime.getTileset().cartographicCenter[1], lon = runtime.getTileset().cartographicCenter[0];
-        runtime.getTileset().cartographicCenter[2];
+        let height =runtime.getTileset().cartographicCenter[2];
         // 由于设计时z轴在世界经度的90度上，所以需要先逆向旋转90度。
         // model.rotation.set(0, MathUtils.degToRad(-90), 0);
         model.position.set(0,0,0);
+        if(this.base === "mercator"){
+            model.rotation.set(-Math.PI / 2, 0, Math.PI );
+            let pos = UnitsUtils.datumsToSpherical(lat, lon);
+            model.position.set(pos.x, height, -pos.y);
+        }
+        if(this.base === "wgs84"){
+            model.rotation.set(-Math.PI / 2, 0, Math.PI );
+            let pos = UnitsUtils.latLngToWgs84XYZ(lat, lon);
+            model.position.set(pos.x, height, -pos.y);
+        }
+        if(this.base === "spherical"){
+            model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
+            let direction = UnitsUtils.datumsToVector( lat, lon);
+            let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+10);
+            model.position.copy(location);
+        }
         // model.rotation.set(MathUtils.degToRad(lat+90)-Math.PI/2,  MathUtils.degToRad(lon) +Math.PI/2,0);
-        model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat), 0, Math.PI );
-        let direction = UnitsUtils.datumsToVector( lat, lon);
-        let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS_A+10);
-        model.position.copy(location);
+        
         this.scene.add(model);
-        this.tilesRuntimeS.push(runtime);
+        this.tilesRuntimeS.push(runtime);  
         return result;
     }
 
@@ -46954,7 +46955,7 @@ class RaycasterUtils{
     constructor(){
         let geometry = new BufferGeometry();
         geometry.setAttribute('position', new BufferAttribute(new Float32Array(4*3),3));
-        let material = new LineBasicMaterial$1({color: 0x00FFFF}); // 天青色
+        let material = new LineBasicMaterial({color: 0x00FFFF}); // 天青色
         RaycasterUtils.LINE = new Line(geometry, material);
         
     }
@@ -47009,765 +47010,6 @@ class RaycasterUtils{
         }
     }
 }
-
-class Shapes {
-    
-    getCircle(radius=400){
-        const arcShape = new Shape()
-					.moveTo( 10+radius, 10 )
-					.absarc( 10, 10, radius, 0, Math.PI * 2, false );
-        return arcShape;
-    }
-
-    getCircleRadius(radius){
-        const circleRadius = radius;
-        const circleShape = new Shape()
-            .moveTo( 0, circleRadius )
-            .quadraticCurveTo( circleRadius, circleRadius, circleRadius, 0 )
-            .quadraticCurveTo( circleRadius, - circleRadius, 0, - circleRadius )
-            .quadraticCurveTo( - circleRadius, - circleRadius, - circleRadius, 0 )
-            .quadraticCurveTo( - circleRadius, circleRadius, 0, circleRadius );
-        return circleShape;
-    }
-    getTrack( ){
-        // Track
-
-        const trackShape = new Shape()
-        .moveTo( 40, 40 )
-        .lineTo( 40, 160 )
-        .absarc( 60, 160, 20, Math.PI, 0, true )
-        .lineTo( 80, 40 )
-        .absarc( 60, 40, 20, 2 * Math.PI, Math.PI, true );
-        return trackShape;
-    }
-
-    getRounedRect( ){
-        const roundedRectShape = new Shape();
-
-        ( function roundedRect( ctx, x, y, width, height, radius ) {
-
-            ctx.moveTo( x, y + radius );
-            ctx.lineTo( x, y + height - radius );
-            ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
-            ctx.lineTo( x + width - radius, y + height );
-            ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
-            ctx.lineTo( x + width, y + radius );
-            ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
-            ctx.lineTo( x + radius, y );
-            ctx.quadraticCurveTo( x, y, x, y + radius );
-
-        } )( roundedRectShape, 0, 0, 50, 50, 20 );
-        return roundedRectShape;
-    }
-
-    getSquare( ){
-        const sqLength = 80;
-
-        const squareShape = new Shape()
-            .moveTo( 0, 0 )
-            .lineTo( 0, sqLength )
-            .lineTo( sqLength, sqLength )
-            .lineTo( sqLength, 0 )
-            .lineTo( 0, 0 );
-        return squareShape;
-    }
-
-    getTriangle( ){
-        // Triangle
-
-        const triangleShape = new Shape()
-        .moveTo( 80, 20 )
-        .lineTo( 40, 80 )
-        .lineTo( 120, 80 )
-        .lineTo( 80, 20 ); // close path
-        return triangleShape;
-    }
-
-    getCoustomShape(shapePonit){
-        let shape = new Shape(shapePonit);
-        return shape;
-    }
-}
-
-/**
- * 本类用于加载geojson文件，主要为了加载行政区划边界
- * 参考链接：https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_shapes.html
- * 参考链接：https://threejs.org/examples/#webgl_geometry_shapes
- * 参考链接：https://threejs.org/docs/index.html?q=shap#api/en/extras/core/Shape
- */
-class GeoLorder{
-    static Flat = 100;
-    static Extruded = 200;
-    static LineReal = 300;
-    static LineSampled = 400;
-    static PointLineReal = 500;
-    static PointLineSampled = 600;
-    static ShapePath = 700;
-
-    /**
-     * 带贴图的形状
-     * @param {*} shape 形状
-     * @param {*} texture 贴图
-     * @param {*} position 位置
-     * @param {*} rotation 旋转
-     * @param {*} scale 缩放
-     */
-    addShapeWithTexture( shape, texture, position, rotation, scale) {
-
-        // flat shape with texture
-        // note: default UVs generated by THREE.ShapeGeometry are simply the x- and y-coordinates of the vertices
-
-        let geometry = new ShapeGeometry( shape );
-
-        let mesh = new Mesh( geometry, new MeshPhongMaterial( { side: DoubleSide, map: texture } ) );
-        if ( position ) {
-            mesh.position.copy( position );
-        }
-        if ( rotation ) {
-            mesh.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            mesh.scale.copy( scale );
-        }
-        return mesh;
-    }
-    /**
-     * 平面形状
-     * @param {*} shape 形状
-     * @param {*} color 颜色
-     * @param {*} position 位置
-     * @param {*} rotation 旋转
-     * @param {*} scale 缩放
-     */
-    addShapeFlat( shape, color = 0xffffff, position, rotation, scale) {
-        // flat shape
-
-        let geometry = new ShapeGeometry( shape );
-
-        let mesh = new Mesh( geometry, new MeshPhongMaterial( { color: color, side: DoubleSide } ) );
-        if ( position ) {
-            mesh.position.copy( position );
-        }
-        if ( rotation ) {
-            mesh.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            mesh.scale.copy( scale );
-        }
-        return mesh;
-
-    }
-
-    /**
-     * 带厚度的形状
-     * @param {*} shape 
-     * @param {*} extrudeSettings 参考值 const extrudeSettings = { depth: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
-     * @param {*} color 颜色
-     * @param {*} position 位置
-     * @param {*} rotation 旋转
-     * @param {*} scale 缩放
-     */
-    addShapeExtruded( shape, extrudeSettings, color = 0xffffff, position, rotation, scale){
-        
-        // extruded shape
-
-        let geometry = new ExtrudeGeometry( shape, extrudeSettings );
-
-        let mesh = new Mesh( geometry, new MeshPhongMaterial( { color: color } ) );
-        if ( position ) {
-            mesh.position.copy( position );
-        }
-        if ( rotation ) {
-            mesh.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            mesh.scale.copy( scale );
-        }
-        return mesh;
-    }
-
-    // 以真实点画线
-    addSolidLineReal( shape, color = 0xffffff, position, rotation, scale ) {
-        shape.autoClose = true;
-        const points = shape.getPoints();
-        const geometryPoints = new BufferGeometry().setFromPoints( points );
-        let line = new Line( geometryPoints, new LineBasicMaterial$1( { color: color } ) );
-        if ( position ) {
-            line.position.copy( position );
-        }
-        if ( rotation ) {
-            line.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            line.scale.copy( scale );
-        }
-        return line;
-    }
-    // 根据采样点划线
-    addSolidLineSampled( shape, color = 0xffffff, position, rotation, scale ) {
-        shape.autoClose = true;
-        const spacedPoints = shape.getSpacedPoints( 50 );
-        const geometrySpacedPoints = new BufferGeometry().setFromPoints( spacedPoints );
-        let line = new Line( geometrySpacedPoints, new MeshPhongMaterial( { color: color } ) );
-        if ( position ) {
-            line.position.copy( position );
-        }
-        if ( rotation ) {
-            line.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            line.scale.copy( scale );
-        }
-        return line;
-    }
-
-    addPointLineReal( shape, color = 0xffffff, position, rotation, scale ) {
-        shape.autoClose = true;
-
-        const points = shape.getPoints();
-        const geometryPoints = new BufferGeometry().setFromPoints( points );
-        let particles = new Points( geometryPoints, new PointsMaterial( { color: color, size: 400 } ) );
-        if ( position ) {
-            particles.position.copy( position );
-        }
-        if ( rotation ) {
-            particles.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            particles.scale.copy( scale );
-        }
-        return particles;
-    }
-
-    addPointLineSampled( shape, color = 0xffffff, position, rotation, scale ) {
-        shape.autoClose = true;
-
-        const spacedPoints = shape.getSpacedPoints( 50 );
-        const geometrySpacedPoints = new BufferGeometry().setFromPoints( spacedPoints );
-        particles = new Points( geometrySpacedPoints, new PointsMaterial( { color: color, size: 400 } ) );
-        if ( position ) {
-            particles.position.copy( position );
-        }
-        if ( rotation ) {
-            particles.rotation.copy( rotation );
-        }
-        if ( scale ) {
-            particles.scale.copy( scale );
-        }
-        return particles;
-    }
-
-    /**
-     * 
-     * @param {*} shape 形状
-     * @param {*} ponits 路径的点 ，Object3d类型
-     * @param {*} color 颜色
-     * @returns 
-     * 参考：https://threejs.org/docs/index.html?q=CatmullRomCurve3#api/en/extras/curves/CatmullRomCurve3
-     *      https://threejs.org/examples/#webgl_geometry_extrude_shapes
-     * 
-     * 也可以制作管道几何体：
-     *      https://www.cnblogs.com/vadim-web/p/13282658.html  该网页最后
-     */
-    addShapePath( shape, ponits, color = 0xffffff) {
-        const spline = new CatmullRomCurve3( ponits );
-        spline.curveType = 'catmullrom';
-        spline.closed = true;
-        // 参考于： https://threejs.org/docs/index.html?q=shape#api/en/geometries/ExtrudeGeometry
-        // bevel: 斜面
-        const extrudeSettings = {
-            steps: 10, // 细分数, 原值为100,或者50
-            extrudePath: spline,
-            bevelEnabled: true,
-            bevelThickness: 5,
-            bevelSize: 5,
-            bevelOffset: 0,
-            bevelSegments: 5
-        };
-        const geometry = new ExtrudeGeometry( shape, extrudeSettings );
-
-        const material = new MeshPhongMaterial( { color: color, wireframe: false } );
-
-        const mesh = new Mesh( geometry, material );
-        return mesh;
-    }
-    
-    // 加载行政区划json
-    // 也可以适配加载常规的geojson, 后续再进行调试
-    async loadRegionJson(path, color, mode = GeoLorder.LineReal, options = {}, position, rorate, scale){
-        let group = new Group$1();
-        await fetch(path).then(res=>res.json()).then(data=>{
-            let features = data.features;
-            features.forEach(feature=>{
-                let properties = feature.properties;
-                let geometry = feature.geometry;
-                feature.type;
-                let coordinates = geometry.coordinates;
-                let typeGeometry = geometry.type;
-                if (typeGeometry === "MultiPolygon") { // 目前暂时仅仅支持行政区划方向的数据进行解析
-                    for(let multiPolygon of coordinates){
-                        const shapePonit = [];
-                        let polygon = multiPolygon[0]; // 每次取第一个图形，geojson里面是这样设置的
-                        for(let point of polygon){
-                            // Todo 经纬度转笛卡尔坐标系
-                            let coord = UnitsUtils.datumsToSpherical(point[1], point[0]); // 经纬度转笛卡尔坐标系, point 中的经纬度是反的【lon,lat】
-                            shapePonit.push(new Vector2(coord.x, -coord.y));
-                        }
-                        properties.center; // 转成笛卡尔坐标系,行政中心
-                        let centroid = properties.centroid; // 转成笛卡尔坐标系，形心
-                        UnitsUtils.datumsToSpherical(centroid[1], centroid[0]);
-                        // position = new Vector3(centerCoord.x, -centerCoord.y, 0 );
-                        let shape = new Shape(shapePonit);
-                        let mesh = this.produce(mode, shape, color, position, rorate, scale);
-                        mesh.name = properties.name;
-                        mesh.transparent = true;
-                        mesh.opacity = 0.6;
-                        group.add(mesh);
-                        mesh = this.produce(GeoLorder.ShapePath, shape, Colors.Blue);
-                        mesh.name = properties.name;
-                        group.add(mesh);
-                    }
-                }
-            });
-        });
-        group.rotation.set( Math.PI/2,0,0);
-        return group;
-    }
-    // 生成具体的mesh
-    produce(mode, shape, color, position, rorate, scale){
-        let mesh = null;
-        switch (mode) {
-            case GeoLorder.Flat:
-                mesh = this.addShapeFlat(shape, color, position, rorate, scale);
-                break;
-            case GeoLorder.Extruded:
-                mesh = this.addShapeExtruded(shape, color, position, rorate, scale);
-                break;
-            case GeoLorder.LineReal:
-                mesh = this.addSolidLineReal(shape, color, position, rorate, scale);
-                break;
-            case GeoLorder.LineSampled:
-                mesh = this.addSolidLineSampled(shape, color, position, rorate, scale);
-                break;
-            case GeoLorder.PointLineReal:
-                mesh = this.addPointLineReal(shape, color, position, rorate, scale);
-                break;
-            case GeoLorder.PointLineSampled:
-                mesh = this.addPointLineSampled(shape, color, position, rorate, scale);
-                break;
-            case GeoLorder.ShapePath:
-                let shapes = new Shapes();
-                shape.getPoints();
-                let points = [];
-                for(let point of shape.getPoints()){
-                    points.push(new Vector3(point.x, point.y, 0));
-                }
-                mesh = this.addShapePath(shapes.getCircle(), points, color, position, rorate, scale);
-                break;
-            default:
-                mesh  = null;
-        }
-        return mesh;
-    }
-
-    // 矩阵类型的数组，每个维度的深度都是一样
-    /**
-     * 判断数组深度
-     * @param {*} arr 数组 
-     * @param {*} matrix 是否是规整的数组
-     * @returns 
-     */   
-    arrDepth(arr, matrix){
-        if (!Array.isArray(arr)) {   // 判断是否为数组
-            return 0;
-          }
-          let depth = 1;               // 初始化深度为 1
-          if (matrix) {
-            const cur = arr[0];
-            if (Array.isArray(cur)) {  // 如果当前元素仍为数组，递归遍历
-                const curDepth = this.arrDepth(cur, matrix) + 1;
-                depth = Math.max(depth, curDepth);
-            }
-          } else {
-            for (let i = 0; i < arr.length; i++) {
-                const cur = arr[i];
-                if (Array.isArray(cur)) {  // 如果当前元素仍为数组，递归遍历
-                  const curDepth = this.arrDepth(cur, matrix) + 1;
-                  depth = Math.max(depth, curDepth);
-                }
-              }
-          }
-          
-          return depth;
-    }
-}
-
-/**
- * Work based on :
- * https://github.com/Slayvin: Flat mirror for three.js
- * https://home.adelphi.edu/~stemkoski/ : An implementation of water shader based on the flat mirror
- * http://29a.ch/ && http://29a.ch/slides/2012/webglwater/ : Water shader explanations in WebGL
- */
-
-let Water$1 = class Water extends Mesh {
-
-	constructor( geometry, options = {} ) {
-
-		super( geometry );
-
-		this.isWater = true;
-
-		const scope = this;
-
-		const textureWidth = options.textureWidth !== undefined ? options.textureWidth : 512;
-		const textureHeight = options.textureHeight !== undefined ? options.textureHeight : 512;
-
-		const clipBias = options.clipBias !== undefined ? options.clipBias : 0.0;
-		const alpha = options.alpha !== undefined ? options.alpha : 1.0;
-		const time = options.time !== undefined ? options.time : 0.0;
-		const normalSampler = options.waterNormals !== undefined ? options.waterNormals : null;
-		const sunDirection = options.sunDirection !== undefined ? options.sunDirection : new Vector3( 0.70707, 0.70707, 0.0 );
-		const sunColor = new Color( options.sunColor !== undefined ? options.sunColor : 0xffffff );
-		const waterColor = new Color( options.waterColor !== undefined ? options.waterColor : 0x7F7F7F );
-		const eye = options.eye !== undefined ? options.eye : new Vector3( 0, 0, 0 );
-		const distortionScale = options.distortionScale !== undefined ? options.distortionScale : 20.0;
-		const side = options.side !== undefined ? options.side : FrontSide;
-		const fog = options.fog !== undefined ? options.fog : false;
-
-		//
-
-		const mirrorPlane = new Plane();
-		const normal = new Vector3();
-		const mirrorWorldPosition = new Vector3();
-		const cameraWorldPosition = new Vector3();
-		const rotationMatrix = new Matrix4();
-		const lookAtPosition = new Vector3( 0, 0, - 1 );
-		const clipPlane = new Vector4();
-
-		const view = new Vector3();
-		const target = new Vector3();
-		const q = new Vector4();
-
-		const textureMatrix = new Matrix4();
-
-		const mirrorCamera = new PerspectiveCamera();
-
-		const renderTarget = new WebGLRenderTarget( textureWidth, textureHeight );
-
-		const mirrorShader = {
-
-			name: 'MirrorShader',
-
-			uniforms: UniformsUtils.merge( [
-				UniformsLib[ 'fog' ],
-				UniformsLib[ 'lights' ],
-				{
-					'normalSampler': { value: null },
-					'mirrorSampler': { value: null },
-					'alpha': { value: 1.0 },
-					'time': { value: 0.0 },
-					'size': { value: 1.0 },
-					'distortionScale': { value: 20.0 },
-					'textureMatrix': { value: new Matrix4() },
-					'sunColor': { value: new Color( 0x7F7F7F ) },
-					'sunDirection': { value: new Vector3( 0.70707, 0.70707, 0 ) },
-					'eye': { value: new Vector3() },
-					'waterColor': { value: new Color( 0x555555 ) }
-				}
-			] ),
-
-			vertexShader: /* glsl */`
-				uniform mat4 textureMatrix;
-				uniform float time;
-
-				varying vec4 mirrorCoord;
-				varying vec4 worldPosition;
-
-				#include <common>
-				#include <fog_pars_vertex>
-				#include <shadowmap_pars_vertex>
-				#include <logdepthbuf_pars_vertex>
-
-				void main() {
-					mirrorCoord = modelMatrix * vec4( position, 1.0 );
-					worldPosition = mirrorCoord.xyzw;
-					mirrorCoord = textureMatrix * mirrorCoord;
-					vec4 mvPosition =  modelViewMatrix * vec4( position, 1.0 );
-					gl_Position = projectionMatrix * mvPosition;
-
-				#include <beginnormal_vertex>
-				#include <defaultnormal_vertex>
-				#include <logdepthbuf_vertex>
-				#include <fog_vertex>
-				#include <shadowmap_vertex>
-			}`,
-
-			fragmentShader: /* glsl */`
-				uniform sampler2D mirrorSampler;
-				uniform float alpha;
-				uniform float time;
-				uniform float size;
-				uniform float distortionScale;
-				uniform sampler2D normalSampler;
-				uniform vec3 sunColor;
-				uniform vec3 sunDirection;
-				uniform vec3 eye;
-				uniform vec3 waterColor;
-
-				varying vec4 mirrorCoord;
-				varying vec4 worldPosition;
-
-				vec4 getNoise( vec2 uv ) {
-					vec2 uv0 = ( uv / 103.0 ) + vec2(time / 17.0, time / 29.0);
-					vec2 uv1 = uv / 107.0-vec2( time / -19.0, time / 31.0 );
-					vec2 uv2 = uv / vec2( 8907.0, 9803.0 ) + vec2( time / 101.0, time / 97.0 );
-					vec2 uv3 = uv / vec2( 1091.0, 1027.0 ) - vec2( time / 109.0, time / -113.0 );
-					vec4 noise = texture2D( normalSampler, uv0 ) +
-						texture2D( normalSampler, uv1 ) +
-						texture2D( normalSampler, uv2 ) +
-						texture2D( normalSampler, uv3 );
-					return noise * 0.5 - 1.0;
-				}
-
-				void sunLight( const vec3 surfaceNormal, const vec3 eyeDirection, float shiny, float spec, float diffuse, inout vec3 diffuseColor, inout vec3 specularColor ) {
-					vec3 reflection = normalize( reflect( -sunDirection, surfaceNormal ) );
-					float direction = max( 0.0, dot( eyeDirection, reflection ) );
-					specularColor += pow( direction, shiny ) * sunColor * spec;
-					diffuseColor += max( dot( sunDirection, surfaceNormal ), 0.0 ) * sunColor * diffuse;
-				}
-
-				#include <common>
-				#include <packing>
-				#include <bsdfs>
-				#include <fog_pars_fragment>
-				#include <logdepthbuf_pars_fragment>
-				#include <lights_pars_begin>
-				#include <shadowmap_pars_fragment>
-				#include <shadowmask_pars_fragment>
-
-				void main() {
-
-					#include <logdepthbuf_fragment>
-					vec4 noise = getNoise( worldPosition.xz * size );
-					vec3 surfaceNormal = normalize( noise.xzy * vec3( 1.5, 1.0, 1.5 ) );
-
-					vec3 diffuseLight = vec3(0.0);
-					vec3 specularLight = vec3(0.0);
-
-					vec3 worldToEye = eye-worldPosition.xyz;
-					vec3 eyeDirection = normalize( worldToEye );
-					sunLight( surfaceNormal, eyeDirection, 100.0, 2.0, 0.5, diffuseLight, specularLight );
-
-					float distance = length(worldToEye);
-
-					vec2 distortion = surfaceNormal.xz * ( 0.001 + 1.0 / distance ) * distortionScale;
-					vec3 reflectionSample = vec3( texture2D( mirrorSampler, mirrorCoord.xy / mirrorCoord.w + distortion ) );
-
-					float theta = max( dot( eyeDirection, surfaceNormal ), 0.0 );
-					float rf0 = 0.3;
-					float reflectance = rf0 + ( 1.0 - rf0 ) * pow( ( 1.0 - theta ), 5.0 );
-					vec3 scatter = max( 0.0, dot( surfaceNormal, eyeDirection ) ) * waterColor;
-					vec3 albedo = mix( ( sunColor * diffuseLight * 0.3 + scatter ) * getShadowMask(), ( vec3( 0.1 ) + reflectionSample * 0.9 + reflectionSample * specularLight ), reflectance);
-					vec3 outgoingLight = albedo;
-					gl_FragColor = vec4( outgoingLight, alpha );
-
-					#include <tonemapping_fragment>
-					#include <colorspace_fragment>
-					#include <fog_fragment>	
-				}`
-
-		};
-
-		const material = new ShaderMaterial( {
-			name: mirrorShader.name,
-			uniforms: UniformsUtils.clone( mirrorShader.uniforms ),
-			vertexShader: mirrorShader.vertexShader,
-			fragmentShader: mirrorShader.fragmentShader,
-			lights: true,
-			side: side,
-			fog: fog
-		} );
-
-		material.uniforms[ 'mirrorSampler' ].value = renderTarget.texture;
-		material.uniforms[ 'textureMatrix' ].value = textureMatrix;
-		material.uniforms[ 'alpha' ].value = alpha;
-		material.uniforms[ 'time' ].value = time;
-		material.uniforms[ 'normalSampler' ].value = normalSampler;
-		material.uniforms[ 'sunColor' ].value = sunColor;
-		material.uniforms[ 'waterColor' ].value = waterColor;
-		material.uniforms[ 'sunDirection' ].value = sunDirection;
-		material.uniforms[ 'distortionScale' ].value = distortionScale;
-
-		material.uniforms[ 'eye' ].value = eye;
-
-		scope.material = material;
-
-		scope.onBeforeRender = function ( renderer, scene, camera ) {
-
-			mirrorWorldPosition.setFromMatrixPosition( scope.matrixWorld );
-			cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
-
-			rotationMatrix.extractRotation( scope.matrixWorld );
-
-			normal.set( 0, 0, 1 );
-			normal.applyMatrix4( rotationMatrix );
-
-			view.subVectors( mirrorWorldPosition, cameraWorldPosition );
-
-			// Avoid rendering when mirror is facing away
-
-			if ( view.dot( normal ) > 0 ) return;
-
-			view.reflect( normal ).negate();
-			view.add( mirrorWorldPosition );
-
-			rotationMatrix.extractRotation( camera.matrixWorld );
-
-			lookAtPosition.set( 0, 0, - 1 );
-			lookAtPosition.applyMatrix4( rotationMatrix );
-			lookAtPosition.add( cameraWorldPosition );
-
-			target.subVectors( mirrorWorldPosition, lookAtPosition );
-			target.reflect( normal ).negate();
-			target.add( mirrorWorldPosition );
-
-			mirrorCamera.position.copy( view );
-			mirrorCamera.up.set( 0, 1, 0 );
-			mirrorCamera.up.applyMatrix4( rotationMatrix );
-			mirrorCamera.up.reflect( normal );
-			mirrorCamera.lookAt( target );
-
-			mirrorCamera.far = camera.far; // Used in WebGLBackground
-
-			mirrorCamera.updateMatrixWorld();
-			mirrorCamera.projectionMatrix.copy( camera.projectionMatrix );
-
-			// Update the texture matrix
-			textureMatrix.set(
-				0.5, 0.0, 0.0, 0.5,
-				0.0, 0.5, 0.0, 0.5,
-				0.0, 0.0, 0.5, 0.5,
-				0.0, 0.0, 0.0, 1.0
-			);
-			textureMatrix.multiply( mirrorCamera.projectionMatrix );
-			textureMatrix.multiply( mirrorCamera.matrixWorldInverse );
-
-			// Now update projection matrix with new clip plane, implementing code from: http://www.terathon.com/code/oblique.html
-			// Paper explaining this technique: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
-			mirrorPlane.setFromNormalAndCoplanarPoint( normal, mirrorWorldPosition );
-			mirrorPlane.applyMatrix4( mirrorCamera.matrixWorldInverse );
-
-			clipPlane.set( mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.constant );
-
-			const projectionMatrix = mirrorCamera.projectionMatrix;
-
-			q.x = ( Math.sign( clipPlane.x ) + projectionMatrix.elements[ 8 ] ) / projectionMatrix.elements[ 0 ];
-			q.y = ( Math.sign( clipPlane.y ) + projectionMatrix.elements[ 9 ] ) / projectionMatrix.elements[ 5 ];
-			q.z = - 1.0;
-			q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
-
-			// Calculate the scaled plane vector
-			clipPlane.multiplyScalar( 2.0 / clipPlane.dot( q ) );
-
-			// Replacing the third row of the projection matrix
-			projectionMatrix.elements[ 2 ] = clipPlane.x;
-			projectionMatrix.elements[ 6 ] = clipPlane.y;
-			projectionMatrix.elements[ 10 ] = clipPlane.z + 1.0 - clipBias;
-			projectionMatrix.elements[ 14 ] = clipPlane.w;
-
-			eye.setFromMatrixPosition( camera.matrixWorld );
-
-			// Render
-
-			const currentRenderTarget = renderer.getRenderTarget();
-
-			const currentXrEnabled = renderer.xr.enabled;
-			const currentShadowAutoUpdate = renderer.shadowMap.autoUpdate;
-
-			scope.visible = false;
-
-			renderer.xr.enabled = false; // Avoid camera modification and recursion
-			renderer.shadowMap.autoUpdate = false; // Avoid re-computing shadows
-
-			renderer.setRenderTarget( renderTarget );
-
-			renderer.state.buffers.depth.setMask( true ); // make sure the depth buffer is writable so it can be properly cleared, see #18897
-
-			if ( renderer.autoClear === false ) renderer.clear();
-			renderer.render( scene, mirrorCamera );
-
-			scope.visible = true;
-
-			renderer.xr.enabled = currentXrEnabled;
-			renderer.shadowMap.autoUpdate = currentShadowAutoUpdate;
-
-			renderer.setRenderTarget( currentRenderTarget );
-
-			// Restore viewport
-
-			const viewport = camera.viewport;
-
-			if ( viewport !== undefined ) {
-
-				renderer.state.viewport( viewport );
-
-			}
-
-		};
-
-	}
-
-};
-
-class Water1 {
-    // 初始化水面
-    // 使用水面材质，需要添加sky天空控件，做一个水面映射，效果会比较好
-    initWater(waterGeometry, textureSize = 512, textureUrl = 'png/waternormals.jpg', waterColor = 0x001e0f, sunColor = 0xffffff){
-        const water = new Water$1(
-            waterGeometry,
-            {
-                textureWidth: textureSize,
-                textureHeight: textureSize,
-                waterNormals: new TextureLoader().load( textureUrl, function ( texture ) {
-
-                    texture.wrapS = texture.wrapT = RepeatWrapping;
-
-                } ),
-                sunDirection: new Vector3(1, 100, -0.5),
-                sunColor: sunColor,
-                waterColor: waterColor,
-                distortionScale: 3.7,
-                fog: false, // 是否开启雾化效果
-                side: FrontSide, // 默认是前面，但是在实际渲染中，需要设置为后面，否则水面会和地图的面相反，导致显示错误
-                alpha: 1.0,
-            }
-        );
-        const waterUniforms = water.material.uniforms;
-        water.material.transparent = true;
-        water.position.set(0, 0.2, 0);
-        waterUniforms[ 'size' ].value = 0.1;
-        return water;
-    }
-}
-/**
- * qustions:
- * 当将水面添加到最底层的地图中时，会出现两个mesh闪烁的问题，但是在带有高程的地图中时则不会有该问题。
- * 则存在该问题的可能性有以下两点：
- * 1、使用的mesh的不同，basic和phone的关系
- * 2、带高程和不带高程的问题。
- * 有待后续验证
- * 
- * 
- * TIPS:
- * 其他方面的应用
- * 1、由于在带高程的地图中，水面和地图之间没有冲突，所以可以做水面的淹没和涨水演示。
- * 2、可以用来做水面的流动效果。
- * 3、可以用来做水面的反射效果。
- * 
- * 后续可添加一些功能：
- * 1、物体落入水中。
- * 2、水体的跨高程流动。
- */
 
 class Reflector extends Mesh {
 
@@ -48673,231 +47915,6 @@ Water.WaterShader = {
 
 };
 
-class Water2 {
-    initWater(waterGeometry, color = Colors.Red){
-        const params = {
-            color: color,
-            scale: 1, // 1 时波浪较大
-            flowX: 1,
-            flowY: 1
-        };
-        let water = new Water( waterGeometry, {
-            color: params.color,
-            scale: params.scale,
-            flowDirection: new Vector2( params.flowX, params.flowY ),
-            textureWidth: 512,
-            textureHeight: 512,
-            normalMap0: new TextureLoader().load( 'png/Water_1_M_Normal.jpg' ),
-            normalMap1: new TextureLoader().load( 'png/Water_2_M_Normal.jpg' ),
-        } );
-        return water;
-    }
-}
-
-// 绘制水系， 同理是否可以用沙漠材质，绘制沙漠类型（指导沙漠边界的情况下）。森林？草原？ 草原被风吹动，也是类似于风吹水流的情况。
-class WaterLorder {
-
-    static FLAT = 0;
-    static EXTRUDED = 1;
-    static SHAPEPATH = 2;
-
-    constructor(){
-        this.water1 = new Water1();
-        this.water2 = new Water2();
-    }
-    /**
-     * 平面形状
-     * @param {*} shape 形状
-     */
-    getFlatGeometry( shape) {
-        // flat shape
-        let geometry = new ShapeGeometry( shape );
-        return geometry;
-    }
-
-    /**
-     * 带厚度的geometry
-     * @param {*} shape 
-     * @param {*} extrudeSettings 
-     * @returns 
-     */
-    getExtrudedGeometry( shape, extrudeSettings = null){
-        
-        // extruded shape
-        if( extrudeSettings == null ){
-            extrudeSettings = {
-                depth: 8,
-                steps: 10, // 细分数, 原值为100,或者50
-                extrudePath: spline,
-                bevelEnabled: true,
-                bevelThickness: 5,
-                bevelSize: 5,
-                bevelOffset: 0,
-                bevelSegments: 5
-            };
-        }
-        let geometry = new ExtrudeGeometry( shape, extrudeSettings );
-        return geometry;
-    }
-
-    /**
-     * 绘制类似于管道， 这种水流。
-     * @param {*} shape 
-     * @param {*} ponits 
-     * @returns 
-     */
-    getShapePathGeometry( shape, ponits) {
-        const spline = new CatmullRomCurve3( ponits );
-        spline.curveType = 'catmullrom';
-        spline.closed = true;
-        // 参考于： https://threejs.org/docs/index.html?q=shape#api/en/geometries/ExtrudeGeometry
-        // bevel: 斜面
-        const extrudeSettings = {
-            steps: 10, // 细分数, 原值为100,或者50
-            extrudePath: spline,
-            bevelEnabled: true,
-            bevelThickness: 5,
-            bevelSize: 5,
-            bevelOffset: 0,
-            bevelSegments: 5
-        };
-        const geometry = new ExtrudeGeometry( shape, extrudeSettings );
-
-        return geometry;
-    }
-
-    // 可以用来绘制水的边界线
-    addSolidLineReal( shape, color = 0xffffff) {
-        shape.autoClose = true;
-        const points = shape.getPoints();
-        const geometryPoints = new BufferGeometry().setFromPoints( points );
-        let line = new Line( geometryPoints, new LineBasicMaterial( { color: color } ) );
-        return line;
-    }
-
-    // 初始化水面
-    // 使用水面材质，需要添加sky天空控件，做一个水面映射，效果会比较好
-    // 在单一场景使用较好，但是在多canvas场景进行叠加时，则会因为遮盖问题，下层图层将不会显示。
-    initWater(waterGeometry, textureSize = 512, textureUrl = 'png/waternormals.jpg', waterColor = 0x001e0f, sunColor = 0xffffff){
-        return this.water1.initWater(waterGeometry, textureSize, textureUrl, waterColor, sunColor);
-    }
-
-    initWater2(){
-        return this.water2.initWater();
-    }
-
-    // 获取水面,获得的水面对象都放在了group（Threejs）对象里面
-    async getWater(path, mode = WaterLorder.FLAT, options = {}){
-        let group = new Group$1();
-        await fetch(path).then(res=>res.json()).then(data=>{
-            // data = this.example(); // 测试数据, 先覆盖掉原来的数据
-            let features = data.features;
-            features.forEach(feature=>{
-                feature.properties;
-                let geometry = feature.geometry;
-                feature.type;
-                let coordinates = geometry.coordinates;
-                let typeGeometry = geometry.type;
-                if (typeGeometry === "MultiPolygon") { // 目前暂时仅仅支持行政区划方向的数据进行解析
-                    for(let multiPolygon of coordinates){
-                        const shapePonit = [];
-                        let polygon = multiPolygon[0]; // 每次取第一个图形，geojson里面是这样设置的
-                        for(let point of polygon){
-                            // Todo 经纬度转笛卡尔坐标系
-                            let coord = UnitsUtils.datumsToSpherical(point[1], point[0]); // 经纬度转笛卡尔坐标系, point 中的经纬度是反的【lon,lat】
-                            shapePonit.push(new Vector2(coord.x, coord.y)); // 这里为什么不是负Y呢？，由于水面只有一面，在实际测试中，需要设置为正Y
-                        }
-                        let shape = new Shape(shapePonit);
-                        let geometry = this.produce(shape, mode);
-                        let water = this.initWater(geometry);
-                        water.rotation.set(-Math.PI/2, 0, 0);
-                        group.add(water);
-                    }
-                }
-            });
-        });
-        // group.rotation.set( Math.PI/2,0,0);
-        return group;
-    }
-
-    // 根据shape对象获取geometry对象
-    produce(shape, mode = WaterLorder.FLAT){
-        switch(mode){
-            case WaterLorder.FLAT:
-                return this.getFlatGeometry(shape);
-            case WaterLorder.EXTRUDED:
-                return this.getExtrudedGeometry(shape);
-            case WaterLorder.SHAPEPATH:
-                let shapes = new Shapes();
-                let points = [];
-                for(let point of shape.getPoints()){
-                    points.push(new Vector3(point.x, point.y, 0));
-                }
-                return this.getShapePathGeometry(shapes.getCircle(), points);
-            default:
-                return null;
-        }
-    }
-    // 这里的数据示例只给出了太湖的数据。
-    example(){
-        return {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "adcode": 650100,
-                        "name": "太湖",
-                        "center": [
-                            87.617733,
-                            43.792818
-                        ],
-                        "centroid": [
-                            87.783748,
-                            43.739398
-                        ],
-                        "childrenNum": 8,
-                        "level": "city",
-                        "parent": {
-                            "adcode": 650000
-                        },
-                        "subFeatureIndex": 0,
-                        "acroutes": [
-                            100000,
-                            650000
-                        ]
-                    },
-                    "geometry": {
-                        "type": "MultiPolygon",
-                        "coordinates": [
-                            [
-                                [
-                                    [120.141795,30.94388],
-                                    [120.360263,30.951809],
-                                    [120.436151,30.977572],
-                                    [120.633922,31.193313],
-                                    [120.479845,31.224939],
-                                    [120.337266,31.327652],
-                                    [120.380959,31.469683],
-                                    [120.37866,31.473625],
-                                    [120.226882,31.434196],
-                                    [120.210784,31.544556],
-                                    [120.167091,31.540617],
-                                    [120.088902,31.394749],
-                                    [120.049808,31.48348],
-                                    [119.90263,31.236797],
-                                    [119.983118,31.070659],
-                                    [120.082003,30.991442]
-                                ]
-                            ]
-                        ]
-                    }
-                }
-            ]
-        }
-    }
-}
-
 class WegeoMap {
     baseMap;
 
@@ -48935,16 +47952,14 @@ class WegeoMap {
         map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
-        this.baseMap = new Layer(1, container, canvas, map, true, this.camera);
+        this.baseMap = new Layer(1, container, canvas, map, true);
         this.baseMap.moveTo(44.266119,90.139228);
-        this.baseMap.base = true;
-        this.baseMap.controls.addEventListener('change', () => {
-            for(let layer of this.layers.values()){
-                layer.camera.position.copy( this.baseMap.camera.position );
-                layer.camera.rotation.copy( this.baseMap.camera.rotation );
-            }
-            // console.log(this.baseMap.camera.position);
-        });
+        let tilingScheme = option.heightProvider.tilingScheme;
+        if(tilingScheme instanceof MercatorTilingScheme){
+            this.baseMap.base = 'mercator';
+        } else {
+            this.baseMap.base ='wgs84';
+        }
         // this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
         // this.selectModel(RaycasterUtils.casterMesh);
     }
@@ -48973,12 +47988,12 @@ class WegeoMap {
         // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);
         
         // this.baseMap.moveToByLL(44.266119,90.139228);// 移动到指定位置。
-        this.baseMap.base = true;
+        this.baseMap.base = 'spherical';
         this.baseMap.controls.addEventListener('change', () => {
-            for(let layer of this.layers.values()){
-                layer.camera.position.copy( this.baseMap.camera.position );
-                layer.camera.rotation.copy( this.baseMap.camera.rotation );
-            }
+            // for(let layer of this.layers.values()){
+            //     layer.camera.position.copy( this.baseMap.camera.position );
+            //     layer.camera.rotation.copy( this.baseMap.camera.rotation );
+            // }
             let distance = this.baseMap.camera.position.distanceTo(new Vector3(0,0,0));
             // console.log(distance);
             if(distance > UnitsUtils.EARTH_RADIUS_A *2.5){
@@ -49082,27 +48097,10 @@ class WegeoMap {
         this.baseMap.fromDegrees(lat, lon, distance);
     }
 
-    latlon2Vector(lat, lon, distance = 384720){
-        if(!this.baseMap){
-            return ;
-        }
-        this.baseMap.latlon2Vector(lat, lon, distance);
-    }
     
     // 鼠标点击获取模型
     getModel(mx,my){
-        let layers = Array.from(this.layers).reverse();
         let isect;
-        for(let [id, layer] of layers){
-            isect = layer.insectALL(mx, my, true);
-            if(isect){
-                return [isect, layer];
-            }
-            isect = layer.raycastFromMouse(mx,my, true);
-            if(isect){
-                return [isect, layer];
-            }
-        }
         if(this.baseMap){
             isect = this.baseMap.insectALL(mx, my, true);
             if(isect){
@@ -49125,154 +48123,6 @@ class WegeoMap {
         return pt;
     }
 
-    
-
-    // 添加图片（影像）图层
-    /**
-     * @deprecated 不打算采用多canvas的方式
-     * @param {*} mapView 
-     * @returns 
-     */
-    addImageLayer(mapView){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        let layer = new Layer(id, container, canvas, mapView);
-        this.layers.set(id, layer);
-        layer.imageLayer = true;
-        // this.layers[id] = layer;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        return layer;
-    }
-
-    // 添加向量图层
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mapView 
-     * @returns 
-     */
-    addVectorLayer(mapView){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        let layer = new Layer(id, container, canvas, mapView);
-        this.layers.set(id, layer);
-        layer.vectorLayer = true;
-        // this.layers[id] = layer;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        return layer;
-    }
-
-    // 添加线模型
-
-
-    // 添加模型图层
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mode 
-     * @param {*} option 
-     * @returns 
-     */
-    addModelLayer(mode, option){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        let layer; 
-        if(mode == 'gltf'){
-            layer.modelLayer = true;
-        }
-        if(mode == 'obj'){
-            layer.vectorLayer = true;
-        }
-        if(mode == '3dtiles'){
-            layer = new D3TilesLayer(id, container, canvas, option);
-        }
-        this.layers.set(id, layer);
-        layer.modelLayer = true;
-        // this.layers[id] = layer;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        return layer;
-    }
-
-    // 目前暂时限定为新疆地区, 只绘制边界
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mode 
-     */
-    async addRegionLayer(mode = GeoLorder.LineReal){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        // 不再依赖mapview构建视图
-        let layer = new Layer(id, container, canvas, null);
-        this.layers.set(id, layer);
-        layer.regionLayer = true;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        await this.addRegion(layer, mode);
-    }
-
-    async addRegion(layer, mode){
-        let loader = new GeoLorder();
-        let path = Config.XINJIANG_REGION;
-        let obj = await loader.loadRegionJson(path, Colors.Red, mode);
-        layer.add(obj);
-    }
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mode 
-     */
-    async addWaterLayer(mode = WaterLorder.FLAT){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        // 不再依赖mapview构建视图
-        let layer = new Layer(id, container, canvas, null);
-        this.layers.set(id, layer);
-        layer.waterLayer = true;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        await this.addWater(layer, mode);
-        layer.openWaterConfig();
-        
-    }
-    /**
-     * @deprecated
-     * 添加水面到最底层图层
-     */
-    async addWaterToBaseMap(mode = WaterLorder.FLAT){
-        await this.addWater(this.baseMap, mode);
-        this.baseMap.openWaterConfig();
-    }
-
-    async addWaterToLayer(layer, mode = WaterLorder.FLAT){
-        await this.addWater(layer, mode);
-        layer.openWaterConfig();
-    }
-
-    async addWater(layer, mode){
-        let loader = new WaterLorder();
-        let path = Config.XINJIANG_REGION;
-        let obj = await loader.getWater(path, mode);
-        let childrens = obj.children;
-        childrens.forEach((child) => {
-            layer.addWater(child);
-            // layer.add(child);
-        });
-    }
-
-    setLayerVisble(layer, visible){
-        layer.setVisible(visible);
-    }
-
     /**
      * 循环渲染动画
      */
@@ -49280,20 +48130,12 @@ class WegeoMap {
         if(this.baseMap){
             this.baseMap.animate();
         }
-        // 如果使用map的foreach方法会导致界面糊掉，不要用
-        let layers = Array.from(this.layers).reverse();
-        for(let [id,layer] of layers){
-            layer.animate();
-        }
+        
     }
 
     resize(){
         if(this.baseMap){
             this.baseMap.resize();
-        }
-        let layers = Array.from(this.layers).reverse();
-        for(let [id,layer] of layers){
-            layer.resize();
         }
     }
 

@@ -12,7 +12,7 @@ import { Colors } from './utils/Colors';
 import { WaterLorder } from './loader/WaterLorder';
 import { UnitsUtils } from './utils/UnitsUtils';
 import { LODSphere } from './lod/LODSphere';
-import { Skybox } from './main';
+import { MercatorTilingScheme, Skybox } from './main';
 import { DefaultPlaneProvider } from './providers';
 import { DefaultSphereProvider } from './providers';
 
@@ -53,16 +53,14 @@ export class WegeoMap {
         map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
-        this.baseMap = new Layer(1, container, canvas, map, true, this.camera);
+        this.baseMap = new Layer(1, container, canvas, map, true);
         this.baseMap.moveTo(44.266119,90.139228);
-        this.baseMap.base = true;
-        this.baseMap.controls.addEventListener('change', () => {
-            for(let layer of this.layers.values()){
-                layer.camera.position.copy( this.baseMap.camera.position );
-                layer.camera.rotation.copy( this.baseMap.camera.rotation );
-            }
-            // console.log(this.baseMap.camera.position);
-        });
+        let tilingScheme = option.heightProvider.tilingScheme;
+        if(tilingScheme instanceof MercatorTilingScheme){
+            this.baseMap.base = 'mercator';
+        } else {
+            this.baseMap.base ='wgs84';
+        }
         // this.listener = new Listener(this.baseMap.canvas); // 监听事件目前只加在最底层地图的canvas上，其他图层目前没有加监听器的必要
         // this.selectModel(RaycasterUtils.casterMesh);
     }
@@ -91,12 +89,12 @@ export class WegeoMap {
         // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);
         
         // this.baseMap.moveToByLL(44.266119,90.139228);// 移动到指定位置。
-        this.baseMap.base = true;
+        this.baseMap.base = 'spherical';
         this.baseMap.controls.addEventListener('change', () => {
-            for(let layer of this.layers.values()){
-                layer.camera.position.copy( this.baseMap.camera.position );
-                layer.camera.rotation.copy( this.baseMap.camera.rotation );
-            }
+            // for(let layer of this.layers.values()){
+            //     layer.camera.position.copy( this.baseMap.camera.position );
+            //     layer.camera.rotation.copy( this.baseMap.camera.rotation );
+            // }
             let distance = this.baseMap.camera.position.distanceTo(new Vector3(0,0,0));
             // console.log(distance);
             if(distance > UnitsUtils.EARTH_RADIUS_A *2.5){
@@ -200,27 +198,10 @@ export class WegeoMap {
         this.baseMap.fromDegrees(lat, lon, distance);
     }
 
-    latlon2Vector(lat, lon, distance = 384720){
-        if(!this.baseMap){
-            return ;
-        }
-        this.baseMap.latlon2Vector(lat, lon, distance);
-    }
     
     // 鼠标点击获取模型
     getModel(mx,my){
-        let layers = Array.from(this.layers).reverse();
         let isect;
-        for(let [id, layer] of layers){
-            isect = layer.insectALL(mx, my, true);
-            if(isect){
-                return [isect, layer];
-            }
-            isect = layer.raycastFromMouse(mx,my, true);
-            if(isect){
-                return [isect, layer];
-            }
-        }
         if(this.baseMap){
             isect = this.baseMap.insectALL(mx, my, true);
             if(isect){
@@ -243,154 +224,6 @@ export class WegeoMap {
         return pt;
     }
 
-    
-
-    // 添加图片（影像）图层
-    /**
-     * @deprecated 不打算采用多canvas的方式
-     * @param {*} mapView 
-     * @returns 
-     */
-    addImageLayer(mapView){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        let layer = new Layer(id, container, canvas, mapView);
-        this.layers.set(id, layer);
-        layer.imageLayer = true;
-        // this.layers[id] = layer;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        return layer;
-    }
-
-    // 添加向量图层
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mapView 
-     * @returns 
-     */
-    addVectorLayer(mapView){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        let layer = new Layer(id, container, canvas, mapView);
-        this.layers.set(id, layer);
-        layer.vectorLayer = true;
-        // this.layers[id] = layer;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        return layer;
-    }
-
-    // 添加线模型
-
-
-    // 添加模型图层
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mode 
-     * @param {*} option 
-     * @returns 
-     */
-    addModelLayer(mode, option){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        let layer; 
-        if(mode == 'gltf'){
-            layer.modelLayer = true;
-        }
-        if(mode == 'obj'){
-            layer.vectorLayer = true;
-        }
-        if(mode == '3dtiles'){
-            layer = new D3TilesLayer(id, container, canvas, option);
-        }
-        this.layers.set(id, layer);
-        layer.modelLayer = true;
-        // this.layers[id] = layer;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        return layer;
-    }
-
-    // 目前暂时限定为新疆地区, 只绘制边界
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mode 
-     */
-    async addRegionLayer(mode = GeoLorder.LineReal){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        // 不再依赖mapview构建视图
-        let layer = new Layer(id, container, canvas, null);
-        this.layers.set(id, layer);
-        layer.regionLayer = true;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        await this.addRegion(layer, mode);
-    }
-
-    async addRegion(layer, mode){
-        let loader = new GeoLorder();
-        let path = Config.XINJIANG_REGION;
-        let obj = await loader.loadRegionJson(path, Colors.Red, mode);
-        layer.add(obj);
-    }
-    /**
-     * @deprecated 不建议用,不打算采用多canvas的方式
-     * @param {*} mode 
-     */
-    async addWaterLayer(mode = WaterLorder.FLAT){
-        let [id, container, canvas] = Element.addLayerCanvas();
-        // 不再依赖mapview构建视图
-        let layer = new Layer(id, container, canvas, null);
-        this.layers.set(id, layer);
-        layer.waterLayer = true;
-        layer.ambientLight = new AmbientLight(0x404040);
-        layer.add(layer.ambientLight);
-        layer.directionalLight = new DirectionalLight(0xFFFFFF);
-        // light.target = map2;
-        layer.add(layer.directionalLight);
-        await this.addWater(layer, mode);
-        layer.openWaterConfig();
-        
-    }
-    /**
-     * @deprecated
-     * 添加水面到最底层图层
-     */
-    async addWaterToBaseMap(mode = WaterLorder.FLAT){
-        await this.addWater(this.baseMap, mode);
-        this.baseMap.openWaterConfig();
-    }
-
-    async addWaterToLayer(layer, mode = WaterLorder.FLAT){
-        await this.addWater(layer, mode);
-        layer.openWaterConfig();
-    }
-
-    async addWater(layer, mode){
-        let loader = new WaterLorder();
-        let path = Config.XINJIANG_REGION;
-        let obj = await loader.getWater(path, mode);
-        let childrens = obj.children;
-        childrens.forEach((child) => {
-            layer.addWater(child);
-            // layer.add(child);
-        })
-    }
-
-    setLayerVisble(layer, visible){
-        layer.setVisible(visible);
-    }
-
     /**
      * 循环渲染动画
      */
@@ -398,20 +231,12 @@ export class WegeoMap {
         if(this.baseMap){
             this.baseMap.animate();
         }
-        // 如果使用map的foreach方法会导致界面糊掉，不要用
-        let layers = Array.from(this.layers).reverse();
-        for(let [id,layer] of layers){
-            layer.animate();
-        }
+        
     }
 
     resize(){
         if(this.baseMap){
             this.baseMap.resize();
-        }
-        let layers = Array.from(this.layers).reverse();
-        for(let [id,layer] of layers){
-            layer.resize();
         }
     }
 
