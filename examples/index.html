@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字地球组件库</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 星空背景和行星 -->
+    <div class="space-background">
+        <div class="nebula"></div>
+        <div class="stars"></div>
+        <div class="planet earth"></div>
+        <div class="planet mars"></div>
+    </div>
+
+    <div class="loading-progress" id="loadingProgress">
+        <div class="progress-bar"></div>
+    </div>
+    <div class="container">
+        <div class="sidebar-toggle">
+            <button id="sidebarToggle" title="折叠侧边栏">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="header-top">
+                    <h1 class="header-title">Earth View</h1>
+                    <div class="header-controls">
+                        <div class="theme-toggle">
+                            <button id="themeToggle" title="切换主题">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索组件...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-tags">
+                    <span class="tag active" data-filter="all">全部</span>
+                    <span class="tag" data-filter="basic">基础</span>
+                    <span class="tag" data-filter="animation">动画</span>
+                    <span class="tag" data-filter="effect">特效</span>
+                </div>
+            </div>
+            <ul>
+                <li><a href="#video-section">球形地球 (4)</a></li>
+                <li><a href="#svg-section">平面地图(5)</a></li>
+                <li><a href="#spectrum-section">特效 (3)</a></li>
+                <!-- <li><a href="#site-section">站点图元 (4)</a></li>
+                <li><a href="#model-section">模型图元 (2)</a></li>
+                <li><a href="#animation-section">动画图元 (3)</a></li>
+                <li><a href="#path-section">漫游路径图元 (3)</a></li>
+                <li><a href="#dynamic-section">动态点位图元 (4)</a></li>
+                <li><a href="#pillar-section">光柱维体图元 (2)</a></li>
+                <li><a href="#satellite-section">卫星场景图元 (6)</a></li>
+                <li><a href="#heat-section">热力图元 (4)</a></li>
+                <li><a href="#particle-section">粒子图元 (3)</a></li>
+                <li><a href="#analysis-section">分析图元 (1)</a></li> -->
+            </ul>
+        </nav>
+        <main class="content">
+            <div class="breadcrumb" id="breadcrumb">
+                <span>首页</span>
+            </div>
+            <section id="video-section" class="component-section">
+                <h2>球形地球</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic" >
+                        <a href="./sphereEarth/Earth/earth.html">
+							<div class=" component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/basic_earth.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">圆形地球/基础地球</div>
+						</a>
+                        <!-- <div class="component-preview video-preview"></div>
+                        <h3>扫描材质_3</h3> -->
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <a href="./sphereEarth/earthWGS84/earth.html">
+							<div class=" component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/basic_earth.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">圆形地球/基础地球WGS84tilingScheme</div>
+						</a>
+                        <!-- <div class="component-preview video-preview"></div>
+                        <h3>扫描材质_4</h3> -->
+                    </div>
+                    <div class="component-card" data-type="basic">
+                        <a href="./sphereEarth/height/height.html">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/sphereHeight.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">圆形地球/mapbox高程地球(需翻墙和秘钥)</div>
+						</a>
+                        <!-- <div class="component-preview video-preview"></div>
+                        <h3>原生材质</h3> -->
+                    </div>
+                    <div class="component-card" data-type="basic">
+                        <a href="./sphereEarth/heightTDT/height.html"">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/sphereHeight.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">圆形地球/天地图高程地球（需中国IP）</div>
+						</a>
+                        <!-- <div class="component-preview video-preview"></div>
+                        <h3>原生材质</h3> -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="svg-section" class="component-section">
+                <h2>平面地图</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic">
+                        <a href="./planeEarth/basic/basic.html">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/plane_basic.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">平面/基础地图</div>
+						</a>
+                        <!-- <div class="component-preview svg-preview"></div>
+                        <h3>基础SVG</h3> -->
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <a href="./planeEarth/height/height.html">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/height.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">平面/高程地图mapbox(需翻墙和秘钥)</div>
+						</a>
+                        <!-- <div class="component-preview svg-preview"></div>
+                        <h3>动态SVG</h3> -->
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <a href="./planeEarth/heightCesium/height.html">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/height.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">平面/高程地图cesium</div>
+						</a>
+                        <!-- <div class="component-preview svg-preview"></div>
+                        <h3>交互SVG</h3> -->
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <a href="./planeEarth/heightTDT/height.html">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/height.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">平面/天地图高程地图（需中国IP）</div>
+						</a>
+                        <!-- <div class="component-preview svg-preview"></div>
+                        <h3>交互SVG</h3> -->
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <a href="./planeEarth/localtionName/wegeo.html">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/plane_localtionName.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">平面/地名和国境线</div>
+						</a>
+                        <!-- <div class="component-preview svg-preview"></div>
+                        <h3>交互SVG</h3> -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="spectrum-section" class="component-section">
+                <h2>特效</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="effect">
+                        <a href="./planeEarth/outline/wegeo.html" target="viewer" onclick="init(this)">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/outline.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">特效/边框线</div>
+						</a>
+                        <!-- <div class="component-preview spectrum-preview"></div>
+                        <h3>扩散光谱</h3> -->
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <a href="./sphereEarth/mask/mask.html" target="viewer" onclick="init(this)">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/mask.png" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">特效/境界掩膜</div>
+						</a>
+                        <!-- <div class="component-preview spectrum-preview"></div>
+                        <h3>光柱光谱</h3> -->
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <a href="./sphereEarth/emissive/emissive.html" target="viewer" onclick="init(this)">
+							<div class="component-preview video-preview" style="text-align: center;">
+								<img src="screenshots/emissive.jpg" loading="lazy" style="margin: 5px;width: 90%;height: 100%;">
+							</div>
+							<div class="title">特效/发光物体</div>
+						</a>
+                        <!-- <div class="component-preview spectrum-preview"></div>
+                        <h3>光柱光谱</h3> -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- <section id="site-section" class="component-section">
+                <h2>站点图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview site-preview"></div>
+                        <h3>基础站点</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview site-preview"></div>
+                        <h3>动态站点</h3>
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview site-preview"></div>
+                        <h3>光柱站点</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="model-section" class="component-section">
+                <h2>模型图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview model-preview"></div>
+                        <h3>基础模型</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview model-preview"></div>
+                        <h3>动态模型</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="animation-section" class="component-section">
+                <h2>动画图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview animation-preview"></div>
+                        <h3>路径动画</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview animation-preview"></div>
+                        <h3>帧动画</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview animation-preview"></div>
+                        <h3>粒子动画</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="path-section" class="component-section">
+                <h2>漫游路径图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview path-preview"></div>
+                        <h3>直线路径</h3>
+                    </div>
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview path-preview"></div>
+                        <h3>曲线路径</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview path-preview"></div>
+                        <h3>复合路径</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="dynamic-section" class="component-section">
+                <h2>动态点位图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview dynamic-preview"></div>
+                        <h3>基础点位</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview dynamic-preview"></div>
+                        <h3>动态点位</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pillar-section" class="component-section">
+                <h2>光柱维体图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview pillar-preview"></div>
+                        <h3>基础光柱</h3>
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview pillar-preview"></div>
+                        <h3>动态光柱</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="satellite-section" class="component-section">
+                <h2>卫星场景图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview satellite-preview"></div>
+                        <h3>卫星轨道</h3>
+                    </div>
+                    <div class="component-card" data-type="basic">
+                        <div class="component-preview satellite-preview"></div>
+                        <h3>卫星模型</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview satellite-preview"></div>
+                        <h3>卫星动画</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="heat-section" class="component-section">
+                <h2>热力图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview heat-preview"></div>
+                        <h3>点状热力</h3>
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview heat-preview"></div>
+                        <h3>区域热力</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="particle-section" class="component-section">
+                <h2>粒子图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview particle-preview"></div>
+                        <h3>基础粒子</h3>
+                    </div>
+                    <div class="component-card" data-type="animation">
+                        <div class="component-preview particle-preview"></div>
+                        <h3>流动粒子</h3>
+                    </div>
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview particle-preview"></div>
+                        <h3>爆炸粒子</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="analysis-section" class="component-section">
+                <h2>分析图元</h2>
+                <div class="component-grid">
+                    <div class="component-card" data-type="effect">
+                        <div class="component-preview analysis-preview"></div>
+                        <h3>视域分析</h3>
+                    </div>
+                </div>
+            </section> -->
+        </main>
+    </div>
+    <button id="backToTop" class="back-to-top" title="返回顶部">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    <div class="preview-modal" id="previewModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="preview-container"></div>
+            <div class="component-info">
+                <h3 class="component-title"></h3>
+                <div class="component-description"></div>
+                <div class="code-example">
+                    <div class="code-header">
+                        <span>示例代码</span>
+                        <button class="copy-button">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <pre><code class="language-javascript"></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.24.1/prism.min.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+</html>
