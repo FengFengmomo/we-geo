@@ -21,7 +21,7 @@
 ## **案例**
 * 一个3D地球例子，目前市面上暂时无基于threejs开发的3d地图，地图图源选自bing和天地图的数据，带有LOD功能（后续数据源将陆续迁移到天地图）。
 * 支持墨卡托投影和经纬度投影，即mercatortilingscheme和graphicTilingScheme两种，对应到geoserver即为4326和3857两种切片方式，第0层分别有2张和1张图片。
-* [3D地球](https://fengfengmomo.github.io/we-geo/examples/main.html)
+* [3D地球](https://fengfengmomo.github.io/we-geo/examples/index.html)
 
 ## **使用**
 * 首先下载threejs引入界面，然后下载wegeo.module.js引入页面内。
