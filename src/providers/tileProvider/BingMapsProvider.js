@@ -61,16 +61,19 @@ export class BingMapsProvider extends MapProvider
 	 */
 	meta = null;
 
+	wgs84 = false;
+
 	/**
 	 * @param apiKey - Bing API key.
 	 * @param type - Type provider.
 	 */
-	constructor(apiKey = '', type = BingMapsProvider.AERIAL) 
+	constructor(apiKey = '', type = BingMapsProvider.AERIAL, wgs84 = false) 
 	{
 		super();
 
 		this.apiKey = apiKey;
 		this.type = type;
+		this.wgs84 = wgs84;
 	}
 
 	/**
@@ -193,9 +196,11 @@ export class BingMapsProvider extends MapProvider
 				reject();
 			};
 			image.crossOrigin = 'Anonymous';
-			image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
-			// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
-			// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
+			if (this.wgs84){
+				image.src = 'http://ecn.t2.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=14875&n=z';
+			} else {
+				image.src = 'http://ecn.t1.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider.quadKey(zoom, x, y) + '.jpeg?g=1173';
+			}
 		});
 	}
 }

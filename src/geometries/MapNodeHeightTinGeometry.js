@@ -85,16 +85,21 @@ export class MapNodeHeightTinGeometry extends BufferGeometry
 		let harr = vertexData.harr;
 		let MaxHeight = this.userData.terrain.header.MaxiumHeight;
 		let MinHeight = this.userData.terrain.header.MiniumHeight;
+		let index = 0;
+		let sum = 0;
 		for (let i = 0; i < vertexCount; i++) {
 		    let x = 1.0 * xarr[i]/32767 - 0.5;
 		    let z = 1.0 * yarr[i]/32767 - 0.5;
 		    let h = 1.0 * harr[i]/32767 * (MaxHeight - MinHeight) + MinHeight;
-		    vertices.push(x, h * this.scale, -z);
+			let height = h * this.scale;
+			sum += height;
+			index++;
+		    vertices.push(x, height, -z);
 			normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
 			// uvs.push(x+0.5, 0.5-z); 这行是原来的uv， 这个时候会发现地形南北颠倒了// 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 			uvs.push(x+0.5, 1-(0.5-z)); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 		}
-		
+		this.evgY = sum/index;
 		indices.push(...indicesData.indices);
 	}
 

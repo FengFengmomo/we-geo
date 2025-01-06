@@ -33,9 +33,13 @@ export class MapNodeHeightGeometry extends BufferGeometry
 		if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
 			tiandituExact = true;
 		}
+		let index = 0;
+		let sum = 0;
 		if (tiandituExact){
 			for (let  j = 0,k=0; k < data.length && j < vertices.length; j += 3,k++) {
 				vertices[j + 1] = data[k];
+				sum += data[k];
+				index++;
 			}
 		} else {
 		    for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) {
@@ -47,8 +51,12 @@ export class MapNodeHeightGeometry extends BufferGeometry
 				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
 
 				vertices[j + 1] = value;
+				sum += value;
+				index++;
 			}
 		}
+		this.evgY = sum / index;
+		
 		// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
 		
 

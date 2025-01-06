@@ -55,7 +55,7 @@
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 		// Config.outLine.on = true;
-		let test = new DebugProvider(false);
+		let test = new DebugProvider(true);
 		let heightProvider = new DefaultPlaneProvider({
 			tilingScheme: new GraphicTilingScheme()
 		});
@@ -68,7 +68,7 @@
 		// let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
 		const map = new WegeoMap(); 
 		map.addBaseMap({
-			providers: [provider],
+			providers: [provider,test],
 			heightProvider: cesiumProvider
 		});
 		let imageLayer = new THREE.Group();

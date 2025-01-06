@@ -19,7 +19,7 @@
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrain: Cesium.Terrain.fromWorldTerrain(),
     });    
-    // viewer.scene.debugShowFramesPerSecond = true
+    viewer.scene.debugShowFramesPerSecond = true
     // Fly the camera to San Francisco at the given longitude, latitude, and height.
     viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(88.109167, 43.905036, 4000),
@@ -67,18 +67,18 @@
 	// 	}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   // let result= Cesium.Cartesian3.fromDegrees(88.109167, 43.905036, 4000)
   // console.log(result);
-  async function addThreeDTiles(url, option) {
-		viewer.scene.globe.depthTestAgainstTerrain = false
-			let tileset = {}
-			tileset = await Cesium.Cesium3DTileset.fromUrl(url, option);
-			viewer.scene.primitives.add(tileset);
-			viewer.zoomTo(tileset);
-			return tileset
-		}
-    const threeDTiles = addThreeDTiles('./data/cesiumlab_trean_3dtiles/tileset.json', {
-			maximumScreenSpaceError:  16,
-			maximumNumberOfLoadedTiles :  1024
-		})
+//   async function addThreeDTiles(url, option) {
+// 		viewer.scene.globe.depthTestAgainstTerrain = false
+// 			let tileset = {}
+// 			tileset = await Cesium.Cesium3DTileset.fromUrl(url, option);
+// 			viewer.scene.primitives.add(tileset);
+// 			viewer.zoomTo(tileset);
+// 			return tileset
+// 		}
+//     const threeDTiles = addThreeDTiles('./data/cesiumlab_trean_3dtiles/tileset.json', {
+// 			maximumScreenSpaceError:  16,
+// 			maximumNumberOfLoadedTiles :  1024
+// 		})
   </script>
  </div>
 </body>

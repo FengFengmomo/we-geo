@@ -12,6 +12,7 @@ import { Colors } from './utils/Colors';
 import { WaterLorder } from './loader/WaterLorder';
 import { UnitsUtils } from './utils/UnitsUtils';
 import { LODSphere } from './lod/LODSphere';
+import { LODFrustum } from './lod/LODFrustum';
 import { MercatorTilingScheme, Skybox } from './main';
 import { DefaultPlaneProvider } from './providers';
 import { DefaultSphereProvider } from './providers';
@@ -51,6 +52,7 @@ export class WegeoMap {
             option.heightProvider = new DefaultPlaneProvider();
         }
         map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
+        // map.lod = new LODFrustum();
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, true);

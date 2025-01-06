@@ -38,8 +38,24 @@ export class LODFrustum extends LODRadial
 	 */
 	pointOnly = false;
 	// pointOnly = true;
+	/**
+	 * Threshold to subdivide the map tiles.
+	 *
+	 * Lower value will subdivide earlier (less zoom required to subdivide).
+	 */
+	thresholdUp = 0.6;
 
-	constructor(subdivideDistance = 120, simplifyDistance = 400) 
+	/**
+	 * Threshold to simplify the map tiles.
+	 *
+	 * Higher value will simplify earlier.
+	 */
+	thresholdDown = 0.15;
+
+	scaleDistance = true;
+
+	// constructor(subdivideDistance = 120, simplifyDistance = 400) 
+	constructor(subdivideDistance = 100, simplifyDistance = 300) 
 	{
 		super(subdivideDistance, simplifyDistance);
 	}
@@ -52,13 +68,20 @@ export class LODFrustum extends LODRadial
 
 		view.children[0].traverse((node) => 
 		{
+			if (node.isMesh === false) return;
 			node.getWorldPosition(position);
-			
+			position.y = node.geometry.evgY || 0;
 			let distance = pov.distanceTo(position);
-			distance /= Math.pow(2, view.provider.maxZoom - node.level);
-
+			distance /= Math.pow(2, view.providers[0].maxZoom - node.level+1);
+			// let inFrustum;
 			const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
-
+			// let box = node.geometry.boundingBox;
+			// if(box === null){
+			// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+			// } else {
+			// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
+			// }
+			
 			if (distance < this.subdivideDistance && inFrustum) 
 			{
 				node.subdivide();
@@ -68,5 +91,31 @@ export class LODFrustum extends LODRadial
 				node.parentNode.simplify();
 			}
 		});
+		if(view.children[1]){
+			view.children[1].traverse((node) => 
+			{
+				if (node.isMesh === false) return;
+				node.getWorldPosition(position);
+				position.y = node.geometry.evgY || 0;
+				let distance = pov.distanceTo(position);
+				distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+				let inFrustum;
+				// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				// let box = node.geometry.boundingBox;
+				// if(box === null){
+				inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				// } else {
+					// inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
+				// }
+				if (distance < this.subdivideDistance && inFrustum) 
+				{
+					node.subdivide();
+				}
+				else if (distance > this.simplifyDistance && node.parentNode) 
+				{
+					node.parentNode.simplify();
+				}
+			});
+		}
 	}
 }

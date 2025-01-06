@@ -9,6 +9,7 @@ import { DefaultSphereProvider } from "./DefaultSphereProvider";
 import {MapSphereNodeGraphicsGeometry} from "../../geometries/MapSphereNodeGraphicsGeometry";
 import { Vector3 } from "three";
 import { UnitsUtils } from "../../utils/UnitsUtils";
+import { Schedule } from '../../worker/schedule'
 
 // import Fetch from "../utils/Fetch.js";
 export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
@@ -32,6 +33,7 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
         super(options);
         Object.assign(this, options);
         this.tilingScheme = new GraphicTilingScheme();
+        this.schdule = new Schedule();
     }
     getAddress(zoom, x, y) {
         let num = Math.floor(Math.random() * 8);
@@ -72,6 +74,14 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                 // Y
                 const thetaLength = Math.PI / range;
                 const thetaStart = y * thetaLength;
+                // let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                // let pos = parentGeometry.getAttribute("position").array;
+                // this.schdule.add(jodId, {width: parentGeometry.widthSegments, height: parentGeometry.heightSegments, operate: "upSample", data:pos, location:location}).then(buffer=>{
+                //     let width = (parentGeometry.widthSegments)/2;
+                //     let height = (parentGeometry.heightSegments)/2;
+                //     let geometry = this.createGeometry(width, height,phiStart, phiLength, thetaStart, thetaLength,buffer, true);
+                //     resolve(geometry);
+                // });
                 let buffer = this.upSample(parentGeometry, location);
                 let width = (parentGeometry.widthSegments)/2;
                 let height = (parentGeometry.heightSegments)/2;
@@ -91,7 +101,7 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                                     width =64;
                                     height = 64;
                                 }
-                                let buffer = this.getData(data, width, height);
+                                // let buffer = this.getData(data, width, height);
                                 
                                 const range = Math.pow(2, zoom);
                                 
@@ -107,8 +117,21 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                                 // Y
                                 const thetaLength = Math.PI / range;
                                 const thetaStart = y * thetaLength;
-                                let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
-                                resolve(geometry); 
+                                let dZlib = this.unzip(data);
+                                let buffer = undefined;
+                                if (dZlib !== undefined){
+                                    // buffer = this.getData(dZlib, width, height);
+                                    let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                                    this.schdule.add(jodId, {width: width, height: height, operate: "exactTDT", data:dZlib}).then(buffer=>{
+                                        let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                        resolve(geometry);
+                                    });
+                                } else{
+                                    let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                    resolve(geometry); 
+                                }
+                                // let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                // resolve(geometry); 
                             });
                         }
                     }
@@ -177,12 +200,9 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
         }
         return myBuffer;
     }
-    /**
-     * 获取数据，并压缩到一半，高为height，宽为width/2
-     * @param {*} dataBuffer 
-     * @returns 
-     */
-    getData(dataBuffer, tileW, tileH) {
+
+
+    unzip(dataBuffer){
         var view = new DataView(dataBuffer);
         var zBuffer = new Uint8Array(view.byteLength);
         var index = 0;
@@ -194,22 +214,32 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
             return undefined
         }
         var dZlib = pako.inflate(zBuffer);
-        // console.error(dZlib);
         var DataSize = 2;
         if (dZlib.length !== 150 * 150 * DataSize){
             return undefined;
         }
+        return dZlib;
+    }
+
+    /**
+     * 获取数据，并压缩到一半，高为height，宽为width/2
+     * @param {*} dataBuffer 
+     * @returns 
+     */
+    getData(dZlib, tileW, tileH) {
+        var DataSize = 2;
         //创建DateView
         let width= tileW+1, height = tileH+1;
         var myW = width;
         var myH = height;
-        var myBuffer = new Float32Array(myW * myH);
+        // var myBuffer = new Uint8Array(myW * myH);
+        var myBuffer = new Float32Array(myW * myH);// 如果采用rgba格式应该采用Uint8Array。
         var i_height;
         var NN, NN_R;
         var jj_n, ii_n;
         // var jj_f, ii_f;
         // let heights = new Float32Array(width * height);
-        index = 0;
+        let index = 0;
         for (var jj = 0; jj < myH; jj++) {
             jj_n = Math.round(150/height * jj); // 从这每行150个高程点里面，取出来64个点。
             for (var ii = 0; ii < myW; ii++) {
@@ -225,11 +255,17 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                 //数据结果整理成Cesium内部形式
                 NN_R = (jj * myW + ii) * 4
                 //Cesium内部就是这么表示的
-                // var i_height_new = (i_height + 1000) / 0.03;
-                var i_height_new = (i_height + 1000) / 0.4-1e4/2
-                
-                myBuffer[index] = i_height_new; //真实高度
-                index++;
+                var i_height_new = (i_height + 1000) / 0.4-1e4/2;
+                // var i_height_new = (i_height + 1000) / 0.3-10000;
+                // myBuffer[NN_R] = i_height_new / (256 * 256);
+                // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
+                // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
+                // myBuffer[NN_R + 3] = 255;
+                myBuffer[index] = i_height_new+500; //真实高度
+                index++
+                // let newHeight = i_height*100 + 90000;
+                // heights[index] = i_height; //真实高度
+                // index++;
             }
         }
         // let vBuffer =  myBuffer; // 解析出来一个64x64的rgba的数据，共64*64*4 = 16384个数据。

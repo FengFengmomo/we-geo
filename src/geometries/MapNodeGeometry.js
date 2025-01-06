@@ -82,7 +82,7 @@ export class MapNodeGeometry extends BufferGeometry
 				uvs.push(ix / widthSegments, 1 - iz / heightSegments);
 			}
 		}
-
+		this.evgY = 0;
 		// Indices
 		for (let iz = 0; iz < heightSegments; iz++)  // heightSegments = 16 iz从0到15
 		{

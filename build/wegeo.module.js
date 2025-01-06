@@ -1,4 +1,4 @@
-import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial as MeshBasicMaterial$1, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, EventDispatcher, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Box3, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
+import { Texture, RGBAFormat, LinearFilter, Mesh, BufferGeometry, Float32BufferAttribute, Vector3, Vector2, MeshBasicMaterial as MeshBasicMaterial$1, Box3, MeshPhongMaterial, Vector4, Matrix4, Quaternion, ShaderMaterial, NearestFilter, Raycaster, Frustum, DoubleSide, Uint32BufferAttribute, Color, Matrix3, Ray, Plane, MathUtils, Controls, MOUSE, TOUCH, Spherical, EventDispatcher, OrthographicCamera, UniformsUtils, WebGLRenderTarget, HalfFloatType, NoBlending, Clock, MeshDepthMaterial, RGBADepthPacking, AdditiveBlending, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, LinearSRGBColorSpace, SpotLight, PointLight, DirectionalLight, SRGBColorSpace, MeshPhysicalMaterial, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, RepeatWrapping, PointsMaterial, Material, LineBasicMaterial, MeshStandardMaterial, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group as Group$1, PerspectiveCamera, Skeleton, AnimationClip, Bone, InterpolateLinear, NearestMipmapNearestFilter, LinearMipmapNearestFilter, NearestMipmapLinearFilter, ClampToEdgeWrapping, MirroredRepeatWrapping, InterpolateDiscrete, FrontSide, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, Sphere, Interpolant, ShapeUtils, Box2, Shape, Path, ShapePath, ObjectLoader, CompressedCubeTexture, CompressedArrayTexture, CompressedTexture, RGBA_ASTC_4x4_Format, RGB_BPTC_UNSIGNED_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT5_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, UnsignedByteType, FloatType, DataTexture, Data3DTexture, NoColorSpace, RGFormat, RedFormat, RGBA_ASTC_6x6_Format, NormalBlending, CanvasTexture, WebGLRenderer, Euler, PlaneGeometry, ArrowHelper, BoxGeometry, EdgesGeometry, Scene, Uint8BufferAttribute, AmbientLight, UniformsLib, CubeTextureLoader, ShaderLib, BackSide } from 'three';
 
 class MercatorTilingScheme {
     numOfZeroXTiles = 1;
@@ -706,7 +706,7 @@ class MapNodeGeometry extends BufferGeometry
 				uvs.push(ix / widthSegments, 1 - iz / heightSegments);
 			}
 		}
-
+		this.evgY = 0;
 		// Indices
 		for (let iz = 0; iz < heightSegments; iz++)  // heightSegments = 16 iz从0到15
 		{
@@ -1220,6 +1220,10 @@ class MapPlaneNode extends MapNode
 	// static baseGeometry = MapPlaneNode.geometry;
 
 	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
+	/**
+	 * The viewer buffer size.
+	 */
+	viewerbufferSize = 0.6;
 
 	async initialize()
 	{
@@ -1250,6 +1254,11 @@ class MapPlaneNode extends MapNode
 			parentGeo = null;
 		}
 		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
+		// this.geometry.computeBoundingBox();
+		this.geometry.boundingBox = new Box3(
+			new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
+			new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
+		);
 
 	}
 
@@ -1362,9 +1371,13 @@ class MapNodeHeightGeometry extends BufferGeometry
 		if(imageData.dataTypes !== undefined && imageData.dataTypes === 1){
 			tiandituExact = true;
 		}
+		let index = 0;
+		let sum = 0;
 		if (tiandituExact){
 			for (let  j = 0,k=0; k < data.length && j < vertices.length; j += 3,k++) {
 				vertices[j + 1] = data[k];
+				sum += data[k];
+				index++;
 			}
 		} else {
 		    for (let i = 0, j = 0; i < data.length && j < vertices.length; i += 4, j += 3) {
@@ -1376,8 +1389,12 @@ class MapNodeHeightGeometry extends BufferGeometry
 				const value = (r * 65536 + g * 256 + b) * 0.1 - 1e4;
 
 				vertices[j + 1] = value;
+				sum += value;
+				index++;
 			}
 		}
+		this.evgY = sum / index;
+		
 		// 设置高度值，同时该高度值体现在y轴上,图像数据data.length = 17*17*3 vertices.length = 17*17*3
 		
 
@@ -2754,6 +2771,172 @@ class LODControl
 	updateLOD(view, camera, renderer, scene){}
 }
 
+var Stats = function () {
+
+	var mode = 0;
+
+	var container = document.createElement( 'div' );
+	container.style.cssText = 'position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+	container.addEventListener( 'click', function ( event ) {
+
+		event.preventDefault();
+		showPanel( ++ mode % container.children.length );
+
+	}, false );
+
+	//
+
+	function addPanel( panel ) {
+
+		container.appendChild( panel.dom );
+		return panel;
+
+	}
+
+	function showPanel( id ) {
+
+		for ( var i = 0; i < container.children.length; i ++ ) {
+
+			container.children[ i ].style.display = i === id ? 'block' : 'none';
+
+		}
+
+		mode = id;
+
+	}
+
+	//
+
+	var beginTime = ( performance || Date ).now(), prevTime = beginTime, frames = 0;
+
+	var fpsPanel = addPanel( new Stats.Panel( 'FPS', '#0ff', '#002' ) );
+	var msPanel = addPanel( new Stats.Panel( 'MS', '#0f0', '#020' ) );
+
+	if ( self.performance && self.performance.memory ) {
+
+		var memPanel = addPanel( new Stats.Panel( 'MB', '#f08', '#201' ) );
+
+	}
+
+	showPanel( 0 );
+
+	return {
+
+		REVISION: 16,
+
+		dom: container,
+
+		addPanel: addPanel,
+		showPanel: showPanel,
+
+		begin: function () {
+
+			beginTime = ( performance || Date ).now();
+
+		},
+
+		end: function () {
+
+			frames ++;
+
+			var time = ( performance || Date ).now();
+
+			msPanel.update( time - beginTime, 200 );
+
+			if ( time >= prevTime + 1000 ) {
+
+				fpsPanel.update( ( frames * 1000 ) / ( time - prevTime ), 100 );
+
+				prevTime = time;
+				frames = 0;
+
+				if ( memPanel ) {
+
+					var memory = performance.memory;
+					memPanel.update( memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576 );
+
+				}
+
+			}
+
+			return time;
+
+		},
+
+		update: function () {
+
+			beginTime = this.end();
+
+		},
+
+		// Backwards Compatibility
+
+		domElement: container,
+		setMode: showPanel
+
+	};
+
+};
+
+Stats.Panel = function ( name, fg, bg ) {
+
+	var min = Infinity, max = 0, round = Math.round;
+	var PR = round( window.devicePixelRatio || 1 );
+
+	var WIDTH = 80 * PR, HEIGHT = 48 * PR,
+		TEXT_X = 3 * PR, TEXT_Y = 2 * PR,
+		GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR,
+		GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
+
+	var canvas = document.createElement( 'canvas' );
+	canvas.width = WIDTH;
+	canvas.height = HEIGHT;
+	canvas.style.cssText = 'width:80px;height:48px';
+
+	var context = canvas.getContext( '2d' );
+	context.font = 'bold ' + ( 9 * PR ) + 'px Helvetica,Arial,sans-serif';
+	context.textBaseline = 'top';
+
+	context.fillStyle = bg;
+	context.fillRect( 0, 0, WIDTH, HEIGHT );
+
+	context.fillStyle = fg;
+	context.fillText( name, TEXT_X, TEXT_Y );
+	context.fillRect( GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT );
+
+	context.fillStyle = bg;
+	context.globalAlpha = 0.9;
+	context.fillRect( GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT );
+
+	return {
+
+		dom: canvas,
+
+		update: function ( value, maxValue ) {
+
+			min = Math.min( min, value );
+			max = Math.max( max, value );
+
+			context.fillStyle = bg;
+			context.globalAlpha = 1;
+			context.fillRect( 0, 0, WIDTH, GRAPH_Y );
+			context.fillStyle = fg;
+			context.fillText( round( value ) + ' ' + name + ' (' + round( min ) + '-' + round( max ) + ')', TEXT_X, TEXT_Y );
+
+			context.drawImage( canvas, GRAPH_X + PR, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT, GRAPH_X, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT );
+
+			context.fillRect( GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT );
+
+			context.fillStyle = bg;
+			context.globalAlpha = 0.9;
+			context.fillRect( GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, round( ( 1 - ( value / maxValue ) ) * GRAPH_HEIGHT ) );
+
+		}
+
+	};
+
+};
+
 /**
  * Use random raycasting to randomly pick n objects to be tested on screen space.
  *
@@ -2806,10 +2989,15 @@ class LODRaycast extends LODControl
 
 	constructor(){
 		super();
+		this.stats = new Stats();
+		this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+		document.body.appendChild( this.stats.dom );
+		// this.dom.style.display = 'none';
 	}
 
 	updateLOD(view, camera, renderer, scene)
 	{
+		this.stats.update();
 		const intersects = [];
 		
 		for (let t = 0; t < this.subdivisionRays; t++) 
@@ -2937,8 +3125,24 @@ class LODFrustum extends LODRadial
 	 */
 	pointOnly = false;
 	// pointOnly = true;
+	/**
+	 * Threshold to subdivide the map tiles.
+	 *
+	 * Lower value will subdivide earlier (less zoom required to subdivide).
+	 */
+	thresholdUp = 0.6;
 
-	constructor(subdivideDistance = 120, simplifyDistance = 400) 
+	/**
+	 * Threshold to simplify the map tiles.
+	 *
+	 * Higher value will simplify earlier.
+	 */
+	thresholdDown = 0.15;
+
+	scaleDistance = true;
+
+	// constructor(subdivideDistance = 120, simplifyDistance = 400) 
+	constructor(subdivideDistance = 100, simplifyDistance = 300) 
 	{
 		super(subdivideDistance, simplifyDistance);
 	}
@@ -2951,13 +3155,20 @@ class LODFrustum extends LODRadial
 
 		view.children[0].traverse((node) => 
 		{
+			if (node.isMesh === false) return;
 			node.getWorldPosition(position);
-			
+			position.y = node.geometry.evgY || 0;
 			let distance = pov.distanceTo(position);
-			distance /= Math.pow(2, view.provider.maxZoom - node.level);
-
+			distance /= Math.pow(2, view.providers[0].maxZoom - node.level+1);
+			// let inFrustum;
 			const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
-
+			// let box = node.geometry.boundingBox;
+			// if(box === null){
+			// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+			// } else {
+			// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
+			// }
+			
 			if (distance < this.subdivideDistance && inFrustum) 
 			{
 				node.subdivide();
@@ -2967,6 +3178,32 @@ class LODFrustum extends LODRadial
 				node.parentNode.simplify();
 			}
 		});
+		if(view.children[1]){
+			view.children[1].traverse((node) => 
+			{
+				if (node.isMesh === false) return;
+				node.getWorldPosition(position);
+				position.y = node.geometry.evgY || 0;
+				let distance = pov.distanceTo(position);
+				distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+				let inFrustum;
+				// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				// let box = node.geometry.boundingBox;
+				// if(box === null){
+				inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				// } else {
+					// inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
+				// }
+				if (distance < this.subdivideDistance && inFrustum) 
+				{
+					node.subdivide();
+				}
+				else if (distance > this.simplifyDistance && node.parentNode) 
+				{
+					node.parentNode.simplify();
+				}
+			});
+		}
 	}
 }
 
@@ -3784,16 +4021,21 @@ class MapNodeHeightTinGeometry extends BufferGeometry
 		let harr = vertexData.harr;
 		let MaxHeight = this.userData.terrain.header.MaxiumHeight;
 		let MinHeight = this.userData.terrain.header.MiniumHeight;
+		let index = 0;
+		let sum = 0;
 		for (let i = 0; i < vertexCount; i++) {
 		    let x = 1.0 * xarr[i]/32767 - 0.5;
 		    let z = 1.0 * yarr[i]/32767 - 0.5;
 		    let h = 1.0 * harr[i]/32767 * (MaxHeight - MinHeight) + MinHeight;
-		    vertices.push(x, h * this.scale, -z);
+			let height = h * this.scale;
+			sum += height;
+			index++;
+		    vertices.push(x, height, -z);
 			normals.push(0, 1, 0); // 这里法向量是朝上的，所以是(0, 1, 0)； Y轴朝上，所以这样写
 			// uvs.push(x+0.5, 0.5-z); 这行是原来的uv， 这个时候会发现地形南北颠倒了// 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 			uvs.push(x+0.5, 1-(0.5-z)); // 这里写成uvs.push(xarr[i]/32767, 1.0-yarr[i]/32767); 也是可以的，前面的就是按照这个方式的一种简化。
 		}
-		
+		this.evgY = sum/index;
 		indices.push(...indicesData.indices);
 	}
 
@@ -5145,16 +5387,19 @@ let BingMapsProvider$1 = class BingMapsProvider extends MapProvider
 	 */
 	meta = null;
 
+	wgs84 = false;
+
 	/**
 	 * @param apiKey - Bing API key.
 	 * @param type - Type provider.
 	 */
-	constructor(apiKey = '', type = BingMapsProvider$1.AERIAL) 
+	constructor(apiKey = '', type = BingMapsProvider$1.AERIAL, wgs84 = false) 
 	{
 		super();
 
 		this.apiKey = apiKey;
 		this.type = type;
+		this.wgs84 = wgs84;
 	}
 
 	/**
@@ -5277,9 +5522,11 @@ let BingMapsProvider$1 = class BingMapsProvider extends MapProvider
 				reject();
 			};
 			image.crossOrigin = 'Anonymous';
-			image.src = 'http://ecn.' + this.subdomain + '.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider$1.quadKey(zoom, x, y) + '.jpeg?g=1173';
-			// key:AiDvjwIIgJHn7HVI4xfnDynIUqsXymwi8E4jn_PRooi1tgMebQW7PPlali_ah3c5
-			// image.src = 'https://t1.dynamic.tiles.ditu.live.com/comp/ch/'+BingMapsProvider.quadKey(zoom, x, y)+'?mkt=zh-CN&ur=cn&it=G,RL&n=z&og=804&cstl=vbd'
+			if (this.wgs84){
+				image.src = 'http://ecn.t2.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider$1.quadKey(zoom, x, y) + '.jpeg?g=14875&n=z';
+			} else {
+				image.src = 'http://ecn.t1.tiles.virtualearth.net/tiles/' + this.type + BingMapsProvider$1.quadKey(zoom, x, y) + '.jpeg?g=1173';
+			}
 		});
 	}
 };
@@ -14628,6 +14875,115 @@ var pako = {
 	constants: constants_1
 };
 
+function work () {
+    this.dispatch = {}; // 注册事件
+    /**
+     * 获取数据，并压缩到一半，高为height，宽为width/2
+     * @param {*} dataBuffer 
+     * @returns 
+     */
+    getData = (dZlib, tileW, tileH) => {
+        var DataSize = 2;
+        // console.log("equals: " ,dZlib.length !== 150 * 150 * DataSize);
+        //创建DateView
+        let width= tileW+1, height = tileH+1;
+        var myW = width;
+        var myH = height;
+        var myBuffer = new Float32Array(myW * myH);// 如果采用rgba格式应该采用Uint8Array。
+        var i_height;
+        var NN;
+        var jj_n, ii_n;
+        index = 0;
+        for (var jj = 0; jj < myH; jj++) {
+            jj_n = Math.round(150/height * jj); // 从这每行150个高程点里面，取出来64个点。
+            for (var ii = 0; ii < myW; ii++) {
+                ii_n = Math.round(150/width * ii);
+                NN = DataSize * (jj_n * 150 + ii_n); // 实际上每行是150*2个点，然后每两个连续点组成一个高程点
+                i_height = dZlib[NN] + dZlib[NN + 1] * 256;
+                if (i_height > 10000 || i_height < -2000) {
+                    i_height = 0;
+                }
+                var i_height_new = (i_height + 1000) / 0.4-1e4/2;
+                myBuffer[index] = i_height_new+500; //真实高度
+                index++;
+            }
+        }
+        // console.log("worker here!");
+        return myBuffer;
+    };
+
+    upSample = (pos, widthSegments, heightSegments, location) => {
+        let ifrom,jfrom;
+        // 父节点的宽高,widthSegments是有多个段一般是2的N次方，实际里面的点个数就是widthSegments+1，如widthSegments=16,实际宽度的点个数就是17个。
+        let pwidth = widthSegments+1;
+        let width = (widthSegments)/2, height = (heightSegments)/2;
+        if (location === 0){
+            ifrom = 0;
+            jfrom = 0;
+        }
+        if (location === 1){
+            ifrom = 0;
+            jfrom = height;
+        }
+        if (location === 2){
+            ifrom = height;
+            jfrom = 0;
+        }
+        if (location === 3){
+            ifrom = height;
+            jfrom = width;
+        }
+        // let pos = parentGeometry.getAttribute("position").array;
+        let index = 0;
+        var myBuffer = new Float32Array((width+1) * (height+1)); // 高度和宽度是2的N次方，点个数是width+1 * height+1
+        for (let i = 0; i <= width; i++){ // 采样width+1列
+            for (let j = 0; j <= height; j++){ // 采样height+1行
+                let pointIndex = (i+ifrom)*pwidth+j+jfrom;
+                let pindex = pointIndex*3+1;
+                myBuffer[index] = pos[pindex]; // 采样
+                index++;
+            }
+        }
+        return myBuffer;
+    };
+
+    this.dispatch['exactTDT'] = getData;
+    this.dispatch['upSample'] = upSample;
+    onmessage = ({data: {jobId, message}}) => {
+        // console.log(jobId, message.operate, message.data, message.width, message.height);
+        var result = this.dispatch[message.operate](message.data, message.width, message.height, message.location); // 调用注册的事件
+        // console.log(result);
+        postMessage ({jobId, result}, [result.buffer]); // 返回结果
+    //   console.log ('i am worker, receive:-----' + message.operate);
+    //   postMessage ({jobId, result: 'message from worker'+jobId});
+    };
+}
+
+class Schedule {
+    constructor() {
+        this.pendingJobs = {};
+        this.running = false;
+        this.worker = new Worker(URL.createObjectURL (new Blob ([`(${work.toString ()})()`])));
+        let that = this;
+        this.worker.onmessage = ({data: {result, jobId}}) => {
+            // console.log(result, jobId);
+            // 调用resolve，改变Promise状态
+            let resolve = that.pendingJobs[jobId];
+            resolve(result);
+            // 删掉，防止key冲突
+            delete that.pendingJobs[jobId];
+        };
+    }
+    add(jobId, message, type) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.pendingJobs[jobId] = resolve;
+            that.worker.postMessage ({jobId, message});
+        });
+    }
+   
+}
+
 // import Fetch from "../utils/Fetch.js";
 class TianDiTuHeightProvider extends DefaultPlaneProvider {
     address = "https://t3.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
@@ -14650,6 +15006,7 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
         super(options);
         Object.assign(this, options);
         this.tilingScheme = new GraphicTilingScheme();
+        this.schdule = new Schedule();
     }
     getAddress(zoom, x, y) {
         let num = Math.floor(Math.random() * 8);
@@ -14680,11 +15037,19 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
 		return new Promise((resolve, reject) => 
 		{
             if (zoom >= 12){
-                let buffer = this.upSample(parentGeometry, location);
-                let width = (parentGeometry.widthSegments)/2;
-                let height = (parentGeometry.heightSegments)/2;
-                let geometry = this.createGeometry(buffer, width, height);
-                resolve(geometry);
+                // let buffer = this.upSample(parentGeometry, location);
+                let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                let pos = parentGeometry.getAttribute("position").array;
+                this.schdule.add(jodId, {width: parentGeometry.widthSegments, height: parentGeometry.heightSegments, operate: "upSample", data:pos, location:location}).then(buffer=>{
+                    let width = (parentGeometry.widthSegments)/2;
+                    let height = (parentGeometry.heightSegments)/2;
+                    let geometry = this.createGeometry(buffer, width, height);
+                    resolve(geometry);
+                });
+                // let width = (parentGeometry.widthSegments)/2;
+                // let height = (parentGeometry.heightSegments)/2;
+                // let geometry = this.createGeometry(buffer, width, height);
+                // resolve(geometry);
             } else {
                 fetch(url).then(res=> {
                     if (res.status === 404){
@@ -14699,31 +15064,30 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
                                 width =64;
                                 height = 64;
                             }
-                            let buffer = this.getData(data, width, height);
-                            let geometry = this.createGeometry(buffer, width, height);
-                            resolve(geometry); 
+                            let dZlib = this.unzip(data);
+                            let buffer = undefined;
+                            if (dZlib !== undefined){
+                                // buffer = this.getData(dZlib, width, height);
+                                let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                                this.schdule.add(jodId, {width: width, height: height, operate: "exactTDT", data:dZlib}).then(buffer=>{
+                                    let geometry = this.createGeometry(buffer, width, height);
+                                    resolve(geometry);
+                                });
+                            } else {
+                                let geometry = this.createGeometry(buffer, width, height);
+                                resolve(geometry); 
+                            }
+                            // let dZlib = this.unzip(data);
+                            // let buffer = undefined;
+                            // if (dZlib!== undefined){
+                            //     buffer = this.getData(dZlib, width, height);
+                            // }
+                            // let geometry = this.createGeometry(buffer, width, height);
+                            // resolve(geometry);
                         });
                     }
                 });
             }
-	    });
-    }
-    getPromise(url){
-        return new Promise((resolve, reject) => 
-		{
-			fetch(url).then(res=> {
-                    if (res.status === 404){
-                        console.error("get geometry error", zoom,x,y);
-                        reject(null);
-                    } 
-                    else {
-                        res.arrayBuffer().then(data=> {
-                            let half = this.getData(data);
-                            resolve(half); 
-                        });
-                    }
-                }
-            );
 	    });
     }
     // 不进行上采样了，只到18级别
@@ -14761,12 +15125,8 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
         }
         return myBuffer;
     }
-    /**
-     * 获取数据，并压缩到一半，高为height，宽为width/2
-     * @param {*} dataBuffer 
-     * @returns 
-     */
-    getData(dataBuffer, tileW, tileH) {
+
+    unzip(dataBuffer){
         var view = new DataView(dataBuffer);
         var zBuffer = new Uint8Array(view.byteLength);
         var index = 0;
@@ -14778,11 +15138,19 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
             return undefined
         }
         var dZlib = pako.inflate(zBuffer);
-        // console.error(dZlib);
         var DataSize = 2;
         if (dZlib.length !== 150 * 150 * DataSize){
             return undefined;
         }
+        return dZlib;
+    }
+    /**
+     * 获取数据，并压缩到一半，高为height，宽为width/2
+     * @param {*} dataBuffer 
+     * @returns 
+     */
+    getData(dZlib, tileW, tileH) {
+        var DataSize = 2;
         //创建DateView
         let width= tileW+1, height = tileH+1;
         var myW = width;
@@ -14794,7 +15162,7 @@ class TianDiTuHeightProvider extends DefaultPlaneProvider {
         var jj_n, ii_n;
         // var jj_f, ii_f;
         // let heights = new Float32Array(width * height);
-        index = 0;
+        let index = 0;
         for (var jj = 0; jj < myH; jj++) {
             jj_n = Math.round(150/height * jj); // 从这每行150个高程点里面，取出来64个点。
             for (var ii = 0; ii < myW; ii++) {
@@ -15124,6 +15492,7 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
         super(options);
         Object.assign(this, options);
         this.tilingScheme = new GraphicTilingScheme();
+        this.schdule = new Schedule();
     }
     getAddress(zoom, x, y) {
         let num = Math.floor(Math.random() * 8);
@@ -15164,6 +15533,14 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                 // Y
                 const thetaLength = Math.PI / range;
                 const thetaStart = y * thetaLength;
+                // let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                // let pos = parentGeometry.getAttribute("position").array;
+                // this.schdule.add(jodId, {width: parentGeometry.widthSegments, height: parentGeometry.heightSegments, operate: "upSample", data:pos, location:location}).then(buffer=>{
+                //     let width = (parentGeometry.widthSegments)/2;
+                //     let height = (parentGeometry.heightSegments)/2;
+                //     let geometry = this.createGeometry(width, height,phiStart, phiLength, thetaStart, thetaLength,buffer, true);
+                //     resolve(geometry);
+                // });
                 let buffer = this.upSample(parentGeometry, location);
                 let width = (parentGeometry.widthSegments)/2;
                 let height = (parentGeometry.heightSegments)/2;
@@ -15183,7 +15560,7 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                                     width =64;
                                     height = 64;
                                 }
-                                let buffer = this.getData(data, width, height);
+                                // let buffer = this.getData(data, width, height);
                                 
                                 const range = Math.pow(2, zoom);
                                 
@@ -15199,8 +15576,21 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                                 // Y
                                 const thetaLength = Math.PI / range;
                                 const thetaStart = y * thetaLength;
-                                let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
-                                resolve(geometry); 
+                                let dZlib = this.unzip(data);
+                                let buffer = undefined;
+                                if (dZlib !== undefined){
+                                    // buffer = this.getData(dZlib, width, height);
+                                    let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                                    this.schdule.add(jodId, {width: width, height: height, operate: "exactTDT", data:dZlib}).then(buffer=>{
+                                        let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                        resolve(geometry);
+                                    });
+                                } else {
+                                    let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                    resolve(geometry); 
+                                }
+                                // let geometry = this.createGeometry(segmentsWidth, segmentsHeight , phiStart, phiLength, thetaStart, thetaLength,buffer);
+                                // resolve(geometry); 
                             });
                         }
                     }
@@ -15269,12 +15659,9 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
         }
         return myBuffer;
     }
-    /**
-     * 获取数据，并压缩到一半，高为height，宽为width/2
-     * @param {*} dataBuffer 
-     * @returns 
-     */
-    getData(dataBuffer, tileW, tileH) {
+
+
+    unzip(dataBuffer){
         var view = new DataView(dataBuffer);
         var zBuffer = new Uint8Array(view.byteLength);
         var index = 0;
@@ -15286,22 +15673,32 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
             return undefined
         }
         var dZlib = pako.inflate(zBuffer);
-        // console.error(dZlib);
         var DataSize = 2;
         if (dZlib.length !== 150 * 150 * DataSize){
             return undefined;
         }
+        return dZlib;
+    }
+
+    /**
+     * 获取数据，并压缩到一半，高为height，宽为width/2
+     * @param {*} dataBuffer 
+     * @returns 
+     */
+    getData(dZlib, tileW, tileH) {
+        var DataSize = 2;
         //创建DateView
         let width= tileW+1, height = tileH+1;
         var myW = width;
         var myH = height;
-        var myBuffer = new Float32Array(myW * myH);
+        // var myBuffer = new Uint8Array(myW * myH);
+        var myBuffer = new Float32Array(myW * myH);// 如果采用rgba格式应该采用Uint8Array。
         var i_height;
         var NN;
         var jj_n, ii_n;
         // var jj_f, ii_f;
         // let heights = new Float32Array(width * height);
-        index = 0;
+        let index = 0;
         for (var jj = 0; jj < myH; jj++) {
             jj_n = Math.round(150/height * jj); // 从这每行150个高程点里面，取出来64个点。
             for (var ii = 0; ii < myW; ii++) {
@@ -15315,11 +15712,17 @@ class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                     i_height = 0;
                 }
                 //Cesium内部就是这么表示的
-                // var i_height_new = (i_height + 1000) / 0.03;
                 var i_height_new = (i_height + 1000) / 0.4-1e4/2;
-                
-                myBuffer[index] = i_height_new; //真实高度
+                // var i_height_new = (i_height + 1000) / 0.3-10000;
+                // myBuffer[NN_R] = i_height_new / (256 * 256);
+                // myBuffer[NN_R + 1] = (i_height_new - myBuffer[NN_R] * 256 * 256) / 256;
+                // myBuffer[NN_R + 2] =i_height_new - myBuffer[NN_R] * 256 * 256 - myBuffer[NN_R + 1] * 256;
+                // myBuffer[NN_R + 3] = 255;
+                myBuffer[index] = i_height_new+500; //真实高度
                 index++;
+                // let newHeight = i_height*100 + 90000;
+                // heights[index] = i_height; //真实高度
+                // index++;
             }
         }
         // let vBuffer =  myBuffer; // 解析出来一个64x64的rgba的数据，共64*64*4 = 16384个数据。
@@ -19360,172 +19763,6 @@ class OrbitControls extends EventDispatcher {
 	}
 
 }
-
-var Stats = function () {
-
-	var mode = 0;
-
-	var container = document.createElement( 'div' );
-	container.style.cssText = 'position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
-	container.addEventListener( 'click', function ( event ) {
-
-		event.preventDefault();
-		showPanel( ++ mode % container.children.length );
-
-	}, false );
-
-	//
-
-	function addPanel( panel ) {
-
-		container.appendChild( panel.dom );
-		return panel;
-
-	}
-
-	function showPanel( id ) {
-
-		for ( var i = 0; i < container.children.length; i ++ ) {
-
-			container.children[ i ].style.display = i === id ? 'block' : 'none';
-
-		}
-
-		mode = id;
-
-	}
-
-	//
-
-	var beginTime = ( performance || Date ).now(), prevTime = beginTime, frames = 0;
-
-	var fpsPanel = addPanel( new Stats.Panel( 'FPS', '#0ff', '#002' ) );
-	var msPanel = addPanel( new Stats.Panel( 'MS', '#0f0', '#020' ) );
-
-	if ( self.performance && self.performance.memory ) {
-
-		var memPanel = addPanel( new Stats.Panel( 'MB', '#f08', '#201' ) );
-
-	}
-
-	showPanel( 0 );
-
-	return {
-
-		REVISION: 16,
-
-		dom: container,
-
-		addPanel: addPanel,
-		showPanel: showPanel,
-
-		begin: function () {
-
-			beginTime = ( performance || Date ).now();
-
-		},
-
-		end: function () {
-
-			frames ++;
-
-			var time = ( performance || Date ).now();
-
-			msPanel.update( time - beginTime, 200 );
-
-			if ( time >= prevTime + 1000 ) {
-
-				fpsPanel.update( ( frames * 1000 ) / ( time - prevTime ), 100 );
-
-				prevTime = time;
-				frames = 0;
-
-				if ( memPanel ) {
-
-					var memory = performance.memory;
-					memPanel.update( memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576 );
-
-				}
-
-			}
-
-			return time;
-
-		},
-
-		update: function () {
-
-			beginTime = this.end();
-
-		},
-
-		// Backwards Compatibility
-
-		domElement: container,
-		setMode: showPanel
-
-	};
-
-};
-
-Stats.Panel = function ( name, fg, bg ) {
-
-	var min = Infinity, max = 0, round = Math.round;
-	var PR = round( window.devicePixelRatio || 1 );
-
-	var WIDTH = 80 * PR, HEIGHT = 48 * PR,
-		TEXT_X = 3 * PR, TEXT_Y = 2 * PR,
-		GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR,
-		GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
-
-	var canvas = document.createElement( 'canvas' );
-	canvas.width = WIDTH;
-	canvas.height = HEIGHT;
-	canvas.style.cssText = 'width:80px;height:48px';
-
-	var context = canvas.getContext( '2d' );
-	context.font = 'bold ' + ( 9 * PR ) + 'px Helvetica,Arial,sans-serif';
-	context.textBaseline = 'top';
-
-	context.fillStyle = bg;
-	context.fillRect( 0, 0, WIDTH, HEIGHT );
-
-	context.fillStyle = fg;
-	context.fillText( name, TEXT_X, TEXT_Y );
-	context.fillRect( GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT );
-
-	context.fillStyle = bg;
-	context.globalAlpha = 0.9;
-	context.fillRect( GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT );
-
-	return {
-
-		dom: canvas,
-
-		update: function ( value, maxValue ) {
-
-			min = Math.min( min, value );
-			max = Math.max( max, value );
-
-			context.fillStyle = bg;
-			context.globalAlpha = 1;
-			context.fillRect( 0, 0, WIDTH, GRAPH_Y );
-			context.fillStyle = fg;
-			context.fillText( round( value ) + ' ' + name + ' (' + round( min ) + '-' + round( max ) + ')', TEXT_X, TEXT_Y );
-
-			context.drawImage( canvas, GRAPH_X + PR, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT, GRAPH_X, GRAPH_Y, GRAPH_WIDTH - PR, GRAPH_HEIGHT );
-
-			context.fillRect( GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT );
-
-			context.fillStyle = bg;
-			context.globalAlpha = 0.9;
-			context.fillRect( GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, round( ( 1 - ( value / maxValue ) ) * GRAPH_HEIGHT ) );
-
-		}
-
-	};
-
-};
 
 /**
  * The Ease class provides a collection of easing functions for use with tween.js.
@@ -47950,6 +48187,7 @@ class WegeoMap {
             option.heightProvider = new DefaultPlaneProvider();
         }
         map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
+        // map.lod = new LODFrustum();
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, true);
@@ -48354,4 +48592,4 @@ class Skybox {
 	}
 }
 
-export { AngleUtils, Animate, BingMapsMarsProvider, BingMapsProvider$1 as BingMapsProvider, CancelablePromise, CanvasUtils, CesiumPlaneProvider, Colors, Config, DebugProvider, DefaultPlaneProvider, DefaultSphereProvider, Element, Error$1 as Error, ErrorCode, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, GraphicTilingScheme, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxPlaneProvider, MapBoxProvider, MapBoxSphereProvider, MapHeightNode$1 as MapHeightNode, MapHeightNodeShader, MapHeightTinNode, MapNode, MapNodeGeometry, MapNodeHeightGeometry, MapNodeHeightTinGeometry, MapPlaneNode, MapProvider, MapSphereNode$1 as MapSphereNode, MapSphereNodeGeometry, MapSphereNodeGraphicsGeometry, MapSphereNodeHeightGeometry, MapSphereNodeHeightGraphicsGeometry, MapTilerProvider, MapView, Mercator, MercatorTilingScheme, OpenMapTilesProvider, OpenStreetMapsProvider, PlaneProvider, QuadTreePosition, RoadImageProvider, Skybox, SphereProvider, SyncQueue, TerrainUtils, TextureUtils, TianDiTuHeightProvider, TianDiTuHeightSphereProvider, TianDiTuProvider, UnitsUtils, VectorUtils, WegeoMap, XHRUtils };
+export { AngleUtils, Animate, BingMapsMarsProvider, BingMapsProvider$1 as BingMapsProvider, CancelablePromise, CanvasUtils, CesiumPlaneProvider, Colors, Config, DebugProvider, DefaultPlaneProvider, DefaultSphereProvider, Element, Error$1 as Error, ErrorCode, Geolocation, GeolocationUtils, GeoserverWMSProvider, GeoserverWMTSProvider, GoogleMapsProvider, GraphicTilingScheme, HeightDebugProvider, HereMapsProvider, LODControl, LODFrustum, LODRadial, LODRaycast, LODSphere, Layer, MapBoxPlaneProvider, MapBoxProvider, MapBoxSphereProvider, MapHeightNode$1 as MapHeightNode, MapHeightNodeShader, MapHeightTinNode, MapNode, MapNodeGeometry, MapNodeHeightGeometry, MapNodeHeightTinGeometry, MapPlaneNode, MapProvider, MapSphereNode$1 as MapSphereNode, MapSphereNodeGeometry, MapSphereNodeGraphicsGeometry, MapSphereNodeHeightGeometry, MapSphereNodeHeightGraphicsGeometry, MapTilerProvider, MapView, Mercator, MercatorTilingScheme, OpenMapTilesProvider, OpenStreetMapsProvider, PlaneProvider, QuadTreePosition, RoadImageProvider, Schedule, Skybox, SphereProvider, SyncQueue, TerrainUtils, TextureUtils, TianDiTuHeightProvider, TianDiTuHeightSphereProvider, TianDiTuProvider, UnitsUtils, VectorUtils, WegeoMap, XHRUtils, work };

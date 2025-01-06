@@ -4,6 +4,7 @@ import { MapNodeHeightGeometry } from "../../geometries/MapNodeHeightGeometry";
 import { QuadTreePosition } from "../../nodes/MapNode";
 import { GraphicTilingScheme } from "../../scheme/GraphicTilingScheme";
 import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
+import { Schedule } from '../../worker/schedule'
 
 // import Fetch from "../utils/Fetch.js";
 export class TianDiTuHeightProvider extends DefaultPlaneProvider {
@@ -27,6 +28,7 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
         super(options);
         Object.assign(this, options);
         this.tilingScheme = new GraphicTilingScheme();
+        this.schdule = new Schedule();
     }
     getAddress(zoom, x, y) {
         let num = Math.floor(Math.random() * 8);
@@ -57,11 +59,19 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
 		return new Promise((resolve, reject) => 
 		{
             if (zoom >= 12){
-                let buffer = this.upSample(parentGeometry, location);
-                let width = (parentGeometry.widthSegments)/2;
-                let height = (parentGeometry.heightSegments)/2;
-                let geometry = this.createGeometry(buffer, width, height);
-                resolve(geometry);
+                // let buffer = this.upSample(parentGeometry, location);
+                let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                let pos = parentGeometry.getAttribute("position").array;
+                this.schdule.add(jodId, {width: parentGeometry.widthSegments, height: parentGeometry.heightSegments, operate: "upSample", data:pos, location:location}).then(buffer=>{
+                    let width = (parentGeometry.widthSegments)/2;
+                    let height = (parentGeometry.heightSegments)/2;
+                    let geometry = this.createGeometry(buffer, width, height);
+                    resolve(geometry);
+                });
+                // let width = (parentGeometry.widthSegments)/2;
+                // let height = (parentGeometry.heightSegments)/2;
+                // let geometry = this.createGeometry(buffer, width, height);
+                // resolve(geometry);
             } else{
                 fetch(url).then(res=> {
                     if (res.status === 404){
@@ -76,31 +86,30 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
                                 width =64;
                                 height = 64;
                             }
-                            let buffer = this.getData(data, width, height);
-                            let geometry = this.createGeometry(buffer, width, height);
-                            resolve(geometry); 
+                            let dZlib = this.unzip(data);
+                            let buffer = undefined;
+                            if (dZlib !== undefined){
+                                // buffer = this.getData(dZlib, width, height);
+                                let jodId = "jobId-"+zoom+"-"+x+"-"+y;
+                                this.schdule.add(jodId, {width: width, height: height, operate: "exactTDT", data:dZlib}).then(buffer=>{
+                                    let geometry = this.createGeometry(buffer, width, height);
+                                    resolve(geometry);
+                                });
+                            } else{
+                                let geometry = this.createGeometry(buffer, width, height);
+                                resolve(geometry); 
+                            }
+                            // let dZlib = this.unzip(data);
+                            // let buffer = undefined;
+                            // if (dZlib!== undefined){
+                            //     buffer = this.getData(dZlib, width, height);
+                            // }
+                            // let geometry = this.createGeometry(buffer, width, height);
+                            // resolve(geometry);
                         });
                     }
                 });
             }
-	    });
-    }
-    getPromise(url){
-        return new Promise((resolve, reject) => 
-		{
-			fetch(url).then(res=> {
-                    if (res.status === 404){
-                        console.error("get geometry error", zoom,x,y);
-                        reject(null);
-                    } 
-                    else {
-                        res.arrayBuffer().then(data=> {
-                            let half = this.getData(data);
-                            resolve(half); 
-                        });
-                    }
-                }
-            );
 	    });
     }
     // 不进行上采样了，只到18级别
@@ -138,12 +147,8 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
         }
         return myBuffer;
     }
-    /**
-     * 获取数据，并压缩到一半，高为height，宽为width/2
-     * @param {*} dataBuffer 
-     * @returns 
-     */
-    getData(dataBuffer, tileW, tileH) {
+
+    unzip(dataBuffer){
         var view = new DataView(dataBuffer);
         var zBuffer = new Uint8Array(view.byteLength);
         var index = 0;
@@ -155,11 +160,19 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
             return undefined
         }
         var dZlib = pako.inflate(zBuffer);
-        // console.error(dZlib);
         var DataSize = 2;
         if (dZlib.length !== 150 * 150 * DataSize){
             return undefined;
         }
+        return dZlib;
+    }
+    /**
+     * 获取数据，并压缩到一半，高为height，宽为width/2
+     * @param {*} dataBuffer 
+     * @returns 
+     */
+    getData(dZlib, tileW, tileH) {
+        var DataSize = 2;
         //创建DateView
         let width= tileW+1, height = tileH+1;
         var myW = width;
@@ -171,7 +184,7 @@ export class TianDiTuHeightProvider extends DefaultPlaneProvider {
         var jj_n, ii_n;
         // var jj_f, ii_f;
         // let heights = new Float32Array(width * height);
-        index = 0;
+        let index = 0;
         for (var jj = 0; jj < myH; jj++) {
             jj_n = Math.round(150/height * jj); // 从这每行150个高程点里面，取出来64个点。
             for (var ii = 0; ii < myW; ii++) {

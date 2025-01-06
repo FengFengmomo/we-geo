@@ -6,7 +6,7 @@
  * @FilePath: \we-geo\src\nodes\MapPlaneNode.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import {MeshBasicMaterial, Raycaster, Vector3} from 'three';
+import {MeshBasicMaterial, Raycaster, Vector3, Box3} from 'three';
 import {MapNode, QuadTreePosition} from './MapNode';
 import {MapNodeGeometry} from '../geometries/MapNodeGeometry';
 import {UnitsUtils} from '../utils/UnitsUtils';
@@ -32,6 +32,10 @@ export class MapPlaneNode extends MapNode
 	// static baseGeometry = MapPlaneNode.geometry;
 
 	static baseScale = new Vector3(UnitsUtils.EARTH_PERIMETER, 1.0, UnitsUtils.EARTH_PERIMETER);
+	/**
+	 * The viewer buffer size.
+	 */
+	viewerbufferSize = 0.6;
 
 	async initialize()
 	{
@@ -62,6 +66,11 @@ export class MapPlaneNode extends MapNode
 			parentGeo = null;
 		}
 		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
+		// this.geometry.computeBoundingBox();
+		this.geometry.boundingBox = new Box3(
+			new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
+			new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
+		);
 
 	}
 

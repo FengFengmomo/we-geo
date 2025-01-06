@@ -43,12 +43,13 @@
 		import {WegeoMap,MapView, TianDiTuProvider, MapBoxPlaneProvider,DefaultSphereProvider, TianDiTuHeightSphereProvider, TianDiTuHeightProvider, Config, BingMapsProvider, AngleUtils, DebugProvider, Mercator,  UnitsUtils,DefaultPlaneProvider, GraphicTilingScheme, CesiumPlaneProvider} from 'Geo';
 		import * as THREE from 'three';
 		
-		let providerbin = new BingMapsProvider();
+		let providerbin = new BingMapsProvider('', BingMapsProvider.AERIAL, true);
 		// 地名服务
 		let provider = new TianDiTuProvider({
 			service:'img_c',
-			token: '8cd838260d2b482fc3368c47973cc822'
+			// token: '8cd838260d2b482fc3368c47973cc822'
 			// token: '588e61bc464868465169f209fe694dd0'
+			token: 'dc073dfddeef9489973611634d2d337b'
 		});
 
 		// 地名服务
@@ -76,7 +77,7 @@
 		// let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
 		const map = new WegeoMap(); 
 		map.addBaseSphereMap({
-			providers: [provider, nameprovider,test],
+			providers: [provider,test],
 			heightProvider: tdth
 		});
 		// let imageLayer = new THREE.Group();

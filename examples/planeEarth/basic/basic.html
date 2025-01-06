@@ -40,7 +40,7 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, DebugProvider} from 'Geo';
 		import * as THREE from 'three';
 		let provider = new BingMapsProvider();
 		// 地名服务
@@ -54,13 +54,14 @@
 			service:'ibo_w',
 			token: '588e61bc464868465169f209fe694dd0'
 		});
+		let test = new DebugProvider(true);
 		// Config.outLine.on = true;
 		const map = new WegeoMap(); 
 		// map.addBaseSphereMap({
 		// 	providers: [provider,nameprovider, edgeprovider]
 		// });
 		map.addBaseMap({
-			providers: [provider]
+			providers: [provider, test]
 		});
 		map.moveTo(45.993553258799736,90.14134050768502,1000000);
 		map.resize();

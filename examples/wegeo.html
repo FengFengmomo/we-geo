@@ -41,7 +41,7 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils,  UnitsUtils} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils,  UnitsUtils, Schedule} from 'Geo';
 		import * as THREE from 'three';
 		import * as THREEi from 'THREEi';
 		
@@ -69,29 +69,28 @@
 
 
 		
-		let{model, runtime} = await map.baseMap.loadTiles({
-			// jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
-			jsonPath:'./data/s228_2_3dtiles/tileset.json'
-		});
-		// map.baseMap.camera.position.set(model.position.x, model.position.y, model.position.z);
-		// model.rotation.set(-Math.PI / 2-MathUtils.degToRad(lat)+ Math.PI/20, 0, Math.PI );
-		model.rotation.x+=Math.PI/200;
-		let pos = model.position.clone();
-		let normal = pos.clone().normalize();
-		normal.multiplyScalar(200)
-		pos.add(normal);
-		// map.baseMap.camera.position.set(pos.x, pos.y, pos.z);
-		map.baseMap.camera.position.copy(pos);
-		// map.baseMap.controls.target.copy(pos);
-		// map.baseMap.controls.update();
-		// let direction = UnitsUtils.datumsToVector( 45.993553258799736+ 0.04, 90.14134050768502+0.10085);
-		// let location = direction.multiplyScalar(UnitsUtils.EARTH_RADIUS+100);
-		// map.baseMap.camera.position.copy(location);
-		
-		
-		
+		// let{model, runtime} = await map.baseMap.loadTiles({
+		// 	// jsonPath:'./data/cesiumlab_trean_3dtiles/tileset.json'
+		// 	jsonPath:'./data/s228_2_3dtiles/tileset.json'
+		// });
+		// model.rotation.x+=Math.PI/200;
+		// let pos = model.position.clone();
+		// let normal = pos.clone().normalize();
+		// normal.multiplyScalar(200)
+		// pos.add(normal);
+		// map.baseMap.camera.position.copy(pos);
+		// function save(data){
 
-
+		// }
+		// let schedule = new Schedule();
+		// let data = {
+		// 	type:"tdt",
+		// 	operate:"extract",
+		// 	data:new Uint8Array(10)
+		// }
+		// schedule.add(12,data, save);
+		// schedule.add(13,data, save);
+		
 		const axesHelper = new THREE.AxesHelper( 6371008*2);
 		axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
 		// map.baseMap.add( axesHelper );
