@@ -55,15 +55,16 @@ export class LODRaycast extends LODControl
 
 	constructor(){
 		super();
-		this.stats = new Stats();
-		this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
-		document.body.appendChild( this.stats.dom );
+		// this.stats = new Stats();
+		// this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+		// document.body.appendChild( this.stats.dom );
 		// this.dom.style.display = 'none';
 	}
 
 	updateLOD(view, camera, renderer, scene)
 	{
-		this.stats.update();
+		// this.stats.begin();
+		
 		const intersects = [];
 		
 		for (let t = 0; t < this.subdivisionRays; t++) 
@@ -103,5 +104,6 @@ export class LODRaycast extends LODControl
 				node.parentNode.simplify();
 			}
 		}
+		// this.stats.update();
 	}
 }
