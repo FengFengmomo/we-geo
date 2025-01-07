@@ -2,7 +2,7 @@
     /* 深色主题 - 星空地球风格 */
     --primary-color: #0a1929;
     --secondary-color: #132f4c;
-    --text-color: #e6f1ff;
+    --text-color: #ffffff;
     --border-color: #1e4976;
     --hover-color: rgba(144, 202, 249, 0.08);
     --accent-color: #90caf9;
@@ -832,6 +832,9 @@ body::before {
 
 .main-content.expanded {
     margin-left: 60px;
+}
+.title{
+    color: #fff;
 }
 
 /* 响应式布局 */
