@@ -13,7 +13,7 @@ const position = new Vector3();
  *
  * Only subdivides elements inside of the camera frustum.
  */
-export class LODFrustum extends LODRadial 
+export class LODFrustumSphere extends LODRadial 
 {
 	/**
 	 * Distance to subdivide the tiles.
@@ -42,7 +42,7 @@ export class LODFrustum extends LODRadial
 	
 
 	// constructor(subdivideDistance = 120, simplifyDistance = 400) 
-	constructor(subdivideDistance = 300, simplifyDistance = 800) 
+	constructor(subdivideDistance = 500, simplifyDistance = 1000) 
 	{
 		super(subdivideDistance, simplifyDistance);
 		this.stats = new Stats();
@@ -65,10 +65,14 @@ export class LODFrustum extends LODRadial
 		view.children[0].traverse((node) => 
 		{
 			if (node.isMesh === false) return;
-			node.getWorldPosition(position);
+			// node.getWorldPosition(position);
+			// position = node.position;
+			position.x = node.position.x;
+			position.y = node.position.y;
+			position.z = node.position.z;
 			// position.y = node.geometry.evgY || 0;
 			let distance = pov.distanceTo(position);
-			distance /= Math.pow(2, view.providers[0].maxZoom - node.level+1);
+			distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
 			// let inFrustum;
 			const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
 			// let box = node.geometry.boundingBox;
@@ -91,10 +95,13 @@ export class LODFrustum extends LODRadial
 			view.children[1].traverse((node) => 
 			{
 				if (node.isMesh === false) return;
-				node.getWorldPosition(position);
+				// node.getWorldPosition(position);
+				position.x = node.position.x;
+				position.y = node.position.y;
+				position.z = node.position.z;
 				// position.y = node.geometry.evgY || 0;
 				let distance = pov.distanceTo(position);
-				distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+				distance /= Math.pow(2, view.providers[0].maxZoom - node.level+2);
 				let inFrustum;
 				
 				// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);

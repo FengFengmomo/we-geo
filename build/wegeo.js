@@ -1227,7 +1227,7 @@
 		/**
 		 * The viewer buffer size.
 		 */
-		viewerbufferSize = 0.6;
+		// viewerbufferSize = 0.6;
 
 		async initialize()
 		{
@@ -1259,10 +1259,10 @@
 			}
 			this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
 			// this.geometry.computeBoundingBox();
-			this.geometry.boundingBox = new three.Box3(
-				new three.Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-				new three.Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
-			);
+			// this.geometry.boundingBox = new Box3(
+			// 	new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
+			// 	new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
+			// );  // 设置这个会对raycast 产生影响
 
 		}
 
@@ -2991,18 +2991,21 @@
 		 */
 		scaleDistance = true;
 
-		constructor(){
+		constructor(subdivideDistance = 120, simplifyDistance = 400){
 			super();
-			// this.stats = new Stats();
-			// this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
-			// document.body.appendChild( this.stats.dom );
+			this.subdivideDistance = subdivideDistance;
+			this.simplifyDistance = simplifyDistance;
+			this.stats = new Stats();
+			this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+			document.body.appendChild( this.stats.dom );
 			// this.dom.style.display = 'none';
 		}
 
 		updateLOD(view, camera, renderer, scene)
 		{
-			// this.stats.begin();
-			
+			this.stats.begin();
+			this.stats.prevTime = this.stats.beginTime;
+			// .getTime()
 			const intersects = [];
 			
 			for (let t = 0; t < this.subdivisionRays; t++) 
@@ -3019,7 +3022,15 @@
 			{
 				const node = intersects[i].object;
 				let distance = intersects[i].distance;
-
+				// distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+				// if (distance < this.subdivideDistance) 
+				// {
+				// 	node.subdivide();
+				// }
+				// else if (distance > this.simplifyDistance && node.parentNode) 
+				// {
+				// 	node.parentNode.simplify();
+				// }
 				if (this.powerDistance) 
 				{
 					distance = Math.pow(distance * 2, node.level);
@@ -3042,12 +3053,12 @@
 					node.parentNode.simplify();
 				}
 			}
-			// this.stats.update();
+			this.stats.update();
 		}
 	}
 
-	const pov$1 = new three.Vector3();
-	const position$1 = new three.Vector3();
+	const pov$2 = new three.Vector3();
+	const position$2 = new three.Vector3();
 
 	/**
 	 * Check the planar distance between the nodes center and the view position.
@@ -3075,12 +3086,12 @@
 
 		updateLOD(view, camera, renderer, scene)
 		{
-			camera.getWorldPosition(pov$1);
+			camera.getWorldPosition(pov$2);
 
 			view.children[0].traverse((node) =>
 			{
-				node.getWorldPosition(position$1);
-				let distance = pov$1.distanceTo(position$1);
+				node.getWorldPosition(position$2);
+				let distance = pov$2.distanceTo(position$2);
 				distance /= Math.pow(2, view.provider.maxZoom - node.level);
 
 				if (distance < this.subdivideDistance) 
@@ -3095,10 +3106,10 @@
 		}
 	}
 
-	const projection = new three.Matrix4();
-	const pov = new three.Vector3();
-	const frustum = new three.Frustum();
-	const position = new three.Vector3();
+	const projection$1 = new three.Matrix4();
+	const pov$1 = new three.Vector3();
+	const frustum$1 = new three.Frustum();
+	const position$1 = new three.Vector3();
 
 	/**
 	 * Check the planar distance between the nodes center and the view position.
@@ -3131,43 +3142,38 @@
 		 */
 		pointOnly = false;
 		// pointOnly = true;
-		/**
-		 * Threshold to subdivide the map tiles.
-		 *
-		 * Lower value will subdivide earlier (less zoom required to subdivide).
-		 */
-		thresholdUp = 0.6;
-
-		/**
-		 * Threshold to simplify the map tiles.
-		 *
-		 * Higher value will simplify earlier.
-		 */
-		thresholdDown = 0.15;
-
-		scaleDistance = true;
+		
 
 		// constructor(subdivideDistance = 120, simplifyDistance = 400) 
-		constructor(subdivideDistance = 100, simplifyDistance = 300) 
+		constructor(subdivideDistance = 300, simplifyDistance = 800) 
 		{
 			super(subdivideDistance, simplifyDistance);
+			this.stats = new Stats();
+			this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+			document.body.appendChild( this.stats.dom );
 		}
 
 		updateLOD(view, camera, renderer, scene)
 		{
-			projection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-			frustum.setFromProjectionMatrix(projection);
-			camera.getWorldPosition(pov);
+			this.stats.begin();
+			this.stats.prevTime = this.stats.beginTime;
+
+			let newcam = camera.clone();
+
+			projection$1.multiplyMatrices(newcam.projectionMatrix, newcam.matrixWorldInverse);
+			frustum$1.setFromProjectionMatrix(projection$1);
+			newcam.getWorldPosition(pov$1);
+			// camera.getWorldPosition(pov);
 
 			view.children[0].traverse((node) => 
 			{
 				if (node.isMesh === false) return;
-				node.getWorldPosition(position);
-				position.y = node.geometry.evgY || 0;
-				let distance = pov.distanceTo(position);
+				node.getWorldPosition(position$1);
+				// position.y = node.geometry.evgY || 0;
+				let distance = pov$1.distanceTo(position$1);
 				distance /= Math.pow(2, view.providers[0].maxZoom - node.level+1);
 				// let inFrustum;
-				const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				const inFrustum = this.pointOnly ? frustum$1.containsPoint(position$1) : frustum$1.intersectsObject(node);
 				// let box = node.geometry.boundingBox;
 				// if(box === null){
 				// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
@@ -3188,18 +3194,20 @@
 				view.children[1].traverse((node) => 
 				{
 					if (node.isMesh === false) return;
-					node.getWorldPosition(position);
-					position.y = node.geometry.evgY || 0;
-					let distance = pov.distanceTo(position);
+					node.getWorldPosition(position$1);
+					// position.y = node.geometry.evgY || 0;
+					let distance = pov$1.distanceTo(position$1);
 					distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
 					let inFrustum;
+					
 					// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
 					// let box = node.geometry.boundingBox;
 					// if(box === null){
-					inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+					inFrustum = this.pointOnly ? frustum$1.containsPoint(position$1) : frustum$1.intersectsObject(node);
 					// } else {
 						// inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
 					// }
+					
 					if (distance < this.subdivideDistance && inFrustum) 
 					{
 						node.subdivide();
@@ -3210,6 +3218,7 @@
 					}
 				});
 			}
+			this.stats.update();
 		}
 	}
 
@@ -5100,10 +5109,15 @@
 			super();
 	        this.subdivideDistance = subdivideDistance;
 			this.simplifyDistance = simplifyDistance;
+			this.stats = new Stats();
+			this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+			document.body.appendChild( this.stats.dom );
 		}
 
 		updateLOD(view, camera, renderer, scene)
 		{
+			this.stats.begin();
+			this.stats.prevTime = this.stats.beginTime;
 			const intersects = [];
 			
 			for (let t = 0; t < this.subdivisionRays; t++) 
@@ -5132,6 +5146,7 @@
 					node.parentNode.simplify();
 				}
 			}
+			this.stats.update();
 		}
 	}
 
@@ -47160,7 +47175,7 @@ Char: ${this.c}`;
 	     * @param {boolean} recursive 是否检查子节点，true 递归检查
 	     * @returns mesh
 	     */
-	    raycastFromMouse(mx, my, recursive=false) {
+	    raycastFromMouse(mx, my, recursive=true) {
 	        //---- NG: 2x when starting with Chrome's inspector mobile
 	        // const {width, height} = this.renderer.domElement;
 	        // const {width, height} = this.canvas;
@@ -48158,6 +48173,129 @@ Char: ${this.c}`;
 
 	};
 
+	const projection = new three.Matrix4();
+	const pov = new three.Vector3();
+	const frustum = new three.Frustum();
+	const position = new three.Vector3();
+
+	/**
+	 * Check the planar distance between the nodes center and the view position.
+	 *
+	 * Only subdivides elements inside of the camera frustum.
+	 */
+	class LODFrustumSphere extends LODRadial 
+	{
+		/**
+		 * Distance to subdivide the tiles.
+		 */
+		// subdivideDistance;
+
+		/**
+		 * Distance to simplify the tiles.
+		 */
+		// simplifyDistance;
+
+		/**
+		 * If true only the central point of the plane geometry will be used
+		 *
+		 * Otherwise the object bouding sphere will be tested, providing better results for nodes on frustum edge but will lower performance.
+		 */
+		testCenter = true;
+
+		/**
+		 * If set true only the center point of the object is considered. 
+		 * 
+		 * Otherwise the full bouding box of the objects are considered.
+		 */
+		pointOnly = false;
+		// pointOnly = true;
+		
+
+		// constructor(subdivideDistance = 120, simplifyDistance = 400) 
+		constructor(subdivideDistance = 500, simplifyDistance = 1000) 
+		{
+			super(subdivideDistance, simplifyDistance);
+			this.stats = new Stats();
+			this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+			document.body.appendChild( this.stats.dom );
+		}
+
+		updateLOD(view, camera, renderer, scene)
+		{
+			this.stats.begin();
+			this.stats.prevTime = this.stats.beginTime;
+
+			let newcam = camera.clone();
+
+			projection.multiplyMatrices(newcam.projectionMatrix, newcam.matrixWorldInverse);
+			frustum.setFromProjectionMatrix(projection);
+			newcam.getWorldPosition(pov);
+			// camera.getWorldPosition(pov);
+
+			view.children[0].traverse((node) => 
+			{
+				if (node.isMesh === false) return;
+				// node.getWorldPosition(position);
+				// position = node.position;
+				position.x = node.position.x;
+				position.y = node.position.y;
+				position.z = node.position.z;
+				// position.y = node.geometry.evgY || 0;
+				let distance = pov.distanceTo(position);
+				distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+				// let inFrustum;
+				const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				// let box = node.geometry.boundingBox;
+				// if(box === null){
+				// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+				// } else {
+				// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
+				// }
+				
+				if (distance < this.subdivideDistance && inFrustum) 
+				{
+					node.subdivide();
+				}
+				else if (distance > this.simplifyDistance && node.parentNode) 
+				{
+					node.parentNode.simplify();
+				}
+			});
+			if(view.children[1]){
+				view.children[1].traverse((node) => 
+				{
+					if (node.isMesh === false) return;
+					// node.getWorldPosition(position);
+					position.x = node.position.x;
+					position.y = node.position.y;
+					position.z = node.position.z;
+					// position.y = node.geometry.evgY || 0;
+					let distance = pov.distanceTo(position);
+					distance /= Math.pow(2, view.providers[0].maxZoom - node.level+2);
+					let inFrustum;
+					
+					// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+					// let box = node.geometry.boundingBox;
+					// if(box === null){
+					inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
+					// } else {
+						// inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
+					// }
+					
+					if (distance < this.subdivideDistance && inFrustum) 
+					{
+						node.subdivide();
+					}
+					else if (distance > this.simplifyDistance && node.parentNode) 
+					{
+						node.parentNode.simplify();
+					}
+				});
+			}
+			this.stats.update();
+		}
+	}
+
 	class WegeoMap {
 	    baseMap;
 
@@ -48226,7 +48364,8 @@ Char: ${this.c}`;
 	            option.heightProvider = new DefaultSphereProvider();
 	        }
 	        let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
-	        map.lod = new LODSphere();
+	        // map.lod = new LODSphere();
+	        map.lod = new LODFrustumSphere();
 	        // map.updateMatrixWorld(true);
 	        this.baseMap = new Layer(1, container, canvas, map, false);
 	        // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - GLTFloader + EXT_texture_avif</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+		<link type="text/css" rel="stylesheet" href="main.css" />
+		<style>
+			body {
+				background-color: #bfe3dd;
+				color: #000;
+			}
+
+			a {
+				color: #986b60;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader +
+			<a href="https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Vendor/EXT_texture_avif" target="_blank" rel="noopener" >EXT_texture_avif</a><br />
+			Forest House by <a href="https://sketchfab.com/peachyroyalty" target="_blank" rel="noopener">peachyroyalty</a><br />
+		</div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "../build/jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import * as THREE from 'three';
+
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+			import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+            // import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+			// import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+			let camera, scene, renderer;
+
+			init();
+			render();
+
+			function init() {
+
+                renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 100 );
+				camera.position.set( 81, 5, 9 );
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xf6eedc );
+
+				//
+
+				const dracoLoader = new DRACOLoader();
+				dracoLoader.setDecoderPath( '../build/jsm/libs/draco/gltf/' );
+
+                // const ktx2Loader = new KTX2Loader()
+					// .setTranscoderPath( '../build/jsm/libs/basis/' )
+					// .detectSupport( renderer );
+
+				const loader = new GLTFLoader();
+				// loader.setDRACOLoader( dracoLoader );
+                // loader.setKTX2Loader( ktx2Loader );
+				// loader.setMeshoptDecoder( MeshoptDecoder );
+				// loader.setPath( 'models/gltf/AVIFTest/' );
+				loader.load( './data/cesiumlab_trean_3dtiles/Block/Block_L18_7.glb', function ( gltf ) {
+                    console.log(gltf.scene.position);
+                    console.log(gltf.scene.children[0].children[0].position);
+                    // console.log(gltf.scene.children[0].children[0].positon);
+                    // let pos = gltf.scene.children[0].children[0].position
+                    // camera.position.set(pos);
+                    gltf.scene.children[0].children[0].position.set(0,0,0);
+					scene.add( gltf.scene );
+
+					render();
+
+				} );
+
+				//
+
+				
+
+				const controls = new OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render );
+				controls.target.set( 0, 2, 0 );
+				controls.update();
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+
+			}
+
+			//
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+		</script>
+	</body>
+</html>

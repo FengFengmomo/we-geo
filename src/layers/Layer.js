@@ -342,7 +342,7 @@ export class Layer  extends BasLayer{
      * @param {boolean} recursive 是否检查子节点，true 递归检查
      * @returns mesh
      */
-    raycastFromMouse(mx, my, recursive=false) {
+    raycastFromMouse(mx, my, recursive=true) {
         //---- NG: 2x when starting with Chrome's inspector mobile
         // const {width, height} = this.renderer.domElement;
         // const {width, height} = this.canvas;

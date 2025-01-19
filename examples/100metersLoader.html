@@ -44,16 +44,6 @@
 		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, UnitsUtils} from 'Geo';
 		let provider = new BingMapsProvider();
 		// 地名服务
-		let nameprovider = new TianDiTuProvider({
-			service:'cva_w',
-			token: '588e61bc464868465169f209fe694dd0'
-		});
-
-		// map.addView(provider);
-		let edgeprovider = new TianDiTuProvider({
-			service:'ibo_w',
-			token: '588e61bc464868465169f209fe694dd0'
-		});
 		// Config.outLine.on = true;
 		const map = new WegeoMap(); 
 		// map.addBaseSphereMap({
@@ -62,8 +52,6 @@
 		map.addBaseMap({
 			providers: [provider]
 		});
-        // let lat = 45+ (58 + 18.3902/60)/60;
-        // let lng = 90+ (8 + 44.5931/60)/60;
 
 		// map.moveTo(lat,lng,2000);
 		map.resize();
@@ -108,13 +96,56 @@
                 map: pic
             } )
         );
-        mesh.position.set(coords.x, 5* Math.random(), -coords.y);
-        mesh.rotation.set(-0.5*Math.PI, 0, -51.11069444475657* (Math.PI / 180));
+
+		coords = UnitsUtils.datumsToSpherical(45.98925188418706, 90.14148733319195);
+        // map.moveTo(47.75065, 89.798711, 2000);
+        pic = new THREE.TextureLoader().load( './png/pic/10_100_50.JPG' );
+		let scale = 1.44;
+        mesh = new THREE.Mesh(
+            new THREE.PlaneGeometry( 432/4*scale,176/4*scale),
+            new THREE.MeshBasicMaterial( {
+                map: pic
+            })
+        );
+        mesh.position.set(coords.x-40, 5, -coords.y);
+        mesh.rotation.set(-0.5*Math.PI, 0, -84.98346887644159* (Math.PI / 180));
         // mesh.scale.set();
         map.baseMap.add(mesh);
         // map.moveToByCoords(coords);
+		let geometry = new THREE.BoxGeometry( 5,10, 5);
+		let material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+		let cube = new THREE.Mesh( geometry, material );
+		cube.position.set(coords.x-40, 5, -coords.y);
+		// map.baseMap.add( cube );
+		// map.moveTo(45.98925188418706, 90.14148733319195, 2000);
+		map.moveTo(45.98925188418706, 90.14148733319195, 200);
+		const matrix = new THREE.Matrix4();
+		fetch('./points.json').then(res => res.json()).then(data => {
+			data = data.data;
+			let geometry = new THREE.BoxGeometry( 0.2, 1, 0.2);
+			let material = new THREE.MeshBasicMaterial({color:0xff0000});
+			let corlors = [123,0xffff00, 0xff7400, 0x0000ff, 0xff32a5];
+			// mesh = new THREE.InstancedMesh( geometry, material, data.length );
+			for (let i = 0; i < data.length; i++) {
+				let item = data[i];
+				// 1 横向裂缝。 2纵向裂缝,3 不知道 4：横纵都有
+				// if(item[2]===4)
+					// continue;
+				let coordsG = UnitsUtils.datumsToSpherical(item[0], item[1]);
 
-
+				// matrix.setPosition( coordsG.x-coords.x, 0, -(coordsG.y - coords.y) );
+				// matrix.setPosition( coordsG.x, 5, -coordsG.y);
+				// mesh.setMatrixAt( i, matrix );
+				// mesh.setColorAt(i, new THREE.Color().setHex(corlors[i%4]));
+				// mesh.instanceColor.needsUpdate = true; // 需要更新实例颜色
+				let mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({color:corlors[item[2]]}) );
+				mesh.position.set(coordsG.x-1.4, 5, -coordsG.y-23);
+				map.baseMap.add(mesh);
+			}
+			// mesh.position.set(coords.x-40, 0, -coords.y);
+		});
+		// map.baseMap.camera.position.copy(mesh.position);
+		// 经纬度转换工具：https://tool.lu/coordinate
 // map.addModelLayer('3dtiles', './s228_checkpoint_3dtiles/tileset.json');
 // pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA
 	</script>

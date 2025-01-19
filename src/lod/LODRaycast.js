@@ -53,18 +53,21 @@ export class LODRaycast extends LODControl
 	 */
 	scaleDistance = true;
 
-	constructor(){
+	constructor(subdivideDistance = 120, simplifyDistance = 400){
 		super();
-		// this.stats = new Stats();
-		// this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
-		// document.body.appendChild( this.stats.dom );
+		this.subdivideDistance = subdivideDistance;
+		this.simplifyDistance = simplifyDistance;
+		this.stats = new Stats();
+		this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+		document.body.appendChild( this.stats.dom );
 		// this.dom.style.display = 'none';
 	}
 
 	updateLOD(view, camera, renderer, scene)
 	{
-		// this.stats.begin();
-		
+		this.stats.begin();
+		this.stats.prevTime = this.stats.beginTime;
+		// .getTime()
 		const intersects = [];
 		
 		for (let t = 0; t < this.subdivisionRays; t++) 
@@ -81,7 +84,15 @@ export class LODRaycast extends LODControl
 		{
 			const node = intersects[i].object;
 			let distance = intersects[i].distance;
-
+			// distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
+			// if (distance < this.subdivideDistance) 
+			// {
+			// 	node.subdivide();
+			// }
+			// else if (distance > this.simplifyDistance && node.parentNode) 
+			// {
+			// 	node.parentNode.simplify();
+			// }
 			if (this.powerDistance) 
 			{
 				distance = Math.pow(distance * 2, node.level);
@@ -104,6 +115,6 @@ export class LODRaycast extends LODControl
 				node.parentNode.simplify();
 			}
 		}
-		// this.stats.update();
+		this.stats.update();
 	}
 }

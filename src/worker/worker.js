@@ -28,7 +28,7 @@ export function work () {
                 }
                 NN_R = (jj * myW + ii) * 4
                 var i_height_new = (i_height + 1000) / 0.4-1e4/2;
-                myBuffer[index] = i_height_new+500; //真实高度
+                myBuffer[index] = i_height_new+3500; //真实高度
                 index++
             }
         }

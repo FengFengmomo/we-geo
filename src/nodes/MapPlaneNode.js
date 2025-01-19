@@ -35,7 +35,7 @@ export class MapPlaneNode extends MapNode
 	/**
 	 * The viewer buffer size.
 	 */
-	viewerbufferSize = 0.6;
+	// viewerbufferSize = 0.6;
 
 	async initialize()
 	{
@@ -67,10 +67,10 @@ export class MapPlaneNode extends MapNode
 		}
 		this.geometry = await this.mapView.heightProvider.fetchGeometry(zoom, x, y, parentGeo, this.location);
 		// this.geometry.computeBoundingBox();
-		this.geometry.boundingBox = new Box3(
-			new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-			new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
-		);
+		// this.geometry.boundingBox = new Box3(
+		// 	new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
+		// 	new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
+		// );  // 设置这个会对raycast 产生影响
 
 	}
 

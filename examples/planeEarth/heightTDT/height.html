@@ -56,13 +56,13 @@
 		let test = new DebugProvider(true);
 		
 		let tdth = new TianDiTuHeightProvider();
-		provider.maxZoom = 19;
+		provider.maxZoom = 17;
 		const map = new WegeoMap(); 
 		map.addBaseMap({
 			providers: [provider,test],
 			heightProvider: tdth
 		});
-		map.moveTo(43.905036,88.109167,100000);
+		map.moveTo(43.905036,88.109167,1000000);
 		window.onresize = () => { map.resize(); }
 		map.animate();
 		map.resize();

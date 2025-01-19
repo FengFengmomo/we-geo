@@ -13,7 +13,8 @@ import { WaterLorder } from './loader/WaterLorder';
 import { UnitsUtils } from './utils/UnitsUtils';
 import { LODSphere } from './lod/LODSphere';
 import { LODFrustum } from './lod/LODFrustum';
-import { MercatorTilingScheme, Skybox } from './main';
+import { LODFrustumSphere } from './lod/LODFrustumSphere';
+import { LODRaycast, MercatorTilingScheme, Skybox } from './main';
 import { DefaultPlaneProvider } from './providers';
 import { DefaultSphereProvider } from './providers';
 
@@ -85,7 +86,8 @@ export class WegeoMap {
             option.heightProvider = new DefaultSphereProvider();
         }
         let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
-        map.lod = new LODSphere();
+        // map.lod = new LODSphere();
+        map.lod = new LODFrustumSphere();
         // map.updateMatrixWorld(true);
         this.baseMap = new Layer(1, container, canvas, map, false);
         // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);
