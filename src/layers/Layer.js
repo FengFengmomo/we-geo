@@ -7,7 +7,7 @@ import Stats from '../../build/jsm/libs/stats.module.js';
 import {UnitsUtils} from '../utils/UnitsUtils.js';
 import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Clock,
     Vector3, Vector2, ACESFilmicToneMapping, BoxGeometry, MeshBasicMaterial , Mesh, TextureLoader,
-    PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight, MOUSE } from 'three';
+    PMREMGenerator, MathUtils, AmbientLight, DirectionalLight, PointLight, MOUSE, OrthographicCamera} from 'three';
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
@@ -60,6 +60,7 @@ export class Layer  extends BasLayer{
         this.camera = camera;
         this.stats = new Stats();
         document.body.appendChild( this.stats.dom );
+        this.updatePreSse();
         if(this.mapView){
             this.scene.add(this.mapView);
             this.mapView.updateMatrixWorld(true);
@@ -243,7 +244,17 @@ export class Layer  extends BasLayer{
     }
 
 
-
+    updatePreSse() {
+        const {clientWidth, clientHeight} = this.canvas;
+        let height = clientHeight;
+		let fov = this.camera.fov;
+		if (this.camera instanceof OrthographicCamera) {
+			this.camera._preSSE = height;
+		} else {
+			const verticalFOV = MathUtils.degToRad(fov);
+			this.camera._preSSE = height / (2.0 * Math.tan(verticalFOV * 0.5));
+		}
+	}
 
 
     setVisible(visible) {
@@ -281,10 +292,29 @@ export class Layer  extends BasLayer{
     }
 
     resize(){
+
         var width = window.innerWidth;
         var height = window.innerHeight;
+        
+        // this.camera.aspect = width / height;
+        let widthAndHeight = new Vector2();
+        this.renderer.getSize(widthAndHeight);
+        const ratio = width / height;
+        if (this.camera.aspect !== ratio) {
+            if (this.camera instanceof OrthographicCamera) {
+                
+                this.camera.zoom *= widthAndHeight.x / width;
+                const halfH = this.camera.top * this.camera.aspect / ratio;
+                this.camera.bottom = -halfH;
+                this.camera.top = halfH;
+            } else if (this.camera instanceof PerspectiveCamera) {
+                this.camera.fov = 2 * MathUtils.radToDeg(Math.atan(
+                    (height / widthAndHeight.y) * Math.tan(MathUtils.degToRad(this.camera.fov) / 2),
+                ));
+            }
+            this.camera3D.aspect = ratio;
+        }
         this.renderer.setSize(width, height);
-        this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         if(Config.outLine.on){
             this.effectOutline.resize(width, height);
