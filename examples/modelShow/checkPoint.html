@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title></title>
+	<style></style>
+</head>
+<body>
+	<div id="mapContainer">
+
+	</div>
+	
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "../../build/three.module.js",
+				"three/addons/": "../../build/jsm/",
+				"Geo": "../../build/wegeo.module.js"
+			}
+		}
+	</script>
+
+	<script type="module">
+		// 需要全量构建geo，目前不能把threejs排除在外
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils,  UnitsUtils} from 'Geo';
+		import * as THREE from 'three';
+		
+		let provider = new BingMapsProvider();
+		// 地名服务
+		// let provider = new TianDiTuProvider({
+		// 	service:'img_w',
+		// 	token: '588e61bc464868465169f209fe694dd0'
+		// });
+
+		// let edgeprovider = new TianDiTuProvider({
+		// 	service:'ibo_w',
+		// 	token: '588e61bc464868465169f209fe694dd0'
+		// });
+		// Config.outLine.on = true;
+		const map = new WegeoMap(); 
+		map.addBaseSphereMap({
+			providers: [provider]
+		});
+		window.onresize = () => { map.resize(); }
+		map.resize();
+		map.animate();
+		let{model, runtime} = await map.baseMap.loadTiles({
+			// jsonPath:'../data/cesiumlab_trean_3dtiles/tileset.json'
+			jsonPath:'/Cesium_3dtiles/3dtiles1.1/s228_checkpoint_3dtiles/tileset.json'
+			// jsonPath:'./data/s228_2_3dtiles/tileset.json'
+		});
+		model.rotation.x+=Math.PI/200;
+		let pos = model.position.clone();
+		let normal = pos.clone().normalize();
+		normal.multiplyScalar(200)
+		pos.add(normal);
+		// map.baseMap.camera.position.set(pos.x, pos.y, pos.z);
+		map.baseMap.camera.position.copy(pos);
+		const axesHelper = new THREE.AxesHelper( 6371008*2);
+		axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
+		
+	</script>
+</body>
+</html>
