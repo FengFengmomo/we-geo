@@ -220,8 +220,11 @@ export class WegeoMap {
             return null;
         }
         let isect = this.baseMap.raycastFromMouse(mx, my, true);
-        const pt = isect.point;
-        return pt;
+        if(isect){
+            const pt = isect.point;
+            return pt;
+        }
+        return null;
     }
 
     /**

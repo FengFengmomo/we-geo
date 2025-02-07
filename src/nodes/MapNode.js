@@ -191,6 +191,8 @@ export class MapNode extends Mesh
 		const maxZoom = this.mapView.maxZoom();
 		// 先计算与，后计算或
 		// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂
+		// todo 如果某个影像数据提供的层级已经达到最大，别的影像层级仍然还有，同时仍然希望该影像继续存在，这个时候该怎么办？
+		// 可以对影像进行采样。
 		if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
 		{
 			return;
