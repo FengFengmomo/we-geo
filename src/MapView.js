@@ -343,15 +343,16 @@ export class MapView extends Mesh
 	{
 		// return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
 		// 这里只需要关注影像的最大放缩级别，不需要关注高程的最大放缩级别，高程数据可以通过下采样的方式进行处理
-		return this.providers[0].maxZoom;
+		// return this.providers[0].maxZoom;
+		return 23;
 	}
 
 	/**
 	 * Get map meta data from server if supported.
 	 */
-	getMetaData()
+	getMetaData(index=0)
 	{
-		this.providers[0].getMetaData();
+		this.providers[index].getMetaData();
 	}
 
 	raycast(raycaster, intersects)

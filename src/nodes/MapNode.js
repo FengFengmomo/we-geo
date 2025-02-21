@@ -1,6 +1,7 @@
-import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending, DoubleSide} from 'three';
+import {LinearFilter, Material, Mesh, Texture,RepeatWrapping, Vector3, BufferGeometry, Object3D, RGBAFormat, NormalBlending, DoubleSide, CanvasTexture} from 'three';
 import {MapView} from '../MapView';
 import {TextureUtils} from '../utils/TextureUtils';
+import { CanvasUtils } from '../utils/CanvasUtils';
 /**
  * Constants to store quad-tree positions.
  */
@@ -202,6 +203,7 @@ export class MapNode extends Mesh
 		{
 			// @ts-ignore
 			this.isMesh = false;
+			this.visible = false;
 			this.children = this.childrenCache;
 			this.nodesLoaded = this.childrenCache.length;
 		}
@@ -245,6 +247,11 @@ export class MapNode extends Mesh
 		// Clear children and reset flags
 		this.subdivided = false;
 		this.isMesh = true;
+		this.visible = true;
+		// let materials = this.parentNode.material
+		// for (let material of materials) {
+		// 	material.visible = true;
+		// }
 		this.children = [];
 		this.nodesLoaded = 0;
 	}
@@ -256,7 +263,7 @@ export class MapNode extends Mesh
 	 */
 	async loadData()
 	{
-		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		if (this.level < this.mapView.providers[0].minZoom)
 		{
 			console.warn('Geo-Three: Loading tile outside of provider range.', this);
 
@@ -270,11 +277,18 @@ export class MapNode extends Mesh
 			return;
 		}
 		let materials = [];
+		let i = 0;
 		for (let provider of this.mapView.providers){
 			let material = this.material.clone();
 			try 
 			{
-				let image = await provider.fetchTile(this.level, this.x, this.y);
+				let image;
+				if (this.level > provider.maxZoom){
+					let canvasTexture = CanvasUtils.sampleTexture(this.parentNode.material[i].map, this.location);
+					image = canvasTexture.image;
+				} else {
+					image = await provider.fetchTile(this.level, this.x, this.y);
+				}
 				if (this.disposed) 
 				{
 					return;
@@ -327,7 +341,7 @@ export class MapNode extends Mesh
 		}
 	}
 
-
+	
 
 	/**
 	 * Increment the child loaded counter.
@@ -350,15 +364,21 @@ export class MapNode extends Mesh
 
 			if (this.parentNode.nodesLoaded === MapNode.childrens) 
 			{
-				if (this.parentNode.subdivided === true) 
-				{
-					// @ts-ignore
-					this.parentNode.isMesh = false;
-				}
+				
 				
 				for (let i = 0; i < this.parentNode.children.length; i++) 
 				{
 					this.parentNode.children[i].visible = true;
+				}
+				if (this.parentNode.subdivided === true) 
+				{
+					// @ts-ignore
+					this.parentNode.isMesh = false;
+					// let materials = this.parentNode.material
+					// for (let material of materials) {
+					// 	material.visible = false;
+					// }
+					// this.parentNode.visible = false;
 				}
 			}
 
@@ -371,6 +391,7 @@ export class MapNode extends Mesh
 		else
 		{
 			this.visible = true;
+			this.isMesh = true;
 		}
 	}
 
@@ -387,17 +408,31 @@ export class MapNode extends Mesh
 
 		try 
 		{
-			const material = self.material;
-			material.dispose();
+			if(self.material instanceof Array){
+				for (let material of self.material) {
+					material.dispose();
+					// @ts-ignore
+					if (material.map && material.map !== MapNode.defaultTexture)
+					{
+						// @ts-ignore
+						material.map.dispose();
+					}
+				}
+			} else {
+			    const material = self.material;
+				material.dispose();
 
-			// @ts-ignore
-			if (material.map && material.map !== MapNode.defaultTexture)
-			{
 				// @ts-ignore
-				material.map.dispose();
+				if (material.map && material.map !== MapNode.defaultTexture)
+				{
+					// @ts-ignore
+					material.map.dispose();
+				}
 			}
 		}
-		catch (e) {}
+		catch (e) {
+			console.error(e);
+		}
 		
 		try 
 		{

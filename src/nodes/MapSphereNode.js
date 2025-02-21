@@ -76,7 +76,7 @@ export class MapSphereNode extends MapNode
 			throw new Error('MapView.heightProvider provider is null.');
 		}
  
-		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		if (this.level < this.mapView.providers[0].minZoom || this.level > 23)
 		{
 			console.warn('Loading tile outside of provider range.', this);
 
@@ -125,7 +125,7 @@ export class MapSphereNode extends MapNode
 	applyScaleNode()
 	{
 		this.geometry.computeBoundingBox();
-	
+		
 		const box = this.geometry.boundingBox.clone();
 		const center = box.getCenter(new Vector3());
 	
@@ -138,6 +138,7 @@ export class MapSphereNode extends MapNode
 		
 		this.updateMatrix();
 		this.updateMatrixWorld();
+		// this.geometry.computeBoundingSphere();
 	}
 	
 	updateMatrix()
@@ -193,13 +194,35 @@ export class MapSphereNode extends MapNode
 	/**
 	 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
 	 */
-	raycast(raycaster, intersects)
-	{
-		if (this.isMesh === true) 
-		{
-			super.raycast(raycaster, intersects);
-		}
-	}
+	// raycast(raycaster, intersects)
+	// {
+	// 	if (this.isMesh === true) 
+	// 	{
+	// 		super.raycast(raycaster, intersects);
+	// 	}
+	// }
+	// raycast(raycaster, intersects)
+	// {
+	// 	// 如果和当前的相交，则说明后续的节点才能相交，如果不相交，则后续节点不相交，不相交的时候则返回false，那么该节点的所有子节点则不会执行raycast
+	// 	let lenOrigin = intersects.length;
+	// 	super.raycast(raycaster, intersects);
+	// 	let len = intersects.length;
+	// 	if (lenOrigin === len){
+	// 		return false; // 如果没有相交，则返回false，那么该节点的所有子节点则不会执行raycast
+	// 	}
+	// 	if (this.isMesh === true)  // 如果相交，则判断是否是Mesh，如果是Mesh，则可以返回了，整个相交处理可以结束了。
+	// 	{
+	// 		return true;
+	// 	}
+	// 	if (this.isMesh === false)  // 如果相交，则判断是否是Mesh，如果不是Mesh，则继续判断子节点是否相交，同时将当前节点从相交数组中移除
+	// 	{
+	// 		let sub = len - lenOrigin;
+	// 		for (let i = 0; i < sub; i++) {
+	// 			intersects.pop();
+	// 		}
+	// 		return true;
+	// 	}
+	// }
 
 	static getGeometry(scale = 0){
 		let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new Vector4(...UnitsUtils.tileBounds(0, 0, 0)));

@@ -189,6 +189,27 @@
 			// 这里返回OffscreenCanvas是因为threejs的Texture可以接受image和offscreenCanvas
 			return imageData;
 		}
+
+		static sampleTexture(texture, position){
+			let tileSize = 256;
+			let form = [
+				[0, 0], //左上角 0
+				[128, 0], //右上角 1
+				[0, 128], //左下角 2
+				[128, 128] //右下角 3
+			];
+			let canvas = document.createElement('canvas');
+			canvas.width = tileSize;
+			canvas.height = tileSize;
+			const context = canvas.getContext('2d');
+			context.imageSmoothingEnabled = false;
+			let image = texture.image; // 获取纹理的image对象
+			let fromX = form[position][0];
+			let fromY = form[position][1];
+			context.drawImage(image, fromX, fromY,tileSize/2,tileSize/2, 0,0, tileSize, tileSize);
+			let sliceTexture = new three.CanvasTexture(canvas);
+			return sliceTexture;
+		}
 	}
 
 	/**
@@ -414,6 +435,8 @@
 			const maxZoom = this.mapView.maxZoom();
 			// 先计算与，后计算或
 			// 孩子节点已经大于0，不再分裂，当前缩放等级达到最大，不再分裂， 父节点不为空且子节点加载完毕，不再分裂
+			// todo 如果某个影像数据提供的层级已经达到最大，别的影像层级仍然还有，同时仍然希望该影像继续存在，这个时候该怎么办？
+			// 可以对影像进行采样。
 			if (this.children.length > 0 || this.level + 1 > maxZoom || (this.parentNode !== null && this.parentNode.nodesLoaded < MapNode.childrens))
 			{
 				return;
@@ -423,6 +446,7 @@
 			{
 				// @ts-ignore
 				this.isMesh = false;
+				this.visible = false;
 				this.children = this.childrenCache;
 				this.nodesLoaded = this.childrenCache.length;
 			}
@@ -466,6 +490,11 @@
 			// Clear children and reset flags
 			this.subdivided = false;
 			this.isMesh = true;
+			this.visible = true;
+			// let materials = this.parentNode.material
+			// for (let material of materials) {
+			// 	material.visible = true;
+			// }
 			this.children = [];
 			this.nodesLoaded = 0;
 		}
@@ -477,7 +506,7 @@
 		 */
 		async loadData()
 		{
-			if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+			if (this.level < this.mapView.providers[0].minZoom)
 			{
 				console.warn('Geo-Three: Loading tile outside of provider range.', this);
 
@@ -491,11 +520,18 @@
 				return;
 			}
 			let materials = [];
+			let i = 0;
 			for (let provider of this.mapView.providers){
 				let material = this.material.clone();
 				try 
 				{
-					let image = await provider.fetchTile(this.level, this.x, this.y);
+					let image;
+					if (this.level > provider.maxZoom){
+						let canvasTexture = CanvasUtils.sampleTexture(this.parentNode.material[i].map, this.location);
+						image = canvasTexture.image;
+					} else {
+						image = await provider.fetchTile(this.level, this.x, this.y);
+					}
 					if (this.disposed) 
 					{
 						return;
@@ -548,7 +584,7 @@
 			}
 		}
 
-
+		
 
 		/**
 		 * Increment the child loaded counter.
@@ -571,15 +607,21 @@
 
 				if (this.parentNode.nodesLoaded === MapNode.childrens) 
 				{
-					if (this.parentNode.subdivided === true) 
-					{
-						// @ts-ignore
-						this.parentNode.isMesh = false;
-					}
+					
 					
 					for (let i = 0; i < this.parentNode.children.length; i++) 
 					{
 						this.parentNode.children[i].visible = true;
+					}
+					if (this.parentNode.subdivided === true) 
+					{
+						// @ts-ignore
+						this.parentNode.isMesh = false;
+						// let materials = this.parentNode.material
+						// for (let material of materials) {
+						// 	material.visible = false;
+						// }
+						// this.parentNode.visible = false;
 					}
 				}
 
@@ -592,6 +634,7 @@
 			else
 			{
 				this.visible = true;
+				this.isMesh = true;
 			}
 		}
 
@@ -608,17 +651,31 @@
 
 			try 
 			{
-				const material = self.material;
-				material.dispose();
+				if(self.material instanceof Array){
+					for (let material of self.material) {
+						material.dispose();
+						// @ts-ignore
+						if (material.map && material.map !== MapNode.defaultTexture)
+						{
+							// @ts-ignore
+							material.map.dispose();
+						}
+					}
+				} else {
+				    const material = self.material;
+					material.dispose();
 
-				// @ts-ignore
-				if (material.map && material.map !== MapNode.defaultTexture)
-				{
 					// @ts-ignore
-					material.map.dispose();
+					if (material.map && material.map !== MapNode.defaultTexture)
+					{
+						// @ts-ignore
+						material.map.dispose();
+					}
 				}
 			}
-			catch (e) {}
+			catch (e) {
+				console.error(e);
+			}
 			
 			try 
 			{
@@ -1240,7 +1297,7 @@
 				throw new Error('MapView.heightProvider provider is null.');
 			}
 	 
-			if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+			if (this.level < this.mapView.providers[0].minZoom || this.level > 23)
 			{
 				console.warn('Loading tile outside of provider range.', this);
 
@@ -1839,7 +1896,7 @@
 				throw new Error('MapView.heightProvider provider is null.');
 			}
 	 
-			if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+			if (this.level < this.mapView.providers[0].minZoom || this.level > 23)
 			{
 				console.warn('Loading tile outside of provider range.', this);
 
@@ -1888,7 +1945,7 @@
 		applyScaleNode()
 		{
 			this.geometry.computeBoundingBox();
-		
+			
 			const box = this.geometry.boundingBox.clone();
 			const center = box.getCenter(new three.Vector3());
 		
@@ -1901,6 +1958,7 @@
 			
 			this.updateMatrix();
 			this.updateMatrixWorld();
+			// this.geometry.computeBoundingSphere();
 		}
 		
 		updateMatrix()
@@ -1956,13 +2014,35 @@
 		/**
 		 * Overrides normal raycasting, to avoid raycasting when isMesh is set to false.
 		 */
-		raycast(raycaster, intersects)
-		{
-			if (this.isMesh === true) 
-			{
-				super.raycast(raycaster, intersects);
-			}
-		}
+		// raycast(raycaster, intersects)
+		// {
+		// 	if (this.isMesh === true) 
+		// 	{
+		// 		super.raycast(raycaster, intersects);
+		// 	}
+		// }
+		// raycast(raycaster, intersects)
+		// {
+		// 	// 如果和当前的相交，则说明后续的节点才能相交，如果不相交，则后续节点不相交，不相交的时候则返回false，那么该节点的所有子节点则不会执行raycast
+		// 	let lenOrigin = intersects.length;
+		// 	super.raycast(raycaster, intersects);
+		// 	let len = intersects.length;
+		// 	if (lenOrigin === len){
+		// 		return false; // 如果没有相交，则返回false，那么该节点的所有子节点则不会执行raycast
+		// 	}
+		// 	if (this.isMesh === true)  // 如果相交，则判断是否是Mesh，如果是Mesh，则可以返回了，整个相交处理可以结束了。
+		// 	{
+		// 		return true;
+		// 	}
+		// 	if (this.isMesh === false)  // 如果相交，则判断是否是Mesh，如果不是Mesh，则继续判断子节点是否相交，同时将当前节点从相交数组中移除
+		// 	{
+		// 		let sub = len - lenOrigin;
+		// 		for (let i = 0; i < sub; i++) {
+		// 			intersects.pop();
+		// 		}
+		// 		return true;
+		// 	}
+		// }
 
 		static getGeometry(scale = 0){
 			let geometry = new MapSphereNodeGeometry(UnitsUtils.EARTH_RADIUS_A+scale, 64, 64, 0, 2 * Math.PI, 0, Math.PI, new three.Vector4(...UnitsUtils.tileBounds(0, 0, 0)));
@@ -4808,15 +4888,16 @@
 		{
 			// return Math.min(this.providers[0].maxZoom, this.heightProvider?.maxZoom ?? Infinity);
 			// 这里只需要关注影像的最大放缩级别，不需要关注高程的最大放缩级别，高程数据可以通过下采样的方式进行处理
-			return this.providers[0].maxZoom;
+			// return this.providers[0].maxZoom;
+			return 23;
 		}
 
 		/**
 		 * Get map meta data from server if supported.
 		 */
-		getMetaData()
+		getMetaData(index=0)
 		{
-			this.providers[0].getMetaData();
+			this.providers[index].getMetaData();
 		}
 
 		raycast(raycaster, intersects)
@@ -7214,7 +7295,7 @@
 			const range = Math.pow(2, zoom);
 			// const segments = Math.floor(DefaultSphereProvider.segments * (max / (zoom + 1)) / max);
 			// const segments = Math.max(Math.floor(DefaultSphereProvider.segments /(zoom + 1)), 16);
-			const segments = 63;
+			const segments = 64;
 
 
 		

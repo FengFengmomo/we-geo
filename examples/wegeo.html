@@ -41,7 +41,7 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils,  UnitsUtils} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider,DebugProvider, AngleUtils,  UnitsUtils} from 'Geo';
 		import * as THREE from 'three';
 		import * as THREEi from 'THREEi';
 		
@@ -57,6 +57,7 @@
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 		// Config.outLine.on = true;
+		let test = new DebugProvider(true);
 		const map = new WegeoMap(); 
 		map.addBaseSphereMap({
 			providers: [provider]

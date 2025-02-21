@@ -48,7 +48,7 @@ export class MapPlaneNode extends MapNode
 			throw new Error('MapView.heightProvider provider is null.');
 		}
  
-		if (this.level < this.mapView.providers[0].minZoom || this.level > this.mapView.providers[0].maxZoom)
+		if (this.level < this.mapView.providers[0].minZoom || this.level > 23)
 		{
 			console.warn('Loading tile outside of provider range.', this);
 

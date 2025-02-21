@@ -72,13 +72,13 @@
 		// 	tilingScheme: new GraphicTilingScheme()
 		// });
 		let tdth = new TianDiTuHeightSphereProvider();
-		provider.maxZoom = 17;
+		provider.maxZoom = 19;
 		// let token = 'pk.eyJ1Ijoia29yeXdrYSIsImEiOiJja2p1ajdlOWozMnF2MzBtajRvOTVzZDRpIn0.nnlX7TDuZ3zuGkZGr_oA3A';
 		// let token = 'pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA';
 		// let mapbox = new MapBoxPlaneProvider(token, 'mapbox.terrain-rgb', MapBoxPlaneProvider.MAP_ID, "pngraw");
 		const map = new WegeoMap(); 
 		map.addBaseSphereMap({
-			providers: [provider, nameprovider,test],
+			providers: [provider,test],
 			heightProvider: tdth
 		});
 		// let imageLayer = new THREE.Group();
