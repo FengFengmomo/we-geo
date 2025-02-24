@@ -296,24 +296,24 @@ export class Layer  extends BasLayer{
         var width = window.innerWidth;
         var height = window.innerHeight;
         
-        // this.camera.aspect = width / height;
-        let widthAndHeight = new Vector2();
-        this.renderer.getSize(widthAndHeight);
-        const ratio = width / height;
-        if (this.camera.aspect !== ratio) {
-            if (this.camera instanceof OrthographicCamera) {
+        this.camera.aspect = width / height;
+        // let widthAndHeight = new Vector2();
+        // this.renderer.getSize(widthAndHeight);
+        // const ratio = width / height;
+        // if (this.camera.aspect !== ratio) {
+        //     if (this.camera instanceof OrthographicCamera) {
                 
-                this.camera.zoom *= widthAndHeight.x / width;
-                const halfH = this.camera.top * this.camera.aspect / ratio;
-                this.camera.bottom = -halfH;
-                this.camera.top = halfH;
-            } else if (this.camera instanceof PerspectiveCamera) {
-                this.camera.fov = 2 * MathUtils.radToDeg(Math.atan(
-                    (height / widthAndHeight.y) * Math.tan(MathUtils.degToRad(this.camera.fov) / 2),
-                ));
-            }
-            this.camera3D.aspect = ratio;
-        }
+        //         this.camera.zoom *= widthAndHeight.x / width;
+        //         const halfH = this.camera.top * this.camera.aspect / ratio;
+        //         this.camera.bottom = -halfH;
+        //         this.camera.top = halfH;
+        //     } else if (this.camera instanceof PerspectiveCamera) {
+        //         this.camera.fov = 2 * MathUtils.radToDeg(Math.atan(
+        //             (height / widthAndHeight.y) * Math.tan(MathUtils.degToRad(this.camera.fov) / 2),
+        //         ));
+        //     }
+        //     this.camera.aspect = ratio;
+        // }
         this.renderer.setSize(width, height);
         this.camera.updateProjectionMatrix();
         if(Config.outLine.on){

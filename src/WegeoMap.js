@@ -13,7 +13,10 @@ import { WaterLorder } from './loader/WaterLorder';
 import { UnitsUtils } from './utils/UnitsUtils';
 import { LODSphere } from './lod/LODSphere';
 import { LODFrustum } from './lod/LODFrustum';
+import { LODDistance } from './lod/LODDistance';
 import { LODFrustumSphere } from './lod/LODFrustumSphere';
+import {LODDistanceSphere} from './lod/LODDistanceSphere';
+import { LODRadial } from './lod/LODRadial';
 import { LODRaycast, MercatorTilingScheme, Skybox } from './main';
 import { DefaultPlaneProvider } from './providers';
 import { DefaultSphereProvider } from './providers';
@@ -53,7 +56,7 @@ export class WegeoMap {
             option.heightProvider = new DefaultPlaneProvider();
         }
         map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
-        // map.lod = new LODFrustum();
+        map.lod = new LODDistance();
         // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
         // // 值越小越先渲染，但越容易被覆盖
         this.baseMap = new Layer(1, container, canvas, map, true);
@@ -87,7 +90,9 @@ export class WegeoMap {
         }
         let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
         // map.lod = new LODSphere();
-        map.lod = new LODFrustumSphere();
+        // map.lod = new LODFrustumSphere();
+        map.lod = new LODDistanceSphere();
+        // map.lod = new LODRadial();
         // map.updateMatrixWorld(true);
         this.baseMap = new Layer(1, container, canvas, map, false);
         // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);

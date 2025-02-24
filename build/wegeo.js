@@ -608,14 +608,30 @@
 
 			try 
 			{
-				const material = self.material;
-				material.dispose();
+				if (self.material instanceof Array){
+					let materials = self.material;
+					for (let i = 0; i < materials.length; i++)
+					{
+						const material = materials[i];
+						material.dispose();
 
-				// @ts-ignore
-				if (material.map && material.map !== MapNode.defaultTexture)
-				{
+						// @ts-ignore
+						if (material.map && material.map !== MapNode.defaultTexture)
+						{
+							// @ts-ignore
+							material.map.dispose();
+						}
+					}
+				} else {
+					const material = self.material;
+					material.dispose();
+
 					// @ts-ignore
-					material.map.dispose();
+					if (material.map && material.map !== MapNode.defaultTexture)
+					{
+						// @ts-ignore
+						material.map.dispose();
+					}
 				}
 			}
 			catch (e) {}
@@ -3057,8 +3073,8 @@
 		}
 	}
 
-	const pov$2 = new three.Vector3();
-	const position$2 = new three.Vector3();
+	const pov$3 = new three.Vector3();
+	const position$3 = new three.Vector3();
 
 	/**
 	 * Check the planar distance between the nodes center and the view position.
@@ -3086,12 +3102,12 @@
 
 		updateLOD(view, camera, renderer, scene)
 		{
-			camera.getWorldPosition(pov$2);
+			camera.getWorldPosition(pov$3);
 
 			view.children[0].traverse((node) =>
 			{
-				node.getWorldPosition(position$2);
-				let distance = pov$2.distanceTo(position$2);
+				node.getWorldPosition(position$3);
+				let distance = pov$3.distanceTo(position$3);
 				distance /= Math.pow(2, view.provider.maxZoom - node.level);
 
 				if (distance < this.subdivideDistance) 
@@ -3106,10 +3122,10 @@
 		}
 	}
 
-	const projection$1 = new three.Matrix4();
-	const pov$1 = new three.Vector3();
-	const frustum$1 = new three.Frustum();
-	const position$1 = new three.Vector3();
+	const projection$2 = new three.Matrix4();
+	const pov$2 = new three.Vector3();
+	const frustum$2 = new three.Frustum();
+	const position$2 = new three.Vector3();
 
 	/**
 	 * Check the planar distance between the nodes center and the view position.
@@ -3160,20 +3176,20 @@
 
 			let newcam = camera.clone();
 
-			projection$1.multiplyMatrices(newcam.projectionMatrix, newcam.matrixWorldInverse);
-			frustum$1.setFromProjectionMatrix(projection$1);
-			newcam.getWorldPosition(pov$1);
+			projection$2.multiplyMatrices(newcam.projectionMatrix, newcam.matrixWorldInverse);
+			frustum$2.setFromProjectionMatrix(projection$2);
+			newcam.getWorldPosition(pov$2);
 			// camera.getWorldPosition(pov);
 
 			view.children[0].traverse((node) => 
 			{
 				if (node.isMesh === false) return;
-				node.getWorldPosition(position$1);
+				node.getWorldPosition(position$2);
 				// position.y = node.geometry.evgY || 0;
-				let distance = pov$1.distanceTo(position$1);
+				let distance = pov$2.distanceTo(position$2);
 				distance /= Math.pow(2, view.providers[0].maxZoom - node.level+1);
 				// let inFrustum;
-				const inFrustum = this.pointOnly ? frustum$1.containsPoint(position$1) : frustum$1.intersectsObject(node);
+				const inFrustum = this.pointOnly ? frustum$2.containsPoint(position$2) : frustum$2.intersectsObject(node);
 				// let box = node.geometry.boundingBox;
 				// if(box === null){
 				// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
@@ -3194,16 +3210,16 @@
 				view.children[1].traverse((node) => 
 				{
 					if (node.isMesh === false) return;
-					node.getWorldPosition(position$1);
+					node.getWorldPosition(position$2);
 					// position.y = node.geometry.evgY || 0;
-					let distance = pov$1.distanceTo(position$1);
+					let distance = pov$2.distanceTo(position$2);
 					distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
 					let inFrustum;
 					
 					// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
 					// let box = node.geometry.boundingBox;
 					// if(box === null){
-					inFrustum = this.pointOnly ? frustum$1.containsPoint(position$1) : frustum$1.intersectsObject(node);
+					inFrustum = this.pointOnly ? frustum$2.containsPoint(position$2) : frustum$2.intersectsObject(node);
 					// } else {
 						// inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
 					// }
@@ -14925,7 +14941,7 @@
 	                    i_height = 0;
 	                }
 	                var i_height_new = (i_height + 1000) / 0.4-1e4/2;
-	                myBuffer[index] = i_height_new+500; //真实高度
+	                myBuffer[index] = i_height_new+3500; //真实高度
 	                index++;
 	            }
 	        }
@@ -46893,6 +46909,7 @@ Char: ${this.c}`;
 	        this.camera = camera;
 	        this.stats = new Stats();
 	        document.body.appendChild( this.stats.dom );
+	        this.updatePreSse();
 	        if(this.mapView){
 	            this.scene.add(this.mapView);
 	            this.mapView.updateMatrixWorld(true);
@@ -47076,7 +47093,17 @@ Char: ${this.c}`;
 	    }
 
 
-
+	    updatePreSse() {
+	        const {clientWidth, clientHeight} = this.canvas;
+	        let height = clientHeight;
+			let fov = this.camera.fov;
+			if (this.camera instanceof three.OrthographicCamera) {
+				this.camera._preSSE = height;
+			} else {
+				const verticalFOV = three.MathUtils.degToRad(fov);
+				this.camera._preSSE = height / (2.0 * Math.tan(verticalFOV * 0.5));
+			}
+		}
 
 
 	    setVisible(visible) {
@@ -47114,10 +47141,29 @@ Char: ${this.c}`;
 	    }
 
 	    resize(){
+
 	        var width = window.innerWidth;
 	        var height = window.innerHeight;
-	        this.renderer.setSize(width, height);
+	        
 	        this.camera.aspect = width / height;
+	        // let widthAndHeight = new Vector2();
+	        // this.renderer.getSize(widthAndHeight);
+	        // const ratio = width / height;
+	        // if (this.camera.aspect !== ratio) {
+	        //     if (this.camera instanceof OrthographicCamera) {
+	                
+	        //         this.camera.zoom *= widthAndHeight.x / width;
+	        //         const halfH = this.camera.top * this.camera.aspect / ratio;
+	        //         this.camera.bottom = -halfH;
+	        //         this.camera.top = halfH;
+	        //     } else if (this.camera instanceof PerspectiveCamera) {
+	        //         this.camera.fov = 2 * MathUtils.radToDeg(Math.atan(
+	        //             (height / widthAndHeight.y) * Math.tan(MathUtils.degToRad(this.camera.fov) / 2),
+	        //         ));
+	        //     }
+	        //     this.camera.aspect = ratio;
+	        // }
+	        this.renderer.setSize(width, height);
 	        this.camera.updateProjectionMatrix();
 	        if(Config.outLine.on){
 	            this.effectOutline.resize(width, height);
@@ -48173,17 +48219,17 @@ Char: ${this.c}`;
 
 	};
 
-	const projection = new three.Matrix4();
-	const pov = new three.Vector3();
-	const frustum = new three.Frustum();
-	const position = new three.Vector3();
+	const projection$1 = new three.Matrix4();
+	const pov$1 = new three.Vector3();
+	const frustum$1 = new three.Frustum();
+	const position$1 = new three.Vector3();
 
 	/**
 	 * Check the planar distance between the nodes center and the view position.
 	 *
 	 * Only subdivides elements inside of the camera frustum.
 	 */
-	class LODFrustumSphere extends LODRadial 
+	class LODDistance extends LODRadial 
 	{
 		/**
 		 * Distance to subdivide the tiles.
@@ -48212,7 +48258,133 @@ Char: ${this.c}`;
 		
 
 		// constructor(subdivideDistance = 120, simplifyDistance = 400) 
-		constructor(subdivideDistance = 500, simplifyDistance = 1000) 
+		constructor(subdivideDistance = 300, simplifyDistance = 800) 
+		{
+			super(subdivideDistance, simplifyDistance);
+			this.stats = new Stats();
+			this.stats.dom.style.cssText = 'position:fixed;bottom:0;left:0;cursor:pointer;opacity:0.9;z-index:10000';
+			document.body.appendChild( this.stats.dom );
+		}
+
+		updateLOD(view, camera, renderer, scene)
+		{
+			this.stats.begin();
+			this.stats.prevTime = this.stats.beginTime;
+
+			let newcam = camera.clone();
+
+			projection$1.multiplyMatrices(newcam.projectionMatrix, newcam.matrixWorldInverse);
+			frustum$1.setFromProjectionMatrix(projection$1);
+			newcam.getWorldPosition(pov$1);
+			// camera.getWorldPosition(pov);
+
+			view.children[0].traverse((node) => 
+			{
+				if (node.isMesh === false) return;
+				node.getWorldPosition(position$1);
+				// position.y = node.geometry.evgY || 0;
+				let distance = pov$1.distanceTo(position$1);
+				distance /= UnitsUtils.EARTH_PERIMETER;
+				distance = 1/ distance;
+				let threshold = distance/Math.pow(2,node.level);
+				if (threshold > 1 ) 
+				{
+					node.subdivide();
+				}
+				else if (threshold < 0.5 ) 
+				{
+					node.parentNode.simplify();
+				}
+			});
+			if(view.children[1]){
+				view.children[1].traverse((node) => 
+				{
+					if (node.isMesh === false) return;
+					node.getWorldPosition(position$1);
+					// position.y = node.geometry.evgY || 0;
+					let distance = pov$1.distanceTo(position$1);
+					distance /= UnitsUtils.EARTH_PERIMETER;
+					distance = 1/ distance;
+					let threshold = distance/Math.pow(2,node.level);
+					if (threshold > 1 ) 
+					{
+						node.subdivide();
+					}
+					else if (threshold < 0.4 ) 
+					{
+						node.parentNode.simplify();
+					}
+				});
+			}
+			this.stats.update();
+		}
+	}
+
+	new three.Matrix4();
+	new three.Vector3();
+	new three.Frustum();
+	new three.Vector3();
+
+	new three.Vector3();
+	new three.Vector3();
+
+	({
+	    frustum: new three.Frustum(),
+	    matrix: new three.Matrix4(),
+	    box3: new three.Box3(),
+	});
+
+	[
+	    new three.Vector3(),
+	    new three.Vector3(),
+	    new three.Vector3(),
+	    new three.Vector3(),
+	    new three.Vector3(),
+	    new three.Vector3(),
+	    new three.Vector3(),
+	    new three.Vector3(),
+	];
+
+	const projection = new three.Matrix4();
+	const pov = new three.Vector3();
+	const frustum = new three.Frustum();
+	const position = new three.Vector3();
+
+	/**
+	 * Check the planar distance between the nodes center and the view position.
+	 *
+	 * Only subdivides elements inside of the camera frustum.
+	 */
+	class LODDistanceSphere extends LODRadial 
+	{
+		/**
+		 * Distance to subdivide the tiles.
+		 */
+		// subdivideDistance;
+
+		/**
+		 * Distance to simplify the tiles.
+		 */
+		// simplifyDistance;
+
+		/**
+		 * If true only the central point of the plane geometry will be used
+		 *
+		 * Otherwise the object bouding sphere will be tested, providing better results for nodes on frustum edge but will lower performance.
+		 */
+		testCenter = true;
+
+		/**
+		 * If set true only the center point of the object is considered. 
+		 * 
+		 * Otherwise the full bouding box of the objects are considered.
+		 */
+		pointOnly = false;
+		// pointOnly = true;
+		
+
+		// constructor(subdivideDistance = 120, simplifyDistance = 400) 
+		constructor(subdivideDistance = 300, simplifyDistance = 800) 
 		{
 			super(subdivideDistance, simplifyDistance);
 			this.stats = new Stats();
@@ -48235,60 +48407,50 @@ Char: ${this.c}`;
 			view.children[0].traverse((node) => 
 			{
 				if (node.isMesh === false) return;
-				// node.getWorldPosition(position);
-				// position = node.position;
-				position.x = node.position.x;
-				position.y = node.position.y;
-				position.z = node.position.z;
+				if (node.visible === false) return;
+				let count = node.geometry.attributes.position.count;
+				let arr = node.geometry.attributes.position.array;
+				let index = Math.floor(count/2)+1;
+				position.set(arr[index*3], arr[index*3+1], arr[index*3+2]);
+				// position.copy(node.geometry.center);
 				// position.y = node.geometry.evgY || 0;
 				let distance = pov.distanceTo(position);
-				distance /= Math.pow(2, view.providers[0].maxZoom - node.level);
-				// let inFrustum;
-				const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
-				// let box = node.geometry.boundingBox;
-				// if(box === null){
-				// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
-				// } else {
-				// 	inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
-				// }
-				
-				if (distance < this.subdivideDistance && inFrustum) 
+				distance /= UnitsUtils.EARTH_RADIUS;
+				distance = 1/ distance;
+				// let threshold = distance/Math.pow(2,node.level);
+				let threshold = distance/Math.pow(2, node.level);
+				if (threshold > 0.2 ) 
 				{
 					node.subdivide();
 				}
-				else if (distance > this.simplifyDistance && node.parentNode) 
+				else if (threshold < 0.05 ) 
 				{
-					node.parentNode.simplify();
+					if (node.parentNode)
+						node.parentNode.simplify();
 				}
 			});
 			if(view.children[1]){
 				view.children[1].traverse((node) => 
 				{
 					if (node.isMesh === false) return;
-					// node.getWorldPosition(position);
-					position.x = node.position.x;
-					position.y = node.position.y;
-					position.z = node.position.z;
+					if (node.visible === false) return;
+					let count = node.geometry.attributes.position.count;
+					let arr = node.geometry.attributes.position.array;
+					let index = Math.floor(count/2)+1;
+					position.set(arr[index*3], arr[index*3+1], arr[index*3+2]);
 					// position.y = node.geometry.evgY || 0;
 					let distance = pov.distanceTo(position);
-					distance /= Math.pow(2, view.providers[0].maxZoom - node.level+2);
-					let inFrustum;
-					
-					// const inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
-					// let box = node.geometry.boundingBox;
-					// if(box === null){
-					inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsObject(node);
-					// } else {
-						// inFrustum = this.pointOnly ? frustum.containsPoint(position) : frustum.intersectsBox(box);
-					// }
-					
-					if (distance < this.subdivideDistance && inFrustum) 
+					distance /= UnitsUtils.EARTH_RADIUS;
+					distance = 1/ distance;
+					let threshold = distance/Math.pow(2,node.level);
+					if (threshold > 0.2 ) 
 					{
 						node.subdivide();
 					}
-					else if (distance > this.simplifyDistance && node.parentNode) 
+					else if (threshold < 0.05 ) 
 					{
-						node.parentNode.simplify();
+						if (node.parentNode)
+							node.parentNode.simplify();
 					}
 				});
 			}
@@ -48331,7 +48493,7 @@ Char: ${this.c}`;
 	            option.heightProvider = new DefaultPlaneProvider();
 	        }
 	        map = new MapView(MapView.PLANAR , option.providers, option.heightProvider);
-	        // map.lod = new LODFrustum();
+	        map.lod = new LODDistance();
 	        // // https://zhuanlan.zhihu.com/p/667058494 渲染顺序对显示画面顺序的影响
 	        // // 值越小越先渲染，但越容易被覆盖
 	        this.baseMap = new Layer(1, container, canvas, map, true);
@@ -48365,7 +48527,9 @@ Char: ${this.c}`;
 	        }
 	        let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
 	        // map.lod = new LODSphere();
-	        map.lod = new LODFrustumSphere();
+	        // map.lod = new LODFrustumSphere();
+	        map.lod = new LODDistanceSphere();
+	        // map.lod = new LODRadial();
 	        // map.updateMatrixWorld(true);
 	        this.baseMap = new Layer(1, container, canvas, map, false);
 	        // this.baseMap.controls = new OrbitControls(this.baseMap.camera, this.baseMap.canvas);

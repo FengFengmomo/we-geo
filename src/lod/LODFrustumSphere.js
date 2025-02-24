@@ -8,8 +8,8 @@ const pov = new Vector3();
 const frustum = new Frustum();
 const position = new Vector3();
 
-const subdivisionVector = new THREE.Vector3();
-const boundingSphereCenter = new THREE.Vector3();
+const subdivisionVector = new Vector3();
+const boundingSphereCenter = new Vector3();
 
 const tmp = {
     frustum: new Frustum(),

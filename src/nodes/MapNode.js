@@ -385,14 +385,30 @@ export class MapNode extends Mesh
 
 		try 
 		{
-			const material = self.material;
-			material.dispose();
+			if (self.material instanceof Array){
+				let materials = self.material;
+				for (let i = 0; i < materials.length; i++)
+				{
+					const material = materials[i];
+					material.dispose();
 
-			// @ts-ignore
-			if (material.map && material.map !== MapNode.defaultTexture)
-			{
+					// @ts-ignore
+					if (material.map && material.map !== MapNode.defaultTexture)
+					{
+						// @ts-ignore
+						material.map.dispose();
+					}
+				}
+			} else{
+				const material = self.material;
+				material.dispose();
+
 				// @ts-ignore
-				material.map.dispose();
+				if (material.map && material.map !== MapNode.defaultTexture)
+				{
+					// @ts-ignore
+					material.map.dispose();
+				}
 			}
 		}
 		catch (e) {}

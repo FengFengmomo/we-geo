@@ -41,14 +41,18 @@
 
 	<script type="module">
 		// 需要全量构建geo，目前不能把threejs排除在外
-		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider, AngleUtils,  UnitsUtils, Schedule} from 'Geo';
+		import {WegeoMap,MapView, TianDiTuProvider, Config, BingMapsProvider,DebugProvider, AngleUtils,  UnitsUtils, Schedule} from 'Geo';
 		import * as THREE from 'three';
 		import * as THREEi from 'THREEi';
 		
 		let provider = new BingMapsProvider();
-		// 地名服务
+		// // 地名服务
 		// let provider = new TianDiTuProvider({
 		// 	service:'img_w',
+		// 	token: '588e61bc464868465169f209fe694dd0'
+		// });
+		// let nameprovider = new TianDiTuProvider({
+		// 	service:'cva_w',
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 
@@ -57,16 +61,17 @@
 		// 	token: '588e61bc464868465169f209fe694dd0'
 		// });
 		// Config.outLine.on = true;
+		let test = new DebugProvider(true);
 		const map = new WegeoMap(); 
 		map.addBaseSphereMap({
-			providers: [provider]
+			providers: [provider,test]
 		});
 		window.onresize = () => { map.resize(); }
 		map.resize();
 		map.animate();
 		// 解析geojson
 		// const geojson = await fetch('./examples/data/xinjiang.json').then( res => res.json() );
-
+		// map.fromDegrees(43.905036,88.109167,10000);
 
 		
 		// let{model, runtime} = await map.baseMap.loadTiles({
@@ -90,7 +95,7 @@
 		// }
 		// schedule.add(12,data, save);
 		// schedule.add(13,data, save);
-		
+		map.fromDegrees(43.905036,88.109167,10000);
 		const axesHelper = new THREE.AxesHelper( 6371008*2);
 		axesHelper.setColors(new THREE.Color("#ff0000"), new THREE.Color("#00ff00"), new THREE.Color("#0000ff"));
 		// map.baseMap.add( axesHelper );
