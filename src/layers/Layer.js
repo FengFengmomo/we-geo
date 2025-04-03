@@ -11,13 +11,12 @@ import { PerspectiveCamera, WebGLRenderer, Scene, Color, Raycaster, Clock,
 import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 import {EffectOutline} from '../effect/outline';
 import {Config} from '../environment/config'
-import BasLayer from "./basLayer";
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { Loader3DTiles } from 'three-loader-3dtiles';
 import { GraphicTilingScheme } from "../scheme";
 
 
-export class Layer  extends BasLayer{
+export class Layer{
     id; // 唯一标识
     layerContainer; // div#layer 容器
     zIndex=1;//默认为1
@@ -41,7 +40,7 @@ export class Layer  extends BasLayer{
     tilesRuntimeS = []; // 3dtiles 集合，每个元素都是一个3dtiles的对象（指针）。
     clock = new Clock()
     constructor(id, layerContainer, canvas, mapView, plane = true, camera = new PerspectiveCamera(80, 1, 0.1, 1e12)) {
-        super();
+        
         this.id = id;
         this.layerContainer = layerContainer;
         this.canvas = canvas;
@@ -297,23 +296,26 @@ export class Layer  extends BasLayer{
         var height = window.innerHeight;
         
         this.camera.aspect = width / height;
-        // let widthAndHeight = new Vector2();
-        // this.renderer.getSize(widthAndHeight);
-        // const ratio = width / height;
-        // if (this.camera.aspect !== ratio) {
-        //     if (this.camera instanceof OrthographicCamera) {
+
+        // 代码修改部分
+        let widthAndHeight = new Vector2();
+        this.renderer.getSize(widthAndHeight);
+        const ratio = width / height;
+        if (this.camera.aspect !== ratio) {
+            if (this.camera instanceof OrthographicCamera) {
                 
-        //         this.camera.zoom *= widthAndHeight.x / width;
-        //         const halfH = this.camera.top * this.camera.aspect / ratio;
-        //         this.camera.bottom = -halfH;
-        //         this.camera.top = halfH;
-        //     } else if (this.camera instanceof PerspectiveCamera) {
-        //         this.camera.fov = 2 * MathUtils.radToDeg(Math.atan(
-        //             (height / widthAndHeight.y) * Math.tan(MathUtils.degToRad(this.camera.fov) / 2),
-        //         ));
-        //     }
-        //     this.camera.aspect = ratio;
-        // }
+                this.camera.zoom *= widthAndHeight.x / width;
+                const halfH = this.camera.top * this.camera.aspect / ratio;
+                this.camera.bottom = -halfH;
+                this.camera.top = halfH;
+            } else if (this.camera instanceof PerspectiveCamera) {
+                this.camera.fov = 2 * MathUtils.radToDeg(Math.atan(
+                    (height / widthAndHeight.y) * Math.tan(MathUtils.degToRad(this.camera.fov) / 2),
+                ));
+            }
+            this.camera.aspect = ratio;
+        }
+        // 结束
         this.renderer.setSize(width, height);
         this.camera.updateProjectionMatrix();
         if(Config.outLine.on){

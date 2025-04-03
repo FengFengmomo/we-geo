@@ -17,6 +17,11 @@ const tmp = {
     box3: new Box3(),
 };
 
+const ndcBox3 = new THREE.Box3(
+    new THREE.Vector3(-1, -1, -1),
+    new THREE.Vector3(1, 1, 1),
+);
+
 const points = [
     new Vector3(),
     new Vector3(),
@@ -34,7 +39,7 @@ function projectBox3PointsInCameraSpace(camera, box3, matrixWorld) {
     // points behind the near plane.
     let m = camera.matrixWorldInverse;
     if (matrixWorld) {
-        m = tmp.matrix.multiplyMatrices(camera.camera3D.matrixWorldInverse, matrixWorld);
+        m = tmp.matrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
     }
     points[0].set(box3.min.x, box3.min.y, box3.min.z).applyMatrix4(m);
     points[1].set(box3.min.x, box3.min.y, box3.max.z).applyMatrix4(m);
@@ -120,6 +125,7 @@ export class LODFrustumSphere extends LODRadial
 
 		view.children[0].traverse((node) => 
 		{
+            if (node.level ===0)return;
 			if (node.isMesh === false) return;
 			let visible = !this.culling(node, camera);
 			if (visible) {
@@ -135,23 +141,27 @@ export class LODFrustumSphere extends LODRadial
 		if(view.children[1]){
 				view.children[1].traverse((node) => 
 				{
+                    if (node.level ===0)return;
 					if (node.isMesh === false) return;
-				let visible = !this.culling(node, camera);
-				if (visible) {
-					let sse = this.subdivision(context, this, node);
-					if (sse > this.sseSubdivisionThreshold) {
-						node.subdivide();
-					}
-					if (sse < this.sseSimplifyThreshold && node.parentNode) {
-						node.parentNode.simplify();
-					}
-				}
+                    let visible = !this.culling(node, camera);
+                    if (visible) {
+                        let sse = this.subdivision(context, this, node);
+                        if (sse > this.sseSubdivisionThreshold) {
+                            node.subdivide();
+                        }
+                        if (sse < this.sseSimplifyThreshold && node.parentNode) {
+                            node.parentNode.simplify();
+                        }
+                    }
 			});
 		}
 		this.stats.update();
 	}
 	// 是否在视锥体内
-	culling(camera, node){
+	culling(node, camera){
+        if (node.geometry.boundingBox === undefined || node.geometry.boundingBox === null) {
+            node.geometry.computeBoundingBox();
+        }
 		return this.isBox3Visible(camera, node.geometry.boundingBox, node.matrixWorld);
 	}
 	// 判断是否应该分裂节点

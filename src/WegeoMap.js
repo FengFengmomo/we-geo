@@ -90,8 +90,8 @@ export class WegeoMap {
         }
         let map = new MapView(MapView.SPHERICAL , option.providers, option.heightProvider);
         // map.lod = new LODSphere();
-        // map.lod = new LODFrustumSphere();
-        map.lod = new LODDistanceSphere();
+        map.lod = new LODFrustumSphere();
+        // map.lod = new LODDistanceSphere();
         // map.lod = new LODRadial();
         // map.updateMatrixWorld(true);
         this.baseMap = new Layer(1, container, canvas, map, false);
