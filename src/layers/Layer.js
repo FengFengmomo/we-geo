@@ -16,7 +16,7 @@ import { Loader3DTiles } from 'three-loader-3dtiles';
 import { GraphicTilingScheme } from "../scheme";
 
 
-export class Layer  extends BasLayer{
+export class Layer{
     id; // 唯一标识
     layerContainer; // div#layer 容器
     zIndex=1;//默认为1

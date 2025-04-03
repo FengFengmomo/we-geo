@@ -42426,7 +42426,7 @@ Char: ${this.c}`;
 	// 多个canvas并没有id，只有父节点
 
 
-	class Layer  extends BasLayer{
+	class Layer{
 	    id; // 唯一标识
 	    layerContainer; // div#layer 容器
 	    zIndex=1;//默认为1
