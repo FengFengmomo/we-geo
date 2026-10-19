@@ -33,6 +33,20 @@ export class MapSphereNodeGraphicsGeometry extends BufferGeometry
 		const normals = [];
 		const uvs = [];
 
+		// 瓦片本地坐标（RTC）：同 MapSphereNodeGeometry，避免地球半径量级下 float32 顶点量化
+		// 造成高缩放级别的网格锯齿。裙边在下方构建时仍用世界坐标（依赖到地心的距离），
+		// 全部顶点（含裙边）在存储前统一平移到瓦片中心附近。
+		// 跨度达到或超过半个地球（z0 整球 / Graphic 根级半地球）时保持世界坐标：
+		// 这类几何是 MapView 的根级布局瓦片，位置由 setRoot 控制，不做 RTC。
+		const isFullGlobe = (phiLength >= Math.PI - 1e-9) || (thetaLength >= Math.PI - 1e-9);
+		const phiCenter = phiStart + phiLength / 2;
+		const thetaCenter = thetaStart + thetaLength / 2;
+		const tileCenter = new Vector3(
+			-Math.cos(phiCenter) * Math.sin(thetaCenter),
+			Math.cos(thetaCenter),
+			Math.sin(phiCenter) * Math.sin(thetaCenter)
+		).multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
+
 		// Generate vertices, normals and uvs
 		for (let iy = 0; iy <= heightSegments; iy++) 
 		{
@@ -84,6 +98,16 @@ export class MapSphereNodeGraphicsGeometry extends BufferGeometry
 
 
 		this.buildSkirt(widthSegments, heightSegments, 500, indices, vertices, normals, uvs);
+
+		// 存储前平移到瓦片本地坐标（整球瓦片保持世界坐标）
+		if (!isFullGlobe) {
+			for (let i = 0; i < vertices.length; i += 3) {
+				vertices[i] -= tileCenter.x;
+				vertices[i + 1] -= tileCenter.y;
+				vertices[i + 2] -= tileCenter.z;
+			}
+			this.tileCenter = tileCenter;
+		}
 
 		this.setIndex(indices);
 		this.setAttribute('position', new Float32BufferAttribute(vertices, 3));

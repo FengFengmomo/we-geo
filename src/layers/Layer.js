@@ -51,9 +51,10 @@ export class Layer{
             precision: "highp",
             stencil: true,
         });
-        this.renderer.sortObjects = true;
+        // this.renderer.sortObjects = true;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setClearColor(0xFFFFFF, 0.0);
+        // this.renderer.autoClearStencil = false;
         this.scene = new Scene();
         this.mapView = mapView;
         this.camera = camera;
@@ -293,6 +294,7 @@ export class Layer{
     animate(){
         this.animateId = requestAnimationFrame(this.animate.bind(this));
         this.stats.update();
+        // this.renderer.clearStencil(false,false,true);
         if(this.base){
             this.controls.update();
         }

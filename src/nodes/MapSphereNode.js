@@ -90,6 +90,14 @@ export class MapSphereNode extends MapNode
 			parentGeo = null;
 		}
 		this.geometry = await this.mapView.heightProvider.fetchGeometry(this.level, this.x, this.y, parentGeo, this.location);
+		// 瓦片本地坐标（RTC）：几何顶点已平移到瓦片中心附近存储（float32 精度达微米级），
+		// 这里把节点位置设为瓦片中心（double 精度），世界坐标 = position + 本地顶点，
+		// 解决地球半径量级下 float32 顶点量化造成的高缩放级别网格锯齿。
+		if (this.geometry && this.geometry.tileCenter) {
+			this.position.copy(this.geometry.tileCenter);
+			this.updateMatrix();
+			this.updateMatrixWorld();
+		}
 		// const range = Math.pow(2, zoom);
 		// const max = 40;
 		// const segments = Math.floor(MapSphereNode.segments * (max / (zoom + 1)) / max);

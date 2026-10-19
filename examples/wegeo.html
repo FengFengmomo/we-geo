@@ -60,8 +60,9 @@
 		let test = new DebugProvider(true);
 		const map = new WegeoMap(); 
 		map.addBaseSphereMap({
-			providers: [provider]
+			providers: [provider,test]
 		});
+		map.fromDegrees(43.905036,88.109167,200);
 		window.onresize = () => { map.resize(); }
 		map.resize();
 		map.animate();

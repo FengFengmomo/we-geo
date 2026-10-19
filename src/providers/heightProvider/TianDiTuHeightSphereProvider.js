@@ -7,7 +7,6 @@ import { DefaultPlaneProvider } from "./DefaultPlaneProvider";
 import { MapSphereNodeHeightGraphicsGeometry } from "../../geometries/MapSphereNodeHeightGraphicsGeometry";
 import { DefaultSphereProvider } from "./DefaultSphereProvider";
 import {MapSphereNodeGraphicsGeometry} from "../../geometries/MapSphereNodeGraphicsGeometry";
-import { Vector3 } from "three";
 import { UnitsUtils } from "../../utils/UnitsUtils";
 
 // import Fetch from "../utils/Fetch.js";
@@ -72,9 +71,10 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
                 // Y
                 const thetaLength = Math.PI / range;
                 const thetaStart = y * thetaLength;
+                // 子节点网格段数保底为16，避免高缩放级别下网格过粗甚至退化成单个顶点（表现为相邻节点锯齿/高低不平）
                 let buffer = this.upSample(parentGeometry, location);
-                let width = (parentGeometry.widthSegments)/2;
-                let height = (parentGeometry.heightSegments)/2;
+                let width = Math.max(16, Math.round(parentGeometry.widthSegments / 2));
+                let height = Math.max(16, Math.round(parentGeometry.heightSegments / 2));
                 let geometry = this.createGeometry(width, height,phiStart, phiLength, thetaStart, thetaLength,buffer, true);
                 resolve(geometry);
             } else{
@@ -134,44 +134,55 @@ export class TianDiTuHeightSphereProvider extends DefaultSphereProvider {
             );
 	    });
     }
-    // 不进行上采样了，只到18级别
+    // 上采样：子节点网格段数随父级减半但保底为16，并对父网格做双线性插值，
+    // 保证高缩放级别下网格平滑（世界分辨率逐级翻倍），且相邻瓦片共享父网格采样、边沿高度完全一致
     upSample(parentGeometry, location){
-        let ifrom,jfrom;
+        let ifrom = 0, jfrom = 0;
+        // 父网格点数：widthSegments 为段数，实际点数为段数+1
         let pwidth = parentGeometry.widthSegments+1, pheight = parentGeometry.heightSegments+1;
-        let width = (parentGeometry.widthSegments)/2, height = (parentGeometry.heightSegments)/2;
+        // 子节点网格段数：随父级减半，但保底为16，避免高缩放级别下网格退化（锯齿/高低不平）
+        let segments = Math.max(16, Math.round(parentGeometry.widthSegments / 2));
+        // 当前子节点在父网格中占据的象限偏移（行、列，单位：父网格步长）
+        let hrows = parentGeometry.heightSegments / 2;
+        let hcols = parentGeometry.widthSegments / 2;
         if (location === QuadTreePosition.topLeft){
             ifrom = 0;
             jfrom = 0;
         }
         if (location === QuadTreePosition.topRight){
             ifrom = 0;
-            jfrom = height;
+            jfrom = hcols;
         }
         if (location === QuadTreePosition.bottomLeft){
-            ifrom = height;
+            ifrom = hrows;
             jfrom = 0;
         }
         if (location === QuadTreePosition.bottomRight){
-            ifrom = height;
-            jfrom = width;
+            ifrom = hrows;
+            jfrom = hcols;
         }
         let pos = parentGeometry.getAttribute("position").array;
+        var myBuffer = new Float32Array((segments+1) * (segments+1)); // 只保留高度数值，其他不变
         let index = 0;
-        var myBuffer = new Float32Array((width+1) * (height+1)); // 只保留高度数值，其他不变
-        const vector = new Vector3();
-        for (let i = 0; i <= width; i++){
-            for (let j = 0; j <= height; j++){
-                let pointIndex = (i+ifrom)*pwidth+j+jfrom;
-                let pindex = pointIndex*3+1;
-                vector.x = pos[pindex-1];
-                vector.y = pos[pindex];
-                vector.z = pos[pindex+1];
-                vector.normalize();
-                let normal = vector.clone();
-                vector.multiplyScalar(UnitsUtils.EARTH_RADIUS_A);
-                let height = ((pos[pindex] - vector.y)/normal.y + (pos[pindex-1]-vector.x)/normal.x+ (pos[pindex+1]-vector.z)/normal.z)/3;
-                myBuffer[index] = height; // 采样
-                // myBuffer[index] = pos[pindex]; // 采样
+        for (let i = 0; i <= segments; i++){
+            // 子网格第 i 行对应的父网格连续行坐标（插值时可能为0.5步长）
+            const r = ifrom + (hrows * i) / segments;
+            const r0 = Math.min(Math.floor(r), pheight - 2);
+            const fr = r - r0;
+            for (let j = 0; j <= segments; j++){
+                const c = jfrom + (hcols * j) / segments;
+                const c0 = Math.min(Math.floor(c), pwidth - 2);
+                const fc = c - c0;
+                const i00 = (r0 * pwidth + c0) * 3 + 1;
+                const i10 = ((r0 + 1) * pwidth + c0) * 3 + 1;
+                const i01 = (r0 * pwidth + c0 + 1) * 3 + 1;
+                const i11 = ((r0 + 1) * pwidth + c0 + 1) * 3 + 1;
+                // 顶点距球心距离减去基准半径，即径向海拔（与原三向平均采样等价）
+                const h00 = Math.sqrt(pos[i00-1]*pos[i00-1] + pos[i00]*pos[i00] + pos[i00+1]*pos[i00+1]) - UnitsUtils.EARTH_RADIUS_A;
+                const h10 = Math.sqrt(pos[i10-1]*pos[i10-1] + pos[i10]*pos[i10] + pos[i10+1]*pos[i10+1]) - UnitsUtils.EARTH_RADIUS_A;
+                const h01 = Math.sqrt(pos[i01-1]*pos[i01-1] + pos[i01]*pos[i01] + pos[i01+1]*pos[i01+1]) - UnitsUtils.EARTH_RADIUS_A;
+                const h11 = Math.sqrt(pos[i11-1]*pos[i11-1] + pos[i11]*pos[i11] + pos[i11+1]*pos[i11+1]) - UnitsUtils.EARTH_RADIUS_A;
+                myBuffer[index] = (h00 * (1 - fr) + h10 * fr) * (1 - fc) + (h01 * (1 - fr) + h11 * fr) * fc;
                 index++;
             }
         }
